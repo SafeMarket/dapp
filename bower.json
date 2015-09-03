@@ -1,0 +1,23 @@
+{
+  "name": "dapp",
+  "version": "0.0.0",
+  "authors": [
+    "Aakil Fernandes <aakilfernandes@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.4.5",
+    "bootstrap": "~3.3.5",
+    "cryptocoin": "~0.3.0",
+    "msgpack-javascript": "*",
+    "q": "1.0.1",
+    "utf8": "~2.1.1"
+  }
+}

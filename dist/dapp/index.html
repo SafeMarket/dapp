@@ -1,0 +1,25 @@
+<html>
+  <head>
+    <title>SafeMarket</title>
+    <link rel="stylesheet" href="css/app.min.css">
+    <script src="js/app.min.js"></script>
+  </head>
+  <body ng-app="app">
+  	<div ng-controller="StorefrontsController">
+  		<h3>Storefronts</h3>
+  		<form ng-submit="createStorefront()">
+  			<table>
+  				<tr>
+  					<td>Name</td>
+  					<td>
+  						<input ng-model="newStorefront.name">
+  					</td>
+  				</tr>
+  			</table>
+  		</form>
+  		<div ng-repeat="storefront in storefronts">
+  			{{storefront.meta.name}}
+  		</div>
+  	</div>
+  </body>
+</html>
