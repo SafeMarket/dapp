@@ -1,0 +1,24 @@
+<div class="container">
+	<div ng-cloak ng-show="!storefront" class="alert alert-danger">
+		Could not find storefront at {{addr}}
+	</div>
+	<h1>{{storefront.meta.name}}</h1>
+	Address: <a ng-href="http://etherchain.org/account/{{storefront.merchant}}">{{storefront.addr}}</a>
+	<br>Merchant: <a ng-href="http://etherchain.org/account/{{storefront.merchant}}">{{storefront.merchant}}</a>
+	<h3>Products</h3>
+	<table class="table">
+		<tr ng-repeat="product in storefront.meta.products">
+			<td>
+				{{product.name}}
+			</td>
+			<td>
+				{{product.info}}
+			</td>
+			<td>
+				{{product.price}} {{storefront.meta.currency}}
+			</td>
+		</tr>
+	</table>
+		
+	</div>
+</div>

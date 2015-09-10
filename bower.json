@@ -14,10 +14,15 @@
   ],
   "dependencies": {
     "angular": "~1.4.5",
+    "angular-bootstrap": "~0.13.4",
+    "angular-growl": "~0.4.0",
+    "angular-route": "~1.4.5",
+    "angular-timeago": "~0.2.4",
     "bootstrap": "~3.3.5",
     "cryptocoin": "~0.3.0",
     "msgpack-javascript": "*",
     "q": "1.0.1",
-    "utf8": "~2.1.1"
+    "utf8": "~2.1.1",
+    "validate": "~0.8.0"
   }
 }

@@ -1,11 +1,10 @@
 development:
-	Storefront:
-		deploy: false
-		address: 0x123
-	Court:
-		deploy: false
-		address: 0x123
-	Order:
-		deploy: false
-		address: 0x123
+  Storefront:
+    deploy: false
+  Court:
+    deploy: false
+  Order:
+    deploy: false
+  Marketplace:
+    deploy: false
 staging:

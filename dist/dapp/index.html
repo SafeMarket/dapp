@@ -1,25 +1,10 @@
-<html>
-  <head>
-    <title>SafeMarket</title>
-    <link rel="stylesheet" href="css/app.min.css">
-    <script src="js/app.min.js"></script>
-  </head>
-  <body ng-app="app">
-  	<div ng-controller="StorefrontsController">
-  		<h3>Storefronts</h3>
-  		<form ng-submit="createStorefront()">
-  			<table>
-  				<tr>
-  					<td>Name</td>
-  					<td>
-  						<input ng-model="newStorefront.name">
-  					</td>
-  				</tr>
-  			</table>
-  		</form>
-  		<div ng-repeat="storefront in storefronts">
-  			{{storefront.meta.name}}
-  		</div>
-  	</div>
-  </body>
-</html>
+<div class="modal-header">
+    <h3 class="modal-title">Storefront!</h3>
+</div>
+<div class="modal-body">
+    
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
+    <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+</div>

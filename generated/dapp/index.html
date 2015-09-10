@@ -5,9 +5,12 @@
     <script src="js/app.min.js"></script>
   </head>
   <body ng-app="app">
-  	<div ng-controller="StorefrontsController">
-  		<h3>Storefronts</h3>
-  		<form ng-submit="createStorefront()">
+    <div growl></div>
+    <div ng-view></div>
+  	<div ng-controller="StorefrontsController" class="container">
+      <h3>Storefronts</h3>
+  		<button class="btn btn-primary" ng-click="openStorefrontModal()">Create Storefront</button>
+      <form ng-submit="createStorefront()">
   			<table>
   				<tr>
   					<td>Name</td>

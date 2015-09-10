@@ -80,7 +80,7 @@ contract Storefront{
     bytes meta;
     address[] orderAddrs;
     address[] courtAddr;
-    uint v = 2;
+    uint v = 519;
 
     function Storefront(bytes _meta){
         merchant = tx.origin;

@@ -12,14 +12,21 @@ module.exports = (grunt) ->
         src: [
           "bower_components/msgpack-javascript/msgpack.js"
           "bower_components/cryptocoin/dist/cryptocoin.js"
+          "bower_components/validate/validate.min.js"
           "bower_components/q/q.js"
           "bower_components/angular/angular.min.js"
+          "bower_components/angular-route/angular-route.min.js"
+          "bower_components/angular-growl/build/angular-growl.min.js"
+          "bower_components/angular-timeago/dist/angular-timeago.js"
+          "bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"
           "app/js/**/*.js"
         ]
 
       css:
         src: [
-          "bower_components/bootstrap/dist/bootstrap.min.css"
+          "bobower_components/angular/angular-csp.css"
+          "bower_components/bootstrap/dist/css/bootstrap.min.css"
+          "bower_components/angular-growl/build/angular-growl.min.css"
           "app/css/**/*.css"
         ]
 
@@ -65,7 +72,7 @@ module.exports = (grunt) ->
         tasks: ["copy"]
 
       js:
-        files: ["<%= files.js.src %>"]
+        files: ["<%= files.js.src %>","node_modules/embark-framework/js/web3.js"]
         tasks: ["concat"]
 
       css:
@@ -86,9 +93,9 @@ module.exports = (grunt) ->
 
     copy:
       html:
-        files:
-          "generated/dapp/index.html" : "<%= files.html.src %>"
-          "dist/dapp/index.html"      : "<%= files.html.src %>"
+        files: [
+          {expand: true, src: ["<%= files.html.src %>"], dest: 'generated/dapp/', flatten: true}
+        ]
       css:
         files:
           "dist/dapp/css/app.min.css" : "<%= files.css.src %>"

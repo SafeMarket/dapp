@@ -7,7 +7,7 @@ development:
   datadir: /tmp/embark
   mine_when_needed: true
   max_peers: 0
-  gas_limit: 4000000
+  gas_limit: 3000000
   gas_price: 100000000000
   console: false
   account:
