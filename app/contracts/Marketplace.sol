@@ -1,3 +1,15 @@
+contract Test{
+	bytes meta;
+
+	function Test(bytes _meta){
+		meta = _meta;
+	}
+
+	function getMeta() constant returns(bytes){
+		return meta;
+	}
+}
+
 contract Court{
 	address magistrate;
 	bytes meta;
@@ -77,12 +89,12 @@ contract Order{
 
 contract Storefront{
     address merchant;
-    bytes meta;
+    string meta;
     address[] orderAddrs;
     address[] courtAddr;
     uint v = 519;
 
-    function Storefront(bytes _meta){
+    function Storefront(string _meta){
         merchant = tx.origin;
         meta = _meta;
     }
@@ -91,30 +103,14 @@ contract Storefront{
     	return merchant;
     }
 
-    function getMeta() constant returns(bytes){
+    function getMeta() constant returns(string){
 		return meta;
 	}
 
-	function setMeta(bytes _meta){
+	function setMeta(string _meta){
 		if(tx.origin != merchant) return;
 		meta = _meta;
-	}
-
-    function createOrder(bytes meta, address[] courtAddrs){
-    	Order order = new Order(meta, courtAddrs);
-    	orderAddrs[orderAddrs.length++] = address(order);
-    }
-
-    function addCourt(address addr){
-    	Court court = Court(addr);
-
-    	if(!court.getIsOpen()){
-    		return;
-    	}
-
-
-    }
-    
+	}    
 }
 
 contract Marketplace{

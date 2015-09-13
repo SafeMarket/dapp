@@ -6,6 +6,7 @@ development:
   genesis_block: config/genesis/dev_genesis.json
   datadir: /tmp/embark
   mine_when_needed: true
+  mine_periodically: false
   max_peers: 0
   gas_limit: 3000000
   gas_price: 100000000000

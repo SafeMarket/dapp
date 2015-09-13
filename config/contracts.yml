@@ -7,4 +7,6 @@ development:
     deploy: false
   Marketplace:
     deploy: false
+  Test:
+    deploy: false
 staging:

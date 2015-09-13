@@ -14,12 +14,19 @@ module.exports = (grunt) ->
           "bower_components/cryptocoin/dist/cryptocoin.js"
           "bower_components/validate/validate.min.js"
           "bower_components/q/q.js"
+          "bower_components/bignumber.js/bignumber.min.js"
           "bower_components/angular/angular.min.js"
           "bower_components/angular-route/angular-route.min.js"
           "bower_components/angular-growl/build/angular-growl.min.js"
           "bower_components/angular-timeago/dist/angular-timeago.js"
           "bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"
-          "app/js/**/*.js"
+          "app/js/index.js"
+          "app/js/safemarket.js"
+          "app/js/ticker.js"
+          "app/js/utils.js"
+          "app/js/Storefront.js"
+          "app/js/Court.js"
+          
         ]
 
       css:
@@ -33,6 +40,11 @@ module.exports = (grunt) ->
       html:
         src: [
           "app/html/**/*.html"
+        ]
+
+      fonts:
+        src: [
+          "bower_components/bootstrap/fonts/glyphicons-halflings-regular.woff2"
         ]
 
       coffee:
@@ -96,6 +108,10 @@ module.exports = (grunt) ->
         files: [
           {expand: true, src: ["<%= files.html.src %>"], dest: 'generated/dapp/', flatten: true}
         ]
+      fonts:
+        files: [
+          {expand: true, src: ["<%= files.fonts.src %>"], dest: 'generated/dapp/fonts', flatten: true}
+        ]
       css:
         files:
           "dist/dapp/css/app.min.css" : "<%= files.css.src %>"
@@ -120,6 +136,6 @@ module.exports = (grunt) ->
   # Loads all plugins that match "grunt-", in this case all of our current plugins
   require('matchdep').filterAll('grunt-*').forEach(grunt.loadNpmTasks)
 
-  grunt.registerTask "deploy", ["coffee", "deploy_contracts", "concat", "copy", "server", "watch"]
-  grunt.registerTask "build", ["clean", "deploy_contracts", "coffee", "concat", "uglify", "copy"]
+  grunt.registerTask "deploy", ["copy", "coffee", "deploy_contracts", "concat", "copy", "server", "watch"]
+  grunt.registerTask "build", ["copy", "clean", "deploy_contracts", "coffee", "concat", "uglify", "copy"]
 

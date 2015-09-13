@@ -1,8 +1,14 @@
 <div class="modal-header">
-    <h3 class="modal-title">Storefront</h3>
+    <h3 class="modal-title" ng-cloak>{{isEditing?'Edit':'Create a'}} Storefront</h3>
 </div>
 <div class="modal-body">
-    <table class="table">
+    <div ng-show="isSyncing" ng-cloak class="alert alert-info text-center">
+        Syncing with blockchain, this might take a minute or two
+    </div>
+    <div ng-show="error && !isSyncing" ng-cloak class="alert alert-danger text-center">
+        {{error}}
+    </div>
+    <div ng-show="!isSyncing"><table class="table">
         <tr>
             <td>Storefront Name</td>
             <td>
@@ -12,7 +18,7 @@
         <tr>
             <td>Currency</td>
             <td>
-                <select type="text" ng-model="currency" class="form-control" ng-options="currency for currency in currencies">
+                <select type="text" ng-model="currency" class="form-control" ng-options="currency for currency in currencies"></select>
             </td>
         </tr>
     </table>
@@ -43,7 +49,7 @@
                 </td>
             </tr>
         </tbody>
-    </table>
+    </table></div>
 </div>
 <div class="modal-footer">
     <button class="btn btn-primary" type="button" ng-click="submit()">OK</button>

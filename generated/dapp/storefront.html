@@ -2,23 +2,42 @@
 	<div ng-cloak ng-show="!storefront" class="alert alert-danger">
 		Could not find storefront at {{addr}}
 	</div>
-	<h1>{{storefront.meta.name}}</h1>
-	Address: <a ng-href="http://etherchain.org/account/{{storefront.merchant}}">{{storefront.addr}}</a>
-	<br>Merchant: <a ng-href="http://etherchain.org/account/{{storefront.merchant}}">{{storefront.merchant}}</a>
-	<h3>Products</h3>
-	<table class="table">
-		<tr ng-repeat="product in storefront.meta.products">
-			<td>
-				{{product.name}}
-			</td>
-			<td>
-				{{product.info}}
-			</td>
-			<td>
-				{{product.price}} {{storefront.meta.currency}}
-			</td>
-		</tr>
-	</table>
-		
+	<div ng-cloak ng-show="storefront">
+		<h1>{{storefront.meta.name}}</h1>
+		Address: <a ng-href="http://etherchain.org/account/{{storefront.merchant}}">{{storefront.addr}}</a>
+		<br>Merchant: <a ng-href="http://etherchain.org/account/{{storefront.merchant}}">{{storefront.merchant}}</a>
+		<br>
+			<button
+				ng-show="account === storefront.merchant"
+				class="btn btn-default"
+				ng-click="openStorefrontModal(storefront)"
+			>Edit</button>
+		<h3>Products</h3>
+		<table class="table">
+			<tr ng-repeat="product in storefront.products">
+				<td>
+					{{product.name}}
+				</td>
+				<td>
+					{{product.info}}
+				</td>
+				<td>
+					{{product.price.toString()}} {{storefront.meta.currency}}
+				</td>
+				<td>
+					<input class="form-control" type="number" ng-model="product.quantity" min="0">
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td>
+					{{total | currency:storefront.meta.currency}} {{storefront.meta.currency}}
+					<br>{{totalInUserCurrency | currency:user.currency}} {{user.currency}}
+					<br>{{totalInEther | currency:'ETH'}} ETH
+				</td>
+			</tr>
+		</table>
 	</div>
 </div>

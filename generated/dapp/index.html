@@ -4,25 +4,26 @@
     <link rel="stylesheet" href="css/app.min.css">
     <script src="js/app.min.js"></script>
   </head>
-  <body ng-app="app">
+  <body ng-app="app"><div ng-controller="MainController">
+    <nav class="navbar navbar-inverse navbar-top navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#/">SafeMarket</a>
+        </div>
+        <div class="navbar-form navbar-right">
+          <button class="btn btn-default" ng-click="openCourtModal()">Create Court</button>
+          <button class="btn btn-default" ng-click="openStorefrontModal()">Create Storefront</button>
+          <select name="account" ng-model="account" ng-options="account for account in accounts" class="form-control"></select>
+          <button class="btn btn-default" ng-click="openSettingsModal()">
+            <span class="glyphicon glyphicon-cog"></span>
+          </button>
+        </div>
+      </div>
+    </nav>
+    <div class="container">
+      
+    </div>
     <div growl></div>
     <div ng-view></div>
-  	<div ng-controller="StorefrontsController" class="container">
-      <h3>Storefronts</h3>
-  		<button class="btn btn-primary" ng-click="openStorefrontModal()">Create Storefront</button>
-      <form ng-submit="createStorefront()">
-  			<table>
-  				<tr>
-  					<td>Name</td>
-  					<td>
-  						<input ng-model="newStorefront.name">
-  					</td>
-  				</tr>
-  			</table>
-  		</form>
-  		<div ng-repeat="storefront in storefronts">
-  			{{storefront.meta.name}}
-  		</div>
-  	</div>
-  </body>
+  </div></body>
 </html>
