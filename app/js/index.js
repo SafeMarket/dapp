@@ -10,9 +10,13 @@ app.config(function(growlProvider,$routeProvider) {
     	.when('/',{
     		templateUrl:'home.html'
     	})
-    	.when('/storefronts/:addr',{
-	    	templateUrl:'storefront.html'
-	    	,controller:'StorefrontController'
+    	.when('/stores/:addr',{
+	    	templateUrl:'store.html'
+	    	,controller:'storeController'
+	    })
+	    .when('/markets/:addr',{
+	    	templateUrl:'market.html'
+	    	,controller:'MarketController'
 	    })
 
 });
@@ -22,12 +26,12 @@ app.controller('MainController',function($scope,modals){
 	$scope.accounts = web3.eth.accounts
 	$scope.account = web3.eth.accounts[0]
 
-	$scope.openStorefrontModal = function(){
-		modals.openStorefront()
+	$scope.openstoreModal = function(){
+		modals.openstore()
 	}
 
-	$scope.openCourtModal = function(){
-		modals.openCourt()
+	$scope.openMarketModal = function(){
+		modals.openMarket()
 	}
 
 	$scope.openSettingsModal = function(){
@@ -36,17 +40,17 @@ app.controller('MainController',function($scope,modals){
 
 })
 
-app.controller('StorefrontModalController',function($scope,safemarket,ticker,growl,$modal,$modalInstance,storefront,user){
+app.controller('storeModalController',function($scope,safemarket,ticker,growl,$modal,$modalInstance,store,user){
 	
 	ticker.getRates().then(function(rates){
 		$scope.currencies = Object.keys(rates)
 	})
 
-	if(storefront){
+	if(store){
 		$scope.isEditing
-		$scope.name = storefront.meta.name
-		$scope.currency = storefront.meta.currency
-		$scope.products = storefront.meta.products
+		$scope.name = store.meta.name
+		$scope.currency = store.meta.currency
+		$scope.products = store.meta.products
 	}else{
 		$scope.currency = user.currency
 		$scope.products = [{}]
@@ -64,26 +68,26 @@ app.controller('StorefrontModalController',function($scope,safemarket,ticker,gro
 		}
 		
 		try{
-			safemarket.Storefront.check(meta)
+			safemarket.store.check(meta)
 		}catch(e){
 			growl.addErrorMessage(e)
 			console.error(e)
 			return
 		}
 
-		if(storefront){
-			var estimatedGas = storefront.contract.setMeta.estimateGas(meta)
+		if(store){
+			var estimatedGas = store.contract.setMeta.estimateGas(meta)
 				,doContinue = confirm('This will take about '+estimatedGas+' gas. Continue?')
 
 			if(!doContinue) return;
 
 			$scope.isSyncing = true
 
-			storefront
+			store
 				.setMeta(meta)
-				.then(function(storefront){
+				.then(function(store){
 					$scope.isSyncing = false
-					$modalInstance.close(storefront)
+					$modalInstance.close(store)
 				},function(error){
 					$scope.error = error
 					$scope.isSyncing = false
@@ -91,15 +95,15 @@ app.controller('StorefrontModalController',function($scope,safemarket,ticker,gro
 					console.error(error)
 				})
 		}else{
-			var estimatedGas = Storefront.estimateCreationGas(meta)
+			var estimatedGas = store.estimateCreationGas(meta)
 				,doContinue = confirm('This will take about '+estimatedGas+' gas. Continue?')
 	
 			$scope.isSyncing = true
 
 			safemarket
-				.Storefront.create(meta)
-				.then(function(storefront){
-					window.location.hash = '/storefronts/'+storefront.addr
+				.store.create(meta)
+				.then(function(store){
+					window.location.hash = '/stores/'+store.addr
 					$modalInstance.dismiss()
 				},function(error){
 					$scope.error = error
@@ -115,14 +119,14 @@ app.controller('StorefrontModalController',function($scope,safemarket,ticker,gro
 	}
 })
 
-app.controller('CourtModalController',function($scope,safemarket,ticker,growl,$modal,$modalInstance,court,user){
+app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$modal,$modalInstance,market,user){
 	
 
-	if(court){
-		$scope.isEditing
-		$scope.name = court.meta.name
-		$scope.info = court.meta.info
-		$scope.feeTenths = $scope.feeTenths
+	if(market){
+		$scope.isEditing = true
+		$scope.name = market.meta.name
+		$scope.info = market.meta.info
+		$scope.feeTenths = market.feeTenths
 	}else{
 		$scope.feeTenths = 30
 	}
@@ -138,26 +142,26 @@ app.controller('CourtModalController',function($scope,safemarket,ticker,growl,$m
 		}
 		
 		try{
-			safemarket.Court.check(meta,feeTenths)
+			safemarket.Market.check(meta,$scope.feeTenths)
 		}catch(e){
 			growl.addErrorMessage(e)
 			console.error(e)
 			return
 		}
 
-		if(court){
-			var estimatedGas = court.contract.setMeta.estimateGas(meta,feeTenths)
+		if(market){
+			var estimatedGas = market.contract.setMeta.estimateGas(meta,feeTenths)
 				,doContinue = confirm('This will take about '+estimatedGas+' gas. Continue?')
 
 			if(!doContinue) return;
 
 			$scope.isSyncing = true
 
-			court
-				.set(meta,feeTenths)
-				.then(function(court){
+			market
+				.set(meta,$scope.feeTenths)
+				.then(function(market){
 					$scope.isSyncing = false
-					$modalInstance.close(court)
+					$modalInstance.close(market)
 				},function(error){
 					$scope.error = error
 					$scope.isSyncing = false
@@ -165,17 +169,19 @@ app.controller('CourtModalController',function($scope,safemarket,ticker,growl,$m
 					console.error(error)
 				})
 		}else{
-			var estimatedGas = Court.estimateCreationGas(meta)
+			var estimatedGas = Market.estimateCreationGas(meta)
 				,doContinue = confirm('This will take about '+estimatedGas+' gas. Continue?')
 	
 			$scope.isSyncing = true
 
 			safemarket
-				.Court.create(meta,feeTenths)
-				.then(function(storefront){
-					window.location.hash = '/storefronts/'+court.addr
+				.Market.create(meta,$scope.feeTenths)
+				.then(function(market){
+					console.log(market)
+					window.location.hash = '/markets/'+market.addr
 					$modalInstance.dismiss()
 				},function(error){
+					console.error(error)
 					$scope.error = error
 					$scope.isSyncing = false
 				}).catch(function(error){
@@ -204,28 +210,29 @@ app.controller('SimpleModalController',function($scope,title,body){
 	$scope.body = body
 })
 
-app.controller('StorefrontController',function($scope,safemarket,user,$routeParams,modals){
-	$scope.addr = $routeParams.addr
-	$scope.user = user
-
-	$scope.openStorefrontModal = function(){
-		modals
-			.openStorefront($scope.storefront)
-			.result.then(function(storefront){
-				$scope.storefront = storefront
-			})
-
-
-	}
+app.controller('storeController',function($scope,safemarket,user,$routeParams,modals){
 
 	try{
-		$scope.storefront = new Storefront($routeParams.addr)
+		$scope.store = new safemarket.Store($routeParams.addr)
 	}catch(e){
 		console.log(e)
 		return
 	}
 
-	$scope.$watch('storefront.products',function(products){
+	$scope.addr = $routeParams.addr
+	$scope.user = user
+
+	$scope.openstoreModal = function(){
+		modals
+			.openstore($scope.store)
+			.result.then(function(store){
+				$scope.store = store
+			})
+
+
+	}
+
+	$scope.$watch('store.products',function(products){
 		var total = new BigNumber(0)
 
 		if(products)
@@ -239,29 +246,48 @@ app.controller('StorefrontController',function($scope,safemarket,user,$routePara
 	},true)
 
 	$scope.$watch('total',function(total){
-		console.log(total)
 		if(!total) return
 
-		console.log('convert')
 
 		safemarket
-			.utils.convertCurrency(total,{from:$scope.storefront.meta.currency,to:'ETH'})
+			.utils.convertCurrency(total,{from:$scope.store.meta.currency,to:'ETH'})
 			.then(function(totalInEther){
-				console.log('ether',totalInEther)
 				$scope.totalInEther = totalInEther
 			},function(){
-				console.log('x')
 			}).catch(function(error){
 				console.error(error)
 			})
 
 		safemarket
-			.utils.convertCurrency(total,{from:$scope.storefront.meta.currency,to:user.currency})
+			.utils.convertCurrency(total,{from:$scope.store.meta.currency,to:user.currency})
 			.then(function(totalInUserCurrency){
 				$scope.totalInUserCurrency = totalInUserCurrency
 			})
 
 	})
+})
+
+app.controller('MarketController',function($scope,safemarket,user,$routeParams,modals){
+	
+	try{
+		$scope.market = new safemarket.Market($routeParams.addr)
+	}catch(e){
+		console.log(e)
+		return
+	}
+
+	$scope.addr = $routeParams.addr
+	$scope.user = user
+
+	$scope.openMarketModal = function(){
+		modals
+			.openMarket($scope.market)
+			.result.then(function(market){
+				$scope.market = market
+			})
+
+
+	}
 })
 
 app.filter('currency',function(){
@@ -276,27 +302,27 @@ app.filter('currency',function(){
 })
 
 app.service('modals',function($modal){
-	this.openStorefront = function(storefront){
+	this.openstore = function(store){
 		 return $modal.open({
 			size: 'md'
-			,templateUrl: 'storefrontModal.html'
-			,controller: 'StorefrontModalController'
+			,templateUrl: 'storeModal.html'
+			,controller: 'storeModalController'
 			,resolve: {
-				storefront:function(){
-					return storefront
+				store:function(){
+					return store
 				}
 			}
 		});
 	}
 
-	this.openCourt = function(court){
+	this.openMarket = function(market){
 		 return $modal.open({
 			size: 'md'
-			,templateUrl: 'courtModal.html'
-			,controller: 'CourtModalController'
+			,templateUrl: 'marketModal.html'
+			,controller: 'MarketModalController'
 			,resolve: {
-				court:function(){
-					return court
+				market:function(){
+					return market
 				}
 			}
 		});
@@ -313,7 +339,7 @@ app.service('modals',function($modal){
 
 app.controller('BarController',function($scope){
 	$scope.submit = function(){
-		window.location.hash = '/storefronts/'+$scope.storefrontAddress
+		window.location.hash = '/stores/'+$scope.storeAddress
 	}
 })
 

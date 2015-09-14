@@ -24,8 +24,8 @@ module.exports = (grunt) ->
           "app/js/safemarket.js"
           "app/js/ticker.js"
           "app/js/utils.js"
-          "app/js/Storefront.js"
-          "app/js/Court.js"
+          "app/js/Store.js"
+          "app/js/Market.js"
           
         ]
 

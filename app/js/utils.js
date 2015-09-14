@@ -52,6 +52,8 @@
 
 		function waitForTx(txHex, duration, pause){
 
+			console.log(txHex)
+
 			var deferred = Q.defer()
 				,duration = duration ? duration : (1000*20)
 				,pause = pause ? pause : (1000*3)
@@ -59,6 +61,8 @@
 				,interval = setInterval(function(){
 
 					var tx = web3.eth.getTransactionReceipt(txHex)
+
+					console.log(tx)
 
 					if(tx){
 						clearInterval(interval)

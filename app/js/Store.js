@@ -1,4 +1,6 @@
-angular.module('safemarket').factory('Storefront',function(utils,ticker){
+(function(){
+
+angular.module('safemarket').factory('Store',function(utils,ticker){
 
 var currencies
 
@@ -6,41 +8,43 @@ ticker.getRates().then(function(rates){
 	currencies = Object.keys(rates)
 })
 
-function Storefront(addr){
+function Store(addr){
 	this.addr = addr
 	this.contract = web3.eth.contract(this.abi).at(addr)
 	this.update()
 }
 
-window.Storefront = Storefront
+window.Store = Store
 
-Storefront.prototype.code = Storefront.code = '0x'+contractDB.Storefront.compiled.code
-Storefront.prototype.abi = Storefront.abi = contractDB.Storefront.compiled.info.abiDefinition
+Store.prototype.code = Store.code = '0x'+contractDB.Store.compiled.code
+Store.prototype.abi = Store.abi = contractDB.Store.compiled.info.abiDefinition
 
-Storefront.create = function(meta){
+Store.create = function(meta){
 	console.log(meta)
 	var meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 		,deferred = Q.defer()
-		,StorefrontContract = web3.eth.contract(Storefront.abi)
+		,StoreContract = web3.eth.contract(Store.abi)
 		,txObject = {
-			data:Storefront.code
+			data:Store.code
 			,gas:this.estimateCreationGas(meta)
 			,gasPrice:web3.eth.gasPrice
 			,from:web3.eth.accounts[0]
-		},txHex = StorefrontContract.new(meta,txObject).transactionHash
+		},txHex = StoreContract.new(meta,txObject).transactionHash
 
 	utils.waitForTx(txHex).then(function(tx){
-		var storefront = new Storefront(tx.contractAddress)
-		console.log(storefront)
-		deferred.resolve(storefront)
+		var store = new Store(tx.contractAddress)
+		console.log(store)
+		deferred.resolve(store)
 	},function(error){
 		deferred.reject(error)
+	}).catch(function(){
+		console.error(error)
 	})
 
 	return deferred.promise
 }
 
-Storefront.check = function(meta){
+Store.check = function(meta){
 	utils.check(meta,{
 		name:{
 			presence:true
@@ -73,27 +77,27 @@ Storefront.check = function(meta){
 	})
 }
 
-Storefront.estimateCreationGas = function(meta){
+Store.estimateCreationGas = function(meta){
 	meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 
 	var deferred = Q.defer()
-		,StorefrontContract = web3.eth.contract(this.abi)
+		,StoreContract = web3.eth.contract(this.abi)
 
-	return StorefrontContract.estimateGas(meta,{
-		data:Storefront.code
+	return StoreContract.estimateGas(meta,{
+		data:Store.code
 	})
 }
 
-Storefront.prototype.setMeta = function(meta){
+Store.prototype.setMeta = function(meta){
 	meta = utils.convertObjectToHex(meta)
 
 	var deferred = Q.defer()
-		,storefront = this
+		,store = this
 		,txHex = this.contract.setMeta(meta,{gas:this.contract.setMeta.estimateGas(meta)})
 
 	utils.waitForTx(txHex).then(function(){
-		storefront.update()
-		deferred.resolve(storefront)
+		store.update()
+		deferred.resolve(store)
 	},function(error){
 		deferred.reject(error)
 	})
@@ -101,20 +105,20 @@ Storefront.prototype.setMeta = function(meta){
 	return deferred.promise
 }
 
-Storefront.prototype.checkMeta = function(){
-	Storefront.checkMeta(this.meta)
+Store.prototype.checkMeta = function(){
+	Store.checkMeta(this.meta)
 }
 
 
-Storefront.prototype.update = function(){
+Store.prototype.update = function(){
 	this.meta = utils.convertHexToObject(this.contract.getMeta())
 	this.products = []
 
-	var storefront = this
+	var store = this
 
 	if(this.meta && this.meta.products)
 		this.meta.products.forEach(function(productData){
-			storefront.products.push(new Product(productData))
+			store.products.push(new Product(productData))
 		})
 
 	this.merchant = this.contract.getMerchant()
@@ -127,6 +131,8 @@ function Product(data){
 	this.quantity = 0
 }
 
-return Storefront
+return Store
 
 })
+
+})();

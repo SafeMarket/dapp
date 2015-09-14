@@ -6,12 +6,12 @@
 	safemarket.run(function(ticker,utils){
 	})
 
-	safemarket.service('safemarket',function($q,ticker,Storefront,Court,utils){
+	safemarket.service('safemarket',function($q,ticker,Store,Market,utils){
 		
 		var safemarket = this
 
-		this.Storefront = Storefront
-		this.Court = Court
+		this.Store = Store
+		this.Market = Market
 		this.utils = utils
 
 	})
