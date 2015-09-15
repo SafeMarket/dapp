@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('Market',function(utils,ticker){
+angular.module('safemarket').factory('Market',function(utils,ticker,$q,Store){
 
 function Market(addr){
 	this.addr = addr
@@ -13,16 +13,16 @@ window.Market = Market
 Market.prototype.code = Market.code = '0x'+contractDB.Market.compiled.code
 Market.prototype.abi = Market.abi = contractDB.Market.compiled.info.abiDefinition
 
-Market.create = function(meta,feeTenths){
+Market.create = function(meta){
 	var meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
-		,deferred = Q.defer()
+		,deferred = $q.defer()
 		,MarketContract = web3.eth.contract(Market.abi)
 		,txObject = {
 			data:Market.code
-			,gas:this.estimateCreationGas(meta,feeTenths)
+			,gas:this.estimateCreationGas(meta)
 			,gasPrice:web3.eth.gasPrice
 			,from:web3.eth.accounts[0]
-		},txHex = MarketContract.new(meta,feeTenths,txObject).transactionHash
+		},txHex = MarketContract.new(meta,txObject).transactionHash
 
 	utils.waitForTx(txHex).then(function(tx){
 		var market = new Market(tx.contractAddress)
@@ -36,54 +36,67 @@ Market.create = function(meta,feeTenths){
 	return deferred.promise
 }
 
-Market.check = function(meta,feeTenths){
+Market.check = function(meta){
 	utils.check(meta,{
 		name:{
 			presence:true
 			,type:'string'
 		},info:{
 			type:'string'
-		}
-	})
-
-	if(typeof feeTenths!== 'string')
-		feeTenths = feeTenths.toString()
-
-	utils.check({fee:feeTenths},{
-		fee:{
+		},feePercentage:{
 			presence:true
 			,type:'string'
 			,numericality:{
 				integersOnly:true
 				,greaterThanOrEqualTo:0
-				,lessThanOrEqualTo:100
 			}
+		},isOpen:{
+			presence:true
+			,type:'boolean'
+		},stores:{
+			type:'array'
 		}
+	})
+
+	meta.stores.forEach(function(store){
+		utils.check(store,{
+			address:{
+				presence:true
+				,type:'string'
+				,startsWith:'0x'
+			},tags:{
+				type:'string'
+			}
+		},'Store')
 	})
 }
 
-Market.estimateCreationGas = function(meta,feeTenths){
+Market.estimateCreationGas = function(meta){
 	meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 
-	var deferred = Q.defer()
+	var deferred = $q.defer()
 		,MarketContract = web3.eth.contract(this.abi)
 
-	return MarketContract.estimateGas(meta,feeTenths,{
+	return MarketContract.estimateGas(meta,{
 		data:Market.code
 	})
 }
 
-Market.prototype.set = function(meta,feeTenths){
+Market.prototype.set = function(meta){
 	meta = utils.convertObjectToHex(meta)
 
-	var deferred = Q.defer()
+	var deferred = $q.defer()
+		,txHex = this.contract.setMeta(meta,{
+			gas: this.contract.setMeta.estimateGas(meta)
+		})
 		,market = this
-		,txHex = this.contract.setMeta(meta,feeTenths,{gas:this.contract.setMeta.estimateGas(meta)})
 
 	utils.waitForTx(txHex).then(function(){
 		market.update()
 		deferred.resolve(market)
 	},function(error){
+		deferred.reject(error)
+	}).catch(function(error){
 		deferred.reject(error)
 	})
 
@@ -93,15 +106,14 @@ Market.prototype.set = function(meta,feeTenths){
 
 Market.prototype.update = function(){
 	this.meta = utils.convertHexToObject(this.contract.getMeta())
-	this.judge = this.contract.getJudge()
-	this.feeTenths = this.contract.getFeeTenths()
-}
+	this.admin = this.contract.getAdmin()
+	this.stores = []
 
-function Product(data){
-	this.name = data.name
-	this.price = new BigNumber(data.price)
-	this.info = data.info
-	this.quantity = 0
+	var market = this
+
+	this.meta.stores.forEach(function(storeData){
+		market.stores.push(new Store(storeData.address))
+	})
 }
 
 return Market

@@ -13,6 +13,7 @@ module.exports = (grunt) ->
           "bower_components/msgpack-javascript/msgpack.js"
           "bower_components/cryptocoin/dist/cryptocoin.js"
           "bower_components/validate/validate.min.js"
+          "bower_components/lodash/lodash.min.js"
           "bower_components/q/q.js"
           "bower_components/bignumber.js/bignumber.min.js"
           "bower_components/angular/angular.min.js"

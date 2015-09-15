@@ -10,13 +10,16 @@ app.config(function(growlProvider,$routeProvider) {
     	.when('/',{
     		templateUrl:'home.html'
     	})
-    	.when('/stores/:addr',{
+    	.when('/stores/:storeAddr',{
 	    	templateUrl:'store.html'
-	    	,controller:'storeController'
+	    	,controller:'StoreController'
 	    })
-	    .when('/markets/:addr',{
+	    .when('/markets/:marketAddr',{
 	    	templateUrl:'market.html'
 	    	,controller:'MarketController'
+	    }).when('/markets/:marketAddr/stores/:storeAddr',{
+	    	templateUrl:'store.html'
+	    	,controller:'StoreController'
 	    })
 
 });
@@ -26,7 +29,7 @@ app.controller('MainController',function($scope,modals){
 	$scope.accounts = web3.eth.accounts
 	$scope.account = web3.eth.accounts[0]
 
-	$scope.openstoreModal = function(){
+	$scope.openStoreModal = function(){
 		modals.openstore()
 	}
 
@@ -40,7 +43,7 @@ app.controller('MainController',function($scope,modals){
 
 })
 
-app.controller('storeModalController',function($scope,safemarket,ticker,growl,$modal,$modalInstance,store,user){
+app.controller('StoreModalController',function($scope,safemarket,ticker,growl,$modal,$modalInstance,store,user){
 	
 	ticker.getRates().then(function(rates){
 		$scope.currencies = Object.keys(rates)
@@ -52,23 +55,32 @@ app.controller('storeModalController',function($scope,safemarket,ticker,growl,$m
 		$scope.currency = store.meta.currency
 		$scope.products = store.meta.products
 	}else{
-		$scope.currency = user.currency
-		$scope.products = [{}]
+		$scope.currency = user.data.currency
+		$scope.products = []
+		addProduct()
 	}
 
 	$scope.cancel = function(){
 		$modalInstance.dismiss('cancel')
 	}
 
+	function addProduct(){
+		$scope.products.push({
+			id:BigNumber.random().times('100000000').round().toString()
+		})
+	}
+	$scope.addProduct = addProduct
+
 	$scope.submit = function(){
 		var meta = {
 			name:$scope.name
 			,currency:$scope.currency
 			,products:$scope.products
+			,identity:user.createIdentity()
 		}
 		
 		try{
-			safemarket.store.check(meta)
+			safemarket.Store.check(meta)
 		}catch(e){
 			growl.addErrorMessage(e)
 			console.error(e)
@@ -91,23 +103,25 @@ app.controller('storeModalController',function($scope,safemarket,ticker,growl,$m
 				},function(error){
 					$scope.error = error
 					$scope.isSyncing = false
+					$scope.$apply()
 				}).catch(function(error){
 					console.error(error)
 				})
 		}else{
-			var estimatedGas = store.estimateCreationGas(meta)
+			var estimatedGas = Store.estimateCreationGas(meta)
 				,doContinue = confirm('This will take about '+estimatedGas+' gas. Continue?')
 	
 			$scope.isSyncing = true
 
 			safemarket
-				.store.create(meta)
+				Store.create(meta)
 				.then(function(store){
 					window.location.hash = '/stores/'+store.addr
 					$modalInstance.dismiss()
 				},function(error){
 					$scope.error = error
 					$scope.isSyncing = false
+					$scope.$apply()
 				}).catch(function(error){
 					console.error(error)
 				})
@@ -126,9 +140,15 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 		$scope.isEditing = true
 		$scope.name = market.meta.name
 		$scope.info = market.meta.info
-		$scope.feeTenths = market.feeTenths
+		$scope.feePercentage = parseFloat(market.meta.feePercentage)
+		$scope.bondInEther = parseInt(web3.fromWei(market.bond,'ether'))
+		$scope.stores = market.meta.stores
+		$scope.isOpen = market.meta.isOpen
 	}else{
-		$scope.feeTenths = 30
+		$scope.feePercentage = 3
+		$scope.bondInEther = 100
+		$scope.stores = []
+		$scope.isOpen = true
 	}
 
 	$scope.cancel = function(){
@@ -139,10 +159,16 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 		var meta = {
 			name:$scope.name
 			,info:$scope.info
+			,feePercentage: $scope.feePercentage.toString()
+			,isOpen:$scope.isOpen
+			,stores:$scope.stores
+			,identity:user.createIdentity()
 		}
+		,bond = web3.toWei($scope.bondInEther,'ether')
+		,isOpen=!!$scope.isOpen
 		
 		try{
-			safemarket.Market.check(meta,$scope.feeTenths)
+			safemarket.Market.check(meta)
 		}catch(e){
 			growl.addErrorMessage(e)
 			console.error(e)
@@ -150,7 +176,7 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 		}
 
 		if(market){
-			var estimatedGas = market.contract.setMeta.estimateGas(meta,feeTenths)
+			var estimatedGas = market.contract.setMeta.estimateGas(meta)
 				,doContinue = confirm('This will take about '+estimatedGas+' gas. Continue?')
 
 			if(!doContinue) return;
@@ -158,13 +184,14 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 			$scope.isSyncing = true
 
 			market
-				.set(meta,$scope.feeTenths)
+				.set(meta)
 				.then(function(market){
 					$scope.isSyncing = false
 					$modalInstance.close(market)
 				},function(error){
 					$scope.error = error
 					$scope.isSyncing = false
+					$scope.$apply()
 				}).catch(function(error){
 					console.error(error)
 				})
@@ -172,18 +199,20 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 			var estimatedGas = Market.estimateCreationGas(meta)
 				,doContinue = confirm('This will take about '+estimatedGas+' gas. Continue?')
 	
+			if(!doContinue) return;
+
 			$scope.isSyncing = true
 
 			safemarket
-				.Market.create(meta,$scope.feeTenths)
+				.Market.create(meta)
 				.then(function(market){
 					console.log(market)
 					window.location.hash = '/markets/'+market.addr
 					$modalInstance.dismiss()
 				},function(error){
-					console.error(error)
 					$scope.error = error
 					$scope.isSyncing = false
+					$scope.$apply()
 				}).catch(function(error){
 					console.error(error)
 				})
@@ -195,13 +224,17 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 	}
 })
 
-app.controller('SettingsModalController',function($scope,safemarket,growl,$modal,$modalInstance){
-	$scope.currencies = safemarket.currencies
-	$scope.currency = 'USD'
-	$scope.products = [{}]
+app.controller('SettingsModalController',function($scope,safemarket,growl,$modal,$modalInstance,user,ticker){
+	
+	ticker.getRates().then(function(rates){
+		$scope.currencies = Object.keys(rates)
+	})
+
+	$scope.user = user
 
 	$scope.submit = function(){
-
+		user.save()
+		$modalInstance.close()
 	}
 })
 
@@ -210,19 +243,26 @@ app.controller('SimpleModalController',function($scope,title,body){
 	$scope.body = body
 })
 
-app.controller('storeController',function($scope,safemarket,user,$routeParams,modals){
+app.controller('StoreController',function($scope,safemarket,user,$routeParams,modals){
 
 	try{
-		$scope.store = new safemarket.Store($routeParams.addr)
+		$scope.store = new safemarket.Store($routeParams.storeAddr)
+
+		if($routeParams.marketAddr)
+			$scope.market = new safemarket.Market($routeParams.marketAddr)
 	}catch(e){
 		console.log(e)
 		return
 	}
 
-	$scope.addr = $routeParams.addr
+	$scope.addr = $routeParams.storeAddr
 	$scope.user = user
 
-	$scope.openstoreModal = function(){
+	$scope.createOrder = function(){
+
+	}
+
+	$scope.openStoreModal = function(){
 		modals
 			.openstore($scope.store)
 			.result.then(function(store){
@@ -259,7 +299,7 @@ app.controller('storeController',function($scope,safemarket,user,$routeParams,mo
 			})
 
 		safemarket
-			.utils.convertCurrency(total,{from:$scope.store.meta.currency,to:user.currency})
+			.utils.convertCurrency(total,{from:$scope.store.meta.currency,to:user.data.currency})
 			.then(function(totalInUserCurrency){
 				$scope.totalInUserCurrency = totalInUserCurrency
 			})
@@ -270,13 +310,13 @@ app.controller('storeController',function($scope,safemarket,user,$routeParams,mo
 app.controller('MarketController',function($scope,safemarket,user,$routeParams,modals){
 	
 	try{
-		$scope.market = new safemarket.Market($routeParams.addr)
+		$scope.market = new safemarket.Market($routeParams.marketAddr)
 	}catch(e){
 		console.log(e)
 		return
 	}
 
-	$scope.addr = $routeParams.addr
+	$scope.addr = $routeParams.marketAddr
 	$scope.user = user
 
 	$scope.openMarketModal = function(){
@@ -306,7 +346,7 @@ app.service('modals',function($modal){
 		 return $modal.open({
 			size: 'md'
 			,templateUrl: 'storeModal.html'
-			,controller: 'storeModalController'
+			,controller: 'StoreModalController'
 			,resolve: {
 				store:function(){
 					return store
@@ -328,6 +368,22 @@ app.service('modals',function($modal){
 		});
 	}
 
+	this.openOrder = function(store,market){
+		 return $modal.open({
+			size: 'md'
+			,templateUrl: 'orderModal.html'
+			,controller: 'OrderModalController'
+			,resolve: {
+				store:function(){
+					return store
+				}
+				,market:function(){
+					return market
+				}
+			}
+		});
+	}
+
 	this.openSettings = function(){
 		return $modal.open({
 			size: 'md'
@@ -343,8 +399,43 @@ app.controller('BarController',function($scope){
 	}
 })
 
+app.filter('fromWei',function(){
+	return function(amount,to){
+		return web3.fromWei(amount,to).toString()
+	}
+})
+
 app.service('user',function(){
-	this.currency = 'EUR'
+	
+	var userJson = localStorage.getItem('user')
+		,userData = JSON.parse(userJson)
+
+	if(userData){
+		this.data = userData
+	}else{
+		this.data = {}
+	}
+
+	if(!this.data.currency)
+		this.data.currency = 'USD'
+
+	if(!this.data.identities)
+		this.data.identities = []
+
+	this.save = function(){
+		localStorage.setItem('user',JSON.stringify(this.data))
+	}
+
+	this.createIdentity = function(){
+		var identity = web3.shh.newIdentity()
+		
+		this.data.identities.push(identity)
+		this.save()
+
+		return identity
+	}
+
+
 })
 
 })();

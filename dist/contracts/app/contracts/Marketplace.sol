@@ -1,29 +1,10 @@
-contract Test{
-	bytes meta;
-
-	function Test(bytes _meta){
-		meta = _meta;
-	}
-
-	function getMeta() constant returns(bytes){
-		return meta;
-	}
-}
-
 contract Market{
 	address admin;
 	string meta;
-	uint feeTenths;
-	uint bond;
-	bool isOpen;
 
-	address[] storeAddrs;
-
-	function Market(string _meta, uint _feeTenths, uint _bond){
+	function Market(string _meta){
 		admin = tx.origin;
 		meta = _meta;
-		feeTenths = _feeTenths;
-		bond = _bond;
 	}
 
 	function getAdmin() constant returns(address){
@@ -32,110 +13,123 @@ contract Market{
 	
 	function setMeta(string _meta){
 		if(tx.origin!=admin) return;
-		meta = meta;
+		meta = _meta;
 	}
 
 	function getMeta() constant returns(string){
 		return meta;
 	}
 
-	function setFeeTenths(uint _feeTenths){
-		if(tx.origin!=admin) return;
-		feeTenths = _feeTenths;
-	}
-
-	function getFeeTenths() constant returns(uint){
-		return feeTenths;
-	}
-
-	function getBond(uint _bond){
-		if(tx.origin!=admin) return;
-		bond = _bond;
-	}
-
-	function setBond() constant returns(uint){
-		return bond;
-	}
-
-	function setIsOpen(bool _isOpen){
-		if(tx.origin!=admin) return;
-		isOpen = _isOpen;
-	}
-
-	function getIsOpen() constant returns(bool){
-	    return isOpen;
-	}
 }
 
-// contract Order{
-// 	address buyer;
-// 	address storeAddr;
-// 	address marketAddr;
-// 	bytes meta;
+contract Order{
+	address buyer;
+	address merchant;
+	address admin;
+	uint fee;
+	string meta;
 	
-// 	uint status;
+	uint status;
 
-// 	uint constant initialized = 0;
-// 	uint constant cancelledByBuyer = 1;
-// 	uint constant cancelledByMerchant = 2;
-// 	uint constant shipped = 3;
-// 	uint constant finalized = 4;
-// 	uint constant disputed = 5;
-// 	uint constant resolvedInBuyersFavor = 6;
-// 	uint constant resolvedInMerchantsFavor = 7;
+	uint constant initialized = 0;
+	uint constant cancelledByBuyer = 1;
+	uint constant cancelledByMerchant = 2;
+	uint constant shipped = 3;
+	uint constant finalized = 4;
+	uint constant disputed = 5;
+	uint constant resolved = 6;
 
-// 	function Order(bytes _meta, address _marketAddr){
-// 		meta = meta;
-// 		marketAddrs = _marketAddrs;
-// 		buyer = tx.origin;
-// 		storeAddr = msg.sender;
-// 	}
+	function Order(string _meta, address _merchant, address _admin, uint _fee){
+		buyer = tx.origin;
+		meta = _meta;
+		merchant = _merchant;
+		admin = _admin;
+		fee = _fee;
+	}
 
-// 	function cancel(){
+	function cancel(){
 
-// 		if(status != initialized)
-// 			return;
+		if(status != initialized)
+			return;
 
-// 		if(tx.origin == buyer){
-// 			status = cancelledByBuyer;
-// 			return;
-// 		}
+		if(tx.origin == buyer){
+			status = cancelledByBuyer;
+			return;
+		}
 
-// 		store store = store(storeAddr);
-// 		if(tx.origin == store.getMerchant()){
-// 			status = cancelledByMerchant;
-// 			return;
-// 		}
+		
+		if(tx.origin == merchant){
+			status = cancelledByMerchant;
+			return;
+		}
 
-// 	}
+	}
 
-// 	function dispute(){
-// 		if(tx.origin != buyer){
-// 			return;
-// 		}
+	function markAsShipped(){
+		if(status !=  initialized)
+			return;
 
-// 		if(status != shipped){
-// 			return;
-// 		}
+		if(tx.origin != merchant)
+			return;
+		
+		status = shipped;
+	}
 
-// 		if(marketAddrs.length==0){
-// 			return;
-// 		}
+	function finalize(){
+		if(status !=  shipped)
+			return;
 
-// 		status = disputed;
-// 	}
-// }
+		if(tx.origin != buyer)
+			return;
+
+		merchant.send(this.balance);
+		
+		status = finalized;
+	}
+
+	function dispute(){
+		if(tx.origin != buyer){
+			return;
+		}
+
+		if(status != shipped){
+			return;
+		}
+
+		if(admin==0){
+			return;
+		}
+
+		status = disputed;
+	}
+
+	function resolve(uint buyerAmount){
+		if(status!=disputed)
+			return;
+
+		if(tx.origin != admin)
+			return;
+
+		if(buyerAmount>0)
+			buyer.send(buyerAmount);
+
+		var merchantAmount = this.balance-buyerAmount;
+
+		if(merchantAmount>0)
+			merchant.send(merchantAmount);
+
+		status = resolved;
+
+	}
+}
 
 
 
 contract Store{
     address merchant;
     string meta;
-    address[] orderAddrs;
-    address[] marketAddr;
-    bool isOpen;
 
-    function store(string _meta){
+    function Store(string _meta){
         merchant = tx.origin;
         meta = _meta;
     }
@@ -144,21 +138,43 @@ contract Store{
     	return merchant;
     }
 
-    function getMeta() constant returns(string){
-		return meta;
-	}
-
-	function setMeta(string _meta){
+    function setMeta(string _meta){
 		if(tx.origin!=merchant) return;
 		meta = _meta;
 	}
 
-	function setIsOpen(bool _isOpen){
-		if(tx.origin!=merchant) return;
-		isOpen = _isOpen;
+    function getMeta() constant returns(string){
+		return meta;
+	}
+}
+
+contract Registrar{
+	address[] storeAddrs;
+	address[] marketAddrs;
+	address[] orderAddrs;
+
+	function createStore(string meta){
+		Store store = new Store(meta);
 	}
 
-	function getIsOpen() constant returns(bool){
-	    return isOpen;
+	function createMarket(string meta){
+		Market market = new Market(meta);
 	}
+
+	function createOrder(string meta, address merchant, address admin, uint fee){
+		Order order = new Order(meta, merchant, admin, fee);
+	}
+
+	function getStoreAddrs() constant returns(address[]){
+		return storeAddrs;
+	}
+
+	function getMarketAddrs() constant returns(address[]){
+		return storeAddrs;
+	}
+
+	function getOrderAddrs() constant returns(address[]){
+		return storeAddrs;
+	}
+
 }

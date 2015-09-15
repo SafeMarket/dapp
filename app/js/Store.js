@@ -20,7 +20,7 @@ Store.prototype.code = Store.code = '0x'+contractDB.Store.compiled.code
 Store.prototype.abi = Store.abi = contractDB.Store.compiled.info.abiDefinition
 
 Store.create = function(meta){
-	console.log(meta)
+	
 	var meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 		,deferred = Q.defer()
 		,StoreContract = web3.eth.contract(Store.abi)
@@ -30,6 +30,8 @@ Store.create = function(meta){
 			,gasPrice:web3.eth.gasPrice
 			,from:web3.eth.accounts[0]
 		},txHex = StoreContract.new(meta,txObject).transactionHash
+
+	console.log(txHex)
 
 	utils.waitForTx(txHex).then(function(tx){
 		var store = new Store(tx.contractAddress)
@@ -56,12 +58,22 @@ Store.check = function(meta){
 		},products:{
 			presence:true
 			,type:'array'
+		},identity:{
+			presence:true
+			,type:'identity'
 		}
 	})
 
 	meta.products.forEach(function(product){
 		utils.check(product,{
-			name:{
+			id:{
+				presence:true
+				,type:'string'
+				,numericality:{
+					integerOnly:true
+					,greaterThanOrEqualTo:0
+				}
+			},name:{
 				presence:true
 				,type:'string'
 			},price:{
@@ -128,6 +140,7 @@ function Product(data){
 	this.name = data.name
 	this.price = new BigNumber(data.price)
 	this.info = data.info
+
 	this.quantity = 0
 }
 

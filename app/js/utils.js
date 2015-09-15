@@ -1,6 +1,6 @@
 (function(){
 
-	angular.module('safemarket').service('utils',function(ticker,$q){
+	angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 
 		
 
@@ -52,10 +52,8 @@
 
 		function waitForTx(txHex, duration, pause){
 
-			console.log(txHex)
-
-			var deferred = Q.defer()
-				,duration = duration ? duration : (1000*20)
+			var deferred = $q.defer()
+				,duration = duration ? duration : (1000*60)
 				,pause = pause ? pause : (1000*3)
 				,timeStart = Date.now()
 				,interval = setInterval(function(){
@@ -78,6 +76,31 @@
 
 			return deferred.promise
 
+		}
+
+		function waitForTxs(txHexes){
+			var deferred = $q.defer()
+				,completedCount = 0
+
+			if(txHexes.length === 0)
+				$timeout(function(){
+					deferred.reject('No transactions to wait for')
+				},1)
+
+			txHexes.forEach(function(txHex){
+				waitForTx(txHex)
+					.then(function(){
+						completedCount++
+						if(completedCount===txHexes.length)
+							deferred.resolve()
+					},function(error){
+						deferred.reject(error)
+					}).catch(function(error){
+						deferred.reject(error)
+					})
+			})
+
+			return deferred.promise
 		}
 
 		function check(data,constraints,prefix){
@@ -115,8 +138,12 @@
 			,convertHexToObject:convertHexToObject
 			,convertCurrency:convertCurrency
 			,waitForTx:waitForTx
+			,waitForTxs:waitForTxs
 			,check:check
+			,nullAddress:'0x'+Array(21).join('00')
 		})
+
+		console.log(this.nullAddress)
 
 	})
 
@@ -125,10 +152,16 @@
 }());
 
 validate.validators.type = function(value, options, key, attributes) {
-  if(value === null || value === undefined) return null
+	if(value === null || value === undefined) return null
 
-  if(options==='array')
-    return typeof Array.isArray(value) ? null : 'is not an array'
+	if(options==='array')
+    	return typeof Array.isArray(value) ? null : 'is not an array'
+
+    if(options==='identity')
+    	return _.startsWith(value,'0x') && value.length===132 ? null : 'is not a valid identity'
+
+    if(options==='address')
+    	return _.startsWith(value,'0x') && value.length===42 ? null : 'is not a valid address'
 
 	return typeof value===options ? null : 'is not a '+options
 };

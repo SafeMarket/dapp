@@ -2,14 +2,16 @@
     <h3 class="modal-title">Settings</h3>
 </div>
 <div class="modal-body">
+    
     <table class="table">
         <tr>
             <td>Currency</td>
             <td>
-                <select type="text" ng-model="currency" class="form-control" ng-options="currency for currency in currencies">
+                <select type="text" ng-model="user.data.currency" class="form-control" ng-options="currency for currency in currencies">
             </td>
         </tr>
     </table>
+    </select>
 </div>
 <div class="modal-footer">
     <button class="btn btn-primary" type="button" ng-click="submit()">OK</button>

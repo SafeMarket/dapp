@@ -22,13 +22,40 @@
             </td>
         </tr>
         <tr>
-            <td>Fee: <span ng-cloak>{{feeTenths/10 | number:1}}</span>%</td>
+            <td>Fee: <span ng-cloak>{{feePercentage | number:1}}</span>%</td>
             <td>
-                <input type="range" ng-model="feeTenths" class="form-control" min="0" max="100" step="1">
+                <input type="range" ng-model="feePercentage" class="form-control" min="0" max="10" step=".1">
             </td>
         </tr>
-        
+        <tr>
+            <td>Open for Business:</td>
+            <td>
+                <input type="checkbox" ng-model="isOpen">
+            </td>
+        </tr>        
     </table>
+    <h3>Approved Stores <button class="btn btn-primary btn-xs" ng-click="stores.push({})">+</button></h3>
+    <table class="table">   
+        <tbody ng-repeat="store in stores">
+            <tr>
+                <td>Address</td>
+                <td>
+                    <input type="text" ng-model="store.address" class="form-control">
+                </td>
+            </tr>
+            <tr>
+                <td>Tags</td>
+                <td>
+                    <input type="text" ng-model="store.tags" class="form-control">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align:right">
+                    <button class="btn btn-danger btn-sm" ng-click="stores.splice($index,1)">Delete</button>
+                </td>
+            </tr>
+        </tbody>
+    </table></div>
 </div>
 <div class="modal-footer">
     <button class="btn btn-primary" type="button" ng-click="submit()">OK</button>

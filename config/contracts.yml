@@ -1,12 +1,8 @@
 development:
-  Storefront:
+  Store:
     deploy: false
-  Court:
+  Market:
     deploy: false
   Order:
-    deploy: false
-  Marketplace:
-    deploy: false
-  Test:
     deploy: false
 staging:

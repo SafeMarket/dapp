@@ -34,7 +34,7 @@
 				<td></td>
 				<td>
 					{{total | currency:store.meta.currency}} {{store.meta.currency}}
-					<br>{{totalInUserCurrency | currency:user.currency}} {{user.currency}}
+					<br>{{totalInUserCurrency | currency:user.data.currency}} {{user.data.currency}}
 					<br>{{totalInEther | currency:'ETH'}} ETH
 				</td>
 			</tr>
