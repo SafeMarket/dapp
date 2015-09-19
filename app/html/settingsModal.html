@@ -5,9 +5,27 @@
     
     <table class="table">
         <tr>
+            <td>Account</td>
+            <td>
+                 <select name="account" ng-model="user.data.account" ng-options="account for account in accounts" class="form-control"></select>
+            </td>
+        </tr>
+        <tr>
             <td>Currency</td>
             <td>
-                <select type="text" ng-model="user.data.currency" class="form-control" ng-options="currency for currency in currencies">
+                <select type="text" ng-model="user.data.currency" class="form-control" ng-options="currency for currency in currencies"></select>
+            </td>
+        </tr>
+        <tr>
+            <td>PGP Public Key <button ng-click="generatePgpKeypair()"><span class="glyphicon glyphicon-refresh"></span></button></td>
+            <td>
+                <textarea class="form-control" ng-model="user.data.publicKeyArmored"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>PGP Private Key</td>
+            <td>
+                <textarea class="form-control" ng-model="user.data.privateKeyArmored"></textarea>
             </td>
         </tr>
     </table>

@@ -1,0 +1,103 @@
+<div class="container">
+	<div ng-cloak ng-show="!order || !order.store" class="alert alert-danger">
+		Could not find order at {{addr}}
+	</div>
+	<div ng-cloak ng-show="order">
+		<h1>{{order.store.meta.name}} » Order {{order.addr.substr(0,6)}}...</h1>
+		<div timestamp="order.timestamp"></div>
+		Address: <a ng-href="http://etherchain.org/account/{{order.addr}}">{{order.addr}}</a>
+		<br>Buyer: <a ng-href="http://etherchain.org/account/{{order.buyer}}">{{order.buyer}}</a>
+		<br>Store: <a ng-href="http://etherchain.org/account/{{order.store.addr}}">{{order.store.addr}}</a>
+		<br>Merchant: <a ng-href="http://etherchain.org/account/{{order.store.merchant}}">{{order.store.merchant}}</a>
+		<div ng-show="order.market">
+			Market: <a ng-href="http://etherchain.org/account/{{order.market.addr}}">{{order.market.addr}}</a>
+			<br>Admin: <a ng-href="http://etherchain.org/account/{{order.market.admin}}">{{order.market.admin}}</a>
+		</div>
+		<br>Status: {{order.status | status}}</a>
+		<br>
+		<h3>Products</h3>
+		<table class="table">
+			<tr ng-repeat="product in order.products">
+				<td>
+					{{product.name}}
+				</td>
+				<td>
+					{{product.info}}
+				</td>
+				<td>
+					<amounts
+						value="product.price"
+						from="order.store.meta.currency"
+						to="displayCurrencies">
+					</amounts>
+				</td>
+				<td>
+					x{{product.quantity}}
+				</td>
+			</tr>
+		</table>
+		<h3>Payment</h3>
+		<table class="table">
+			<tr>
+				<td>Product Total</td>
+				<td>
+					<amounts
+						value="order.productsTotalInStoreCurrency"
+						from="order.store.meta.currency"
+						to="displayCurrencies">
+					</amounts>
+				</td>
+			</tr>
+			<tr>
+				<td>Market Fee</td>
+				<td>
+					<amounts
+						value="order.fee"
+						from="'ETH'"
+						to="displayCurrencies">
+					</amounts>
+				</td>
+			</tr>
+			<tr>
+				<td>Total</td>
+				<td>
+					<amounts
+						value="order.total"
+						from="'ETH'"
+						to="displayCurrencies">
+					</amounts>
+				</td>
+			</tr>
+			<tr>
+				<td>Received</td>
+				<td>
+					<amounts
+						value="order.received"
+						from="'ETH'"
+						to="displayCurrencies">
+					</amounts>
+				</td>
+			</tr>
+		</table>
+		<h3>Messages</h3>
+		<table class="table">
+			<tr ng-repeat="message in order.messages">
+				<td>{{message.from | capitalize}}:</td>
+				<td>
+					<div ng-show="message.text">{{message.text}}</div>
+					<pre ng-show="!message.text">{{message.messageArmored}}</pre>
+				</td>
+				<td><div timestamp="message.timestamp"></div></td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<form ng-submit="submitMessage()">
+						<textarea class="form-control" ng-model="messageText"></textarea>
+						<br>
+						<button class="btn btn-primary">Submit</button>
+					</form>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>

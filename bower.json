@@ -23,6 +23,7 @@
     "cryptocoin": "~0.3.0",
     "lodash": "~3.10.1",
     "msgpack-javascript": "*",
+    "openpgp": "~1.2.0",
     "q": "1.0.1",
     "utf8": "~2.1.1",
     "validate": "~0.8.0"

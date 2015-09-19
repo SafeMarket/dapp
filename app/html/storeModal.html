@@ -21,6 +21,14 @@
                 <select type="text" ng-model="currency" class="form-control" ng-options="currency for currency in currencies"></select>
             </td>
         </tr>
+        <tr>
+            <td>Dispute Time
+                <div class="text-small text-muted">How long after shipping can buyers open a dispute?</div>
+            </td>
+            <td>
+                <select type="text" ng-model="disputeSeconds" class="form-control" ng-options="option.value as option.label for option in disputeSecondsOptions"></select>
+            </td>
+        </tr>
     </table>
     <h3>Products <button class="btn btn-primary btn-xs" ng-click="addProduct()">+</button></h3>
     <table class="table">   

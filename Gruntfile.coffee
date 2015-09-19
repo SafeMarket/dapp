@@ -15,6 +15,7 @@ module.exports = (grunt) ->
           "bower_components/validate/validate.min.js"
           "bower_components/lodash/lodash.min.js"
           "bower_components/q/q.js"
+          "bower_components/openpgp/dist/openpgp.js"
           "bower_components/bignumber.js/bignumber.min.js"
           "bower_components/angular/angular.min.js"
           "bower_components/angular-route/angular-route.min.js"
@@ -23,11 +24,13 @@ module.exports = (grunt) ->
           "bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"
           "app/js/index.js"
           "app/js/safemarket.js"
+          "app/js/pgp.js"
           "app/js/ticker.js"
           "app/js/utils.js"
           "app/js/Store.js"
           "app/js/Market.js"
-          
+          "app/js/Order.js"
+          "app/js/Amount.js"
         ]
 
       css:

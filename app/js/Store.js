@@ -31,11 +31,8 @@ Store.create = function(meta){
 			,from:web3.eth.accounts[0]
 		},txHex = StoreContract.new(meta,txObject).transactionHash
 
-	console.log(txHex)
-
 	utils.waitForTx(txHex).then(function(tx){
 		var store = new Store(tx.contractAddress)
-		console.log(store)
 		deferred.resolve(store)
 	},function(error){
 		deferred.reject(error)
@@ -47,6 +44,7 @@ Store.create = function(meta){
 }
 
 Store.check = function(meta){
+	console.log(meta)
 	utils.check(meta,{
 		name:{
 			presence:true
@@ -58,9 +56,13 @@ Store.check = function(meta){
 		},products:{
 			presence:true
 			,type:'array'
-		},identity:{
+		},disputeSeconds:{
 			presence:true
-			,type:'identity'
+			,type:'string'
+			,numericality:{
+				integerOnly:true
+				,greaterThanOrEqualTo:0
+			}
 		}
 	})
 
@@ -101,6 +103,7 @@ Store.estimateCreationGas = function(meta){
 }
 
 Store.prototype.setMeta = function(meta){
+
 	meta = utils.convertObjectToHex(meta)
 
 	var deferred = Q.defer()
@@ -115,10 +118,6 @@ Store.prototype.setMeta = function(meta){
 	})
 
 	return deferred.promise
-}
-
-Store.prototype.checkMeta = function(){
-	Store.checkMeta(this.meta)
 }
 
 
@@ -137,6 +136,7 @@ Store.prototype.update = function(){
 }
 
 function Product(data){
+	this.id = data.id
 	this.name = data.name
 	this.price = new BigNumber(data.price)
 	this.info = data.info

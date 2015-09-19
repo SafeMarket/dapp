@@ -1,6 +1,6 @@
 (function(){
 
-var app = angular.module('app',['safemarket','ui.bootstrap','angular-growl','ngRoute'])
+var app = angular.module('app',['safemarket','ui.bootstrap','angular-growl','ngRoute','yaru22.angular-timeago'])
 
 app.config(function(growlProvider,$routeProvider) {
     
@@ -20,14 +20,20 @@ app.config(function(growlProvider,$routeProvider) {
 	    }).when('/markets/:marketAddr/stores/:storeAddr',{
 	    	templateUrl:'store.html'
 	    	,controller:'StoreController'
+	    }).when('/orders/:orderAddr',{
+	    	templateUrl:'order.html'
+	    	,controller:'OrderController'
 	    })
 
 });
 
-app.controller('MainController',function($scope,modals){
+app.run(function(user){
 
-	$scope.accounts = web3.eth.accounts
-	$scope.account = web3.eth.accounts[0]
+})
+
+app.controller('MainController',function($scope,modals,user){
+
+	$scope.user = user
 
 	$scope.openStoreModal = function(){
 		modals.openstore()
@@ -43,20 +49,60 @@ app.controller('MainController',function($scope,modals){
 
 })
 
-app.controller('StoreModalController',function($scope,safemarket,ticker,growl,$modal,$modalInstance,store,user){
+app.directive('amounts',function(utils){
+	return {
+		templateUrl:'amounts.html'
+		,scope:{
+			value:'='
+			,from:'='
+			,to:'='
+		},link:function(scope,element,attributes){
+			scope.amounts = {}
+
+			scope.$watch('value',function(value){
+				if(!value) return
+
+				scope.to.forEach(function(currency){
+					utils.convertCurrency(value,{from:scope.from,to:currency}).then(function(amount){
+						scope.amounts[currency] = amount
+					})
+				})
+			})
+		}
+	}
+})
+
+app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,growl,$modal,$modalInstance,store,user){
 	
 	ticker.getRates().then(function(rates){
 		$scope.currencies = Object.keys(rates)
 	})
 
+	$scope.disputeSecondsOptions = [
+		{value:'0'}
+		,{value:'86400'}
+		,{value:'172800'}
+		,{value:'259200'}
+		,{value:'604800'}
+		,{value:'1209600'}
+		,{value:'1814400'}
+		,{value:'2592000'}
+	]
+
+	$scope.disputeSecondsOptions.forEach(function(disputeSecondsOption){
+		disputeSecondsOption.label = $filter('disputeSeconds')(disputeSecondsOption.value)
+	})
+
 	if(store){
-		$scope.isEditing
+		$scope.isEditing = true
 		$scope.name = store.meta.name
 		$scope.currency = store.meta.currency
 		$scope.products = store.meta.products
+		$scope.disputeSeconds = store.meta.disputeSeconds
 	}else{
 		$scope.currency = user.data.currency
 		$scope.products = []
+		$scope.disputeSeconds = "1209600"
 		addProduct()
 	}
 
@@ -76,7 +122,7 @@ app.controller('StoreModalController',function($scope,safemarket,ticker,growl,$m
 			name:$scope.name
 			,currency:$scope.currency
 			,products:$scope.products
-			,identity:user.createIdentity()
+			,disputeSeconds:$scope.disputeSeconds
 		}
 		
 		try{
@@ -206,7 +252,6 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 			safemarket
 				.Market.create(meta)
 				.then(function(market){
-					console.log(market)
 					window.location.hash = '/markets/'+market.addr
 					$modalInstance.dismiss()
 				},function(error){
@@ -231,10 +276,18 @@ app.controller('SettingsModalController',function($scope,safemarket,growl,$modal
 	})
 
 	$scope.user = user
+	$scope.accounts = web3.eth.accounts
 
 	$scope.submit = function(){
 		user.save()
 		$modalInstance.close()
+	}
+
+	$scope.generatePgpKeypair = function(){
+		safemarket.pgp.generateKeypair().then(function(keypair){
+			$scope.user.data.publicKeyArmored = keypair.publicKeyArmored
+			$scope.user.data.privateKeyArmored = keypair.privateKeyArmored
+		})
 	}
 })
 
@@ -243,7 +296,7 @@ app.controller('SimpleModalController',function($scope,title,body){
 	$scope.body = body
 })
 
-app.controller('StoreController',function($scope,safemarket,user,$routeParams,modals){
+app.controller('StoreController',function($scope,safemarket,user,$routeParams,modals,utils,Order,growl){
 
 	try{
 		$scope.store = new safemarket.Store($routeParams.storeAddr)
@@ -251,14 +304,54 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 		if($routeParams.marketAddr)
 			$scope.market = new safemarket.Market($routeParams.marketAddr)
 	}catch(e){
-		console.log(e)
 		return
 	}
 
 	$scope.addr = $routeParams.storeAddr
-	$scope.user = user
+	$scope.displayCurrencies = [$scope.store.meta.currency]
+
+	if($scope.displayCurrencies.indexOf(user.data.currency) === -1)
+		$scope.displayCurrencies.push(user.data.currency)
+
+	if($scope.displayCurrencies.indexOf('ETH') === -1)
+		$scope.displayCurrencies.push('ETH')
 
 	$scope.createOrder = function(){
+		var meta = {
+			storeAddr:$scope.store.addr
+			,marketAddr: $scope.market ? $scope.market.addr : utils.nullAddress
+			,products:[]
+			,identity:user.createIdentity()
+		},merchant = $scope.store.merchant
+		,admin = $scope.market ? $scope.market.amin : utils.nullAddress
+		,fee = 0
+
+		$scope.store.products.forEach(function(product){
+			if(product.quantity===0) return true
+
+			meta.products.push({
+				id:product.id
+				,quantity:product.quantity.toString()
+			})
+		})
+
+		try{
+			Order.check(meta,merchant,admin,fee)
+		}catch(e){
+			growl.addErrorMessage(e)
+			return
+		}
+
+		var estimatedGas = Order.estimateCreationGas(meta,merchant,admin,fee)
+		 	,doContinue = confirm('This will take around '+estimatedGas+' gas. Continue?')
+
+		if(!doContinue) return
+
+		$scope.isSyncing = true
+			
+		Order.create(meta,merchant,admin,fee).then(function(order){
+		 	window.location.hash = '/orders/'+order.addr
+		})
 
 	}
 
@@ -281,30 +374,10 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 				total = total.plus(subtotal)
 			})
 
-		$scope.total = total
+		$scope.totalInStoreCurrency = total
 
 	},true)
 
-	$scope.$watch('total',function(total){
-		if(!total) return
-
-
-		safemarket
-			.utils.convertCurrency(total,{from:$scope.store.meta.currency,to:'ETH'})
-			.then(function(totalInEther){
-				$scope.totalInEther = totalInEther
-			},function(){
-			}).catch(function(error){
-				console.error(error)
-			})
-
-		safemarket
-			.utils.convertCurrency(total,{from:$scope.store.meta.currency,to:user.data.currency})
-			.then(function(totalInUserCurrency){
-				$scope.totalInUserCurrency = totalInUserCurrency
-			})
-
-	})
 })
 
 app.controller('MarketController',function($scope,safemarket,user,$routeParams,modals){
@@ -312,7 +385,6 @@ app.controller('MarketController',function($scope,safemarket,user,$routeParams,m
 	try{
 		$scope.market = new safemarket.Market($routeParams.marketAddr)
 	}catch(e){
-		console.log(e)
 		return
 	}
 
@@ -325,8 +397,44 @@ app.controller('MarketController',function($scope,safemarket,user,$routeParams,m
 			.result.then(function(market){
 				$scope.market = market
 			})
+	}
+})
 
+app.controller('OrderController',function($scope,safemarket,user,$routeParams,modals){
+	
+	try{
+		$scope.order = new safemarket.Order($routeParams.orderAddr)
+	}catch(e){
+		return
+	}
 
+	$scope.displayCurrencies = [$scope.order.store.meta.currency]
+
+	if($scope.displayCurrencies.indexOf(user.data.currency) === -1)
+		$scope.displayCurrencies.push(user.data.currency)
+
+	if($scope.displayCurrencies.indexOf('ETH') === -1)
+		$scope.displayCurrencies.push('ETH')
+
+	$scope.$watch('order.messages.length',function(){
+		if([$scope.order.buyer,$scope.order.merchant,$scope.order.admin].indexOf(user.data.account)!==-1)
+			$scope.order.decryptMessages(user.keys.private)
+	})
+
+	$scope.submitMessage = function(){
+		safemarket.pgp.encrypt(user.keys.public,$scope.messageText).then(function(pgpMessage){
+			$scope.order.addMessage(pgpMessage).then(function(){
+				$scope.order.update()
+			})
+		})
+	}
+
+})
+
+app.directive('timestamp',function(){
+	return {
+		scope:{timestamp:'='}
+		,templateUrl:'timestamp.html'
 	}
 })
 
@@ -386,7 +494,7 @@ app.service('modals',function($modal){
 
 	this.openSettings = function(){
 		return $modal.open({
-			size: 'md'
+			size: 'lg'
 			,templateUrl: 'settingsModal.html'
 			,controller: 'SettingsModalController'
 	    });
@@ -405,16 +513,20 @@ app.filter('fromWei',function(){
 	}
 })
 
-app.service('user',function(){
+app.service('user',function(pgp){
 	
 	var userJson = localStorage.getItem('user')
 		,userData = JSON.parse(userJson)
+		,user = this
 
 	if(userData){
 		this.data = userData
 	}else{
 		this.data = {}
 	}
+
+	if(!this.data.account)
+		this.data.account = web3.eth.defaultAccount ? web3.eth.defaultAccount : web3.eth.accounts[0]
 
 	if(!this.data.currency)
 		this.data.currency = 'USD'
@@ -424,6 +536,21 @@ app.service('user',function(){
 
 	this.save = function(){
 		localStorage.setItem('user',JSON.stringify(this.data))
+		this.setKeys()
+	}
+
+	this.setKeys = function(){
+		var keys = {}
+
+		if(this.data.privateKeyArmored){
+			keys.private = openpgp.key.readArmored(this.data.privateKeyArmored).keys[0]
+			keys.private.decrypt('')
+		}
+		
+		if(this.data.publicKeyArmored)
+			keys.public = openpgp.key.readArmored(this.data.publicKeyArmored).keys[0]
+	
+		this.keys = keys
 	}
 
 	this.createIdentity = function(){
@@ -435,7 +562,18 @@ app.service('user',function(){
 		return identity
 	}
 
+	this.setKeys()
+
+	console.log(this)
 
 })
+
+app.filter('capitalize', function() {
+ 	return function(input, scope) {
+    	if (input!=null)
+    	input = input.toLowerCase();
+    	return input.substring(0,1).toUpperCase()+input.substring(1);
+  	}
+});
 
 })();

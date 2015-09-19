@@ -55,6 +55,9 @@ Market.check = function(meta){
 			,type:'boolean'
 		},stores:{
 			type:'array'
+		},identity:{
+			presence:true
+			,type:'string'
 		}
 	})
 
@@ -120,4 +123,4 @@ return Market
 
 })
 
-}())
+})();

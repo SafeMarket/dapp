@@ -142,9 +142,7 @@
 			,check:check
 			,nullAddress:'0x'+Array(21).join('00')
 		})
-
-		console.log(this.nullAddress)
-
+		
 	})
 
 

@@ -6,9 +6,10 @@
 		<h1><span ng-show="market"><a ng-href="#/markets/{{market.addr}}">{{market.meta.name}}</a> » </span>{{store.meta.name}}</h1>
 		Address: <a ng-href="http://etherchain.org/account/{{store.merchant}}">{{store.addr}}</a>
 		<br>Merchant: <a ng-href="http://etherchain.org/account/{{store.merchant}}">{{store.merchant}}</a>
+		<br>Dispute Time: {{store.meta.disputeSeconds | disputeSeconds}}
 		<br>
 			<button
-				ng-show="account === store.merchant"
+				ng-show="user.data.account === store.merchant"
 				class="btn btn-default"
 				ng-click="openStoreModal(store)"
 			>Edit</button>
@@ -22,7 +23,11 @@
 					{{product.info}}
 				</td>
 				<td>
-					{{product.price.toString()}} {{store.meta.currency}}
+					<amounts
+						value="product.price"
+						from="store.meta.currency"
+						to="displayCurrencies">
+					</amounts>
 				</td>
 				<td>
 					<input class="form-control" type="number" ng-model="product.quantity" min="0">
@@ -33,17 +38,16 @@
 				<td></td>
 				<td></td>
 				<td>
-					{{total | currency:store.meta.currency}} {{store.meta.currency}}
-					<br>{{totalInUserCurrency | currency:user.data.currency}} {{user.data.currency}}
-					<br>{{totalInEther | currency:'ETH'}} ETH
+					<amounts
+						value="totalInStoreCurrency"
+						from="store.meta.currency"
+						to="displayCurrencies">
+					</amounts>
 				</td>
 			</tr>
-			<tr ng-show="total.greaterThan(0)">
-				<td></td><td></td><td></td>
-				<td>
-					<textarea class="form-control" ng-model="shipping" placeholder="Shipping Info"></textarea>
-					<span class="text-muted">This will be encrypted and delivered via Whisper</span>
-					<br><br><button ng-click="createOrder(store,market)" class="btn btn-primary">Create Order</button>
+			<tr ng-show="totalInStoreCurrency.greaterThan(0)">
+				<td style="text-align:right" colspan="4">
+					<button ng-click="createOrder(store,market)" class="btn btn-primary">Create Order</button>
 				</td>
 			</tr>
 		</table>
