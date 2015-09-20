@@ -1,0 +1,111 @@
+
+.ui-tags-input {
+    .host {
+        position: relative;
+        margin: 5px 0;
+        &:active {
+            outline: none;
+        }
+    }
+
+    .tags {
+        overflow: hidden;
+        word-wrap: break-word;
+        cursor: text;
+        display: block;
+        width: 100%;
+        min-height: $input-height-base; // Make inputs at least the height of their button counterpart (base line-height + padding + border)
+        padding: $padding-base-vertical $padding-base-horizontal;
+        font-size: $font-size-base;
+        line-height: $line-height-base;
+        color: $input-color;
+        background-color: $input-bg;
+        background-image: none; // Reset unusual Firefox-on-Android default style; see https://github.com/necolas/normalize.css/issues/214
+        border: 1px solid $input-border;
+        border-radius: $input-border-radius;
+    }
+    .tags.focused {
+        outline: none;
+    }
+    .tags .tag-list {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+    }
+    .tags .tag-item {
+        display: inline-block;
+        float: left;
+        margin: 2px;
+        padding: 6px 8px;
+        border-radius: $border-radius-base;
+        background-color: $brand-primary;
+        color: $reverse;
+    }
+    .tags .tag-item.selected {
+    }
+    .tags .tag-item .remove-button {
+        margin: 0 0 0 5px;
+        padding: 0;
+        border: none;
+        background: none;
+        cursor: pointer;
+        vertical-align: middle;
+        color: $gray-lighter;
+        text-decoration: none;
+    }
+    .tags .tag-item .remove-button:active {
+        color: $brand-danger;
+    }
+    .tags .input {
+        border: 0;
+        outline: none;
+        margin: 2px;
+        padding: 5px 0;
+        padding-left: 5px;
+        float: left;
+        // line-height: 30px;
+        height: 30px;
+    }
+    .tags .input.invalid-tag {
+        color: $brand-danger;
+    }
+    .tags .input::-ms-clear {
+        display: none;
+    }
+
+    .autocomplete {
+        margin-top: 5px;
+        position: absolute;
+        padding: 5px 0;
+        z-index: 999;
+        width: 100%;
+        background-color: white;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+    }
+    .autocomplete .suggestion-list {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+    }
+    .autocomplete .suggestion-item {
+        overflow: hidden;
+        padding: 5px 10px;
+        cursor: pointer;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        color: $dark;
+        background-color: $reverse;
+    }
+    .autocomplete .suggestion-item.selected {
+        color: white;
+        background-color: #0097cf;
+    }
+    .autocomplete .suggestion-item.selected em {
+        color: white;
+        background-color: #0097cf;
+    }
+    .autocomplete .suggestion-item em {
+        color: $dark;
+        background-color: white;
+    }
+}

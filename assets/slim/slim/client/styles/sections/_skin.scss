@@ -1,0 +1,276 @@
+
+// Header
+.header-container {
+    // Text color in dropdown is always the same
+    .dropdown {
+        color: $text-color;
+        a {
+            color: $text-color;
+            &:hover {
+                color: $text-color;
+            }
+        }        
+    }
+
+    &.bg-white {
+        color: $text-color;
+
+        .input-group-addon,
+        a {
+            color: $text-color;
+            &:hover {
+                color: $text-color;
+            }
+        }
+    }
+    &.bg-dark {
+        color: $bright;
+
+        .input-group-addon,
+        a {
+            color: $bright;
+            &:hover {
+                color: $bright;
+            }
+        }
+    }
+    &.bg-primary,
+    &.bg-success,
+    &.bg-info,
+    &.bg-info-alt,
+    &.bg-warning,
+    &.bg-danger {
+        color: $bright;
+        a {
+            color: $bright;
+            &:hover {
+                color: $bright;
+            }
+        }
+        
+        .input-group-addon { color: $gray-lighter; }
+        ::-webkit-input-placeholder { color: #eaeaea; }
+        :-moz-placeholder { color: #eaeaea; } // Firefox 18-
+        ::-moz-placeholder {  color: #eaeaea; } // Firefox 19+
+        :-ms-input-placeholder {color: #eaeaea; }   
+
+        .top-nav .nav-left > li > a .badge {
+            color: #eaeaea;
+        }
+    }
+
+    // 
+    > .top-header {
+        .logo {
+            border: 1px solid rgba(0,0,0,.1);
+            @media (min-width: $screen-sm-min) {
+                border: 0;
+            }
+            &.bg-white {
+                color: $dark;
+                a {
+                    color: $dark;
+                    &:hover {
+                        color: $dark;
+                    }
+                }
+
+                & + .menu-button {
+                    .icon-bar {
+                        background-color: $text-color;
+                    }
+
+                    &:hover {
+                        .icon-bar {
+                            background-color: $reverse;
+                        }                        
+                    }
+                }
+            }
+
+            &.bg-dark,
+            &.bg-primary,
+            &.bg-success,
+            &.bg-info,
+            &.bg-info-alt,
+            &.bg-warning,
+            &.bg-danger {
+                color: $bright;
+                a {
+                    color: $bright;
+                    &:hover {
+                        color: $bright;
+                    }
+                }
+            }        
+        }
+
+    }
+}
+
+
+// Sidebar
+.nav-container {
+    border-width: 0 1px 0 0;
+    border-style: solid;
+
+    &.bg-white {
+        border-color: #ddd;
+        .nav {
+
+            a {
+                color: $text-color;
+            }
+
+            > li {
+                &:hover {
+                    > a {
+                        background-color: $light_bg_link_hover_bg;
+                        color: $light_bg_link_hover_color;
+                    }
+                    > .icon-has-ul,
+                    > .icon-has-ul-h { color: $light_bg_link_hover_color; }
+                }
+                &.active {
+                    > a {
+                        background-color: $light_bg_link_active_bg;
+                        color: $light_bg_link_active_color;
+                    }                        
+                    > .icon-has-ul { color: $light_bg_link_active_color; }
+                }
+            }
+
+            // sub menu
+            ul {
+                background-color: $light_bg_sub_nav_bg;
+
+                > li {
+                    &:hover,
+                    &.active {
+                        > a {
+                            color: $brand-primary;
+                        }
+                    }
+                    // &.active {
+                    //     > a {
+                    //         background-color: darken($sub_nav_bg, 5%);
+                    //     }
+                    // }           
+                }
+            }
+        }
+
+        // Vertical NAV only
+        &.nav-vertical {
+            .nav {
+                > li {
+                    border-bottom: 1px solid rgba(0,0,0,.06);
+                    &.open {
+                        > a {
+                            background-color: $light_bg_link_open_bg;
+                            color: $light_bg_link_open_color;
+                        }
+                        > .icon-has-ul,
+                        > .icon-has-ul-h { color: $light_bg_link_open_color; }               
+                    }
+                // overrides Bootstrap 
+                > a:focus {
+                    background-color: $light_bg_link_hover_bg;
+                }
+                }
+            }
+        }        
+    }
+
+    &.bg-dark {
+        background-color: $dark;
+        border-color: $dark;
+        .nav {
+
+            a {
+                color: #ccc;
+                color: rgba(255,255,255,.5);
+            }
+
+            > li {
+                &:hover {
+                    > a {
+                        background-color: $dark_bg_link_hover_bg;
+                        color: $dark_bg_link_hover_color;
+                    }
+                    > .icon-has-ul,
+                    > .icon-has-ul-h { color: $dark_bg_link_hover_color; }
+                }
+                &.active {
+                    > a {
+                        background-color: $dark_bg_link_active_bg;
+                        color: $dark_bg_link_active_color;
+                    }                        
+                    > .icon-has-ul { color: $dark_bg_link_active_color; }
+                }
+                // overrides Bootstrap 
+                > a:focus {
+                    background-color: $dark_bg_link_hover_bg;
+                }
+            }
+
+            // sub menu
+            ul {
+                background-color: $dark_bg_sub_nav_bg;
+
+                > li {
+                    &:hover,
+                    &.active {
+                        > a {
+                            color: $dark_bg_sub_link_active_color;
+                        }
+                    }
+                }
+            }
+
+        }
+
+        // Vertical NAV only
+        &.nav-vertical {
+            .nav {
+                > li {
+                    border-bottom: 1px solid rgba(255,255,255, 0.05);
+                    &.open {
+                        > a {
+                            background-color: $dark_bg_link_open_bg;
+                            color: $dark_bg_link_open_color;
+                        }
+                        > .icon-has-ul,
+                        > .icon-has-ul-h { color: $dark_bg_link_open_color; }               
+                    }
+                }
+            }
+        }  
+
+    }
+
+}
+
+
+
+// make '.open' class effective mobile only
+@media (max-width: $screen-sm-max ) { 
+    .nav-horizontal {
+        .nav {
+            > li {
+                &.open {
+                    > a {
+                        // background-color: $link_active_bg;
+                        color: $brand-primary;
+                    }
+                    > i { color: $brand-primary; }                
+                }
+
+            }
+        }
+    }
+}
+// Horizontal nav is desktop only
+@media (min-width: $screen-sm-min) {
+
+}

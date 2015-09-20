@@ -1,0 +1,121 @@
+
+// Dependency: https://github.com/seiyria/bootstrap-slider
+
+$handler_width:                 15px;
+$color_track:                   #eee;
+$color_selection:               $brand-primary;
+
+$slider-line-height-base:       4px;
+$slider-border-radius-base:     $border-radius-base;
+
+
+// style
+.slider {
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+    &.slider-horizontal {
+        width: 100% !important; // Because CSS style is overrided by some script unknown, probably because of the class, i.e. 'slider-horizontal'
+        height: $slider-line-height-base;
+        .slider-track {
+            height: $slider-line-height-base/2;
+            width: 100%;
+            margin-top: -$slider-line-height-base/4;
+            top: 50%;
+            left: 0;
+        }
+        .slider-selection {
+            height: 100%;
+            top: 0;
+            bottom: 0;
+        }
+        .slider-handle {
+            margin-left: -$handler_width;
+            margin-top: -$handler_width;
+            &.triangle {
+                border-width: 0 $slider-line-height-base/2 $slider-line-height-base/2 $slider-line-height-base/2;
+                width: 0;
+                height: 0;
+                border-bottom-color: #0480be;
+                margin-top: 0;
+            }
+        }
+    }
+    &.slider-vertical {
+        height: 210px;
+        width: $slider-line-height-base;
+        .slider-track {
+            width: $slider-line-height-base/2;
+            height: 100%;
+            margin-left: -$slider-line-height-base/4;
+            left: 50%;
+            top: 0;
+        }
+        .slider-selection {
+            width: 100%;
+            left: 0;
+            top: 0;
+            bottom: 0;
+        }
+        .slider-handle {
+            margin-left: -$handler_width;
+            margin-top: -$handler_width;
+            &.triangle {
+                border-width: $slider-line-height-base/2 0 $slider-line-height-base/2 $slider-line-height-base/2;
+                width: 1px;
+                height: 1px;
+                border-left-color: #0480be;
+                margin-left: 0;
+            }
+        }
+    }
+    &.slider-disabled {
+        .slider-handle {
+            pointer-events: none;
+            background-color: #f5f5f5;
+        }
+        .slider-track {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+    }
+    input {
+        display: none;
+    }
+    .tooltip {
+        &.top {
+            margin-top: -(3*$handler_width + 2);
+        }
+    }
+    .tooltip-inner {
+        white-space: nowrap;
+    }
+}
+.slider-track {
+    position: absolute;
+    cursor: pointer;
+    background-color: $color_track;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
+    border-radius: $slider-border-radius-base;
+}
+.slider-selection {
+    position: absolute;
+    background-color: $color_selection;
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
+    @include box-sizing(border-box);
+    border-radius: $slider-border-radius-base;
+}
+.slider-handle {
+    position: absolute;
+    width: $handler_width * 2;
+    height: $handler_width * 2;
+    background-color: #fff;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    border: 1px solid rgba(0,0,0,0.1);
+    &.round {
+        border-radius: 50%;
+    }
+    &.triangle {
+        background: transparent none;
+    }
+}

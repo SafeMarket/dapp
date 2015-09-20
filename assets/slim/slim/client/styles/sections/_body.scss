@@ -1,0 +1,36 @@
+body {
+    background: url('../images/bg-pattern/bg-pattern7.png') repeat #fff;
+}
+
+// fullscreen, hide header and sidebar
+.body-wide {
+
+    #header,
+    #nav-container {
+        display: none;
+    }
+
+    > .main-container {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    #content {
+        z-index: 2;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        // bottom: 0;
+        margin: 0;
+        padding-bottom: 50px;
+    }
+
+    // hide intro
+    .introjs-overlay,
+    .introjs-helperLayer {
+        display: none;
+    }
+}

@@ -1,0 +1,103 @@
+
+$ui_switch:                 25px;
+$ui_switch_padding:         20px;
+$ui_switch_sm:              20px;
+$ui_switch_sm_padding:      16px;
+$ui_switch_lg:              30px;
+$ui_switch_lg_padding:      25px;
+
+@mixin ui-switch-size($switch_padding) {
+    &.ui-switch-success :checked + i {
+        box-shadow: inset 0 0 1px rgba(0,0,0,.5), inset 0 0 ($switch_padding*2) $brand-success;
+    }
+
+    &.ui-switch-info :checked + i {
+        box-shadow: inset 0 0 1px rgba(0,0,0,.5), inset 0 0 ($switch_padding*2) $brand-info;
+    }
+
+    &.ui-switch-warning :checked + i {
+        box-shadow: inset 0 0 1px rgba(0,0,0,.5), inset 0 0 ($switch_padding*2) $brand-warning;
+    }
+
+    &.ui-switch-danger :checked + i {
+        box-shadow: inset 0 0 1px rgba(0,0,0,.5), inset 0 0 ($switch_padding*2) $brand-danger;
+    }    
+}
+
+// Pure CSS, thanks https://github.com/abpetkov/switchery/issues/13
+.ui-switch {
+    input {
+        display: none;
+    }
+
+    i {
+        display: inline-block;
+        cursor: pointer;
+        padding-right: $ui_switch_padding;
+        @include transition(all ease 0.2s);
+        border-radius: $ui_switch;
+        box-shadow: inset 0 0 1px rgba(0,0,0,.5) ;
+
+        &:before {
+            display: block;
+            content: '';
+            width: $ui_switch;
+            height: $ui_switch;
+            border-radius: $ui_switch;
+            background: white;
+            box-shadow: 0 1px 2px rgba(0,0,0,.5);            
+        }
+    }
+
+    :checked + i {
+        padding-right: 0;
+        padding-left: $ui_switch_padding;
+        box-shadow: inset 0 0 1px rgba(0,0,0,.5), inset 0 0 ($ui_switch_padding*2) $brand-primary ;
+    }
+
+    @include ui-switch-size($ui_switch_padding);
+
+
+    &.ui-switch-sm {
+        i {
+            padding-right: $ui_switch_sm_padding;
+            border-radius: $ui_switch_sm;
+
+            &:before {
+                width: $ui_switch_sm;
+                height: $ui_switch_sm;
+                border-radius: $ui_switch_sm;
+            }
+        }
+
+        :checked + i {
+            padding-right: 0;
+            padding-left: $ui_switch_sm_padding;
+            box-shadow: inset 0 0 1px rgba(0,0,0,.5), inset 0 0 ($ui_switch_sm_padding*2) $brand-primary;
+        }
+
+        @include ui-switch-size($ui_switch_sm_padding);
+    }
+
+    &.ui-switch-lg {
+        i {
+            padding-right: $ui_switch_lg_padding;
+            border-radius: $ui_switch_lg;
+
+            &:before {
+                width: $ui_switch_lg;
+                height: $ui_switch_lg;
+                border-radius: $ui_switch_lg;
+            }
+        }
+
+        :checked + i {
+            padding-right: 0;
+            padding-left: $ui_switch_lg_padding;
+            box-shadow: inset 0 0 1px rgba(0,0,0,.5), inset 0 0 ($ui_switch_lg_padding*2) $brand-primary;
+        }
+
+        @include ui-switch-size($ui_switch_lg_padding);
+    }
+}
+

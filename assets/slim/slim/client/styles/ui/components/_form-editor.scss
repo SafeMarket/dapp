@@ -1,0 +1,26 @@
+.ui-editor {
+    .btn-toolbar {
+        margin-bottom: 10px;
+        .btn {
+            font-size: 12px;
+        }
+
+        .btn-group {
+            margin: 5px;
+        }
+
+        .btn-default {
+            background-color: #fff;
+            color: $text-color;
+        }
+    }
+    #taTextElement {
+        overflow: auto;
+        min-height: 300px;
+    }
+
+    #taHtmlElement {
+        overflow: auto;
+        min-height: 300px;
+    }
+}

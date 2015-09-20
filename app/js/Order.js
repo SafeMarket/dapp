@@ -48,9 +48,9 @@ Order.check = function(meta,merchant,admin,fee,disputeSeconds){
 		},products:{
 			presence:true
 			,type:'array'
-		},identity:{
+		},publicKey:{
 			presence:true
-			,type:'array'
+			,type:'string'
 		}
 	})
 
@@ -95,7 +95,7 @@ Order.check = function(meta,merchant,admin,fee,disputeSeconds){
 			}
 		},disputeSeconds:{
 			presence:true
-			,type:'numericality'
+			,type:'number'
 			,numericality:{
 				onlyInteger:true
 				,greaterThanOrEqualTo:0

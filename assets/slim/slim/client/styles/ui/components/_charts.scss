@@ -1,0 +1,57 @@
+
+/*==========  Flot charts  ==========*/
+#flotTip {
+    background: rgba(0,0,0,.7);
+    color: $bright;
+    padding: .5em .6em;
+    border: 0;
+    font-size: $font-size-small;
+    border-radius: $border-radius-base;
+}
+
+.legendLabel {
+    padding: 0 5px;
+    color: $text-color;
+}
+
+/*==========  ChartJS  ==========*/
+
+.chartjs-with-legend {
+    position:relative;
+    padding: 10px 130px 10px 10px;
+    min-height: 200px;
+}
+
+.doughnut-legend {
+    list-style: none;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+
+    li {
+        display: block;
+        padding-left: 30px;
+        position: relative;
+        margin-bottom: 4px;
+        border-radius: $border-radius-base;
+        padding: 2px 8px 2px 28px;
+        font-size: 14px;
+        cursor: default;
+        @include transition(background-color 200ms ease-in-out);
+        &:hover {
+            background-color: #fafafa;
+        }
+
+        span {
+            display: inline-block;
+            margin: 0 8px 0 0;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: $border-radius-base;
+        }
+    }
+
+}

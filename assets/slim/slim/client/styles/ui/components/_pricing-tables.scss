@@ -1,0 +1,109 @@
+.pricing-table {
+    margin-bottom: 20px;
+    text-align: center;
+    background-color: #fcfcfc;
+    color: $text-color;
+    border-radius: $border-radius-large;
+    box-shadow: 0 0 3px rgba(0,0,0,.2);
+
+    > header {
+        display: block;
+        margin: 0;
+        padding: 30px 40px;
+        font-size: 30px;
+        line-height: 1;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .pricing-price {
+        padding: 0 15px;
+        margin: 0 0 20px 0;
+        sup {
+            font-size: 20px;
+            line-height: 1;
+            color: $brand-primary;
+        }
+        span {
+            font-size: 45px;
+            color: $brand-primary;
+            line-height: 1;
+            margin: 0 5px;
+        }
+        sub {
+            font-size: 15px;
+            line-height: 1;
+            color: $gray-light;
+        }
+
+        hr {
+            width: 60%;
+        }
+    }
+
+    .subtitle {
+        color: $gray-light;
+    }
+
+    .pricing-body {
+        > ul {
+            margin: 0;
+            padding: 10px 25px;
+            list-style: none;
+            font-size: 16px;
+            > li {
+                padding: 12px;
+                border-bottom: 1px solid $state-default-border;
+
+                strong {
+                    color: $dark;
+                }
+            }
+        }
+    }
+
+    > footer {
+        padding: 30px 40px;
+        > a {
+            display: block;
+            margin: 0;
+            font-size: 16px;
+        }
+    }
+
+    // 
+    &.pricing-table-highlight {
+        background-color: $brand-primary;
+        color: $bright;
+        .pricing-price {
+            sup {
+                color: $reverse;
+            }
+            span {
+                color: $reverse;
+            }
+            sub {
+                color: $bright;
+            }
+
+            hr {
+                border-color: rgba(0,0,0,.2);
+            }
+        }
+        .subtitle {
+            color: $gray-lighter;
+        }
+
+        .pricing-body {
+            > ul {
+                > li {
+                    border-bottom: 1px solid rgba(0,0,0,.1);
+
+                    strong {
+                        color: $reverse;
+                    }
+                }
+            }
+        }
+    }
+}

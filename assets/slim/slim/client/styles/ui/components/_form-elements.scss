@@ -1,0 +1,61 @@
+// dependency: http://angular-ui.github.io/bootstrap/ 
+
+// Datepicker
+.ui-datepicker {
+    table {
+        margin: 0 5px;
+        th,
+        td {
+            padding: 1px;
+
+            .active span {
+                color: $reverse;
+            }
+        }
+    }
+}
+
+
+// Timepicker
+.ui-timepicker {
+    td {
+        padding: 1px;
+    }
+}
+
+
+// Rating
+.ui-rating {
+    &:hover {
+        cursor: pointer;
+    }
+
+    .glyphicon {
+        margin-right: 2px;
+    }
+
+    // when active
+    .glyphicon-star {
+        color: $brand-primary;
+    }
+    &.ui-rating-success {
+        .glyphicon-star {
+            color: $brand-success;
+        }        
+    }
+    &.ui-rating-info {
+        .glyphicon-star {
+            color: $brand-info;
+        }        
+    }
+    &.ui-rating-warning {
+        .glyphicon-star {
+            color: $brand-warning;
+        }        
+    }
+    &.ui-rating-danger {
+        .glyphicon-star {
+            color: $brand-danger;
+        }        
+    }
+}

@@ -1,0 +1,42 @@
+<div class="page">
+
+    <section data-ng-controller="jvectormapCtrl">
+        <section class="panel panel-default">
+            <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> Vector Map - World Map</strong></div>
+            <div class="panel-body">
+                <div class="ui-map" ui-jvectormap options="worldMap"></div>
+            </div>
+        </section>
+    </section>  
+
+    <section>
+        <section class="panel panel-default">
+            <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> Google Map</strong></div>
+            <div class="panel-body">
+                <map class="ui-map" zoom="11" center="[40.74, -74.18]" scrollwheel="false">
+                    <marker position="[40.72, -74.20]" title="marker" animation="Animation.DROP"></marker>
+                    <marker position="[40.73, -74.19]" title="drag me" draggable="true"></marker>
+                </map>
+            </div>
+        </section>
+
+        <section class="panel panel-default">
+            <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> Google Map - Dynamic Map</strong></div>
+            <div class="panel-body" data-ng-controller="MapDemoCtrl">
+                <map class="ui-map" zoom="14" center="[43.6650000, -79.4103000]"></map>
+            </div>
+        </section>
+
+        <section class="panel panel-default">
+            <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> Google Map - Styled</strong></div>
+            <div class="panel-body">
+                <map class="ui-map" zoom="11" center="[40.73, -74.19]"
+                     scrollwheel="false"
+                     styles='[{"featureType": "all", "stylers": [{ "saturation": -100 } ] }]'>
+                    <marker position="[40.73, -74.19]" title="drag me" draggable="true"></marker>
+                </map>
+            </div>
+        </section>
+    </section>
+
+</div>

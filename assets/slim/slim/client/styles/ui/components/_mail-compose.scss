@@ -1,0 +1,15 @@
+.mail-compose {
+    .form-group {
+        > input {
+            border: none;
+
+            &:focus {
+                border: none;
+            }
+        }
+    }
+
+    .mail-actions {
+        margin-top: 10px;
+    }
+}

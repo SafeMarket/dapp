@@ -1,0 +1,6 @@
+
+// @import "icons-s/*.png"; // You don't need to set to "../images/phone/*.png", since images path has already specified in config.rb file
+// @include all-icons-s-sprites(true); // set true so that compass also show the dimesion
+
+@import "flags/*.png";
+@include all-flags-sprites(true);

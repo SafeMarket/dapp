@@ -1,0 +1,162 @@
+$border_color: #f1f1f1;
+
+.page.page-mail {
+    padding: 0 15px;
+
+    > .row {
+        display: table;
+    }
+
+    .col-sm-3,
+    .col-sm-9 {
+        float: none;
+        display: table-cell;
+        vertical-align: top;
+        padding: 0;
+    }
+
+    .col-sm-3 {
+        padding-bottom: 180px;
+    }
+    .col-sm-9 {
+        background-color: $reverse;
+    }
+}
+
+.mail-categories {
+    background-color: #f6f6f6;
+
+    a {
+        color: $text-color;
+    }
+
+    .btn-primary {
+        color: $reverse;
+    }
+
+    .category-heading {
+        padding: 13px 15px;
+    }
+
+    .list-group {
+        .list-group-item {
+            padding: 0;
+            border-width: 1px 0;
+            border-color: rgba(0,0,0,.02);
+            background-color: transparent;
+            &.active {
+                > a {
+                    color: $brand-primary;
+                    background-color: $reverse;                    
+                }
+            }
+
+            > a {
+                display: block;
+                padding: 15px;
+                text-decoration: none;
+                &:hover {
+                    color: $brand-primary;
+                    background-color: #fafafa;
+                }
+
+                > i {
+                    font-size: 14px;
+                    width: 18px;
+                    margin-right: 6px;
+                    &.fa-circle {
+                        font-size: $font-size-base;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.mail-container {
+    &.panel {
+        border: 0;
+        margin: 0;
+    }
+
+    .panel-heading {
+        padding: 20px;
+        font-size: 22px;
+    }
+
+    .mail-options {
+        padding: 12px;
+    }
+
+    .table {
+        margin-bottom: 0;
+        border-top: 1px solid $table-border-color;
+        tr {
+            &:hover {
+                cursor: pointer;
+            }
+
+            > td {
+                padding: 12px;
+
+                .ti-star {
+                    color: #ccc;
+
+                    &.active {
+                        color: $brand-danger;
+                    }
+                }
+            }
+        }
+
+        label.ui-checkbox {
+            margin-bottom: 0;
+        }
+
+        .mail-unread {
+            font-weight: bold;
+            color: $gray-dark;
+        }
+        .mail-hightlight {
+            td {
+                background-color: $state-warning-bg;
+            }
+        }
+    }
+
+    .mail-header {
+        padding: 15px 0;
+        h3 {
+            margin-top: 0;
+        }
+    }
+    .mail-info {
+        padding: 10px 15px;
+        border-top: 1px solid $border_color;
+        border-bottom: 1px solid $border_color;
+
+        .col-md-8,
+        .col-md-4 {
+            padding: 0;
+        }
+    }
+    .mail-content {
+        padding: 15px 0;
+        border-bottom: 1px solid $border_color;
+    }
+    .mail-attachments {
+        padding: 15px 0;
+        border-bottom: 1px solid $border_color;
+    
+        .list-attachs {
+            img {
+                max-width: 200px;
+                max-height: 200px;
+            }
+        }
+    }
+    .mail-actions {
+        margin-top: 10px;
+    }
+}
+

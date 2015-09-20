@@ -1,0 +1,33 @@
+.pagination-lg > li {
+    > a, 
+    span {
+        line-height: 26px;
+        padding: 10px 18px;
+    }
+} 
+
+.pagination {
+    > li {
+
+        // overrides Bootstrap
+        &:first-child,
+        &:last-child {
+            > a,
+            > span {
+                border-radius: 24px;
+            }
+        }
+
+        // 
+        > a {
+            color: $text-color;
+            border-radius: 24px;
+            cursor: pointer;
+        }
+        > a,
+        > span {
+            margin-left: 3px;
+        }
+
+    }   
+}

@@ -1,0 +1,21 @@
+.ui-spinner {
+    max-width: 200px;
+    .input-group-btn.btn-group-vertical {
+        > .btn {
+            height: 17px;
+            margin: 0;
+            padding: 0 6px;
+            text-align: center;
+            &:first-child {
+                border-radius: 0 $border-radius-base 0 0 !important;
+            }
+            &:last-child {
+                border-radius: 0 0 $border-radius-base 0;
+            }
+            i {
+                display: block;
+                margin-top: -2px;
+            }
+        }
+    }
+}

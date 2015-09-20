@@ -37,6 +37,7 @@ module.exports = (grunt) ->
         src: [
           "bobower_components/angular/angular-csp.css"
           "bower_components/bootstrap/dist/css/bootstrap.min.css"
+          "assets/slim/dist/styles/main.css"
           "bower_components/angular-growl/build/angular-growl.min.css"
           "app/css/**/*.css"
         ]

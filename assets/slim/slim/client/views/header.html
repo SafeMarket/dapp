@@ -1,0 +1,416 @@
+<header class="top-header clearfix">
+
+    <!-- Logo -->
+    <div class="logo"
+         ng-class="{ 'bg-dark': ['11','31'].indexOf(admin.skin) >= 0,
+                     'bg-white': admin.skin === '21',
+                     'bg-primary': ['12','22','32'].indexOf(admin.skin) >= 0,
+                     'bg-success': ['13','23','33'].indexOf(admin.skin) >= 0,
+                     'bg-info-alt': ['14','24','34'].indexOf(admin.skin) >= 0,
+                     'bg-warning': ['15','25','35'].indexOf(admin.skin) >= 0,
+                     'bg-danger': ['16','26','36'].indexOf(admin.skin) >= 0,
+                    }">
+        <a href="#/">
+            <span>{{main.brand}}</span>
+        </a>
+    </div>
+
+    <!-- needs to be put after logo to make it work -->
+    <div class="menu-button" toggle-off-canvas>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </div>
+
+    <div class="top-nav">
+        <ul class="nav-left list-unstyled">
+            <li>
+                <a href="#/" data-toggle-nav-collapsed-min
+                             class="toggle-min"
+                             ><i class="ti-menu"></i></a>
+            </li>
+            <li class="dropdown hidden-xs" dropdown is-open="status.isopenSettings">
+                <a href="javascript:;" class="dropdown-toggle" dropdown-toggle data-toggle="dropdown"><i class="ti-settings"></i></a>
+                <div class="dropdown-menu with-arrow panel panel-default admin-options" ui-not-close-on-click>
+                    <div class="panel-heading"> Admin Options </div>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <p>Layouts Style</p>
+                            <label class="ui-radio"><input name="layout" type="radio" value="boxed" ng-model="admin.layout"><span>Boxed</span></label>
+                            <label class="ui-radio"><input name="layout" type="radio" value="wide" ng-model="admin.layout"><span>Wide</span></label>
+                        </li>
+                        <li class="list-group-item">
+                            <p>Menu Style</p>
+                            <label class="ui-radio"><input name="menu" type="radio" value="vertical" ng-model="admin.menu"><span>Vertical</span></label>
+                            <label class="ui-radio"><input name="menu" type="radio" value="horizontal" ng-model="admin.menu"><span>Horizontal</span></label>
+                        </li>
+                        <li class="list-group-item">
+                            <p>Additional</p>
+                            <label class="ui-checkbox"><input name="checkbox1" type="checkbox" value="option1" ng-model="admin.fixedHeader"><span>Fixed Top Header</span></label>
+                            <br>
+                            <label class="ui-checkbox"><input name="checkbox1" type="checkbox" value="option1" ng-model="admin.fixedSidebar"><span>Fixed Sidebar Menu</span></label>
+                        </li>
+                        <li class="list-group-item">
+                            <p>
+                                <span>Page Transition: </span> 
+                                <span class="space"></span>
+                                <select ng-model="admin.pageTransition"
+                                        ng-options="ageTransitionOpt.name for ageTransitionOpt in pageTransitionOpts"></select>
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li class="dropdown hidden-xs" dropdown is-open="status.isopenPalette">
+                <a href="javascript:;" class="dropdown-toggle" dropdown-toggle data-toggle="dropdown"><i class="ti-paint-bucket"></i></a>
+                <div class="dropdown-menu with-arrow panel panel-default skin-options" ui-not-close-on-click>
+                    <div class="panel-heading">Skin Options</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <label class="skin-check">
+                                    <input type="radio" name="skin" value="11" ng-model="admin.skin">
+                                    <span class="skin-item bg-body">
+                                        <span class="overlay"><span class="glyphicon glyphicon-ok"></span></span>
+                                        <span class="bg-dark item-header"></span>
+                                        <span class="bg-white item-header"></span>
+                                        <span class="bg-dark"></span>
+                                    </span>
+                                </label>
+
+                                <label class="skin-check">
+                                    <input type="radio" name="skin" value="12" ng-model="admin.skin">
+                                    <span class="skin-item bg-body">
+                                        <span class="overlay"><span class="glyphicon glyphicon-ok"></span></span>
+                                        <span class="bg-primary item-header"></span>
+                                        <span class="bg-white item-header"></span>
+                                        <span class="bg-dark"></span> 
+                                    </span>
+                                </label>
+                                <label class="skin-check">
+                                    <input type="radio" name="skin" value="13" ng-model="admin.skin">
+                                    <span class="skin-item bg-body">
+                                        <span class="overlay"><span class="glyphicon glyphicon-ok"></span></span>
+                                        <span class="bg-success item-header"></span>
+                                        <span class="bg-white item-header"></span>
+                                        <span class="bg-dark"></span> 
+                                    </span>
+                                </label>
+                                <label class="skin-check">
+                                    <input type="radio" name="skin" value="14" ng-model="admin.skin">
+                                    <span class="skin-item bg-body">
+                                        <span class="overlay"><span class="glyphicon glyphicon-ok"></span></span>
+                                        <span class="bg-info-alt item-header"></span>
+                                        <span class="bg-white item-header"></span>
+                                        <span class="bg-dark"></span> 
+                                    </span>
+                                </label>
+                                <label class="skin-check">
+                                    <input type="radio" name="skin" value="15" ng-model="admin.skin">
+                                    <span class="skin-item bg-body">
+                                        <span class="overlay"><span class="glyphicon glyphicon-ok"></span></span>
+                                        <span class="bg-warning item-header"></span>
+                                        <span class="bg-white item-header"></span>
+                                        <span class="bg-dark"></span> 
+                                    </span>
+                                </label>
+                                <label class="skin-check">
+                                    <input type="radio" name="skin" value="16" ng-model="admin.skin">
+                                    <span class="skin-item bg-body">
+                                        <span class="overlay"><span class="glyphicon glyphicon-ok"></span></span>
+                                        <span class="bg-danger item-header"></span>
+                                        <span class="bg-white item-header"></span>
+                                        <span class="bg-dark"></span> 
+                                    </span>
+                                </label>
+                            </div>
+                            <div class="col-xs-4">
+                                <label class="skin-check">
+                                    <input type="radio" name="skin" value="21" ng-model="admin.skin">
+                                    <span class="skin-item bg-body">
+                                        <span class="overlay"><span class="glyphicon glyphicon-ok"></span></span>
+                                        <span class="bg-white item-header"></span>
+                                        <span class="bg-white item-header"></span>
+                                        <span class="bg-dark"></span> 
+                                    </span>
+                                </label>
+                                <label class="skin-check">
+                                    <input type="radio" name="skin" value="22" ng-model="admin.skin">
+                                    <span class="skin-item bg-body">
+                                        <span class="overlay"><span class="glyphicon glyphicon-ok"></span></span>
+                                        <span class="bg-primary item-header"></span>
+                                        <span class="bg-primary item-header"></span>
+                                        <span class="bg-dark"></span> 
+                                    </span>
+                                </label>
+                                <label class="skin-check">
+                                    <input type="radio" name="skin" value="23" ng-model="admin.skin">
+                                    <span class="skin-item bg-body">
+                                        <span class="overlay"><span class="glyphicon glyphicon-ok"></span></span>
+                                        <span class="bg-success item-header"></span>
+                                        <span class="bg-success item-header"></span>
+                                        <span class="bg-dark"></span> 
+                                    </span>
+                                </label>
+                                <label class="skin-check">
+                                    <input type="radio" name="skin" value="24" ng-model="admin.skin">
+                                    <span class="skin-item bg-body">
+                                        <span class="overlay"><span class="glyphicon glyphicon-ok"></span></span>
+                                        <span class="bg-info-alt item-header"></span>
+                                        <span class="bg-info-alt item-header"></span>
+                                        <span class="bg-dark"></span> 
+                                    </span>
+                                </label>
+                                <label class="skin-check">
+                                    <input type="radio" name="skin" value="25" ng-model="admin.skin">
+                                    <span class="skin-item bg-body">
+                                        <span class="overlay"><span class="glyphicon glyphicon-ok"></span></span>
+                                        <span class="bg-warning item-header"></span>
+                                        <span class="bg-warning item-header"></span>
+                                        <span class="bg-dark"></span> 
+                                    </span>
+                                </label>
+                                <label class="skin-check">
+                                    <input type="radio" name="skin" value="26" ng-model="admin.skin">
+                                    <span class="skin-item bg-body">
+                                        <span class="overlay"><span class="glyphicon glyphicon-ok"></span></span>
+                                        <span class="bg-danger item-header"></span>
+                                        <span class="bg-danger item-header"></span>
+                                        <span class="bg-dark"></span> 
+                                    </span>
+                                </label>                               
+                            </div>
+                            <div class="col-xs-4">
+                                <label class="skin-check">
+                                    <input type="radio" name="skin" value="31" ng-model="admin.skin">
+                                    <span class="skin-item bg-body">
+                                        <span class="overlay"><span class="glyphicon glyphicon-ok"></span></span>
+                                        <span class="bg-dark item-header"></span>
+                                        <span class="bg-dark item-header"></span>
+                                        <span class="bg-white"></span> 
+                                    </span>
+                                </label> 
+                                <label class="skin-check">
+                                    <input type="radio" name="skin" value="32" ng-model="admin.skin">
+                                    <span class="skin-item bg-body">
+                                        <span class="overlay"><span class="glyphicon glyphicon-ok"></span></span>
+                                        <span class="bg-primary item-header"></span>
+                                        <span class="bg-primary item-header"></span>
+                                        <span class="bg-white"></span> 
+                                    </span>
+                                </label>
+                                <label class="skin-check">
+                                    <input type="radio" name="skin" value="33" ng-model="admin.skin">
+                                    <span class="skin-item bg-body">
+                                        <span class="overlay"><span class="glyphicon glyphicon-ok"></span></span>
+                                        <span class="bg-success item-header"></span>
+                                        <span class="bg-success item-header"></span>
+                                        <span class="bg-white"></span> 
+                                    </span>
+                                </label>
+                                <label class="skin-check">
+                                    <input type="radio" name="skin" value="34" ng-model="admin.skin">
+                                    <span class="skin-item bg-body">
+                                        <span class="overlay"><span class="glyphicon glyphicon-ok"></span></span>
+                                        <span class="bg-info-alt item-header"></span>
+                                        <span class="bg-info-alt item-header"></span>
+                                        <span class="bg-white"></span> 
+                                    </span>
+                                </label>
+                                <label class="skin-check">
+                                    <input type="radio" name="skin" value="35" ng-model="admin.skin">
+                                    <span class="skin-item bg-body">
+                                        <span class="overlay"><span class="glyphicon glyphicon-ok"></span></span>
+                                        <span class="bg-warning item-header"></span>
+                                        <span class="bg-warning item-header"></span>
+                                        <span class="bg-white"></span> 
+                                    </span>
+                                </label>
+                                <label class="skin-check">
+                                    <input type="radio" name="skin" value="36" ng-model="admin.skin">
+                                    <span class="skin-item bg-body">
+                                        <span class="overlay"><span class="glyphicon glyphicon-ok"></span></span>
+                                        <span class="bg-danger item-header"></span>
+                                        <span class="bg-danger item-header"></span>
+                                        <span class="bg-white"></span> 
+                                    </span>
+                                </label>                               
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </li>
+            <li class="search-box visible-md visible-lg">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="ti-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Search...">
+                </div>
+            </li>
+            <li class="dropdown" dropdown is-open="status.isopenEmail">
+                <a href="javascript:;" class="dropdown-toggle" dropdown-toggle data-toggle="dropdown">
+                    <i class="ti-email"></i>
+                    <span class="badge badge-danger">3</span>
+                </a>
+                <div class="dropdown-menu with-arrow panel panel-default">
+                    <div class="panel-heading">
+                        You have 3 mails.
+                    </div>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <a href="javascript:;" class="media">
+                                <span class="media-left media-icon">
+                                    <span class="btn-icon btn-icon-round btn-warning"><i class="ti-email"></i></span>
+                                </span>
+                                <div class="media-body">
+                                    <span class="block">Lisa sent you a mail</span>
+                                    <span class="text-muted block">2min ago</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="javascript:;" class="media">
+                                <span class="media-left media-icon">
+                                    <span class="btn-icon btn-icon-round btn-info"><i class="ti-email"></i></span>
+                                </span>
+                                <div class="media-body">
+                                    <span class="block">Jane sent you a mail</span>
+                                    <span class="text-muted">3 hours ago</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="javascript:;" class="media">
+                                <span class="media-left media-icon">
+                                    <span class="btn-icon btn-icon-round btn-success"><i class="ti-email"></i></span>
+                                </span>
+                                <div class="media-body">
+                                    <span class="block">Lynda sent you a mail</span>
+                                    <span class="text-muted">9 hours ago</span>
+                                </div>
+                            </a>
+                        </li>                       
+                    </ul>
+                    <div class="panel-footer">
+                        <a href="#/mail/inbox">Show all mails.</a>
+                    </div>
+                </div>
+            </li>
+            <li class="dropdown" dropdown is-open="status.isopenBell">
+                <a href="javascript:;" class="dropdown-toggle" dropdown-toggle data-toggle="dropdown">
+                    <i class="ti-bell"></i>
+                    <span class="badge badge-info">3</span>
+                </a>
+                <div class="dropdown-menu with-arrow panel panel-default">
+                    <div class="panel-heading">
+                        You have 3 notifications.
+                    </div>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <a href="javascript:;" class="media">
+                                <span class="media-left media-icon">
+                                    <span class="btn-icon btn-icon-round btn-success"><i class="ti-bell"></i></span>
+                                </span>
+                                <div class="media-body">
+                                    <span class="block">New tasks needs to be done</span>
+                                    <span class="text-muted block">2min ago</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="javascript:;" class="media">
+                                <span class="media-left media-icon">
+                                    <span class="btn-icon btn-icon-round btn-info"><i class="ti-bell"></i></span>
+                                </span>
+                                <div class="media-body">
+                                    <span class="block">Change your password</span>
+                                    <span class="text-muted">3 hours ago</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="javascript:;" class="media">
+                                <span class="media-left media-icon">
+                                    <span class="btn-icon btn-icon-round btn-danger"><i class="ti-bell"></i></span>
+                                </span>
+                                <div class="media-body">
+                                    <span class="block">New feature added</span>
+                                    <span class="text-muted">9 hours ago</span>
+                                </div>
+                            </a>
+                        </li>                       
+                    </ul>
+                    <div class="panel-footer">
+                        <a href="#/mail/inbox">Show all notifications.</a>
+                    </div>
+                </div>
+            </li>
+        </ul> 
+
+        <ul class="nav-right pull-right list-unstyled">
+
+            <li class="dropdown text-normal nav-profile" dropdown is-open="status.isopenProfile">
+                <a href="javascript:;" class="dropdown-toggle" dropdown-toggle data-toggle="dropdown">
+                    <img src="images/g1.jpg" alt="" class="img-circle img30_30">
+                    <span class="hidden-xs">
+                        <span data-i18n="Lisa Doe"></span>
+                    </span>
+                </a>
+                <ul class="dropdown-menu with-arrow pull-right">
+                    <li>
+                        <a href="#/pages/profile">
+                            <i class="ti-user"></i>
+                            <span data-i18n="My Profile"></span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#/tasks/tasks">
+                            <i class="ti-check-box"></i>
+                            <span data-i18n="My Tasks"></span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#/pages/lock-screen">
+                            <i class="ti-lock"></i>
+                            <span data-i18n="Lock"></span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#/pages/signin">
+                            <i class="ti-export"></i>
+                            <span data-i18n="Log Out"></span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="dropdown langs text-normal" dropdown is-open="status.isopenLang" data-ng-controller="LangCtrl">
+                <a href="javascript:;" class="dropdown-toggle  dropdown-toggleactive-flag" data-toggle="dropdown">
+                    <div class="flag {{ getFlag() }}"></div>
+                </a>
+                <ul class="dropdown-menu with-arrow  pull-right list-langs" role="menu">
+                    <li data-ng-show="lang !== 'English' ">
+                        <a href="javascript:;" data-ng-click="setLang('English')"><div class="flag flags-american"></div> English</a></li>
+                    <li data-ng-show="lang !== 'Español' ">
+                        <a href="javascript:;" data-ng-click="setLang('Español')"><div class="flag flags-spain"></div> Español</a></li>
+                    <li data-ng-show="lang !== '日本語' ">
+                        <a href="javascript:;" data-ng-click="setLang('日本語')"><div class="flag flags-japan"></div> 日本語</a></li>
+                    <li data-ng-show="lang !== '中文' ">
+                        <a href="javascript:;" data-ng-click="setLang('中文')"><div class="flag flags-china"></div> 中文</a></li>
+                    <li data-ng-show="lang !== 'Deutsch' ">
+                        <a href="javascript:;" data-ng-click="setLang('Deutsch')"><div class="flag flags-germany"></div> Deutsch</a></li>
+                    <li data-ng-show="lang !== 'français' ">
+                        <a href="javascript:;" data-ng-click="setLang('français')"><div class="flag flags-france"></div> français</a></li>
+                    <li data-ng-show="lang !== 'Italiano' ">
+                        <a href="javascript:;" data-ng-click="setLang('Italiano')"><div class="flag flags-italy"></div> Italiano</a></li>
+                    <li data-ng-show="lang !== 'Portugal' ">
+                        <a href="javascript:;" data-ng-click="setLang('Portugal')"><div class="flag flags-portugal"></div> Portugal</a></li>
+                    <li data-ng-show="lang !== 'Русский язык' ">
+                        <a href="javascript:;" data-ng-click="setLang('Русский язык')"><div class="flag flags-russia"></div> Русский язык</a></li>
+                    <li data-ng-show="lang !== '한국어' ">
+                        <a href="javascript:;" data-ng-click="setLang('한국어')"><div class="flag flags-korea"></div> 한국어</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+</header>

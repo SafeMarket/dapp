@@ -1,0 +1,105 @@
+// lock screen
+.body-lock {
+    #content {
+        background: url('../images/background/1.jpg') no-repeat center center fixed; 
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        background-size: cover;
+    }
+
+    .content-container > .view-container {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+
+}
+
+
+.page-lock {
+
+    .lock-centered {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        margin-top: -65px;
+
+        @media (min-width: $screen-sm-min) {
+            margin-top: -75px;
+        }
+    }
+
+    .lock-container {
+        padding: 15px 15px 15px 120px;
+        position: relative;
+        width: 100%;
+        max-width: 420px;
+        min-height: 120px;
+        border-radius: 60px;
+        margin: 0 auto;
+        background-color: rgba(255,255,255,.2);
+
+        // .lock-time {
+        //     width: 100%;
+        //     color: $reverse;
+        //     font-size: 100px;
+        //     margin-bottom: 50px;
+        //     display: inline-block;
+        //     text-align: center;
+        //     font-weight: 100;
+
+        //     @media screen and (min-width: $screen-sm-min) {
+        //         font-size: 125px;
+        //     }          
+        // }
+    }
+
+    .profile img {
+        position: absolute;
+        border-radius: 50%;
+        top: 20px;
+        left: 20px;
+        width: 80px;
+        height: 80px;
+        box-shadow: 0 0 0 5px rgba(0,0,0,.1);
+    }
+
+
+    ::-webkit-input-placeholder { color: #ccc; font-weight: 300 }
+    :-moz-placeholder { color: #ccc; font-weight: 300 } // Firefox 18-
+    ::-moz-placeholder { color: #ccc; font-weight: 300 } // Firefox 19+
+    :-ms-input-placeholder { color: #ccc; font-weight: 300 }
+
+    .lock-form {
+        position: relative;
+        padding: 10px 75px 10px 0;
+        .name {
+            font-size: 12px;
+            color: $text-color;
+        }
+
+        .form-control {
+            background: transparent;
+            border-width: 0 0 1px 0;
+            border-style: solid;
+            border-color: rgba(255,255,255,.3);
+            padding: 0;
+            color: $bright;
+            border-radius: 0;
+        }
+
+        .btn-submit {
+            position: absolute;
+            top: 12.5px;
+            right: 0;
+            font-size: 26px;
+            &:hover {
+                text-decoration: none;
+            }
+        }          
+    }
+
+}

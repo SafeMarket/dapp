@@ -1,0 +1,218 @@
+$main_color:    $brand-primary; // (8,142,196)
+
+
+
+/*==========  UI  ==========*/
+
+h1, h2, h3 {
+    font-weight: 300;
+}
+
+.btn-download {
+    color: $reverse;
+    background-color: transparent; 
+    border-color: $reverse;
+    min-width: 200px;
+
+    &:hover,
+    &:focus,
+    &:active,
+    &.active {
+        color: lighten($main_color, 5%);
+        background-color: $reverse;
+    }
+    .open & {
+        &.dropdown-toggle {
+            color: lighten($main_color, 5%);
+            background-color: $reverse;
+        }
+    }
+}
+
+
+
+/*==========  page  ==========*/
+
+
+// 
+.header {
+    background-color: #fff;
+    border-bottom: 1px solid $gray-lighter;
+    box-shadow: 0 0 2px rgba(0,0,0,.2);
+}
+
+// 
+.main-content {
+    padding: 50px 0 0;
+}
+
+.banner {
+    background-color: $main_color;
+    color: #fff;
+    color: rgba(255,255,255,.8);
+    text-align: center;
+    padding: 50px 0 0;
+
+    h2 {
+        font-size: 36px;
+        line-height: 60px;
+        margin-bottom: 12px;
+    }
+
+    .btn-download {
+        margin-bottom: 30px;
+    }
+
+    .preview-img {
+        display: block;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+}
+
+// 
+.features {
+    padding: 50px 0;
+    border-bottom: 1px solid $gray-lighter;
+
+    > header {
+        padding: 0 20px;
+        margin-bottom: 60px;
+    }
+
+    header h3 {
+        text-transform: uppercase;
+    }
+
+    .feature-item {
+        margin-bottom: 50px;
+        > i {
+            font-size: 32px;
+            line-height: 100px;
+            height: 100px;
+            width: 100px;
+            padding: 0;
+            border-radius: 50%;
+            border: 2px solid $gray-light;
+        }
+
+        .desc {
+            max-width: 280px;
+            margin-left: auto;
+            margin-right: auto;
+            color: $gray-light;
+        }
+    }
+
+}
+
+// 
+.details {
+    .list-details {
+        margin: 0;
+        > li {
+            text-align: center;
+            padding: 100px 0;
+            background-color: #f2f4f8;
+            &.alt {
+                background-color: $dark;
+                @media (min-width: $screen-sm) {
+                    .detail-item {
+                        margin-right: 0;
+                        margin-left: 50%;
+
+                        .detail-desc {
+                            margin-right: 0;
+                            margin-left: -100%;
+                            float: left;
+                        }
+                    }
+                }
+            }
+            @media (min-width: $screen-sm) {
+                text-align: left;
+                
+                h2 {
+                    font-size: 48px;
+                    line-height: 70px;
+                }
+
+                .detail-item {
+                    margin-right: 50%;
+
+                    .detail-desc {
+                        margin-right: -100%;
+                        float: right;
+                    }
+                }
+
+                .detail-desc {
+                    padding: 10px 15px 0;
+                    width: 100%;
+                    max-width: 100%;
+                    font-size: 16px;
+                }
+            }
+
+            > .container {
+                @media (min-width: $screen-lg) {
+                    width: 970px;
+                }
+            }
+
+            .detail-desc {
+                margin-bottom: 50px;
+            }
+
+            .detail-img {
+                padding: 0 15px;
+                img {
+                    display: inline-block;
+                    max-width: 100%;
+                }
+            }
+        }
+    }
+}
+
+// 
+.testimonials {
+    background-color: $main_color;
+    padding: 10px 10px;
+    color: #fff;
+    color: rgba(255,255,255,.8);
+
+    .carousel {
+        max-width: 970px;
+        margin: 0 auto;
+        padding: 80px;
+
+        .carousel-indicators li {
+            border: 1px solid $gray-lighter;
+            border: 1px solid rgba(255,255,255,.3);
+            &.active {
+                background-color: $gray-lighter;
+                background-color: rgba(255,255,255,.6);
+            }
+        }
+
+        .carousel-inner {
+            font-size: 18px;
+            min-height: 125px;
+
+            small {
+                display: block;
+                margin-top: 30px;
+                font-size: 12px;
+            }
+        }
+    }
+}
+
+// 
+.footer {
+    background-color: $dark;
+    padding: 30px 0;
+    font-size: 12px;
+}

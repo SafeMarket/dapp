@@ -1,0 +1,155 @@
+.page-tasks {
+
+    // essential
+    .task-list {
+        
+        // when init
+        .view {
+            display: block;
+        }
+
+        .edit {
+            display: none;
+        }
+
+        // when editing
+        li.editing {
+
+            .view {
+                display: none;
+            }
+
+            .edit {
+                display: block;
+            }
+        }
+
+    }
+
+    // add-on style
+
+    .add-task {
+        position: relative;
+
+        input {
+            height: 44px;
+            padding: 6px 12px 6px 40px;
+        }
+
+        a.submit-button {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            color: $gray-light;
+        }
+    }
+
+    label {
+        font-weight: normal;
+    }
+
+    // filters
+    .filters {
+        margin: 15px 0;
+    }
+    .nav-tabs>li.active>a,
+    .nav-tabs>li.active>a:hover,
+    .nav-tabs>li.active>a:focus {
+        background-color: $main_container_bg;
+    }
+
+    .task-list {
+        // when init
+        .view {
+            position: relative;
+            margin-bottom: 10px;
+            padding: 0 12px 0 40px;
+            border-radius: $border-radius-base;
+            background-color: $reverse;
+            box-shadow: 0 0 1px rgba(0,0,0,.2);
+            &:hover {
+                .glyphicon-pencil,
+                .glyphicon-remove {
+                    display: block;
+                }
+            }
+
+            input[type="checkbox"] {
+                position: absolute;
+                top: 11px;
+                left: 16px;
+            }
+
+            label {
+                line-height: 20px;
+                margin: 0;
+                width: 100%;
+                padding: 12px 0 12px;
+            }
+
+            .glyphicon-pencil,
+            .glyphicon-remove {
+                display: none;
+                position: absolute;
+                top: 14px;
+                color: $gray-light;
+                @include transition(all .2s ease-in-out);
+                &:hover {
+                    cursor: pointer;
+                    color: $gray-dark;
+                    @include transform(scale(1.3));
+                }
+            }
+            .glyphicon-pencil {
+                right: 40px;
+            }
+            .glyphicon-remove {
+                right: 16px;
+            }
+        }
+
+        .completed .view {
+            label {
+                color: $gray-light;
+                text-decoration: line-through;
+            }
+        }
+        
+        // when editing
+        input.edit {
+            margin-bottom: 10px;
+            height: 44px;
+            padding: 6px 12px 6px 40px;
+        }
+    }
+
+    .task-footer {
+        margin: 15px 0;
+        border-top: 4px double darken($gray-lighter, 5%);
+        padding: 12px;
+
+        .list-inline>li {
+            float: left;
+            width: 30%;
+            &.first-item {
+                width: 40%;
+            }
+        }
+
+        .clear-completed {
+            color: $gray-light;
+            border-radius: $border-radius-base;
+            @include transition(color, .2s ease-in-out);
+            &:hover {
+                cursor: pointer;
+                color: $text-color;
+            }
+        }
+    }
+
+    .tips {
+        h3 {
+            margin-top: 0;
+        }
+    }
+}

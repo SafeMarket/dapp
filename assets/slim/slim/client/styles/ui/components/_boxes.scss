@@ -1,0 +1,67 @@
+
+$icon_box_size:     110px;
+
+.icon-box {
+    .icon-container {
+        border: 1px solid rgba(0,0,0,.05);
+        box-shadow: 0 0 0 7px rgba(0,0,0,.01);
+        border-radius: 50%;
+        width: $icon_box_size;
+        height: $icon_box_size;
+        text-align: center;
+        font-size: 50px;
+        line-height: $icon_box_size;
+        color: $brand-primary;
+    }
+
+    h4 {
+        font-weight: bold;
+    }
+
+    .desc-container {
+        @media (min-width: $screen-sm-min) {
+            max-width: 250px;
+        }
+    }
+}
+
+.icon-box-vertical {
+    padding: 15px 0;
+    text-align: center;
+    .icon-container {
+        margin: 0 auto 15px;
+    }
+
+    .desc-container {
+        margin: auto;
+    }
+}
+
+.icon-box-horizontal {
+    position: relative;
+    min-height: ($icon_box_size + 20px);
+    padding: 10px 10px 10px 145px;
+    .icon-container {
+        position: absolute;
+        left: 10px;
+        top: 10px;
+    }
+}
+
+
+// 
+
+.photo-box {
+    text-align: center;
+    img {
+        max-width: 100%;
+    }
+
+    h4 {
+        font-weight: bold;
+    }
+
+    .photo-container {
+        border: 8px solid $bright;
+    }
+}

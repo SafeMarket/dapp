@@ -1,0 +1,99 @@
+.body-auth {
+    #content {
+        background: url('../images/background/1.jpg') no-repeat center center fixed; 
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        background-size: cover;        
+    }
+}
+
+
+
+.page-signin,
+.page-signup,
+.page-forgot {
+
+    h1 {
+        font-weight: 300;
+        color: $bright;
+        font-size: 54px;
+        margin-bottom: 60px;
+        a {
+            color: $bright;
+        }
+    }
+
+    .form-group {
+        margin: 0;
+    }
+    .input-group-first {
+        border-top: 1px solid rgba(255,255,255,.3);
+    }
+    .input-group {
+        padding: 6px 0;
+        border-bottom: 1px solid rgba(255,255,255,.3);
+    }
+    .input-group-addon {
+        background: transparent;
+        border: 0;
+        font-size: 24px;
+        color: #ccc;
+    }
+    .form-control {
+        border: 0;
+        border-radius: 0;
+        color: $bright;
+        font-weight: 300;
+        background: transparent;
+    }
+    ::-webkit-input-placeholder { color: #ccc; font-weight: 300 }
+    :-moz-placeholder { color: #ccc; font-weight: 300 } // Firefox 18-
+    ::-moz-placeholder { color: #ccc; font-weight: 300 } // Firefox 19+
+    :-ms-input-placeholder { color: #ccc; font-weight: 300 }
+
+
+
+    .signin-header {
+        margin-top: 50px;
+        @media (min-width: $screen-sm) {
+            margin-top: 150px;
+        }
+    }
+
+    .logo {
+        font-size: 26px;
+        font-weight: normal;
+        // text-transform: uppercase;
+        a {
+            &:hover {
+                text-decoration: none;
+            }
+        }
+    }
+
+    // 
+    .signin-body,
+    .signup-body {
+        padding: 20px 10px;
+    }
+
+    .form-container {
+        max-width: 420px;
+        margin: 10px auto;
+    }
+
+    .additional-info {
+        color: #ccc;
+        color: rgba(255,255,255,.6);
+        a {
+            color: #ccc;
+            color: rgba(255,255,255,.6);
+        }
+    }
+}
+
+.page-forgot {
+    .additional-info {
+        color: #ccc;
+    }
+}

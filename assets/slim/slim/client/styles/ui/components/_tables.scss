@@ -1,0 +1,108 @@
+.table-dynamic {
+    // filters
+    .table-filters {
+        margin: 10px 0;
+        padding: 8px;
+    }
+
+    .filter-result-info {
+        padding: 7px;
+    }
+
+    // table
+    .table-bordered {
+        border-top: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+
+        thead th {
+            position: relative;
+            padding: 0;
+            &>.th {
+                position: relative;
+                padding: 8px 20px 8px 8px;
+            }
+
+            .glyphicon-chevron-up,
+            .glyphicon-chevron-down {
+                position: absolute;
+                color: #999;
+
+                &:hover {
+                    color: $skin;
+                    cursor: pointer;
+                }
+                &.active {
+                    color: $skin;
+                }                
+            }
+            .fa-angle-up,
+            .fa-angle-down {
+                position: absolute;
+                color: #999;
+                font-size: 16px;
+                font-weight: bold;
+
+                &:hover {
+                    color: $skin;
+                    cursor: pointer;
+                }
+                &.active {
+                    color: $skin;
+                }                  
+            }
+            .ti-angle-up,
+            .ti-angle-down {
+                position: absolute;
+                color: #999;
+                font-size: 16px;
+                font-weight: bold;
+
+                &:hover {
+                    color: $skin;
+                    cursor: pointer;
+                }
+                &.active {
+                    color: $skin;
+                }                  
+            }
+
+            .glyphicon-chevron-up,
+            .fa-angle-up,
+            .ti-angle-up {
+                top: 4px;
+                right: 5px;
+            }
+            .fa-angle-down,
+            .ti-angle-down {
+                top: 18px;
+                right: 5px;
+            }                       
+            .glyphicon-chevron-down {
+                top: 18px;
+                right: 6px;                
+            }
+        }
+    }
+
+    // footer
+    .table-footer{
+        margin: 10px 0;
+        padding: 8px;
+    }
+
+    .page-num-info {
+        span {
+            padding: 6px;
+        }
+    }
+
+    .pagination-container {
+        ul {
+            margin: 0;
+
+            li:hover {
+                cursor: pointer;
+            }
+        }
+    }
+}

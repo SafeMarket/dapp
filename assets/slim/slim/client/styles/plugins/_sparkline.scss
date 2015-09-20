@@ -1,0 +1,6 @@
+// fix jquery sparkline conflict with Bootstrap 3 issue, thanks to http://stackoverflow.com/questions/18894820/jquery-sparklines-and-twitter-bootstrap-3-tooltip-style-overrides
+.jqstooltip {
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+}

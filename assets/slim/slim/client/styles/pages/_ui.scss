@@ -1,0 +1,137 @@
+
+
+// icons
+.themify-icons {
+    width: 100%;
+    text-align: center;
+
+    .icon-section {
+        overflow: hidden;
+        margin: 0 auto 3.5em;
+        width: 90%;
+    }
+
+    .icon-container {
+        margin: 0 0 10px;
+        display: inline-block;
+        padding: .5em 0;
+        width: 30%; 
+
+        [class^="ti-"],
+        [class*=" ti-"] {
+            display: block;
+            height: 80px;
+            font-size: 1.5em;
+            line-height: 100px;
+            transition: all .3s ease-in-out;
+        }
+
+        @media (min-width: $screen-sm-min) {
+            width: 15%; 
+        }
+    }
+
+    .icon-name {
+        margin: 5px 0 0;
+        display: block;
+        color: #aaa;
+        font-size: .8em;
+        transition: all .3s ease-in-out;
+    }
+
+    .icon-container:hover {
+        .icon-name {
+            color: $dark;
+        }
+
+        [class^="ti-"],
+        [class*=" ti-"] {
+            font-size: 3em;
+        }
+    }
+
+}
+
+// weather icons
+.weather-icons {
+    width: 100%;
+    text-align: center;
+
+    .icon-section {
+        overflow: hidden;
+        margin: 0 auto 3.5em;
+        width: 90%;
+    }
+
+    .example {
+        margin: 0 0 10px;
+        display: inline-block;
+        padding: .5em 0;
+        width: 30%; 
+
+        .wi {
+            display: block;
+            height: 80px;
+            font-size: 1.5em;
+            line-height: 100px;
+            transition: all .3s ease-in-out;
+        }
+
+        @media (min-width: $screen-sm-min) {
+            width: 15%; 
+        }
+    }
+
+    .class {
+        margin: 5px 0 0;
+        display: block;
+        color: #aaa;
+        font-size: .8em;
+        transition: all .3s ease-in-out;
+    }
+
+    .example:hover {
+        .class {
+            color: $dark;
+        }
+
+        .wi {
+            font-size: 3em;
+        }
+    }   
+}
+
+.page-icons {
+    // Bootstrap Glyphicons
+    .bs-glyphicons {
+        overflow: hidden;
+
+        li {
+            float: left;
+            width: 25%;
+            height: 115px;
+            padding: 10px;
+            font-size: 10px;
+            line-height: 1.4;
+            text-align: center;
+            border: 1px solid #f9f9f9;
+            // &:hover { color: #fff; background-color: $brand-primary; }
+        }
+
+        .glyphicon {
+            margin-top: 5px;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .glyphicon-class {
+            display: block;
+            text-align: center;
+            word-wrap: break-word;
+        }
+    }
+    .bs-glyphicons-list {
+        padding-left: 0;
+        list-style: none;
+    }
+}

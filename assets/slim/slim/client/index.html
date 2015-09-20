@@ -1,0 +1,127 @@
+<!doctype html>
+<!--[if lt IE 8]>         <html class="no-js lt-ie8"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+        <title>Web Application</title>
+        <meta name="description" content="Responsive Admin Web App">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,400,600,300,700' rel='stylesheet' type='text/css'>
+        <!-- Needs images, font... therefore can not be part of main.css -->
+        <link rel="stylesheet" href="fonts/themify-icons/themify-icons.min.css">
+        <link rel="stylesheet" href="bower_components/weather-icons/css/weather-icons.min.css">
+        <!-- end Needs images -->
+
+            
+            <!-- build:css({.tmp,client}) styles/main.css -->
+            <link rel="stylesheet" href="styles/bootstrap.css">
+            <link rel="stylesheet" href="styles/ui.css">
+            <link rel="stylesheet" href="styles/main.css">
+            <!-- endbuild -->
+
+    </head>
+    <body data-ng-app="app"
+          id="app"
+          class="app"
+          data-custom-page 
+          data-off-canvas-nav
+          data-ng-controller="AppCtrl"
+          data-ng-class=" {'layout-boxed': admin.layout === 'boxed'} "
+          >
+        <!--[if lt IE 9]>
+            <div class="lt-ie9-bg">
+                <p class="browsehappy">You are using an <strong>outdated</strong> browser.</p>
+                <p>Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+            </div>
+        <![endif]-->
+
+        <section data-ng-include=" 'views/header.html' "
+                 id="header"
+                 class="header-container "
+                 data-ng-controller="HeaderCtrl"
+                 data-ng-class="{ 'header-fixed': admin.fixedHeader,
+                                  'bg-white': ['11','12','13','14','15','16','21'].indexOf(admin.skin) >= 0,
+                                  'bg-dark': admin.skin === '31',
+                                  'bg-primary': ['22','32'].indexOf(admin.skin) >= 0,
+                                  'bg-success': ['23','33'].indexOf(admin.skin) >= 0,
+                                  'bg-info-alt': ['24','34'].indexOf(admin.skin) >= 0,
+                                  'bg-warning': ['25','35'].indexOf(admin.skin) >= 0,
+                                  'bg-danger': ['26','36'].indexOf(admin.skin) >= 0
+                 }"></section>
+
+        <div class="main-container">
+            <aside data-ng-include=" 'views/nav.html' "
+                   id="nav-container"
+                   class="nav-container"
+                   data-ng-class="{ 'nav-fixed': admin.fixedSidebar,
+                                    'nav-horizontal': admin.menu === 'horizontal',
+                                    'nav-vertical': admin.menu === 'vertical',
+                                    'bg-white': ['31','32','33','34','35','36'].indexOf(admin.skin) >= 0,
+                                    'bg-dark': ['31','32','33','34','35','36'].indexOf(admin.skin) < 0
+                   }">
+            </aside>
+
+            <div id="content" class="content-container">
+                <section data-ng-view
+                         class="view-container {{admin.pageTransition.class}}"></section>
+            </div>
+        </div>
+
+
+        <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+        <!-- build:js scripts/vendor.js -->
+        <script src="bower_components/jquery/dist/jquery.min.js"></script>
+        <script src="bower_components/angular/angular.min.js"></script>
+        <script src="bower_components/angular-route/angular-route.min.js"></script>
+        <script src="bower_components/angular-animate/angular-animate.min.js"></script>
+        <!-- endbuild -->
+
+        <!-- build:js scripts/ui.js -->
+        <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+        <script src="bower_components/jquery-spinner/dist/jquery.spinner.min.js"></script>
+        <script src="bower_components/seiyria-bootstrap-slider/dist/bootstrap-slider.min.js"></script>
+        <script src="bower_components/jquery-steps/build/jquery.steps.min.js"></script>
+        <script src="bower_components/toastr/toastr.min.js"></script>
+        <script src="bower_components/bootstrap-file-input/bootstrap.file-input.js"></script>
+        <script src="bower_components/jquery.slimscroll/jquery.slimscroll.min.js"></script>
+        <script src="scripts/vendors/jquery.sparkline.min.js"></script>
+        <script src="bower_components/flot/jquery.flot.js"></script>
+        <script src="bower_components/flot/jquery.flot.resize.js"></script>
+        <script src="bower_components/flot/jquery.flot.pie.js"></script>
+        <script src="scripts/vendors/jquery.flot.orderBars.js"></script>
+        <script src="bower_components/flot/jquery.flot.stack.js"></script>
+        <script src="bower_components/flot.curvedlines/curvedLines.js"></script>
+        <script src="bower_components/flot.tooltip/js/jquery.flot.tooltip.min.js"></script>
+        <script src="bower_components/flot/jquery.flot.time.js"></script>
+        <script src="bower_components/jquery.easy-pie-chart/dist/angular.easypiechart.min.js"></script>
+        <script src="bower_components/angular-ui-tree/dist/angular-ui-tree.min.js"></script>
+        <script src="bower_components/ngmap/build/scripts/ng-map.min.js"></script>
+        <script src="bower_components/ng-tags-input/ng-tags-input.min.js"></script>
+        <script src="scripts/vendors/jquery-jvectormap-1.2.2.min.js"></script>
+        <script src="scripts/vendors/jquery-jvectormap-world-mill-en.js"></script>
+        <script src="bower_components/angular-loading-bar/build/loading-bar.min.js"></script>
+        <!-- endbuild -->
+
+        <!-- build:js({.tmp,client}) scripts/app.js -->
+        <script src="scripts/app.js"></script>
+        <script src="scripts/shared/main.js"></script>
+        <script src="scripts/shared/directives.js"></script>
+        <script src="scripts/shared/localize.js"></script>
+        <script src="scripts/shared/Nav.js"></script>
+        <script src="scripts/UI/UICtrl.js"></script>
+        <script src="scripts/UI/UIDirective.js"></script>
+        <script src="scripts/UI/UIService.js"></script>
+        <script src="scripts/UI/Map.js"></script>
+        <script src="scripts/Form/FormDirective.js"></script>
+        <script src="scripts/Form/FormCtrl.js"></script>
+        <script src="scripts/Form/FormValidation.js"></script>
+        <script src="scripts/Table/TableCtrl.js"></script>
+        <script src="scripts/Task/Task.js"></script>
+        <script src="scripts/Chart/ChartCtrl.js"></script>
+        <script src="scripts/Chart/ChartDirective.js"></script>
+        <script src="scripts/Page/PageCtrl.js"></script>
+        <!-- endbuild -->
+    </body>
+</html>

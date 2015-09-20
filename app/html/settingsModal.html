@@ -23,11 +23,9 @@
     </div>
     <table class="table">
         <tr ng-repeat="keypair in user.keypairs">
+            <td>{{keypair.data.label}}</td>
             <td timestamp="keypair.data.timestamp"></td>
             <td style="text-align:right">
-                <button class="btn btn-warning" ng-click="keypair.toggleIsRetired();user.save();">
-                    <span ng-show="keypair.data.isRetired">Un-</span>Retire
-                </button>
                 <button class="btn btn-danger" ng-click="deleteKeypair($index)">
                     Delete
                 </button>

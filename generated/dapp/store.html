@@ -3,16 +3,34 @@
 		Could not find store at {{addr}}
 	</div>
 	<div ng-cloak ng-show="store">
-		<h1><span ng-show="market"><a ng-href="#/markets/{{market.addr}}">{{market.meta.name}}</a> » </span>{{store.meta.name}}</h1>
-		Address: <a ng-href="http://etherchain.org/account/{{store.merchant}}">{{store.addr}}</a>
-		<br>Merchant: <a ng-href="http://etherchain.org/account/{{store.merchant}}">{{store.merchant}}</a>
-		<br>Dispute Time: {{store.meta.disputeSeconds | disputeSeconds}}
-		<br>
+		<h1>
+			<span ng-show="market"><a ng-href="#/markets/{{market.addr}}">{{market.meta.name}}</a> » </span>{{store.meta.name}}
 			<button
 				ng-show="user.data.account === store.merchant"
 				class="btn btn-default"
 				ng-click="openStoreModal(store)"
-			>Edit</button>
+			>
+				Edit
+			</button>
+		</h1>
+		<table class="table">
+			<tr>
+				<td>Address</td>
+				<td>{{store.addr}}</td>
+			</tr>
+			<tr>
+				<td>Merchant</td>
+				<td>{{store.merchant}}</td>
+			</tr>
+			<tr>
+				<td>Dispute Time</td>
+				<td>{{store.meta.disputeSeconds | disputeSeconds}}</td>
+			</tr>
+			<tr>
+				<td>Public Key</td>
+				<td key="store.publicKey"></td>
+			</tr>
+		</table>
 		<h3>Products</h3>
 		<table class="table">
 			<tr ng-repeat="product in store.products">
@@ -45,11 +63,15 @@
 					</amounts>
 				</td>
 			</tr>
-			<tr ng-show="totalInStoreCurrency.greaterThan(0)">
-				<td style="text-align:right" colspan="4">
-					<button ng-click="createOrder(store,market)" class="btn btn-primary">Create Order</button>
-				</td>
-			</tr>
 		</table>
+		<h3>Keypair</h3>
+		<table class="table">
+	        <tr ng-repeat="keypair in user.keypairs">
+	            <td>{{keypair.data.label}}</td>
+	            <td timestamp="keypair.data.timestamp"></td>
+	            <td><input type="radio" ng-model="$parent.publicKey" ng-value="keypair.public.toPacketlist().write()"></td>
+	        </tr>
+	    </table>
+		<button ng-click="createOrder(store,market)" class="btn btn-primary">Create Order</button>
 	</div>
 </div>

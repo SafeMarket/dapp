@@ -1,5 +1,7 @@
 body{
 	padding-top:80px;
+	overflow-y:scroll;
+	background-image:none;
 }
 
 input[type="range"]{
@@ -12,3 +14,15 @@ input[type="range"]{
     right: 25px;
     z-index: 100000;
 }
+
+.key{
+	font-family: "Lucida Console", Monaco, monospace;
+	font-size: .8em;
+    line-height: 1.42857;
+    word-break: break-all;
+    word-wrap: break-word;
+    color: #333;
+    white-space: pre;
+}
+
+[ng-click]{cursor: pointer;}
