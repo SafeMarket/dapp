@@ -16,16 +16,21 @@
                 <select type="text" ng-model="user.data.currency" class="form-control" ng-options="currency for currency in currencies"></select>
             </td>
         </tr>
-        <tr>
-            <td>PGP Public Key <button ng-click="generatePgpKeypair()"><span class="glyphicon glyphicon-refresh"></span></button></td>
-            <td>
-                <textarea class="form-control" ng-model="user.data.publicKeyArmored"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>PGP Private Key</td>
-            <td>
-                <textarea class="form-control" ng-model="user.data.privateKeyArmored"></textarea>
+    </table>
+    <h3>Keypairs <a ng-click="addKeypair()" class="btn btn-primary btn-xs" ng-show="!isAddingKeypair">+</a></h3>
+    <div class="alert alert-info text-center" ng-show="isAddingKeypair">
+        Adding new keypair...
+    </div>
+    <table class="table">
+        <tr ng-repeat="keypair in user.keypairs">
+            <td timestamp="keypair.data.timestamp"></td>
+            <td style="text-align:right">
+                <button class="btn btn-warning" ng-click="keypair.toggleIsRetired();user.save();">
+                    <span ng-show="keypair.data.isRetired">Un-</span>Retire
+                </button>
+                <button class="btn btn-danger" ng-click="deleteKeypair($index)">
+                    Delete
+                </button>
             </td>
         </tr>
     </table>
