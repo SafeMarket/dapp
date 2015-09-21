@@ -30,7 +30,7 @@ module.exports = (grunt) ->
           "app/js/Store.js"
           "app/js/Market.js"
           "app/js/Order.js"
-          "app/js/Amount.js"
+          "app/js/Key.js"
         ]
 
       css:

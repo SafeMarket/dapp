@@ -22,6 +22,7 @@ Order.create = function(meta,merchant,admin,fee,disputeSeconds){
 			data:Order.code
 			,gas:this.estimateCreationGas(meta,merchant,admin,fee,disputeSeconds)
 			,gasPrice:web3.eth.gasPrice
+			,gasLimit:5141592
 			,from:web3.eth.accounts[0]
 		},txHex = OrderContract.new(meta,merchant,admin,fee,disputeSeconds,txObject).transactionHash
 

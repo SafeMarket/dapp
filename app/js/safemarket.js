@@ -1,18 +1,18 @@
 (function(){
 	
-	console.log('run')
 	var safemarket = angular.module('safemarket',[])
 
 	safemarket.run(function(ticker,utils){
 	})
 
-	safemarket.service('safemarket',function($q,ticker,Store,Market,Order,utils,pgp){
+	safemarket.service('safemarket',function($q,ticker,Store,Market,Order,Key,utils,pgp){
 		
 		var safemarket = this
 
 		this.Store = Store
 		this.Market = Market
 		this.Order = Order
+		this.Key = Key
 		this.utils = utils
 		this.pgp = pgp
 

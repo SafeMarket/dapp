@@ -363,6 +363,8 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 		var estimatedGas = Order.estimateCreationGas(meta,merchant,admin,fee,disputeSeconds)
 		 	,doContinue = confirmGas(estimatedGas)
 
+		 console.log(estimatedGas)
+
 		if(!doContinue) return
 
 		$scope.isSyncing = true
@@ -588,15 +590,23 @@ app.service('user',function(safemarket,$q,words){
 			,deferred = $q.defer()
 
 		this.generateKeypair().then(function(keypair){
-			user.data.keypairs.push({
-				private: keypair.privateKeyArmored
-				,public: keypair.publicKeyArmored
-				,timestamp: (new Date).getTime()
-				,label: words.generateWordPair()
+			
+			var publicKey = openpgp.key.readArmored(keypair.publicKeyArmored).keys[0]
+			console.log(publicKey)
+
+			var keyData = publicKey.toPacketlist().write()
+
+			safemarket.Key.set(keyData).then(function(){
+				user.data.keypairs.push({
+					private: keypair.privateKeyArmored
+					,public: keypair.publicKeyArmored
+					,timestamp: (new Date).getTime()
+					,label: words.generateWordPair()
+				})
+				user.save()
+				user.loadKeypairs()
+				deferred.resolve()
 			})
-			user.save()
-			user.loadKeypairs()
-			deferred.resolve()
 		})
 
 		return deferred.promise

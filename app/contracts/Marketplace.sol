@@ -1,3 +1,31 @@
+contract Keystore{
+
+	mapping(address=>Key) keys;
+
+	struct Key{
+		string data;
+		uint timestamp;
+	}
+
+	function setKey(string data){
+		keys[tx.origin].data = data;
+		keys[tx.origin].timestamp = now;
+	}
+
+	function revokeKey(){
+		keys[tx.origin].data = '';
+		keys[tx.origin].timestamp = 0;
+	}
+
+	function getKeyData(address addr) constant returns(string){
+		return keys[addr].data;
+	}
+
+	function getKeyTimestamp(address addr) constant returns(uint){
+		return keys[addr].timestamp;
+	}
+}
+
 contract Market{
 	address admin;
 	string meta;
