@@ -23,15 +23,23 @@
             </td>
         </tr>
     </table>
-    <h3>Keypairs <a ng-click="addKeypair()" class="btn btn-primary btn-xs" ng-show="!isAddingKeypair">+</a></h3>
-    <div class="alert alert-info text-center" ng-show="isAddingKeypair">
-        Adding new keypair...
+    <h3>Keypairs <a ng-click="addKeypair()" class="btn btn-primary btn-xs" ng-show="!isChangingKeys">+</a></h3>
+    <div class="alert alert-info text-center" ng-show="isChangingKeys">
+        Updating...
     </div>
     <table class="table">
         <tr ng-repeat="keypair in user.keypairs">
             <td>{{keypair.data.label}}</td>
             <td timestamp="keypair.data.timestamp"></td>
-            <td style="text-align:right">
+            <td style="text-align:right" ng-show="!isChangingKeys">
+                <button
+                    class="btn"
+                    ng-class=
+                        "{'btn-success':keypair.id===user.keypair.id,'btn-default':keypair.id!==user.keypair.id}"
+                    ng-click="setPrimaryKeypair($index)"
+                >
+                    Primary
+                </button>
                 <button class="btn btn-danger" ng-click="deleteKeypair($index)">
                     Delete
                 </button>

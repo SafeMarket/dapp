@@ -293,9 +293,25 @@ app.controller('SettingsModalController',function($scope,safemarket,growl,$modal
 			return
 
 
-		$scope.isAddingKeypair = true
+		$scope.isChangingKeys = true
 		user.addKeypair().then(function(){
-			$scope.isAddingKeypair = false
+			$scope.isChangingKeys = false
+		})
+	}
+
+	$scope.setPrimaryKeypair = function(index){
+
+		var keyData = user.keypairs[index].public.toPacketlist().write()
+			,estimatedGas = Keystore.setKey.estimateGas(keyData)
+			,doContinue = confirmGas(estimatedGas)
+
+		if(!doContinue) return
+
+		$scope.isChangingKeys = true
+
+		safemarket.Key.set(keyData).then(function(){
+			$scope.user.loadKeypair()
+			$scope.isChangingKeys = false
 		})
 	}
 
@@ -345,8 +361,6 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 		,fee = 0
 		,disputeSeconds = parseInt($scope.store.meta.disputeSeconds)
 
-		console.log(disputeSeconds)
-
 		$scope.store.products.forEach(function(product){
 			if(product.quantity===0) return true
 
@@ -365,8 +379,6 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 
 		var estimatedGas = Order.estimateCreationGas(meta,merchant,admin,fee,disputeSeconds)
 		 	,doContinue = confirmGas(estimatedGas)
-
-		 console.log(estimatedGas)
 
 		if(!doContinue) return
 
@@ -567,7 +579,7 @@ app.filter('fromWei',function(){
 	}
 })
 
-app.service('user',function($q,words){
+app.service('user',function($q,words,safemarket){
 	
 	var userJson = localStorage.getItem('user')
 		,userData = JSON.parse(userJson)
@@ -609,24 +621,26 @@ app.service('user',function($q,words){
 		this.generateKeypair().then(function(keypair){
 			
 			var publicKey = openpgp.key.readArmored(keypair.publicKeyArmored).keys[0]
-			console.log(publicKey)
+				,keyData = publicKey.toPacketlist().write()
 
-			var keyData = publicKey.toPacketlist().write()
-
-			safemarket.Key.set(keyData).then(function(){
-				user.data.keypairs.push({
-					private: keypair.privateKeyArmored
-					,public: keypair.publicKeyArmored
-					,timestamp: (new Date).getTime()
-					,label: words.generateWordPair()
-				})
-				user.save()
-				user.loadKeypairs()
-				deferred.resolve()
+			user.data.keypairs.push({
+				private: keypair.privateKeyArmored
+				,public: keypair.publicKeyArmored
+				,timestamp: (new Date).getTime()
+				,label: words.generateWordPair()
 			})
+			user.save()
+			user.loadKeypairs()
+			user.loadKeypair()
+			deferred.resolve()
 		})
 
 		return deferred.promise
+	}
+
+	this.loadKeypair = function(){
+		var key = new safemarket.Key(user.data.account)
+		this.keypair = _.find(this.keypairs,{id:key.id})
 	}
 
 	this.loadKeypairs = function(){
@@ -641,6 +655,7 @@ app.service('user',function($q,words){
 	}
 
 	this.loadKeypairs()
+	this.loadKeypair()
 
 	function Keypair(keypairData){
 		this.data = keypairData

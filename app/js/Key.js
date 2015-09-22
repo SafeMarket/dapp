@@ -3,6 +3,7 @@
 angular.module('safemarket').factory('Key',function(utils,$q){
 
 	function Key(addr){
+		console.log(addr)
 		this.data = Keystore.getKeyData(addr)
 		this.timestamp = Keystore.getKeyTimestamp(addr)
 
@@ -13,9 +14,9 @@ angular.module('safemarket').factory('Key',function(utils,$q){
 	}
 
 	Key.set = function(data){
-		console.log(utils.account)
+
 		var estimatedGas = Keystore.setKey.estimateGas(data)
-			,txHex = Keystore.setKey(data,{gas:estimatedGas})
+			,txHex = Keystore.setKey(data,{gas:estimatedGas*2})
 			,deferred = $q.defer()
 
 		utils.waitForTx(txHex).then(function(){

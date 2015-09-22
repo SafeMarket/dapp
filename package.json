@@ -9,10 +9,6 @@
   "author": "",
   "license": "ISC",
   "homepage": "",
-  "repositories": {
-    "type": "git",
-    "url": "https://github.com/SafeMarket/embark-framework.git"
-  },
   "devDependencies": {
     "embark-framework": "https://github.com/SafeMarket/embark-framework.git#develop",
     "grunt-embark": "https://github.com/SafeMarket/grunt-embark.git",
@@ -27,7 +23,8 @@
     "matchdep": "^0.3.0",
     "express": "^4.12.3",
     "read-yaml": "^1.0.0",
-    "compression": "^1.4.3"
+    "compression": "^1.4.3",
+    "web3": "https://github.com/SafeMarket/web3.js.git"
   },
   "dependencies": {
     "web3": "^0.13.0"
