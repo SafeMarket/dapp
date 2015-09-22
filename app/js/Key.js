@@ -9,9 +9,11 @@ angular.module('safemarket').factory('Key',function(utils,$q){
 		var packetlist = new openpgp.packet.List
 		packetlist.read(this.data)
 		this.key = new openpgp.key.Key(packetlist)
+		this.id = this.key.primaryKey.keyid.bytes
 	}
 
 	Key.set = function(data){
+		console.log(utils.account)
 		var estimatedGas = Keystore.setKey.estimateGas(data)
 			,txHex = Keystore.setKey(data,{gas:estimatedGas})
 			,deferred = $q.defer()

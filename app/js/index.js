@@ -59,15 +59,13 @@ app.directive('amounts',function(utils){
 		},link:function(scope,element,attributes){
 			scope.amounts = {}
 
-			scope.$watch('value',function(value){
-				if(!value) return
-
+			scope.$watchGroup(["value","from","to"],function(value){
 				scope.to.forEach(function(currency){
-					utils.convertCurrency(value,{from:scope.from,to:currency}).then(function(amount){
+					utils.convertCurrency(scope.value,{from:scope.from,to:currency}).then(function(amount){
 						scope.amounts[currency] = amount
 					})
 				})
-			})
+			},true)
 		}
 	}
 })
@@ -79,7 +77,6 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 	})
 
 	$scope.user = user
-	$scope.publicKey = _.last(user.keypairs).public.toPacketlist().write()
 
 	$scope.disputeSecondsOptions = [
 		{value:'0'}
@@ -126,7 +123,6 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 			,currency:$scope.currency
 			,products:$scope.products
 			,disputeSeconds:$scope.disputeSeconds
-			,publicKey:$scope.publicKey
 		}
 		
 		try{
@@ -273,7 +269,7 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 	}
 })
 
-app.controller('SettingsModalController',function($scope,safemarket,growl,$modal,$modalInstance,user,ticker){
+app.controller('SettingsModalController',function($scope,safemarket,growl,$modal,$modalInstance,user,ticker,confirmGas){
 	
 	ticker.getRates().then(function(rates){
 		$scope.currencies = Object.keys(rates)
@@ -282,12 +278,21 @@ app.controller('SettingsModalController',function($scope,safemarket,growl,$modal
 	$scope.user = user
 	$scope.accounts = web3.eth.accounts
 
+	$scope.$watch('user.data.account',function(){
+		$scope.balanceInEther = web3.fromWei(web3.eth.getBalance(user.data.account))
+	})
+
 	$scope.submit = function(){
 		user.save()
 		$modalInstance.close()
 	}
 
 	$scope.addKeypair = function(){
+
+		if(!confirmGas(413049))
+			return
+
+
 		$scope.isAddingKeypair = true
 		user.addKeypair().then(function(){
 			$scope.isAddingKeypair = false
@@ -323,7 +328,6 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 
 	$scope.addr = $routeParams.storeAddr
 	$scope.displayCurrencies = [$scope.store.meta.currency]
-	$scope.publicKey = _.last(user.keypairs).public.toPacketlist().write()
 
 	if($scope.displayCurrencies.indexOf(user.data.currency) === -1)
 		$scope.displayCurrencies.push(user.data.currency)
@@ -336,7 +340,6 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 			storeAddr:$scope.store.addr
 			,marketAddr: $scope.market ? $scope.market.addr : utils.nullAddress
 			,products:[]
-			,publicKey:$scope.publicKey
 		},merchant = $scope.store.merchant
 		,admin = $scope.market ? $scope.market.amin : utils.nullAddress
 		,fee = 0
@@ -430,6 +433,15 @@ app.controller('OrderController',function($scope,safemarket,user,$routeParams,mo
 
 	$scope.displayCurrencies = [$scope.order.store.meta.currency]
 
+	var keyId = null
+
+	if(user.data.account === $scope.order.buyer)
+		keyId = $scope.order.key.id
+	else if(user.data.account === $scope.order.merchant)
+		role = $scope.order.store.key.id
+	else if(user.data.acccount === $scope.order.admin)
+		role = $scope.order.market.key.id
+
 	if($scope.displayCurrencies.indexOf(user.data.currency) === -1)
 		$scope.displayCurrencies.push(user.data.currency)
 
@@ -437,14 +449,19 @@ app.controller('OrderController',function($scope,safemarket,user,$routeParams,mo
 		$scope.displayCurrencies.push('ETH')
 
 	$scope.$watch('order.messages.length',function(){
-		if([$scope.order.buyer,$scope.order.merchant,$scope.order.admin].indexOf(user.data.account)!==-1)
-			$scope.order.decryptMessages(user.keys.private)
+		if(keyId===null) return
+
+		var keypair = _.find(user.keypairs,{id:keyId})
+		$scope.order.decryptMessages(keypair.private)
 	})
 
-	$scope.submitMessage = function(){
-		safemarket.pgp.encrypt(user.keys.public,$scope.messageText).then(function(pgpMessage){
+	$scope.addMessage = function(){
+		$scope.isAddingMessage = true
+		safemarket.pgp.encrypt($scope.order.keys,$scope.messageText).then(function(pgpMessage){
 			$scope.order.addMessage(pgpMessage).then(function(){
+				$scope.messageText = ''
 				$scope.order.update()
+				$scope.isAddingMessage = false
 			})
 		})
 	}
@@ -550,7 +567,7 @@ app.filter('fromWei',function(){
 	}
 })
 
-app.service('user',function(safemarket,$q,words){
+app.service('user',function($q,words){
 	
 	var userJson = localStorage.getItem('user')
 		,userData = JSON.parse(userJson)
@@ -629,6 +646,7 @@ app.service('user',function(safemarket,$q,words){
 		this.data = keypairData
 		this.private = openpgp.key.readArmored(keypairData.private).keys[0]
 		this.public = openpgp.key.readArmored(keypairData.public).keys[0]
+		this.id = this.public.primaryKey.keyid.bytes
 	}
 
 })

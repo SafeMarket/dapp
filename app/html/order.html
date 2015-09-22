@@ -4,17 +4,40 @@
 	</div>
 	<div ng-cloak ng-show="order">
 		<h1>{{order.store.meta.name}} » Order {{order.addr.substr(0,6)}}...</h1>
-		<div timestamp="order.timestamp.times(1000).toNumber()"></div>
-		Address: <a ng-href="http://etherchain.org/account/{{order.addr}}">{{order.addr}}</a>
-		<br>Buyer: <a ng-href="http://etherchain.org/account/{{order.buyer}}">{{order.buyer}}</a>
-		<br>Store: <a ng-href="http://etherchain.org/account/{{order.store.addr}}">{{order.store.addr}}</a>
-		<br>Merchant: <a ng-href="http://etherchain.org/account/{{order.store.merchant}}">{{order.store.merchant}}</a>
-		<div ng-show="order.market">
-			Market: <a ng-href="http://etherchain.org/account/{{order.market.addr}}">{{order.market.addr}}</a>
-			<br>Admin: <a ng-href="http://etherchain.org/account/{{order.market.admin}}">{{order.market.admin}}</a>
-		</div>
-		<br>Status: {{order.status | status}}</a>
-		<br>
+		<table class="table">
+			<tr>
+				<td>Status</td>
+				<td>{{order.status | status}}</td>
+			</tr>
+			<tr>
+				<td>Created</td>
+				<td timestamp = "order.timestamp.times(1000).toNumber()"></td>
+			</tr>
+			<tr>
+				<td>Address</td>
+				<td>{{order.addr}}</td>
+			</tr>
+			<tr>
+				<td>Buyer</td>
+				<td>{{order.buyer}}</td>
+			</tr>
+			<tr>
+				<td>Store</td>
+				<td>{{order.store.addr}}</td>
+			</tr>
+			<tr>
+				<td>Merchant</td>
+				<td>{{order.store.merchant}}</td>
+			</tr>
+			<tr ng-show="order.market">
+				<td>Market</td>
+				<td>{{order.market.addr}}</td>
+			</tr>
+			<tr ng-show="order.market">
+				<td>Admin</td>
+				<td>{{order.market.admin}}</td>
+			</tr>
+		</table>
 		<h3>Products</h3>
 		<table class="table">
 			<tr ng-repeat="product in order.products">
@@ -80,6 +103,7 @@
 			</tr>
 		</table>
 		<h3>Messages</h3>
+		<p>Messages are encrypted and stored on the blockchain</p>
 		<table class="table">
 			<tr ng-repeat="message in order.messages">
 				<td>{{message.from | capitalize}}:</td>
@@ -87,11 +111,14 @@
 					<div ng-show="message.text">{{message.text}}</div>
 					<pre ng-show="!message.text">{{message.messageArmored}}</pre>
 				</td>
-				<td><div timestamp="message.timestamp"></div></td>
+				<td><div timestamp="message.timestamp.times(1000).toNumber()"></div></td>
 			</tr>
 			<tr>
 				<td colspan="3">
-					<form ng-submit="submitMessage()">
+					<div class="alert alert-info text-center" ng-show="isAddingMessage">
+						Adding message...
+					</div>
+					<form ng-submit="addMessage()" ng-show="!isAddingMessage">
 						<textarea class="form-control" ng-model="messageText"></textarea>
 						<br>
 						<button class="btn btn-primary">Submit</button>

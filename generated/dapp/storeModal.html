@@ -30,14 +30,6 @@
             </td>
         </tr>
     </table>
-    <h3>Keypair</h3>
-    <table class="table">
-        <tr ng-repeat="keypair in user.keypairs">
-            <td>{{keypair.data.label}}</td>
-            <td timestamp="keypair.data.timestamp"></td>
-            <td><input type="radio" ng-model="$parent.publicKey" ng-value="keypair.public.toPacketlist().write()"></td>
-        </tr>
-    </table>
     <h3>Products <button class="btn btn-primary btn-xs" ng-click="addProduct()">+</button></h3>
     <table class="table">   
         <tbody ng-repeat="product in products">

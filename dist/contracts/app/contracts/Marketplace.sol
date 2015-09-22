@@ -25,7 +25,6 @@ contract Keystore{
 		return keys[addr].timestamp;
 	}
 }
-
 contract Market{
 	address admin;
 	string meta;

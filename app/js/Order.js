@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('Order',function(utils,ticker,$q,Store,Market,pgp){
+angular.module('safemarket').factory('Order',function(utils,ticker,$q,Store,Market,Key,pgp){
 
 function Order(addr){
 	this.addr = addr
@@ -49,9 +49,6 @@ Order.check = function(meta,merchant,admin,fee,disputeSeconds){
 		},products:{
 			presence:true
 			,type:'array'
-		},publicKey:{
-			presence:true
-			,type:'string'
 		}
 	})
 
@@ -127,9 +124,15 @@ Order.prototype.update = function(){
 	this.fee = this.contract.getFee()
 	this.received = this.contract.getReceived()
 	this.status = this.contract.getStatus().toNumber()
+	this.timestamp = this.contract.getTimestamp()
 
 	this.store = new Store(this.meta.storeAddr)
 	this.market = this.meta.marketAddr !== utils.nullAddress ? new Market(this.meta.marketAddr) : null
+	this.key = new Key(this.buyer)
+
+	this.keys = [this.key.key,this.store.key.key]
+	if(this.market)
+		this.keys.push(this.market.key.key)
 
 	this.products = []
 	this.productsTotalInStoreCurrency = new BigNumber(0)

@@ -38,4 +38,6 @@ input[type="range"]{
     white-space: pre;
 }
 
+.panel-title{position: relative;}
+
 [ng-click]{cursor: pointer;}

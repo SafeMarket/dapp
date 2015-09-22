@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('Store',function(utils,ticker){
+angular.module('safemarket').factory('Store',function(utils,ticker,Key){
 
 var currencies
 
@@ -18,15 +18,6 @@ window.Store = Store
 
 Store.prototype.code = Store.code = '0x'+contractDB.Store.compiled.code
 Store.prototype.abi = Store.abi = contractDB.Store.compiled.info.abiDefinition
-
-Store.prototype.loadKey = function(){
-	console.log(this.meta.publicKey)
-	var packetlist = new openpgp.packet.List
-	packetlist.read(this.meta.publicKey)
-	console.log(packetlist)
-	this.publicKey = new openpgp.key.Key(packetlist)
-	this.publicKeyArmored = this.publicKey.armor()
-}
 
 Store.create = function(meta){
 	
@@ -71,9 +62,6 @@ Store.check = function(meta){
 				integerOnly:true
 				,greaterThanOrEqualTo:0
 			}
-		},publicKey:{
-			presence:true
-			,type:'string'
 		}
 	})
 
@@ -144,7 +132,7 @@ Store.prototype.update = function(){
 		})
 
 	this.merchant = this.contract.getMerchant()
-	this.loadKey()
+	this.key = new Key(this.merchant)
 }
 
 function Product(data){

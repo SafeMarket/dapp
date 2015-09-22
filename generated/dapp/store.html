@@ -28,7 +28,7 @@
 			</tr>
 			<tr>
 				<td>Public Key</td>
-				<td key="store.publicKey"></td>
+				<td key="store.key"></td>
 			</tr>
 		</table>
 		<h3>Products</h3>
@@ -64,15 +64,6 @@
 				</td>
 			</tr>
 		</table>
-		<h3>Keypair</h3>
-		<table class="table">
-	        <tr ng-repeat="keypair in user.keypairs">
-	            <td>{{keypair.data.label}}</td>
-	            <td timestamp="keypair.data.timestamp"></td>
-	            <td><input type="radio" ng-model="$parent.publicKey" ng-value="keypair.public.toPacketlist().write()"></td>
-	        </tr>
-	    </table>
-	    <hr>
 	    <div class="text-right">
 			<button ng-click="createOrder(store,market)" class="btn btn-primary btn-lg">Create Your Order</button>
 		</div>

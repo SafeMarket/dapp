@@ -11,6 +11,12 @@
             </td>
         </tr>
         <tr>
+            <td>Balance</td>
+            <td><amounts value="balanceInEther" from="'ETH'" to="['ETH',user.data.currency]"></amounts>
+                
+            </td>
+        </tr>
+        <tr>
             <td>Currency</td>
             <td>
                 <select type="text" ng-model="user.data.currency" class="form-control" ng-options="currency for currency in currencies"></select>
@@ -36,5 +42,4 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-primary" type="button" ng-click="submit()">OK</button>
-    <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
 </div>
