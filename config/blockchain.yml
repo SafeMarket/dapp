@@ -8,8 +8,8 @@ development:
   mine_when_needed: true
   mine_periodically: false
   max_peers: 0
-  gas_limit: 3141592
-  gas_price: 50000000000
+  gas_limit: 500000
+  gas_price: 10000000000000
   console: false
   whisper: true
   account:

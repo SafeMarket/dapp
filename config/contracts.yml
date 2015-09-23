@@ -1,6 +1,4 @@
 development:
-  Bumper:
-    deploy: false
   Store:
     deploy: false
   Market:
