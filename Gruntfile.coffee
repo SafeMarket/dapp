@@ -6,7 +6,7 @@ module.exports = (grunt) ->
   grunt.initConfig(
     files:
       web3:
-        "node_modules/web3/dist/web3.js"
+        "app/js/web3.js"
 
       js:
         src: [

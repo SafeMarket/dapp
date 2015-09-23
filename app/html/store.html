@@ -1,5 +1,5 @@
 <div class="container">
-	<div ng-cloak ng-show="!store" class="alert alert-danger">
+	<div ng-cloak ng-show="!store" class="alert alert-danger text-center">
 		Could not find store at {{addr}}
 	</div>
 	<div ng-cloak ng-show="store">
@@ -15,21 +15,31 @@
 		</h1>
 		<table class="table">
 			<tr>
-				<td>Address</td>
-				<td>{{store.addr}}</td>
+				<td>Status</td>
+				<td>{{market.meta.isOpen ? 'Open' : 'Closed'}}</td>
 			</tr>
 			<tr>
-				<td>Merchant</td>
-				<td>{{store.merchant}}</td>
-			</tr>
-			<tr>
-				<td>Dispute Time</td>
+				<td>Dispute Resolution Time</td>
 				<td>{{store.meta.disputeSeconds | disputeSeconds}}</td>
 			</tr>
 			<tr>
-				<td>Public Key</td>
-				<td key="store.key"></td>
+				<td>Info</td>
+				<td>{{store.meta.info}}</td>
 			</tr>
+			<tbody collapsable is-collapsed="true">
+				<tr>
+					<td>Address</td>
+					<td>{{store.addr}}</td>
+				</tr>
+				<tr>
+					<td>Merchant</td>
+					<td>{{store.merchant}}</td>
+				</tr>
+				<tr>
+					<td>Public Key</td>
+					<td key="store.key"></td>
+				</tr>
+			</tbody>
 		</table>
 		<h3>Products</h3>
 		<table class="table">
@@ -64,7 +74,10 @@
 				</td>
 			</tr>
 		</table>
-	    <div class="text-right">
+		<div class="alert alert-info text-center" ng-show="isCreatingOrder">
+			Creating order...
+		</div>
+	    <div class="text-right" ng-show="!isCreatingOrder">
 			<button ng-click="createOrder(store,market)" class="btn btn-primary btn-lg">Create Your Order</button>
 		</div>
 	</div>

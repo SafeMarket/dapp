@@ -24,6 +24,9 @@
         </tr>
     </table>
     <h3>Keypairs <a ng-click="addKeypair()" class="btn btn-primary btn-xs" ng-show="!isChangingKeys">+</a></h3>
+    <div class="alert alert-danger text-center" ng-show="user.keypairs.length === 0">
+        You should create some keypairs
+    </div>
     <div class="alert alert-info text-center" ng-show="isChangingKeys">
         Updating...
     </div>

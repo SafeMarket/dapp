@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('Market',function(utils,ticker,$q,Store){
+angular.module('safemarket').factory('Market',function(utils,ticker,$q,Store,Key){
 
 function Market(addr){
 	this.addr = addr
@@ -55,9 +55,6 @@ Market.check = function(meta){
 			,type:'boolean'
 		},stores:{
 			type:'array'
-		},identity:{
-			presence:true
-			,type:'string'
 		}
 	})
 
@@ -110,6 +107,7 @@ Market.prototype.set = function(meta){
 Market.prototype.update = function(){
 	this.meta = utils.convertHexToObject(this.contract.getMeta())
 	this.admin = this.contract.getAdmin()
+	this.key = new Key(this.admin)
 	this.stores = []
 
 	var market = this

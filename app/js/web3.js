@@ -2984,6 +2984,55 @@ ContractFactory.prototype.new = function () {
 };
 
 /**
+ * Should be called to create estimate gas for contract creation
+ * 
+ * @method estimateGas
+ * @param {Any} contract constructor param1 (optional)
+ * @param {Any} contract constructor param2 (optional)
+ * @param {Object} contract transaction object (required)
+ * @param {Function} callback
+ * @returns {Contract} returns contract instance
+ */
+ContractFactory.prototype.estimateGas = function () {
+    var _this = this;
+    var contract = new Contract(this.abi);
+
+    // parse arguments
+    var options = {}; // required!
+    var callback;
+
+    var args = Array.prototype.slice.call(arguments);
+    if (utils.isFunction(args[args.length - 1])) {
+        callback = args.pop();
+    }
+
+    var last = args[args.length - 1];
+    if (utils.isObject(last) && !utils.isArray(last)) {
+        options = args.pop();
+    }
+
+    // throw an error if there are no options
+
+    var bytes = encodeConstructorParams(this.abi, args);
+    options.data += bytes;
+
+
+    if(callback) {
+
+        // wait for the contract address adn check if the code was deployed
+        web3.eth.estimateGas(options, function (err, estimatedGas) {
+            if (err) {
+                callback(err);
+            } else {
+                callback(null, estimatedGas);
+            }
+        });
+    } else {
+        return web3.eth.estimateGas(options);
+    }
+};
+
+/**
  * Should be called to get access to existing contract on a blockchain
  *
  * @method at

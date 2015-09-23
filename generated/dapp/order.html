@@ -13,30 +13,32 @@
 				<td>Created</td>
 				<td timestamp = "order.timestamp.times(1000).toNumber()"></td>
 			</tr>
-			<tr>
-				<td>Address</td>
-				<td>{{order.addr}}</td>
-			</tr>
-			<tr>
-				<td>Buyer</td>
-				<td>{{order.buyer}}</td>
-			</tr>
-			<tr>
-				<td>Store</td>
-				<td>{{order.store.addr}}</td>
-			</tr>
-			<tr>
-				<td>Merchant</td>
-				<td>{{order.store.merchant}}</td>
-			</tr>
-			<tr ng-show="order.market">
-				<td>Market</td>
-				<td>{{order.market.addr}}</td>
-			</tr>
-			<tr ng-show="order.market">
-				<td>Admin</td>
-				<td>{{order.market.admin}}</td>
-			</tr>
+			<tbody collapsable is-collapsed="true">
+				<tr>
+					<td>Address</td>
+					<td>{{order.addr}}</td>
+				</tr>
+				<tr>
+					<td>Buyer</td>
+					<td>{{order.buyer}}</td>
+				</tr>
+				<tr>
+					<td>Store</td>
+					<td>{{order.store.addr}}</td>
+				</tr>
+				<tr>
+					<td>Merchant</td>
+					<td>{{order.store.merchant}}</td>
+				</tr>
+				<tr ng-show="order.market">
+					<td>Market</td>
+					<td>{{order.market.addr}}</td>
+				</tr>
+				<tr ng-show="order.market">
+					<td>Admin</td>
+					<td>{{order.market.admin}}</td>
+				</tr>
+			</tbody>
 		</table>
 		<h3>Products</h3>
 		<table class="table">
@@ -62,26 +64,6 @@
 		<h3>Payment</h3>
 		<table class="table">
 			<tr>
-				<td>Product Total</td>
-				<td>
-					<amounts
-						value="order.productsTotalInStoreCurrency"
-						from="order.store.meta.currency"
-						to="displayCurrencies">
-					</amounts>
-				</td>
-			</tr>
-			<tr>
-				<td>Market Fee</td>
-				<td>
-					<amounts
-						value="order.fee"
-						from="'ETH'"
-						to="displayCurrencies">
-					</amounts>
-				</td>
-			</tr>
-			<tr>
 				<td>Total</td>
 				<td>
 					<amounts
@@ -91,6 +73,28 @@
 					</amounts>
 				</td>
 			</tr>
+			<tbody collapsable is-collapsed="true">
+				<tr>
+					<td>Product Total</td>
+					<td>
+						<amounts
+							value="order.productsTotalInStoreCurrency"
+							from="order.store.meta.currency"
+							to="displayCurrencies">
+						</amounts>
+					</td>
+				</tr>
+				<tr>
+					<td>Market Fee</td>
+					<td>
+						<amounts
+							value="order.fee"
+							from="'ETH'"
+							to="displayCurrencies">
+						</amounts>
+					</td>
+				</tr>
+			</tbody>
 			<tr>
 				<td>Received</td>
 				<td>

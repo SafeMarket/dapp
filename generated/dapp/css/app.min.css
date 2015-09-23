@@ -16,12 +16,19 @@ body{
 	overflow-y:scroll;
 	background-image:none;
 }
+tbody{border-top: none !important}
+
+table{
+    table-layout: fixed
+}
 
 input[type="range"]{
     height: 6px;
     padding: 0;
     margin-top: 7px;
 }
+
+h3 .btn{float: right}
 
 .growl{
     right: 25px;
@@ -41,3 +48,24 @@ input[type="range"]{
 .panel-title{position: relative;}
 
 [ng-click]{cursor: pointer;}
+
+[collapsable]{
+    border-top-width: 4 !important;
+    border-top-style: dotted !important;
+    border-top-color:#ccc !important;
+    cursor: pointer !important;
+    padding-top: 8px;
+}
+[collapsable] tr{background-color: #eee}
+[collapsable]:before{
+    content:'';
+    position: absolute;
+    width:100%;
+    height:10px;
+    margin-top: -4px;
+    cursor: pointer;
+}
+[collapsable].isCollapsed td{display: none}
+[collapsable] tr:first-child td{border-top:none;}
+[collapsable].isCollapsed + tbody{border-top: none !important}
+[collapsable].isCollapsed + tbody tr:first-child td{border-top:none;}

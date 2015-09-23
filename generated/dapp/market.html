@@ -1,20 +1,40 @@
 <div class="container">
-	<div ng-cloak ng-show="!market" class="alert alert-danger">
+	<div ng-cloak ng-show="!market" class="alert alert-danger text-center">
 		Could not find market at {{addr}}
 	</div>
 	<div ng-cloak ng-show="market">
-		<h1>{{market.meta.name}}</h1>
-		Address: <a ng-href="http://etherchain.org/account/{{market.addr}}">{{market.addr}}</a>
-		<br>Admin: <a ng-href="http://etherchain.org/account/{{market.admin}}">{{market.admin}}</a>
-		<br>Status : {{market.meta.isOpen ? 'Open' : 'Closed'}}
-		<br>Fee: {{ market.meta.feePercentage}}%</a>
-		<br>Info : {{market.meta.info}}
-		<br>
+		<h1>
+			{{market.meta.name}} 
 			<button
-				ng-show="account === market.admin"
+				ng-show="user.data.account === market.admin"
 				class="btn btn-default"
 				ng-click="openMarketModal(market)"
 			>Edit</button>
+		</h1>
+		<table class="table">
+			<tr>
+				<td>Status</td>
+				<td>{{market.meta.isOpen ? 'Open' : 'Closed'}}</td>
+			</tr>
+			<tr>
+				<td>Fee Percentage</td>
+				<td>{{market.meta.feePercentage}}%</td>
+			</tr>
+			<tr>
+				<td>Info</td>
+				<td>{{market.meta.info}}</td>
+			</tr>
+			<tbody collapsable is-collapsed="true">
+				<tr>
+					<td>Address</td>
+					<td>{{market.addr}}</td>
+				</tr>
+				<tr>
+					<td>Admin</td>
+					<td>{{market.admin}}</td>
+				</tr>
+			</tbody>
+		</table>
 		<h3>Stores</h3>
 		<table class="table">
 			<tr ng-repeat="store in market.stores">

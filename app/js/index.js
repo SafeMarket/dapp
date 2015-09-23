@@ -35,16 +35,18 @@ app.controller('MainController',function($scope,modals,user){
 
 	$scope.user = user
 
+	$scope.openSettingsModal = function(){
+		modals.openSettings()
+	}
+
 	$scope.openStoreModal = function(){
+		if(!user.keypair) return alert('You must set your primary key')
 		modals.openstore()
 	}
 
 	$scope.openMarketModal = function(){
+		if(!user.keypair) return alert('You must set your primary key')
 		modals.openMarket()
-	}
-
-	$scope.openSettingsModal = function(){
-		modals.openSettings()
 	}
 
 })
@@ -57,9 +59,11 @@ app.directive('amounts',function(utils){
 			,from:'='
 			,to:'='
 		},link:function(scope,element,attributes){
+			console.log(arguments)
 			scope.amounts = {}
 
 			scope.$watchGroup(["value","from","to"],function(value){
+				if(!scope.from || !scope.to) return
 				scope.to.forEach(function(currency){
 					utils.convertCurrency(scope.value,{from:scope.from,to:currency}).then(function(amount){
 						scope.amounts[currency] = amount
@@ -99,10 +103,13 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 		$scope.currency = store.meta.currency
 		$scope.products = store.meta.products
 		$scope.disputeSeconds = store.meta.disputeSeconds
+		$scope.info = store.meta.info
+		$scope.isOpen = store.meta.isOpen
 	}else{
 		$scope.currency = user.data.currency
 		$scope.products = []
 		$scope.disputeSeconds = "1209600"
+		$scope.isOpen = true
 		addProduct()
 	}
 
@@ -123,6 +130,8 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 			,currency:$scope.currency
 			,products:$scope.products
 			,disputeSeconds:$scope.disputeSeconds
+			,isOpen:!!$scope.isOpen
+			,info:$scope.info
 		}
 		
 		try{
@@ -156,13 +165,16 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 		}else{
 			var estimatedGas = Store.estimateCreationGas(meta)
 				,doContinue = confirmGas(estimatedGas)
+
+			if(!doContinue) return
 	
 			$scope.isSyncing = true
 
 			safemarket
 				Store.create(meta)
 				.then(function(store){
-					window.location.hash = '/stores/'+store.addr
+					user.data.stores.push(store.addr)
+					user.save()
 					$modalInstance.dismiss()
 				},function(error){
 					$scope.error = error
@@ -208,9 +220,7 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 			,feePercentage: $scope.feePercentage.toString()
 			,isOpen:$scope.isOpen
 			,stores:$scope.stores
-			,identity:user.createIdentity()
 		}
-		,bond = web3.toWei($scope.bondInEther,'ether')
 		,isOpen=!!$scope.isOpen
 		
 		try{
@@ -252,7 +262,8 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 			safemarket
 				.Market.create(meta)
 				.then(function(market){
-					window.location.hash = '/markets/'+market.addr
+					user.data.markets.push(market.addr)
+					user.save()
 					$modalInstance.dismiss()
 				},function(error){
 					$scope.error = error
@@ -269,7 +280,7 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 	}
 })
 
-app.controller('SettingsModalController',function($scope,safemarket,growl,$modal,$modalInstance,user,ticker,confirmGas){
+app.controller('SettingsModalController',function($scope,safemarket,growl,$modal,$modalInstance,user,ticker,confirmGas,modals){
 	
 	ticker.getRates().then(function(rates){
 		$scope.currencies = Object.keys(rates)
@@ -288,14 +299,15 @@ app.controller('SettingsModalController',function($scope,safemarket,growl,$modal
 	}
 
 	$scope.addKeypair = function(){
-
-		if(!confirmGas(413049))
-			return
-
-
 		$scope.isChangingKeys = true
 		user.addKeypair().then(function(){
-			$scope.isChangingKeys = false
+
+			var doSet = confirm('A new keypair has been generated. Would you like to set it as your primary key?')
+
+			if(doSet)
+				$scope.setPrimaryKeypair(user.keypairs.length-1)
+			else
+				$scope.isChangingKeys = false
 		})
 	}
 
@@ -333,17 +345,21 @@ app.controller('SimpleModalController',function($scope,title,body){
 
 app.controller('StoreController',function($scope,safemarket,user,$routeParams,modals,utils,Order,growl,confirmGas){
 
+	$scope.addr = $routeParams.storeAddr
+
 	try{
 		$scope.store = new safemarket.Store($routeParams.storeAddr)
 
 		if($routeParams.marketAddr)
 			$scope.market = new safemarket.Market($routeParams.marketAddr)
 	}catch(e){
+		$scope.store = null
 		return
 	}
 
-	$scope.addr = $routeParams.storeAddr
 	$scope.displayCurrencies = [$scope.store.meta.currency]
+
+	console.log($scope.displayCurrencies)
 
 	if($scope.displayCurrencies.indexOf(user.data.currency) === -1)
 		$scope.displayCurrencies.push(user.data.currency)
@@ -357,7 +373,7 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 			,marketAddr: $scope.market ? $scope.market.addr : utils.nullAddress
 			,products:[]
 		},merchant = $scope.store.merchant
-		,admin = $scope.market ? $scope.market.amin : utils.nullAddress
+		,admin = $scope.market ? $scope.market.admin : utils.nullAddress
 		,fee = 0
 		,disputeSeconds = parseInt($scope.store.meta.disputeSeconds)
 
@@ -382,10 +398,13 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 
 		if(!doContinue) return
 
-		$scope.isSyncing = true
+		$scope.isCreatingOrder = true
 			
 		Order.create(meta,merchant,admin,fee,disputeSeconds).then(function(order){
-		 	window.location.hash = '/orders/'+order.addr
+			window.location.hash = "#/orders/"+order.addr
+			user.data.orders.push(order.addr)
+			user.save()
+		 	$scope.isCreatingOrder = false
 		})
 
 	}
@@ -515,9 +534,35 @@ app.filter('currency',function(){
 	}
 })
 
+app.directive('collapsable',function(){
+	return {
+		scope:{
+			"isCollapsed":"="
+		},link:function(scope,element,attributes){
+			console.log(scope)
+
+			if(scope.isCollapsed)
+				element.addClass('isCollapsed')
+			else
+				element.removeClass('isCollapsed')
+
+			element.on('click',function(event){
+				if(event.target.nodeName!=='TBODY') return
+				element.toggleClass('isCollapsed')
+			})
+		}
+	}
+})
+
 app.service('modals',function($modal){
+	function openModal(options){
+		return $modal.open(options).opened.then(function(){
+			window.scrollTo(0,1)
+		})
+	}
+
 	this.openstore = function(store){
-		 return $modal.open({
+		 return openModal({
 			size: 'md'
 			,templateUrl: 'storeModal.html'
 			,controller: 'StoreModalController'
@@ -530,7 +575,7 @@ app.service('modals',function($modal){
 	}
 
 	this.openMarket = function(market){
-		 return $modal.open({
+		 return openModal({
 			size: 'md'
 			,templateUrl: 'marketModal.html'
 			,controller: 'MarketModalController'
@@ -542,24 +587,8 @@ app.service('modals',function($modal){
 		});
 	}
 
-	this.openOrder = function(store,market){
-		 return $modal.open({
-			size: 'md'
-			,templateUrl: 'orderModal.html'
-			,controller: 'OrderModalController'
-			,resolve: {
-				store:function(){
-					return store
-				}
-				,market:function(){
-					return market
-				}
-			}
-		});
-	}
-
 	this.openSettings = function(){
-		return $modal.open({
+		return openModal({
 			size: 'lg'
 			,templateUrl: 'settingsModal.html'
 			,controller: 'SettingsModalController'
@@ -590,6 +619,15 @@ app.service('user',function($q,words,safemarket){
 	}else{
 		this.data = {}
 	}
+
+	if(!this.data.orders)
+		this.data.orders = []
+
+	if(!this.data.stores)
+		this.data.stores = []
+
+	if(!this.data.markets)
+		this.data.markets = []
 
 	if(!this.data.account)
 		this.data.account = web3.eth.defaultAccount ? web3.eth.defaultAccount : web3.eth.accounts[0]

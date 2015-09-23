@@ -22,13 +22,26 @@
             </td>
         </tr>
         <tr>
-            <td>Dispute Time
+            <td>Dispute Resolution Time
                 <div class="text-small text-muted">How long after shipping can buyers open a dispute?</div>
             </td>
             <td>
                 <select type="text" ng-model="disputeSeconds" class="form-control" ng-options="option.value as option.label for option in disputeSecondsOptions"></select>
             </td>
         </tr>
+        <tr>
+            <td>Info
+            </td>
+            <td>
+                <textarea class="form-control" ng-model="info"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>Open for Business</td>
+            <td>
+                <input type="checkbox" ng-model="isOpen">
+            </td>
+        </tr> 
     </table>
     <h3>Products</h3>
     <table class="table">   

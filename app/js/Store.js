@@ -62,6 +62,11 @@ Store.check = function(meta){
 				integerOnly:true
 				,greaterThanOrEqualTo:0
 			}
+		},isOpen:{
+			presence:true
+			,type:'boolean'
+		},info:{
+			type:'string'
 		}
 	})
 

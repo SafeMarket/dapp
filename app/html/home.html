@@ -3,4 +3,30 @@
 	<p>Welcome to SafeMarket. The Secure, Anonymous, and Censorship Resistant Marketplace.</p>
 	<br>
 	<div ng-include="'bar.html'"></div>
+	<div class="row">
+		<div class="col-sm-4">
+			<h4 class="text-center">My Orders</h4>
+			<div ng-repeat="order in user.data.orders">
+				<a ng-href="#/orders/{{order}}">{{order}}</a>
+			</div>
+		</div>
+		<div class="col-sm-4">
+			<h4 class="text-center">
+				My Stores 
+				<a ng-click="openStoreModal()">+</a>
+			</h4>
+			<div ng-repeat="store in user.data.stores">
+				<a ng-href="#/stores/{{store}}">{{store}}</a>
+			</div>
+		</div>
+		<div class="col-sm-4">
+			<h4 class="text-center">
+				My Markets
+				<a ng-click="openMarketModal()">+</a>
+			</h4>
+			<div ng-repeat="market in user.data.markets">
+				<a ng-href="#/markets/{{market}}">{{market}}</a>
+			</div>
+		</div>
+	</div>
 </div>
