@@ -11,7 +11,7 @@ development:
   gas_limit: 500000
   gas_price: 10000000000000
   console: false
-  whisper: true
+  whisper: false
   account:
     init: true
     password: config/password
