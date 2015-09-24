@@ -3,7 +3,7 @@
 		Could not find store at {{addr}}
 	</div>
 	<div ng-cloak ng-show="store">
-		<h1>
+		<h2>
 			<span ng-show="market"><a ng-href="#/markets/{{market.addr}}">{{market.meta.name}}</a> » </span>{{store.meta.name}}
 			<button
 				ng-show="user.data.account === store.merchant"
@@ -12,11 +12,11 @@
 			>
 				Edit
 			</button>
-		</h1>
+		</h2>
 		<table class="table">
 			<tr>
 				<td>Status</td>
-				<td>{{market.meta.isOpen ? 'Open' : 'Closed'}}</td>
+				<td>{{store.meta.isOpen ? 'Open' : 'Closed'}}</td>
 			</tr>
 			<tr>
 				<td>Dispute Resolution Time</td>
@@ -29,11 +29,11 @@
 			<tbody collapsable is-collapsed="true">
 				<tr>
 					<td>Address</td>
-					<td>{{store.addr}}</td>
+					<td class="oneliner">{{store.addr}}</td>
 				</tr>
 				<tr>
 					<td>Merchant</td>
-					<td>{{store.merchant}}</td>
+					<td class="oneliner">{{store.merchant}}</td>
 				</tr>
 				<tr>
 					<td>Public Key</td>

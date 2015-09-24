@@ -6,7 +6,7 @@
 	<div class="row">
 		<div class="col-sm-4">
 			<h4 class="text-center">My Orders</h4>
-			<div ng-repeat="order in user.data.orders">
+			<div ng-repeat="order in user.data.orders" class="oneliner">
 				<a ng-href="#/orders/{{order}}">{{order}}</a>
 			</div>
 		</div>
@@ -15,7 +15,7 @@
 				My Stores 
 				<a ng-click="openStoreModal()">+</a>
 			</h4>
-			<div ng-repeat="store in user.data.stores">
+			<div ng-repeat="store in user.data.stores" class="oneliner">
 				<a ng-href="#/stores/{{store}}">{{store}}</a>
 			</div>
 		</div>
@@ -24,7 +24,7 @@
 				My Markets
 				<a ng-click="openMarketModal()">+</a>
 			</h4>
-			<div ng-repeat="market in user.data.markets">
+			<div ng-repeat="market in user.data.markets" class="oneliner">
 				<a ng-href="#/markets/{{market}}">{{market}}</a>
 			</div>
 		</div>

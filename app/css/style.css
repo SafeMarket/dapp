@@ -1,5 +1,5 @@
 body{
-	padding:80px 0;
+	padding:0 0 80px 0;
 	overflow-y:scroll;
 	background-image:none;
 }
@@ -20,6 +20,11 @@ h3 .btn{float: right}
 .growl{
     right: 25px;
     z-index: 100000;
+}
+
+.oneliner{
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .key{

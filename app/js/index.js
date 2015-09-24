@@ -40,12 +40,12 @@ app.controller('MainController',function($scope,modals,user){
 	}
 
 	$scope.openStoreModal = function(){
-		if(!user.keypair) return alert('You must set your primary key')
+		//if(!user.keypair) return alert('You must set your primary key')
 		modals.openstore()
 	}
 
 	$scope.openMarketModal = function(){
-		if(!user.keypair) return alert('You must set your primary key')
+		//if(!user.keypair) return alert('You must set your primary key')
 		modals.openMarket()
 	}
 

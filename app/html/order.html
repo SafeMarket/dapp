@@ -3,7 +3,9 @@
 		Could not find order at {{addr}}
 	</div>
 	<div ng-cloak ng-show="order">
-		<h1>{{order.store.meta.name}} » Order {{order.addr.substr(0,6)}}...</h1>
+		<h2>
+			<a ng-href="#/stores/{{order.store.addr}}">{{order.store.meta.name}}</a> » Order {{order.addr.substr(0,6)}}...
+		</h2>
 		<table class="table">
 			<tr>
 				<td>Status</td>

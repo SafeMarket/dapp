@@ -50,6 +50,8 @@ module.exports = (grunt) ->
       fonts:
         src: [
           "bower_components/bootstrap/fonts/glyphicons-halflings-regular.woff2"
+          "assets/slim/dist/fonts/glyphicons-halflings-regular.woff"
+          "assets/slim/dist/fonts/glyphicons-halflings-regular.ttf"
         ]
 
       coffee:
