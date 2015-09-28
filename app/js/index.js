@@ -608,7 +608,7 @@ app.filter('fromWei',function(){
 	}
 })
 
-app.service('user',function($q,words,safemarket){
+app.service('user',function($q,words,safemarket,modals){
 	
 	var userJson = localStorage.getItem('user')
 		,userData = JSON.parse(userJson)
@@ -669,7 +669,6 @@ app.service('user',function($q,words,safemarket){
 			})
 			user.save()
 			user.loadKeypairs()
-			user.loadKeypair()
 			deferred.resolve()
 		})
 
@@ -693,7 +692,12 @@ app.service('user',function($q,words,safemarket){
 	}
 
 	this.loadKeypairs()
-	this.loadKeypair()
+
+	try{
+		this.loadKeypair()
+	}catch(e){
+		modals.openSettings()
+	}
 
 	function Keypair(keypairData){
 		this.data = keypairData
