@@ -25,29 +25,23 @@
 			if(typeof amount!=='string')
 				amount = amount.toString()
 
-			ticker.getRates().then(function(rates){
-				check({
-					amount:amount
-					,from:currencies.from
-					,to:currencies.to
-				},{
-					amount:{presence:true,type:'string',numericality:{}}
-					,from:{presence:true,inclusion:Object.keys(rates),type:'string'}
-					,to:{presence:true,inclusion:Object.keys(rates),type:'string'}
-				})
+			
+			check({
+				amount:amount
+				,from:currencies.from
+				,to:currencies.to
+			},{
+				amount:{presence:true,type:'string',numericality:{}}
+				,from:{presence:true,inclusion:Object.keys(ticker.rates),type:'string'}
+				,to:{presence:true,inclusion:Object.keys(ticker.rates),type:'string'}
+			})
 
-				amount = (new BigNumber(amount))
-								.div(rates[currencies.from])
-								.times(rates[currencies.to])
+			amount = 
+				(new BigNumber(amount))
+					.div(ticker.rates[currencies.from])
+					.times(ticker.rates[currencies.to])
 
-				deferred.resolve(amount)
-			},function(error){
-				deferred.reject(error)
-			}).catch(function(e){
-				console.error(e)
-			})		
-
-			return deferred.promise
+			return amount
 		}
 
 		function waitForTx(txHex, duration, pause){

@@ -1,4 +1,5 @@
 development:
+  port: 30304
   rpc_host: localhost
   rpc_port: 8101
   rpc_whitelist: "*"

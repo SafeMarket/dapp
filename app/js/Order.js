@@ -148,12 +148,9 @@ Order.prototype.update = function(){
 	})
 
 
-	utils.convertCurrency(this.productsTotalInStoreCurrency,{from:this.store.meta.currency,to:'ETH'})
-		.then(function(productsTotal){
-			order.productsTotal = productsTotal
-			order.total = productsTotal.plus(order.fee)
-			order.percentReceived = new BigNumber(web3.fromWei(order.received,'ether')).div(order.total)
-		})
+	this.productsTotal = utils.convertCurrency(this.productsTotalInStoreCurrency,{from:this.store.meta.currency,to:'ETH'})
+	this.total = this.productsTotal.plus(this.fee)
+	this.percentReceived = new BigNumber(web3.fromWei(order.received,'ether')).div(this.total)
 
 	this.messages = []
 

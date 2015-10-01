@@ -65,9 +65,7 @@ app.directive('amounts',function(utils){
 			scope.$watchGroup(["value","from","to"],function(value){
 				if(!scope.from || !scope.to) return
 				scope.to.forEach(function(currency){
-					utils.convertCurrency(scope.value,{from:scope.from,to:currency}).then(function(amount){
-						scope.amounts[currency] = amount
-					})
+					scope.amounts[currency] = utils.convertCurrency(scope.value,{from:scope.from,to:currency})
 				})
 			},true)
 		}
@@ -76,9 +74,7 @@ app.directive('amounts',function(utils){
 
 app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,growl,$modal,$modalInstance,store,user,confirmGas){
 	
-	ticker.getRates().then(function(rates){
-		$scope.currencies = Object.keys(rates)
-	})
+	$scope.currencies = Object.keys(ticker.rates)
 
 	$scope.user = user
 
@@ -282,10 +278,8 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 
 app.controller('SettingsModalController',function($scope,safemarket,growl,$modal,$modalInstance,user,ticker,confirmGas,modals){
 	
-	ticker.getRates().then(function(rates){
-		$scope.currencies = Object.keys(rates)
-	})
-
+	$scope.currencies = Object.keys(ticker.rates)
+	
 	$scope.user = user
 	$scope.accounts = web3.eth.accounts
 

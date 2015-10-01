@@ -2,11 +2,7 @@
 
 angular.module('safemarket').factory('Store',function(utils,ticker,Key){
 
-var currencies
-
-ticker.getRates().then(function(rates){
-	currencies = Object.keys(rates)
-})
+var currencies = Object.keys(ticker.rates)
 
 function Store(addr){
 	this.addr = addr

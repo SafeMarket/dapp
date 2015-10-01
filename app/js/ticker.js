@@ -1,89 +1,26 @@
 (function(){
 angular.module('safemarket').service('ticker',function($interval,$http,$q){
-	
-	var ticker = this
-		,rates = null
+	web3.setProvider(new web3.providers.HttpProvider('http://localhost:8545'));
 
-	updateRates()
+	var tickerAddress = "0xdc99b79555385ab2fe0ff28c3c954a07b28aac5e"
+		,symbols = ['CMC:ETH:USD','CMC:ETH:EUR','CMC:ETH:CNY','CMC:ETH:CAD','CMC:ETH:RUB','CMC:ETH:BTC']
+		,rates = {'ETH':new BigNumber(1)}
+		,OpenStoreAbi = [{"constant":true,"inputs":[{"name":"addr","type":"address"},{"name":"key","type":"bytes32"}],"name":"getTimestamp","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"key","type":"bytes32"},{"name":"value","type":"bytes"}],"name":"setFromContract","outputs":[],"type":"function"},{"constant":true,"inputs":[{"name":"addr","type":"address"},{"name":"key","type":"bytes32"}],"name":"getValue","outputs":[{"name":"","type":"bytes"}],"type":"function"},{"constant":false,"inputs":[{"name":"key","type":"bytes32"},{"name":"value","type":"bytes"}],"name":"set","outputs":[],"type":"function"}]
+   		,OpenStore = web3.eth.contract(OpenStoreAbi).at("0xaf527686227cc508ead0d69c7f8a98f76b63e191")
 
-	$interval(function(){
-		updateRates()
-	},10*60*1000);
+   	window.OpenStore = OpenStore
 
-	function updateRates(){
-		fetchRates().then(function(_rates){
-			rates = _rates
-		})
-	}
+	symbols.forEach(function(symbol){
+		var currency = _.last(symbol.split(':'))
+			,rateHex = OpenStore.getValue(tickerAddress,symbol)
+		
+		rates[currency] = web3.toBigNumber(rateHex).div('1000000000000')
+	})
 
-	function fetchRates(){
+	console.log(rates)
 
-		var deferred = $q.defer()
+	this.rates = rates
 
-		getBlockchainTicker().then(function(blockchainTicker){
-
-				getPoloniexTicker().then(function(poloniexTicker){
-
-					var rates = {}
-					Object.keys(blockchainTicker).forEach(function(currency){
-						rates[currency] = new BigNumber(blockchainTicker[currency]['15m']).times(poloniexTicker.BTC_ETH.last)
-					})
-
-					rates['ETH'] = new BigNumber(1)
-					deferred.resolve(rates)
-
-				},function(error){
-					deferred.reject(error)
-				})
-
-			},function(error){
-				deferred.reject(error)
-			})
-
-		return deferred.promise
-	}
-
-	function getBlockchainTicker(){
-		return $q(function(resolve,reject){
-			$http
-				.get('https://blockchain.info/ticker')
-				.success(function(response){
-					resolve(response)
-				})
-				.error(function(error){
-					reject(error)
-				})
-		})
-	}
-
-	function getPoloniexTicker(){
-		return $q(function(resolve,reject){
-			$http
-				.get('https://poloniex.com/public?command=returnTicker')
-				.success(function(response){
-					resolve(response)
-				})
-				.error(function(error){
-					reject(error)
-				})
-		})
-	}
-
-	function getRates(){
-		var deferred = $q.defer()
-			,interval = setInterval(resolveIfSet,1000)
-
-		function resolveIfSet(){
-			if(!rates) return
-			deferred.resolve(rates)
-			clearInterval(interval)
-		}
-
-		resolveIfSet()
-
-		return deferred.promise
-	}
-
-	this.getRates = getRates
+	web3.setProvider(new web3.providers.HttpProvider('http://localhost:8101'));
 })
 })();
