@@ -1,51 +1,29 @@
 contract Keystore{
 
-	mapping(address=>Key) keys;
+	event Key(address indexed addr, uint timestamp, bytes data);
 
-	struct Key{
-		string data;
-		uint timestamp;
+	function setKey(bytes data){
+		Key(tx.origin, now, data);
 	}
 
-	function setKey(string data){
-		keys[tx.origin].data = data;
-		keys[tx.origin].timestamp = now;
-	}
-
-	function revokeKey(){
-		keys[tx.origin].data = '';
-		keys[tx.origin].timestamp = 0;
-	}
-
-	function getKeyData(address addr) constant returns(string){
-		return keys[addr].data;
-	}
-
-	function getKeyTimestamp(address addr) constant returns(uint){
-		return keys[addr].timestamp;
-	}
 }
 
 contract Market{
 	address admin;
-	string meta;
+	event Meta(uint timestamp, bytes meta);
 
-	function Market(string _meta){
+	function Market(bytes meta){
 		admin = tx.origin;
-		meta = _meta;
+		setMeta(meta);
 	}
 
 	function getAdmin() constant returns(address){
 		return admin;
 	}
 	
-	function setMeta(string _meta){
+	function setMeta(bytes meta){
 		if(tx.origin!=admin) return;
-		meta = _meta;
-	}
-
-	function getMeta() constant returns(string){
-		return meta;
+		Meta(now,meta);
 	}
 
 }

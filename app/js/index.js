@@ -59,7 +59,6 @@ app.directive('amounts',function(utils){
 			,from:'='
 			,to:'='
 		},link:function(scope,element,attributes){
-			console.log(arguments)
 			scope.amounts = {}
 
 			scope.$watchGroup(["value","from","to"],function(value){
@@ -353,8 +352,6 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 
 	$scope.displayCurrencies = [$scope.store.meta.currency]
 
-	console.log($scope.displayCurrencies)
-
 	if($scope.displayCurrencies.indexOf(user.data.currency) === -1)
 		$scope.displayCurrencies.push(user.data.currency)
 
@@ -533,7 +530,6 @@ app.directive('collapsable',function(){
 		scope:{
 			"isCollapsed":"="
 		},link:function(scope,element,attributes){
-			console.log(scope)
 
 			if(scope.isCollapsed)
 				element.addClass('isCollapsed')
@@ -670,8 +666,11 @@ app.service('user',function($q,words,safemarket,modals){
 	}
 
 	this.loadKeypair = function(){
-		var key = new safemarket.Key(user.data.account)
-		this.keypair = _.find(this.keypairs,{id:key.id})
+		var user = this
+		
+		safemarket.Key.fetch(user.data.account).then(function(key){
+			user.keypair = _.find(user.keypairs,{id:key.id})
+		})
 	}
 
 	this.loadKeypairs = function(){

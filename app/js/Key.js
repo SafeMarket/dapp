@@ -2,15 +2,36 @@
 
 angular.module('safemarket').factory('Key',function(utils,$q){
 
-	function Key(addr){
-		console.log(addr)
-		this.data = Keystore.getKeyData(addr)
-		this.timestamp = Keystore.getKeyTimestamp(addr)
-
-		var packetlist = new openpgp.packet.List
+	function Key(dataHex,timestamp){
+		this.timestamp = timestamp
+		this.data = web3.toAscii(dataHex)
+			
+		var packetlist = new openpgp.packet.List		
 		packetlist.read(this.data)
+		
 		this.key = new openpgp.key.Key(packetlist)
 		this.id = this.key.primaryKey.keyid.bytes
+	}
+
+	Key.fetch = function(addr){
+		var deferred = $q.defer()
+
+		Keystore.Key({addr:addr},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
+
+			if(error)
+				return deferred.reject(error)
+
+			if(results.length === 0)
+				return deferred.reject(new Error('no results found'))
+
+			try{
+				deferred.resolve(new Key(results[0].args.data,results[0].args.timestamp))
+			}catch(e){
+				deferred.reject(e)
+			}
+		})
+
+		return deferred.promise
 	}
 
 	Key.set = function(data){
@@ -20,12 +41,19 @@ angular.module('safemarket').factory('Key',function(utils,$q){
 			,deferred = $q.defer()
 
 		utils.waitForTx(txHex).then(function(){
-			var key = Key(web3.eth.defaultAccount)
-			deferred.resolve(key)
+			Key.fetch(web3.eth.defaultAcount).then(function(key){
+				deferred.resolve(key)
+			},function(error){
+				deferred.reject(error)
+			})
+		},function(error){
+			deferred.reject(error)
 		})
 
 		return deferred.promise
 	}
+
+	window.Key = Key
 
 	return Key
 
