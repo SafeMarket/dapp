@@ -767,8 +767,11 @@ app.service('user',function($q,words,safemarket,modals){
 	}
 
 	this.loadKeypair = function(){
-		var key = new safemarket.Key(user.data.account)
-		this.keypair = _.find(this.keypairs,{id:key.id})
+		var user = this
+		
+		safemarket.Key.fetch(user.data.account).then(function(key){
+			user.keypair = _.find(user.keypairs,{id:key.id})
+		})
 	}
 
 	this.loadKeypairs = function(){

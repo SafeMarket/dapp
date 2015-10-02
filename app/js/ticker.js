@@ -17,8 +17,6 @@ angular.module('safemarket').service('ticker',function($interval,$http,$q){
 		rates[currency] = web3.toBigNumber(rateHex).div('1000000000000')
 	})
 
-	console.log(rates)
-
 	this.rates = rates
 
 	web3.setProvider(new web3.providers.HttpProvider('http://localhost:8101'));
