@@ -10,6 +10,7 @@ module.exports = (grunt) ->
 
       js:
         src: [
+          "bower_components/crypto-js/build/rollups/aes.js"
           "bower_components/msgpack-javascript/msgpack.js"
           "bower_components/cryptocoin/dist/cryptocoin.js"
           "bower_components/validate/validate.min.js"

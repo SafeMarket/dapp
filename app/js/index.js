@@ -10,6 +10,10 @@ app.config(function(growlProvider,$routeProvider) {
     	.when('/',{
     		templateUrl:'home.html'
     	})
+    	.when('/login',{
+    		templateUrl:'login.html'
+    		,controller:'LoginController'
+    	})
     	.when('/stores/:storeAddr',{
 	    	templateUrl:'store.html'
 	    	,controller:'StoreController'
@@ -27,11 +31,14 @@ app.config(function(growlProvider,$routeProvider) {
 
 });
 
-app.run(function(user){
-
+app.run(function(user,$rootScope){
+	if(!user.password){
+		$rootScope.isLoggedIn = false
+		window.location.hash='/login'
+	}
 })
 
-app.controller('MainController',function($scope,modals,user){
+app.controller('MainController',function($scope,modals,user,growl){
 
 	$scope.user = user
 
@@ -40,12 +47,18 @@ app.controller('MainController',function($scope,modals,user){
 	}
 
 	$scope.openStoreModal = function(){
-		//if(!user.keypair) return alert('You must set your primary key')
+		if(!user.keypair){
+			growl.addErrorMessage('You must set a primary keypair')
+			return
+		}
 		modals.openstore()
 	}
 
 	$scope.openMarketModal = function(){
-		//if(!user.keypair) return alert('You must set your primary key')
+		if(!user.keypair){
+			growl.addErrorMessage('You must set a primary keypair')
+			return
+		}
 		modals.openMarket()
 	}
 
@@ -59,7 +72,6 @@ app.directive('amounts',function(utils){
 			,from:'='
 			,to:'='
 		},link:function(scope,element,attributes){
-			console.log(arguments)
 			scope.amounts = {}
 
 			scope.$watchGroup(["value","from","to"],function(value){
@@ -353,8 +365,6 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 
 	$scope.displayCurrencies = [$scope.store.meta.currency]
 
-	console.log($scope.displayCurrencies)
-
 	if($scope.displayCurrencies.indexOf(user.data.currency) === -1)
 		$scope.displayCurrencies.push(user.data.currency)
 
@@ -533,8 +543,6 @@ app.directive('collapsable',function(){
 		scope:{
 			"isCollapsed":"="
 		},link:function(scope,element,attributes){
-			console.log(scope)
-
 			if(scope.isCollapsed)
 				element.addClass('isCollapsed')
 			else
@@ -596,6 +604,59 @@ app.controller('BarController',function($scope){
 	}
 })
 
+app.controller('LoginController',function($scope,$rootScope,user,growl){
+	$scope.userExists = !! user.getStorage()
+
+	$scope.login = function(){
+		var isPassword = user.checkPassword($scope.password)
+		
+		if(!isPassword){
+			growl.addErrorMessage('Sorry, thats not correct')
+			return
+		}
+
+		user.password = $scope.password
+		user.loadData()
+
+		growl.addSuccessMessage('Login successful!')
+		$rootScope.isLoggedIn = true
+
+		window.location.hash="/"
+	}
+
+	$scope.reset = function(){
+		if(!confirm('Are you sure? All SafeMarket data located on this computer will be destroyed and you will not be able to recover it.'))
+			return
+
+		user.reset()
+		$scope.userExists = false
+		growl.addSuccessMessage('Account reset')
+	}
+
+	$scope.register = function(){
+
+		if(!$scope.password){
+			growl.addErrorMessage('You must choose a password')
+			return
+		}
+		
+		if($scope.password != $scope.password1){
+			growl.addErrorMessage('Passwords do not match')
+			return
+		}
+
+		user.password = $scope.password
+		user.loadData()
+		user.save()
+
+		growl.addSuccessMessage('Account created')
+		$rootScope.isLoggedIn = true
+
+		window.location.hash = '/'
+	}
+
+})
+
 app.filter('fromWei',function(){
 	return function(amount,to){
 		return web3.fromWei(amount,to).toString()
@@ -603,37 +664,73 @@ app.filter('fromWei',function(){
 })
 
 app.service('user',function($q,words,safemarket,modals){
-	
-	var userJson = localStorage.getItem('user')
-		,userData = JSON.parse(userJson)
-		,user = this
 
-	if(userData){
-		this.data = userData
-	}else{
-		this.data = {}
+	this.getStorage = function(){
+		return localStorage.getItem('user')
 	}
 
-	if(!this.data.orders)
-		this.data.orders = []
+	this.setStorage = function(string){
+		localStorage.setItem('user',string)
+	}
 
-	if(!this.data.stores)
-		this.data.stores = []
+	this.checkPassword = function(password){
+		try{
+			userJson = CryptoJS.AES.decrypt(this.getStorage(),password).toString(CryptoJS.enc.Utf8)
+			userData = JSON.parse(userJson)
+			return true;
+		}catch(e){
+			return false
+		}
+	}
 
-	if(!this.data.markets)
-		this.data.markets = []
+	this.reset = function(){
+		this.setStorage('')
+	}
 
-	if(!this.data.account)
-		this.data.account = web3.eth.defaultAccount ? web3.eth.defaultAccount : web3.eth.accounts[0]
+	this.loadData = function(){
+		var userJsonEncrypted = this.getStorage()
+			,userJson = null
+			,userData = null
 
-	if(!this.data.currency)
-		this.data.currency = 'USD'
+		try{
+			userJson = CryptoJS.AES.decrypt(this.getStorage(),this.password).toString(CryptoJS.enc.Utf8)
+			userData = JSON.parse(userJson)
+		}catch(e){
+			console.error(e)
+		}
 
-	if(!this.data.keypairs)
-		this.data.keypairs = []
+		user = this
+
+		if(userData){
+			this.data = userData
+		}else{
+			this.data = {}
+		}
+
+		if(!this.data.orders)
+			this.data.orders = []
+
+		if(!this.data.stores)
+			this.data.stores = []
+
+		if(!this.data.markets)
+			this.data.markets = []
+
+		if(!this.data.account)
+			this.data.account = web3.eth.defaultAccount ? web3.eth.defaultAccount : web3.eth.accounts[0]
+
+		if(!this.data.currency)
+			this.data.currency = 'USD'
+
+		if(!this.data.keypairs)
+			this.data.keypairs = []
+
+		this.loadKeypairs()
+	}
 
 	this.save = function(){
-		localStorage.setItem('user',JSON.stringify(this.data))
+		var dataEncrypted = CryptoJS.AES.encrypt(JSON.stringify(this.data), this.password)
+		this.setStorage(dataEncrypted)
 	}
 
 	this.generateKeypair = function(){
@@ -683,14 +780,6 @@ app.service('user',function($q,words,safemarket,modals){
 			})
 		
 		this.keypairs = keypairs
-	}
-
-	this.loadKeypairs()
-
-	try{
-		this.loadKeypair()
-	}catch(e){
-		modals.openSettings()
 	}
 
 	function Keypair(keypairData){
