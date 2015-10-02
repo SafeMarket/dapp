@@ -1,13 +1,13 @@
 (function(){
 
-angular.module('safemarket').factory('Store',function(utils,ticker,Key){
+angular.module('safemarket').factory('Store',function($q,utils,ticker,Key){
 
 var currencies = Object.keys(ticker.rates)
 
 function Store(addr){
 	this.addr = addr
 	this.contract = web3.eth.contract(this.abi).at(addr)
-	this.update()
+	this.updatePromise = this.update()
 }
 
 window.Store = Store
@@ -28,8 +28,9 @@ Store.create = function(meta){
 		},txHex = StoreContract.new(meta,txObject).transactionHash
 
 	utils.waitForTx(txHex).then(function(tx){
-		var store = new Store(tx.contractAddress)
-		deferred.resolve(store)
+		(new Store(tx.contractAddress).updatePromise.then(function(store){
+			deferred.resolve(store)
+		}))
 	},function(error){
 		deferred.reject(error)
 	}).catch(function(){
@@ -112,8 +113,9 @@ Store.prototype.setMeta = function(meta){
 		,txHex = this.contract.setMeta(meta,{gas:this.contract.setMeta.estimateGas(meta)})
 
 	utils.waitForTx(txHex).then(function(){
-		store.update()
-		deferred.resolve(store)
+		store.update().then(function(store){
+			deferred.resolve(store)
+		})
 	},function(error){
 		deferred.reject(error)
 	})
@@ -123,18 +125,37 @@ Store.prototype.setMeta = function(meta){
 
 
 Store.prototype.update = function(){
-	this.meta = utils.convertHexToObject(this.contract.getMeta())
+	var deferred = $q.defer()
+		,store = this
+
 	this.products = []
-
-	var store = this
-
-	if(this.meta && this.meta.products)
-		this.meta.products.forEach(function(productData){
-			store.products.push(new Product(productData))
-		})
-
 	this.merchant = this.contract.getMerchant()
-	this.key = new Key(this.merchant)
+
+	console.log(this.contract)
+
+	this.contract.Meta({fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
+
+		if(error)
+			return deferred.reject(error)
+
+		if(results.length === 0)
+			return deferred.reject(new Error('no results found'))
+
+		store.meta = utils.convertHexToObject(results[0].args.meta)
+
+		if(store.meta && store.meta.products)
+			store.meta.products.forEach(function(productData){
+				store.products.push(new Product(productData))
+			})
+
+		deferred.resolve(store)
+	})
+
+	Key.fetch(this.merchant).then(function(key){
+		store.key = key
+	})
+
+	return deferred.promise
 }
 
 function Product(data){

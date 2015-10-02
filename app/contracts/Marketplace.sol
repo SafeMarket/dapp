@@ -14,7 +14,7 @@ contract Market{
 
 	function Market(bytes meta){
 		admin = tx.origin;
-		setMeta(meta);
+		Meta(now,meta);
 	}
 
 	function getAdmin() constant returns(address){
@@ -223,23 +223,19 @@ contract Order{
 
 contract Store{
     address merchant;
-    string meta;
+    event Meta(uint timestamp, bytes meta);
 
-    function Store(string _meta){
+    function Store(bytes meta){
         merchant = tx.origin;
-        meta = _meta;
+        Meta(now,meta);
     }
     
     function getMerchant() constant returns(address){
     	return merchant;
     }
 
-    function setMeta(string _meta){
+    function setMeta(bytes meta){
 		if(tx.origin!=merchant) return;
-		meta = _meta;
-	}
-
-    function getMeta() constant returns(string){
-		return meta;
+		Meta(now,meta);
 	}
 }

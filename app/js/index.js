@@ -55,7 +55,7 @@ app.controller('MainController',function($scope,modals,user,growl){
 			growl.addErrorMessage('You must set a primary keypair')
 			return
 		}
-		modals.openstore()
+		modals.openStore()
 	}
 
 	$scope.openMarketModal = function(){
@@ -351,25 +351,29 @@ app.controller('SimpleModalController',function($scope,title,body){
 
 app.controller('StoreController',function($scope,safemarket,user,$routeParams,modals,utils,Order,growl,confirmGas){
 
-	$scope.addr = $routeParams.storeAddr
+	//$scope.addr = $routeParams.storeAddr
 
-	try{
-		$scope.store = new safemarket.Store($routeParams.storeAddr)
+	(new safemarket.Store($routeParams.storeAddr)).updatePromise.then(function(store){
 
-		if($routeParams.marketAddr)
-			$scope.market = new safemarket.Market($routeParams.marketAddr)
-	}catch(e){
-		$scope.store = null
-		return
-	}
+		$scope.store = store
 
-	$scope.displayCurrencies = [$scope.store.meta.currency]
+		$scope.$watch('store.meta.currency',function(){
 
-	if($scope.displayCurrencies.indexOf(user.data.currency) === -1)
-		$scope.displayCurrencies.push(user.data.currency)
+			$scope.displayCurrencies = [store.meta.currency];
 
-	if($scope.displayCurrencies.indexOf('ETH') === -1)
-		$scope.displayCurrencies.push('ETH')
+			if($scope.displayCurrencies.indexOf(user.data.currency) === -1)
+				$scope.displayCurrencies.push(user.data.currency)
+
+			if($scope.displayCurrencies.indexOf('ETH') === -1)
+				$scope.displayCurrencies.push('ETH')
+		})
+
+	})
+
+	if($routeParams.marketAddr)
+		(new safemarket.Market($routeParams.marketAddr)).updatePromise.then(function(market){
+			$scope.market = market
+		})
 
 	$scope.createOrder = function(){
 		var meta = {

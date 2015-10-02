@@ -2,7 +2,7 @@
 	<div ng-cloak ng-show="!store" class="alert alert-danger text-center">
 		Could not find store at {{addr}}
 	</div>
-	<div ng-cloak ng-show="store">
+	<div ng-cloak ng-if="store">
 		<h2>
 			<span ng-show="market"><a ng-href="#/markets/{{market.addr}}">{{market.meta.name}}</a> » </span>{{store.meta.name}}
 			<button
