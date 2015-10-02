@@ -5,7 +5,7 @@ angular.module('safemarket').factory('Order',function(utils,ticker,$q,Store,Mark
 function Order(addr){
 	this.addr = addr
 	this.contract = web3.eth.contract(this.abi).at(addr)
-	this.update()
+	this.updatePromise = this.update()
 }
 
 window.Order = Order
@@ -27,8 +27,9 @@ Order.create = function(meta,merchant,admin,fee,disputeSeconds){
 		},txHex = OrderContract.new(meta,merchant,admin,fee,disputeSeconds,txObject).transactionHash
 
 	utils.waitForTx(txHex).then(function(tx){
-		var order = new Order(tx.contractAddress)
-		deferred.resolve(order)
+		(new Order(tx.contractAddress)).updatePromise.then(function(order){
+			deferred.resolve(order)
+		})
 	},function(error){
 		deferred.reject(error)
 	}).catch(function(error){
@@ -115,9 +116,9 @@ Order.estimateCreationGas = function(meta,merchant,admin,fee,disputeSeconds){
 
 Order.prototype.update = function(){
 
-	var order = this
+	var deferred = $q.defer()
+		,order = this
 
-	this.meta = utils.convertHexToObject(this.contract.getMeta())
 	this.buyer = this.contract.getBuyer()
 	this.merchant = this.contract.getMerchant()
 	this.admin = this.contract.getAdmin()
@@ -126,42 +127,70 @@ Order.prototype.update = function(){
 	this.status = this.contract.getStatus().toNumber()
 	this.timestamp = this.contract.getTimestamp()
 
-	this.store = new Store(this.meta.storeAddr)
-	this.market = this.meta.marketAddr !== utils.nullAddress ? new Market(this.meta.marketAddr) : null
-	this.key = new Key(this.buyer)
-
-	this.keys = [this.key.key,this.store.key.key]
-	if(this.market)
-		this.keys.push(this.market.key.key)
-
 	this.products = []
+	this.messages = []
+	this.keys = {}
 	this.productsTotalInStoreCurrency = new BigNumber(0)
-	
-	this.meta.products.forEach(function(orderProduct){
-		product = _.find(order.store.products,{id:orderProduct.id})
-		product.quantity = orderProduct.quantity
-		
-		order.products.push(product)
 
-		var subtotal = product.price.times(product.quantity)
-		order.productsTotalInStoreCurrency = order.productsTotalInStoreCurrency.plus(subtotal)
+	this.contract.Meta({},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
+
+		if(error)
+			return deferred.reject(error)
+
+		if(results.length === 0)
+			return deferred.reject(new Error('no results found'))
+
+		order.meta = utils.convertHexToObject(results[0].args.meta)
+		order.market = order.meta.marketAddr !== utils.nullAddress ? new Market(order.meta.marketAddr) : null
+		order.store = new Store(order.meta.storeAddr)
+
+		Key.fetch(order.buyer).then(function(key){
+			console.log('key',key.id)
+			order.keys.buyer = key
+		})
+
+		if(order.market)
+			order.market.updatePromise.then(function(market){
+				Key.fetch(market.admin).then(function(key){
+					order.keys.admin = key
+				})
+			})
+
+
+		order.store.updatePromise.then(function(store){
+
+			Key.fetch(order.store.merchant).then(function(key){
+				order.keys.mechant = key
+			})
+
+			order.meta.products.forEach(function(orderProduct){
+				product = _.find(order.store.products,{id:orderProduct.id})
+				product.quantity = orderProduct.quantity
+				
+				order.products.push(product)
+
+				var subtotal = product.price.times(product.quantity)
+				order.productsTotalInStoreCurrency = order.productsTotalInStoreCurrency.plus(subtotal)
+			})
+
+			order.productsTotal = utils.convertCurrency(order.productsTotalInStoreCurrency,{from:order.store.meta.currency,to:'ETH'})
+			order.total = order.productsTotal.plus(order.fee)
+			order.percentReceived = new BigNumber(web3.fromWei(order.received,'ether')).div(order.total)
+
+			order.contract.Message({},{fromBlock:0,toBlock:'latest'}).get(function(error,results){
+				results.forEach(function(result){
+					var timestamp = web3.eth.getBlock(result.blockNumber).timestamp
+					order.messages.push(new Message(result.args.sender,web3.toAscii(result.args.text),timestamp,order))
+				})
+			})
+
+			deferred.resolve(order)
+
+		})
+
 	})
 
-
-	this.productsTotal = utils.convertCurrency(this.productsTotalInStoreCurrency,{from:this.store.meta.currency,to:'ETH'})
-	this.total = this.productsTotal.plus(this.fee)
-	this.percentReceived = new BigNumber(web3.fromWei(order.received,'ether')).div(this.total)
-
-	this.messages = []
-
-	for(var i = 0; i < this.contract.getMessagesCount(); i++){
-		var messageSender = this.contract.getMessageSender(i)
-			,messageCiphertext = this.contract.getMessageCyphertext(i)
-			,messageTimestamp = this.contract.getMessageTimestamp(i)
-			,message = new Message(messageSender,messageCiphertext,messageTimestamp,this)
-
-		this.messages.push(message)
-	}
+	return deferred.promise
 
 }
 
@@ -176,8 +205,9 @@ Order.prototype.addMessage = function(pgpMessage){
 		console.log(ciphertext)
 
 	utils.waitForTx(txHex).then(function(){
-		order.update()
-		deferred.resolve(order)
+		order.update().then(function(){
+			deferred.resolve(order)
+		})
 	},function(error){
 		deferred.reject(error)
 	})
@@ -192,6 +222,8 @@ Order.prototype.decryptMessages = function(privateKey){
 }
 
 function Message(sender,ciphertext,timestamp,order){
+	console.log('sender',sender)
+
 	this.sender = sender
 	this.ciphertext = ciphertext
 	this.timestamp = timestamp

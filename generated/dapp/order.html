@@ -18,27 +18,27 @@
 			<tbody collapsable is-collapsed="true">
 				<tr>
 					<td>Address</td>
-					<td>{{order.addr}}</td>
+					<td class="oneliner">{{order.addr}}</td>
 				</tr>
 				<tr>
 					<td>Buyer</td>
-					<td>{{order.buyer}}</td>
+					<td class="oneliner">{{order.buyer}}</td>
 				</tr>
 				<tr>
 					<td>Store</td>
-					<td>{{order.store.addr}}</td>
+					<td class="oneliner">{{order.store.addr}}</td>
 				</tr>
 				<tr>
 					<td>Merchant</td>
-					<td>{{order.store.merchant}}</td>
+					<td class="oneliner">{{order.store.merchant}}</td>
 				</tr>
 				<tr ng-show="order.market">
 					<td>Market</td>
-					<td>{{order.market.addr}}</td>
+					<td class="oneliner">{{order.market.addr}}</td>
 				</tr>
 				<tr ng-show="order.market">
 					<td>Admin</td>
-					<td>{{order.market.admin}}</td>
+					<td class="oneliner">{{order.market.admin}}</td>
 				</tr>
 			</tbody>
 		</table>
@@ -117,7 +117,7 @@
 					<div ng-show="message.text">{{message.text}}</div>
 					<pre ng-show="!message.text">{{message.messageArmored}}</pre>
 				</td>
-				<td><div timestamp="message.timestamp.times(1000).toNumber()"></div></td>
+				<td><div timestamp="message.timestamp*1000"></div></td>
 			</tr>
 			<tr>
 				<td colspan="3">

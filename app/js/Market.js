@@ -112,7 +112,7 @@ Market.prototype.update = function(){
 	var deferred = $q.defer()
 		,market = this
 
-	this.contract.Meta({fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
+	this.contract.Meta({},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
 
 		if(error)
 			return deferred.reject(error)

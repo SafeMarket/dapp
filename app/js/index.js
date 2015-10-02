@@ -342,6 +342,15 @@ app.controller('SettingsModalController',function($scope,safemarket,growl,$modal
 		user.loadKeypairs()
 	}
 
+	$scope.reset = function(){
+		var doContinue = confirm('Are you sure? This will delete all the SafeMarket data on this computer.')
+		if(!doContinue) return
+
+		user.reset()
+		user.logout()
+		$modalInstance.dismiss('cancel')
+	}
+
 })
 
 app.controller('SimpleModalController',function($scope,title,body){
@@ -354,6 +363,8 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 	//$scope.addr = $routeParams.storeAddr
 
 	(new safemarket.Store($routeParams.storeAddr)).updatePromise.then(function(store){
+
+		console.log(store)
 
 		$scope.store = store
 
@@ -368,6 +379,8 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 				$scope.displayCurrencies.push('ETH')
 		})
 
+	},function(){
+		console.log(arguments)
 	})
 
 	if($routeParams.marketAddr)
@@ -464,39 +477,43 @@ app.controller('MarketController',function($scope,safemarket,user,$routeParams,m
 
 app.controller('OrderController',function($scope,safemarket,user,$routeParams,modals){
 	
-	try{
-		$scope.order = new safemarket.Order($routeParams.orderAddr)
-	}catch(e){
-		return
-	}
+	(new safemarket.Order($routeParams.orderAddr)).updatePromise.then(function(order){
 
-	$scope.displayCurrencies = [$scope.order.store.meta.currency]
+		$scope.order = order
+		$scope.displayCurrencies = [order.store.meta.currency]
 
-	var keyId = null
+		var keyId = null
 
-	if(user.data.account === $scope.order.buyer)
-		keyId = $scope.order.key.id
-	else if(user.data.account === $scope.order.merchant)
-		role = $scope.order.store.key.id
-	else if(user.data.acccount === $scope.order.admin)
-		role = $scope.order.market.key.id
+		if(user.data.account === order.buyer)
+			keyId = order.keys.buyer.id
+		else if(user.data.account === order.merchant)
+			keyId = order.keys.merchant.id
+		else if(user.data.acccount === order.admin)
+			keyId = order.keys.admin.id
 
-	if($scope.displayCurrencies.indexOf(user.data.currency) === -1)
-		$scope.displayCurrencies.push(user.data.currency)
+		console.log(keyId)
 
-	if($scope.displayCurrencies.indexOf('ETH') === -1)
-		$scope.displayCurrencies.push('ETH')
+		if($scope.displayCurrencies.indexOf(user.data.currency) === -1)
+			$scope.displayCurrencies.push(user.data.currency)
 
-	$scope.$watch('order.messages.length',function(){
-		if(keyId===null) return
+		if($scope.displayCurrencies.indexOf('ETH') === -1)
+			$scope.displayCurrencies.push('ETH')
 
-		var keypair = _.find(user.keypairs,{id:keyId})
-		$scope.order.decryptMessages(keypair.private)
+		$scope.$watch('order.messages.length',function(){
+			if(keyId===null) return
+
+			var keypair = _.find(user.keypairs,{id:keyId})
+			order.decryptMessages(keypair.private)
+		})
+
 	})
+
 
 	$scope.addMessage = function(){
 		$scope.isAddingMessage = true
-		safemarket.pgp.encrypt($scope.order.keys,$scope.messageText).then(function(pgpMessage){
+		var keys = _.map($scope.order.keys,function(key){return key.key})
+		console.log('keys',keys)
+		safemarket.pgp.encrypt(keys,$scope.messageText).then(function(pgpMessage){
 			$scope.order.addMessage(pgpMessage).then(function(){
 				$scope.messageText = ''
 				$scope.order.update()
@@ -669,7 +686,7 @@ app.filter('fromWei',function(){
 	}
 })
 
-app.service('user',function($q,words,safemarket,modals){
+app.service('user',function($q,$rootScope,words,safemarket,modals){
 
 	this.getStorage = function(){
 		return localStorage.getItem('user')
@@ -677,6 +694,11 @@ app.service('user',function($q,words,safemarket,modals){
 
 	this.setStorage = function(string){
 		localStorage.setItem('user',string)
+	}
+
+	this.logout = function(){
+		this.password = null
+		$rootScope.isLoggedIn = false
 	}
 
 	this.checkPassword = function(password){

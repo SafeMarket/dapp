@@ -1,20 +1,20 @@
 contract Keystore{
 
-	event Key(address indexed addr, uint timestamp, bytes data);
+	event Key(address indexed addr, bytes data);
 
 	function setKey(bytes data){
-		Key(tx.origin, now, data);
+		Key(tx.origin, data);
 	}
 
 }
 
 contract Market{
 	address admin;
-	event Meta(uint timestamp, bytes meta);
+	event Meta(bytes meta);
 
 	function Market(bytes meta){
 		admin = tx.origin;
-		Meta(now,meta);
+		Meta(meta);
 	}
 
 	function getAdmin() constant returns(address){
@@ -23,7 +23,7 @@ contract Market{
 	
 	function setMeta(bytes meta){
 		if(tx.origin!=admin) return;
-		Meta(now,meta);
+		Meta(meta);
 	}
 
 }
@@ -34,11 +34,14 @@ contract Order{
 	address admin;
 	uint fee;
 	uint disputeSeconds;
-	string meta;
 	uint status;
 	uint received;
 	uint timestamp;
 	uint shippedAt;
+
+	event Meta(bytes meta);
+	event Message(address indexed sender, bytes text);
+	event Update(address indexed sender, uint indexed status);
 
 	uint constant initialized = 0;
 	uint constant cancelled = 1;
@@ -47,65 +50,31 @@ contract Order{
 	uint constant disputed = 4;
 	uint constant resolved = 5;
 
-	Message[] messages;
-	struct Message{
-		address sender;
-		string ciphertext;
-		uint timestamp;
-	}
-
-	Update[] updates;
-	struct Update{
-		address sender;
-		uint status;
-		uint timestamp;
-	}
-
 	function Order(
-		string _meta
+		bytes _meta
 		,address _merchant
 		,address _admin
 		,uint _fee
 		,uint _disputeSeconds
 	){
 		buyer = tx.origin;
-		meta = _meta;
 		merchant = _merchant;
 		admin = _admin;
 		fee = _fee;
 		disputeSeconds = _disputeSeconds;
 		timestamp = now;
+		Meta(_meta);
 	}
 
-	function addMessage(string text){
+	function addMessage(bytes text){
 		if(tx.origin != buyer && tx.origin != merchant && tx.origin != admin)
 			return;
 
-		messages[messages.length++] = Message(tx.origin,text,now);
-	}
-
-	function getMessagesCount() constant returns(uint){
-		return messages.length;
-	}
-
-	function getMessageSender(uint index) constant returns(address){
-		return messages[index].sender;
-	}
-
-	function getMessageCyphertext(uint index) constant returns(string){
-		return messages[index].ciphertext;
-	}
-
-	function getMessageTimestamp(uint index) constant returns(uint){
-		return messages[index].timestamp;
+		Message(tx.origin, text);
 	}
 
 	function(){
 		received += msg.value;
-	}
-
-	function getMeta() constant returns(string){
-		return meta;
 	}
 
 	function getBuyer() constant returns(address){
@@ -136,9 +105,9 @@ contract Order{
 		return timestamp;
 	}
 
-	function addUpdate(uint _status){
+	function addUpdate(uint _status) private{
 		status = _status;
-		updates[updates.length++] = Update(tx.origin,_status,now);
+		Update(tx.origin,_status);
 	}
 
 	function cancel(){
@@ -223,11 +192,11 @@ contract Order{
 
 contract Store{
     address merchant;
-    event Meta(uint timestamp, bytes meta);
+    event Meta(bytes meta);
 
     function Store(bytes meta){
         merchant = tx.origin;
-        Meta(now,meta);
+        Meta(meta);
     }
     
     function getMerchant() constant returns(address){
@@ -236,6 +205,6 @@ contract Store{
 
     function setMeta(bytes meta){
 		if(tx.origin!=merchant) return;
-		Meta(now,meta);
+		Meta(meta);
 	}
 }

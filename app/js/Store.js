@@ -133,7 +133,7 @@ Store.prototype.update = function(){
 
 	console.log(this.contract)
 
-	this.contract.Meta({fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
+	this.contract.Meta({},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
 
 		if(error)
 			return deferred.reject(error)
