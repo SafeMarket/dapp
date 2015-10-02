@@ -32,7 +32,11 @@ app.config(function(growlProvider,$routeProvider) {
 });
 
 app.run(function(user,$rootScope){
-	if(!user.password){
+	user.password = 'password'
+	if(user.password){
+		$rootScope.isLoggedIn = true
+		user.loadData()
+	}else{
 		$rootScope.isLoggedIn = false
 		window.location.hash='/login'
 	}
@@ -166,7 +170,6 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 				},function(error){
 					$scope.error = error
 					$scope.isSyncing = false
-					$scope.$apply()
 				}).catch(function(error){
 					console.error(error)
 				})
@@ -187,7 +190,6 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 				},function(error){
 					$scope.error = error
 					$scope.isSyncing = false
-					$scope.$apply()
 				}).catch(function(error){
 					console.error(error)
 				})
@@ -255,7 +257,6 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 				},function(error){
 					$scope.error = error
 					$scope.isSyncing = false
-					$scope.$apply()
 				}).catch(function(error){
 					console.error(error)
 				})
@@ -276,7 +277,6 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 				},function(error){
 					$scope.error = error
 					$scope.isSyncing = false
-					$scope.$apply()
 				}).catch(function(error){
 					console.error(error)
 				})
@@ -415,7 +415,7 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 
 	$scope.openStoreModal = function(){
 		modals
-			.openstore($scope.store)
+			.openStore($scope.store)
 			.result.then(function(store){
 				$scope.store = store
 			})
@@ -558,13 +558,15 @@ app.directive('collapsable',function(){
 
 app.service('modals',function($modal){
 	function openModal(options){
-		return $modal.open(options).opened.then(function(){
+		var modalInstance = $modal.open(options)
+		modalInstance.opened.then(function(){
 			window.scrollTo(0,1)
 		})
+		return modalInstance
 	}
 
-	this.openstore = function(store){
-		 return openModal({
+	this.openStore = function(store){
+		return openModal({
 			size: 'md'
 			,templateUrl: 'storeModal.html'
 			,controller: 'StoreModalController'
@@ -577,7 +579,7 @@ app.service('modals',function($modal){
 	}
 
 	this.openMarket = function(market){
-		 return openModal({
+		return openModal({
 			size: 'md'
 			,templateUrl: 'marketModal.html'
 			,controller: 'MarketModalController'
@@ -726,6 +728,7 @@ app.service('user',function($q,words,safemarket,modals){
 			this.data.keypairs = []
 
 		this.loadKeypairs()
+		this.loadKeypair()
 	}
 
 	this.save = function(){

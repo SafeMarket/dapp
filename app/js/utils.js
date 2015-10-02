@@ -46,15 +46,20 @@
 
 		function waitForTx(txHex, duration, pause){
 
+			console.log('waitForTx',txHex)
+
 			var deferred = $q.defer()
 				,duration = duration ? duration : (1000*60)
 				,pause = pause ? pause : (1000*3)
 				,timeStart = Date.now()
 				,interval = setInterval(function(){
 
+					console.log('waiting...')
+
 					var tx = web3.eth.getTransactionReceipt(txHex)
 
 					if(tx){
+						console.log('tx',tx)
 						clearInterval(interval)
 						deferred.resolve(tx)
 					}
@@ -140,6 +145,20 @@
 
 
 }());
+
+validate.validators.exists = function(value, options, key, attributes) {
+	if(options===true)
+		if(value === null || value === undefined)
+			return value+' is '+(typeof value)
+		else
+			return null
+	else
+		if(value === null || value === undefined)
+			return null
+		else
+			return value+' is '+(typeof value)
+};
+
 
 validate.validators.type = function(value, options, key, attributes) {
 	if(value === null || value === undefined) return null

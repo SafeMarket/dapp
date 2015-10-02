@@ -5,7 +5,7 @@ angular.module('safemarket').factory('Market',function(utils,ticker,$q,Store,Key
 function Market(addr){
 	this.addr = addr
 	this.contract = web3.eth.contract(this.abi).at(addr)
-	this.update()
+	this.updatePromise = this.update()
 }
 
 window.Market = Market
@@ -25,8 +25,10 @@ Market.create = function(meta){
 		},txHex = MarketContract.new(meta,txObject).transactionHash
 
 	utils.waitForTx(txHex).then(function(tx){
-		var market = new Market(tx.contractAddress)
-		deferred.resolve(market)
+		(new Market(tx.contractAddress)).updatePromise.then(function(market){
+			console.log(market)
+			deferred.resolve(market)
+		})
 	},function(error){
 		deferred.reject(error)
 	}).catch(function(error){
@@ -54,7 +56,8 @@ Market.check = function(meta){
 			presence:true
 			,type:'boolean'
 		},stores:{
-			type:'array'
+			exists:true
+			,type:'array'
 		}
 	})
 
@@ -92,8 +95,9 @@ Market.prototype.set = function(meta){
 		,market = this
 
 	utils.waitForTx(txHex).then(function(){
-		market.update()
-		deferred.resolve(market)
+		market.update().then(function(){
+			deferred.resolve(market)
+		})
 	},function(error){
 		deferred.reject(error)
 	}).catch(function(error){
@@ -105,16 +109,36 @@ Market.prototype.set = function(meta){
 
 
 Market.prototype.update = function(){
-	this.meta = utils.convertHexToObject(this.contract.getMeta())
+	var deferred = $q.defer()
+		,market = this
+
+	this.contract.Meta({fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
+
+		if(error)
+			return deferred.reject(error)
+
+		if(results.length === 0)
+			return deferred.reject(new Error('no results found'))
+
+		market.meta = utils.convertHexToObject(results[0].args.meta)
+		console.log(results)
+		console.log(market.meta)
+
+		market.meta.stores.forEach(function(storeData){
+			market.stores.push(new Store(storeData.address))
+		})
+
+		deferred.resolve(market)
+	})
+	
 	this.admin = this.contract.getAdmin()
-	this.key = new Key(this.admin)
 	this.stores = []
 
-	var market = this
-
-	this.meta.stores.forEach(function(storeData){
-		market.stores.push(new Store(storeData.address))
+	Key.fetch(this.admin).then(function(key){
+		market.key = key
 	})
+
+	return deferred.promise
 }
 
 return Market

@@ -51,6 +51,7 @@ Store.check = function(meta){
 		},products:{
 			presence:true
 			,type:'array'
+			,length:{minimum:1}
 		},disputeSeconds:{
 			presence:true
 			,type:'string'
