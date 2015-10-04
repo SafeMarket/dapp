@@ -349,6 +349,7 @@ app.controller('SettingsModalController',function($scope,safemarket,growl,$modal
 		user.reset()
 		user.logout()
 		$modalInstance.dismiss('cancel')
+		window.location.hash='/login'
 	}
 
 })
@@ -599,10 +600,18 @@ app.directive('collapsable',function(){
 })
 
 app.service('modals',function($modal){
+
+	var modals = this
+	this.currentModal = null
+
 	function openModal(options){
+		modals.currentModal = options.controller
 		var modalInstance = $modal.open(options)
 		modalInstance.opened.then(function(){
 			window.scrollTo(0,1)
+		})
+		modalInstance.result.then(function(){
+			modals.currentModal = null
 		})
 		return modalInstance
 	}
@@ -648,7 +657,7 @@ app.controller('BarController',function($scope){
 	}
 })
 
-app.controller('LoginController',function($scope,$rootScope,user,growl){
+app.controller('LoginController',function($scope,$rootScope,user,growl,modals){
 	$scope.userExists = !! user.getStorage()
 
 	$scope.login = function(){
@@ -697,6 +706,8 @@ app.controller('LoginController',function($scope,$rootScope,user,growl){
 		$rootScope.isLoggedIn = true
 
 		window.location.hash = '/'
+		modals.openSettings()
+		growl.addInfoMessage('Please check your settings')
 	}
 
 })
@@ -734,6 +745,7 @@ app.service('user',function($q,$rootScope,words,safemarket,modals){
 
 	this.reset = function(){
 		this.setStorage('')
+		this.logout()
 	}
 
 	this.loadData = function(){
