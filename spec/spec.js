@@ -75,14 +75,14 @@ describe('registration', function() {
 
     it('should fail to registerwhen no passwords dont match',function(){
         var passwordInputs = element.all(by.css('#registerForm [type="text"]'))
-        passwordInputs.eq(0).sendKeys('password')
-        passwordInputs.eq(1).sendKeys('pass')
+        passwordInputs.get(0).sendKeys('password')
+        passwordInputs.get(1).sendKeys('pass')
         element(by.css('#registerForm')).submit()
         expect(browser.getCurrentUrl()).toEqual('http://localhost:8000/#/login');
     })
 
     it('should create a user with a password of "password"',function(){
-        element.all(by.css('#registerForm [type="text"]'))[1].sendKeys('pword')
+        element.all(by.css('#registerForm [type="text"]')).get(1).sendKeys('word')
         element(by.css('#registerForm')).submit()
         var password = browser.executeScript("return angular.element(document.body).injector().get('user').password")
         expect(password).toBe('password')
@@ -96,5 +96,76 @@ describe('registration', function() {
         var currentModal = browser.executeScript("return angular.element(document.body).injector().get('modals').currentModal")
         expect(currentModal).toBe('SettingsModalController');
     })
+
+    it('should set the default account to web3.eth.defaultAccount',function(){
+        var accountMatches = browser.executeScript("return angular.element(document.body).injector().get('user').data.account === web3.eth.defaultAccount")
+        expect(accountMatches).toEqual(true)
+    })
+
+    it('should set the default currency to usd',function(){
+        var currency = browser.executeScript("return angular.element(document.body).injector().get('user').data.currency")
+        expect(currency).toEqual('USD')
+    })
+})
+
+describe('logout/login',function(){
+
+    it('dismiss modal if open',function(){
+        browser.executeScript("angular.element(document.body).injector().get('modals').closeInstance()")
+    })
+
+    it('should work when clicking the logout button',function(){
+        element(by.css('[ng-click="logout()"]')).click()
+    })
+
+    it('should send the user to the login page',function(){
+        expect(browser.getCurrentUrl()).toEqual('http://localhost:8000/#/login');
+    })
+
+    it('should show the login form',function(){
+        expect(element(by.css('#loginForm')).isDisplayed()).toBe(true)
+    })
+
+    it('should not show the register form',function(){
+        expect(element(by.css('#registerForm')).isDisplayed()).toBe(false)
+    })
+
+    it('should not show the navbar',function(){
+        expect(element(by.css('#navbar  ')).isDisplayed()).toBe(false)
+    })
+
+    it('should have one password field', function() {
+
+        var passwordInputs = element.all(by.css('#loginForm [type="password"]'))
+        expect(passwordInputs.count()).toBe(1);
+    
+    });
+
+    it('should switch password fields to text fileds when "show password" is checked', function() {
+
+        var showPasswordCheckbox = element(by.css('#loginForm [ng-model="showPassword"]'))
+        showPasswordCheckbox.click()
+        var passwordInputs = element.all(by.css('#loginForm [type="text"]'))
+        expect(passwordInputs.count()).toBe(1);
+    
+    });
+
+    it('should fail with the wrong password', function() {
+
+        var passwordInput = element(by.css('#loginForm [type="text"]'))
+        passwordInput.sendKeys('pass')
+        element(by.css('#loginForm')).submit()
+        expect(browser.getCurrentUrl()).toEqual('http://localhost:8000/#/login');
+    
+    });
+
+    it('should login with the right password', function() {
+
+        var passwordInput = element(by.css('#loginForm [type="text"]'))
+        passwordInput.sendKeys('word')
+        element(by.css('#loginForm')).submit()
+        expect(browser.getCurrentUrl()).toEqual('http://localhost:8000/#/');
+    
+    });
 
 })

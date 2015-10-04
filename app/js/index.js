@@ -66,6 +66,11 @@ app.controller('MainController',function($scope,modals,user,growl){
 		modals.openMarket()
 	}
 
+	$scope.logout = function(){
+		user.logout()
+		window.location.hash="/login"
+	}
+
 })
 
 app.directive('amounts',function(utils){
@@ -603,6 +608,12 @@ app.service('modals',function($modal){
 
 	var modals = this
 	this.currentModal = null
+	this.currentModalInstance = null
+
+	this.closeInstance = function(){
+		if(this.currentModalInstance)
+			this.currentModalInstance.dismiss()
+	}
 
 	function openModal(options){
 		modals.currentModal = options.controller
@@ -612,7 +623,10 @@ app.service('modals',function($modal){
 		})
 		modalInstance.result.then(function(){
 			modals.currentModal = null
+			modals.currentModalInstance = null
 		})
+		modals.currentModalInstance = modalInstance
+
 		return modalInstance
 	}
 
