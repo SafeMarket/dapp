@@ -184,6 +184,13 @@ Order.prototype.update = function(){
 				})
 			})
 
+			order.contract.Update({},{fromBlock:0,toBlock:'latest'}).get(function(error,results){
+				results.forEach(function(result){
+					var timestamp = web3.eth.getBlock(result.blockNumber).timestamp
+					order.updates.push(new Update(result.args.sender,result.args.status,timestamp,order))
+				})
+			})
+
 			deferred.resolve(order)
 
 		})
@@ -246,6 +253,27 @@ function Message(sender,ciphertext,timestamp,order){
 	this.pgpMessage = openpgp.message.Message(packetlist)
 	this.messageArmored = this.pgpMessage.armor()
 }
+
+function Update(sender,status,timestamp,order){
+	console.log('sender',sender)
+
+	this.sender = sender
+	this.status = status
+	this.timestamp = timestamp
+
+	switch(this.sender){
+		case order.buyer:
+			this.from = 'buyer'
+			break;
+		case order.merchant:
+			this.from = 'merchant'
+			break;
+		case order.admin:
+			this.from = 'admin'
+			break;
+	}
+}
+
 
 Message.prototype.decrypt = function(privateKey){
 	this.text = this.pgpMessage.decrypt(privateKey).packets[0].data

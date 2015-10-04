@@ -111,13 +111,18 @@
 		<h3>Messages</h3>
 		<p>Messages are encrypted and stored on the blockchain</p>
 		<table class="table">
-			<tr ng-repeat="message in order.messages">
-				<td>{{message.from | capitalize}}:</td>
+			<tr ng-repeat="messageOrUpdate in messagesAndUpdates">
+				<td>{{messageOrUpdate.from | capitalize}}:</td>
 				<td>
-					<div ng-show="message.text">{{message.text}}</div>
-					<pre ng-show="!message.text">{{message.messageArmored}}</pre>
+					<div ng-show="messageOrUpdate.messageArmored">
+						<div ng-show="messageOrUpdate.text">{{messageOrUpdate.text}}</div>
+						<pre ng-show="!messageOrUpdate.text">{{messageOrUpdate.messageArmored}}</pre>
+					</div>
+					<div ng-show="messageOrUpdate.status">
+						Order marked as {{message.status | status}}
+					</div>
 				</td>
-				<td><div timestamp="message.timestamp*1000"></div></td>
+				<td><div timestamp="messageOrUpdate.timestamp*1000"></div></td>
 			</tr>
 			<tr>
 				<td colspan="3">

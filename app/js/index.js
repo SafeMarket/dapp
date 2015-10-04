@@ -508,6 +508,27 @@ app.controller('OrderController',function($scope,safemarket,user,$routeParams,mo
 
 	})
 
+	function setMessagesAndUpdates(){
+
+		if(!$scope.order) return
+
+		var messagesAndUpdates = []
+
+		if(Array.isArray($scope.order.messages))
+			messagesAndUpdates = messagesAndUpdates.concat($scope.order.messages)
+
+		if(Array.isArray($scope.order.updates))
+			messagesAndUpdates = messagesAndUpdates.concat($scope.order.updates)
+
+		console.log('messagesAndUpdates',messagesAndUpdates)
+
+		$scope.messagesAndUpdates = messagesAndUpdates
+
+	}
+
+	$scope.$watch('order.messages',setMessagesAndUpdates,true)
+	$scope.$watch('order.updates',setMessagesAndUpdates,true)
+
 
 	$scope.addMessage = function(){
 		$scope.isAddingMessage = true
