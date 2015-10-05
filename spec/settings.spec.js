@@ -41,6 +41,7 @@ describe('settings modal',function(){
         browser.switchTo().alert().accept();
         var keypairsCount = browser.executeScript("return angular.element(document.body).injector().get('user').keypairs.length")
         expect(keypairsCount).toBe(2);
+        browser.waitForAngular()
         var keypairMatches = browser.executeScript("var user = angular.element(document.body).injector().get('user'); return user.keypairs[1].id === user.keypair.id")
         expect(keypairMatches).toBe(true);
     })

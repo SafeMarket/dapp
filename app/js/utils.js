@@ -1,7 +1,8 @@
 (function(){
 
-	angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
+	angular.module('safemarket').service('utils',function(ticker,$q,$timeout,$interval){
 
+		utils = this
 		
 
 		function convertObjectToHex(object){
@@ -46,13 +47,14 @@
 
 		function waitForTx(txHex, duration, pause){
 
+			utils.waitForTxCount++
 			console.log('waitForTx',txHex)
 
 			var deferred = $q.defer()
 				,duration = duration ? duration : (1000*60)
 				,pause = pause ? pause : (1000*3)
 				,timeStart = Date.now()
-				,interval = setInterval(function(){
+				,interval = $interval(function(){
 
 					console.log('waiting...')
 
@@ -60,16 +62,19 @@
 
 					if(tx){
 						console.log('tx',tx)
-						clearInterval(interval)
+						$interval.cancel(interval)
+						$timeout.cancel(timeout)
 						deferred.resolve(tx)
+						utils.waitForTxCount--
 					}
 
-					if(Date.now() - timeStart > duration){
-						clearInterval(interval)
-						deferred.reject('Transaction not found after '+duration+'ms')
-					}
 
 				},pause)
+				,timeout = $timeout(function(){
+					$interval.cancel(interval)
+					deferred.reject('Transaction not found after '+duration+'ms')
+					utils.waitForTxCount--
+				},duration)
 
 			return deferred.promise
 
@@ -138,6 +143,7 @@
 			,waitForTxs:waitForTxs
 			,check:check
 			,nullAddress:'0x'+Array(21).join('00')
+			,waitForTxCount:0
 		})
 		
 	})
