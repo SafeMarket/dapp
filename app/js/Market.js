@@ -63,7 +63,7 @@ Market.check = function(meta){
 
 	meta.stores.forEach(function(store){
 		utils.check(store,{
-			address:{
+			addr:{
 				presence:true
 				,type:'string'
 				,startsWith:'0x'
@@ -125,7 +125,7 @@ Market.prototype.update = function(){
 		console.log(market.meta)
 
 		market.meta.stores.forEach(function(storeData){
-			market.stores.push(new Store(storeData.address))
+			market.stores.push(new Store(storeData.addr))
 		})
 
 		deferred.resolve(market)

@@ -3,7 +3,7 @@
 		Could not find store at {{addr}}
 	</div>
 	<div ng-cloak ng-if="store">
-		<h2>
+		<h1>
 			<span ng-show="market"><a ng-href="#/markets/{{market.addr}}">{{market.meta.name}}</a> » </span>{{store.meta.name}}
 			<button
 				ng-show="user.data.account === store.merchant"
@@ -12,7 +12,7 @@
 			>
 				Edit
 			</button>
-		</h2>
+		</h1>
 		<table class="table">
 			<tr>
 				<td>Status</td>

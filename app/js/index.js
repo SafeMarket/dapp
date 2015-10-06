@@ -228,6 +228,10 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 		$modalInstance.dismiss('cancel')
 	}
 
+	$scope.addStore = function(){
+		$scope.stores.push({})
+	}
+
 	$scope.submit = function(){
 		var meta = {
 			name:$scope.name

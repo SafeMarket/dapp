@@ -34,13 +34,13 @@
             </td>
         </tr>        
     </table>
-    <h3>Approved Stores <button class="btn btn-primary btn-xs" ng-click="stores.push({})">+</button></h3>
+    <h3>Approved Stores <button class="btn btn-primary btn-xs" ng-click="addStore()">+</button></h3>
     <table class="table">   
         <tbody ng-repeat="store in stores">
             <tr>
                 <td>Address</td>
                 <td>
-                    <input type="text" ng-model="store.address" class="form-control">
+                    <input type="text" ng-model="store.addr" class="form-control">
                 </td>
             </tr>
             <tr>
