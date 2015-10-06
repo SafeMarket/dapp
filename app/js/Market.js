@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('Market',function(utils,ticker,$q,Store,Key){
+angular.module('safemarket').factory('Market',function(utils,ticker,$q,Store,Key,Forum){
 
 function Market(addr){
 	this.addr = addr
@@ -112,6 +112,12 @@ Market.prototype.update = function(){
 	var deferred = $q.defer()
 		,market = this
 
+	this.admin = this.contract.getAdmin()
+	this.forumAddr = this.contract.getForumAddr()
+
+	this.stores = []
+	this.forum = new Forum(this.forumAddr)
+
 	this.contract.Meta({},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
 
 		if(error)
@@ -130,9 +136,7 @@ Market.prototype.update = function(){
 
 		deferred.resolve(market)
 	})
-	
-	this.admin = this.contract.getAdmin()
-	this.stores = []
+
 
 	Key.fetch(this.admin).then(function(key){
 		market.key = key

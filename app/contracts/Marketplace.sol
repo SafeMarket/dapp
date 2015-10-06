@@ -8,17 +8,50 @@ contract Keystore{
 
 }
 
+contract Forum{
+	
+	address moderator;
+
+	event Comment(address indexed author, bytes indexed parent, bytes data);
+	event Vote(bytes indexed comment, uint8 direction);
+	event Moderation(bytes indexed comment, uint8 direction);
+
+	function Forum(){
+		moderator = msg.sender;
+	}
+
+	function addComment(bytes parent, bytes data){
+		Comment(msg.sender, parent, data);
+	}
+
+	function addVote(bytes comment, uint8 direction){
+		Vote(comment, direction);
+	}
+
+	function addModeration(bytes comment, uint8 direction){
+		if(msg.sender != moderator) return;
+		Moderation(comment, direction);
+	}
+}
+
 contract Market{
 	address admin;
+	address forumAddr;
 	event Meta(bytes meta);
 
 	function Market(bytes meta){
 		admin = tx.origin;
+		var forum = new Forum();
+		forumAddr = address(forum);
 		Meta(meta);
 	}
 
 	function getAdmin() constant returns(address){
 		return admin;
+	}
+
+	function getForumAddr() constant returns(address){
+		return forumAddr;
 	}
 	
 	function setMeta(bytes meta){
