@@ -8,6 +8,33 @@ contract Keystore{
 
 }
 
+contract Organization{
+
+	address owner;
+
+	Member[] members;
+
+	struct Member{
+		address addr;
+		bool isActive;
+	}
+
+	function Organization(){
+		owner = msg.sender;
+	}
+
+	function setOwner(address _owner){
+		if(msg.sender != owner) return;
+		owner = _owner;
+	}
+
+	function proxy(uint memberIndex, address contractAddr, bytes4 abiSignature, bytes data){
+		if(msg.sender != members[memberIndex].addr) return;
+		contractAddr.call(abiSignature, data);
+	}
+
+}
+
 contract Market{
 	address admin;
 	event Meta(bytes meta);

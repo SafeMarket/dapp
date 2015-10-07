@@ -8,6 +8,55 @@ contract Keystore{
 
 }
 
+contract Organization{
+
+	Member[] members;
+
+	struct Member{
+		address addr;
+		bool isSuper;
+		bool isActive;
+	}
+
+	event Cash(address indexed by, address indexed to, uint amount);
+
+	function Organization(){
+		members[members.length++] = Member(msg.sender,true,true);
+	}
+
+	function calcIsSenderSuperAndActive = function(uint myIndex) constant returns(bool{
+		var member = members[myIndex];
+		return (member.addr == msg.sender && member.isSuper && member.isActive);
+	}
+
+	function calcIsSenderActive = function(uint myIndex) constant returns(bool{
+		var member = members[myIndex];
+		return (member.addr == msg.sender && member.isActive);
+	}
+
+	function addMember(uint myIndex, address memberAddr, bool memberIsSuper, bool memberIsActive){
+		if(!calcIsSenderSuperAndActive(myIndex)) return;
+		members[members.length++] = Member(memberAddr,memberIsSuper,memberIsActive);
+	}
+
+	function setMember(uint myIndex, uint memberIndex, bool memberIsSuper, bool memberIsActive){
+		if(!calcIsSenderSuperAndActive(myIndex)) return;
+		members[memberIndex].memberIsSuper = memberIsSuper;
+		members[memberIndex].memberIsActive = memberIsActive;
+	}
+
+	function proxy(uint myIndex, address contractAddr, bytes4 abiSignature, bytes data){
+		if(!calcIsSenderActive(myIndex)) return;
+		contractAddr.call(abiSignature, data);
+	}
+
+	function cash(address to, uint amount){
+		if(!calcIsSenderSuperAndActive(myIndex)) return
+		if(addr.send(msg.value)) Cash(msg.sender, to, amount)
+	}
+
+}
+
 contract Market{
 	address admin;
 	event Meta(bytes meta);
