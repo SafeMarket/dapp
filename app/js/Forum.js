@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('Forum',function(){
+angular.module('safemarket').factory('Forum',function($q,utils){
 
 	function Forum(addr){
 		this.addr = addr
@@ -13,13 +13,15 @@ angular.module('safemarket').factory('Forum',function(){
 
 	Forum.prototype.update = function(){
 		var deferred = $q.defer()
-			,market = this
+			,forum = this
 
 		this.comments = []
 		this.votes = []
 		this.moderations = []
 
-		this.contract.Comment({},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
+		this.contract.Comment(null,{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
+
+			console.log(error,results)
 
 			if(error)
 				return deferred.reject(error)
@@ -27,20 +29,20 @@ angular.module('safemarket').factory('Forum',function(){
 			if(results.length === 0)
 				return deferred.reject(new Error('no results found'))
 
-			market.meta = utils.convertHexToObject(results[0].args.meta)
-			console.log(results)
-			console.log(market.meta)
-
-			market.meta.stores.forEach(function(storeData){
-				market.stores.push(new Store(storeData.address))
-			})
-
-			deferred.resolve(market)
+			deferred.resolve(forum)
 		})
 
+		return deferred.promise
+	}
 
-		Key.fetch(this.admin).then(function(key){
-			market.key = key
+	Forum.prototype.addComment = function(text){
+		var deferred = $q.defer()
+			,txHex = this.contract.addComment(0,text,{gas:this.contract.addComment.estimateGas(0,text)})
+
+		utils.waitForTx(txHex).then(function(){
+			deferred.resolve(txHex)
+		},function(error){
+			deferred.reject(error)
 		})
 
 		return deferred.promise

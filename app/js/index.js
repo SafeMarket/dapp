@@ -68,6 +68,51 @@ app.controller('MainController',function($scope,modals,user,growl){
 
 })
 
+app.controller('ForumController',function($scope,modals,user,growl){
+
+	$scope.$watch('addCommentText',function(text){
+		$scope.estimatedAddCommentGas = !text?0:$scope.forum.contract.addComment.estimateGas(0,text)
+	})
+
+	$scope.addComment = function(){
+		$scope.isAddingComment = true
+		$scope.forum.addComment($scope.newComment).then(function(){
+			$scope.forum.update().then(function(forum){
+				console.log(forum)
+				$scope.forum.isAddingComment = false
+			},function(error){
+				console.log(error)
+			})
+		})
+	}
+
+})
+
+app.directive('forum',function(){
+	return {
+		templateUrl:'forum.html'
+		,controller:'ForumController'
+		,scope:{
+			forum:'='
+		}
+	}
+})
+
+app.directive('gas',function(safemarket,user){
+	return {
+		templateUrl:'gas.html'
+		,scope:{
+			gas:'='
+		},link:function(scope,element,attributes){
+			scope.$watch('gas',function(){
+				scope.costInEther = web3.fromWei(web3.eth.gasPrice,'ether').times(scope.gas)
+				scope.userCurrency = user.data.currency
+				scope.costInUserCurrency = safemarket.utils.convertCurrency(scope.costInEther,{from:'ETH',to:user.data.currency})
+			})
+		}
+	}
+})
+
 app.directive('amounts',function(utils){
 	return {
 		templateUrl:'amounts.html'

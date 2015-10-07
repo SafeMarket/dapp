@@ -27,14 +27,16 @@
 			<tbody collapsable is-collapsed="true">
 				<tr>
 					<td>Address</td>
-					<td>{{market.addr}}</td>
+					<td class="oneliner">{{market.addr}}</td>
 				</tr>
 				<tr>
 					<td>Admin</td>
-					<td>{{market.admin}}</td>
+					<td class="oneliner">{{market.admin}}</td>
 				</tr>
 			</tbody>
 		</table>
+		<h3>Forum</h3>
+		<div forum="market.forum"></div>
 		<h3>Stores</h3>
 		<table class="table">
 			<tr ng-repeat="store in market.stores">

@@ -32,6 +32,7 @@ module.exports = (grunt) ->
           "app/js/Market.js"
           "app/js/Order.js"
           "app/js/Key.js"
+          "app/js/Forum.js"
         ]
 
       css:

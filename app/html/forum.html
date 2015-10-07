@@ -1,0 +1,23 @@
+<table class="table">
+	<tr>
+		<td colspan="2">
+			<div ng-show="isAddingComment" class="alert alert-info text-center">
+				Adding comment...
+			</div>
+			<div ng-show="!isAddingComment">
+			<form ng-submit="addComment()">
+				<textarea class="form-control" ng-model="addCommentText"></textarea>
+				<br>
+				<div ng-show="addCommentText.length>0">
+					<span gas="estimatedAddCommentGas" style="float:left"></span>
+					<button class="btn btn-primary" style="float:right">Submit</button>
+					<div class="clear"></div>
+				</div>
+			</form>
+		</td>
+	</tr>
+	<tr ng-repeat="comment in forum.comments">
+		<td timestamp="comment.timestamp"></td>
+		<td>{{comment.text}}</td>
+	</tr>
+</table>

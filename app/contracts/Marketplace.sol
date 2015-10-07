@@ -12,7 +12,7 @@ contract Forum{
 	
 	address moderator;
 
-	event Comment(address indexed author, bytes indexed parent, bytes data);
+	event Comment(address indexed author, bytes indexed parentId, bytes data);
 	event Vote(bytes indexed comment, uint8 direction);
 	event Moderation(bytes indexed comment, uint8 direction);
 
@@ -20,8 +20,8 @@ contract Forum{
 		moderator = msg.sender;
 	}
 
-	function addComment(bytes parent, bytes data){
-		Comment(msg.sender, parent, data);
+	function addComment(bytes parentId, bytes data){
+		Comment(msg.sender, parentId, data);
 	}
 
 	function addVote(bytes comment, uint8 direction){
@@ -31,6 +31,10 @@ contract Forum{
 	function addModeration(bytes comment, uint8 direction){
 		if(msg.sender != moderator) return;
 		Moderation(comment, direction);
+	}
+
+	function test() constant returns(bool){
+		return true;
 	}
 }
 
