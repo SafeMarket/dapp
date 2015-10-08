@@ -16,8 +16,13 @@
 			</form>
 		</td>
 	</tr>
-	<tr ng-repeat="comment in forum.comments">
-		<td timestamp="comment.timestamp*1000"></td>
-		<td>{{comment.text}}</td>
-	</tr>
+	<tbody ng-repeat="comment in forum.comments">
+		<tr>
+			<td>{{comment.text}}</td>
+			<td timestamp="comment.timestamp*1000"></td>
+		</tr>
+		<tr ng-repeat="comment in comment.comments">
+			
+		</tr>
+	</tbody>
 </table>
