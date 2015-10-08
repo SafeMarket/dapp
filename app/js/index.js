@@ -76,10 +76,10 @@ app.controller('ForumController',function($scope,modals,user,growl){
 
 	$scope.addComment = function(){
 		$scope.isAddingComment = true
-		$scope.forum.addComment($scope.newComment).then(function(){
+		$scope.forum.addComment($scope.addCommentText).then(function(){
 			$scope.forum.update().then(function(forum){
 				console.log(forum)
-				$scope.forum.isAddingComment = false
+				$scope.isAddingComment = false
 			},function(error){
 				console.log(error)
 			})

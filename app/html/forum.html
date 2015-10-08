@@ -17,7 +17,7 @@
 		</td>
 	</tr>
 	<tr ng-repeat="comment in forum.comments">
-		<td timestamp="comment.timestamp"></td>
+		<td timestamp="comment.timestamp*1000"></td>
 		<td>{{comment.text}}</td>
 	</tr>
 </table>

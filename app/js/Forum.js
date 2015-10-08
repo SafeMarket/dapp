@@ -29,6 +29,10 @@ angular.module('safemarket').factory('Forum',function($q,utils){
 			if(results.length === 0)
 				return deferred.reject(new Error('no results found'))
 
+			results.forEach(function(result){
+				forum.comments.push(new Comment(result))
+			})
+
 			deferred.resolve(forum)
 		})
 
@@ -49,6 +53,11 @@ angular.module('safemarket').factory('Forum',function($q,utils){
 	}
 
 	return Forum
+
+	function Comment(event){
+		this.timestamp = web3.eth.getBlock(event.blockNumber).timestamp
+		this.text = web3.toAscii(event.args.data)
+	}
 })
 
 }())
