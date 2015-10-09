@@ -594,8 +594,10 @@ app.factory('confirmGas',function(safemarket,user,$filter){
 		var gasInWei = web3.eth.gasPrice.times(gas)
 			,gasInEther = web3.fromWei(gasInWei,'ether')
 			,gasInEtherPretty = $filter('currency')(gasInEther,'ETH')
+			,gasInUserCurrency = safemarket.utils.convertCurrency(gasInEther,{from:'ETH',to:user.data.currency})
+			,gasInUserCurrencyPretty = $filter('currency')(gasInUserCurrency,user.data.currency)
 
-		return confirm('That will cost around '+gasInEtherPretty+' ETH. Continue?')
+		return confirm('That will cost around '+gasInEtherPretty+' ETH / '+gasInUserCurrencyPretty+' '+user.data.currency+'. Continue?')
 	}
 })
 
