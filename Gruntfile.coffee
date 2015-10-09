@@ -33,6 +33,7 @@ module.exports = (grunt) ->
           "app/js/Order.js"
           "app/js/Key.js"
           "app/js/Forum.js"
+          "app/js/CommentsGroup.js"
         ]
 
       css:

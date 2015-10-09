@@ -1,0 +1,9 @@
+<form ng-submit="addComment()">
+	<textarea class="form-control" ng-model="addCommentText"></textarea>
+	<br>
+	<div ng-show="addCommentText.length>0">
+		<span gas="estimatedAddCommentGas" style="float:left"></span>
+		<button class="btn btn-primary" style="float:right">Submit</button>
+		<div class="clear"></div>
+	</div>
+</form>

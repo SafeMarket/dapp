@@ -70,22 +70,6 @@ app.controller('MainController',function($scope,modals,user,growl){
 
 app.controller('ForumController',function($scope,modals,user,growl){
 
-	$scope.$watch('addCommentText',function(text){
-		$scope.estimatedAddCommentGas = !text?0:$scope.forum.contract.addComment.estimateGas(0,text)
-	})
-
-	$scope.addComment = function(){
-		$scope.isAddingComment = true
-		$scope.forum.addComment($scope.addCommentText).then(function(){
-			$scope.forum.update().then(function(forum){
-				$scope.addCommentText = null
-				$scope.isAddingComment = false
-			},function(error){
-				console.log(error)
-			})
-		})
-	}
-
 })
 
 app.directive('forum',function(){
@@ -94,6 +78,28 @@ app.directive('forum',function(){
 		,controller:'ForumController'
 		,scope:{
 			forum:'='
+		}
+	}
+})
+
+app.directive('addComment',function(){
+	return {
+		templateUrl:'addComment.html'
+		,scope:false
+		,link:function($scope,$element,$attributes){
+
+			var parentId = $scope.$eval($attributes.addComment)
+
+			$scope.$watch('text',function(text){
+				$scope.estimatedGas = !text?0:$scope.forum.contract.addComment.estimateGas(0,text)
+			})
+
+			$scope.addComment = function(comments){
+				$scope.isAddingComment = true
+				$scope.forum.addComment(parentId,$scope.text).then(function(comment){
+					comments.push(comment)
+				})
+			}
 		}
 	}
 })
@@ -409,8 +415,6 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 
 	(new safemarket.Store($routeParams.storeAddr)).updatePromise.then(function(store){
 
-		console.log(store)
-
 		$scope.store = store
 
 		$scope.$watch('store.meta.currency',function(){
@@ -424,8 +428,6 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 				$scope.displayCurrencies.push('ETH')
 		})
 
-	},function(){
-		console.log(arguments)
 	})
 
 	if($routeParams.marketAddr)
@@ -536,8 +538,6 @@ app.controller('OrderController',function($scope,safemarket,user,$routeParams,mo
 		else if(user.data.acccount === order.admin)
 			keyId = order.keys.admin.id
 
-		console.log(keyId)
-
 		if($scope.displayCurrencies.indexOf(user.data.currency) === -1)
 			$scope.displayCurrencies.push(user.data.currency)
 
@@ -565,8 +565,6 @@ app.controller('OrderController',function($scope,safemarket,user,$routeParams,mo
 		if(Array.isArray($scope.order.updates))
 			messagesAndUpdates = messagesAndUpdates.concat($scope.order.updates)
 
-		console.log('messagesAndUpdates',messagesAndUpdates)
-
 		$scope.messagesAndUpdates = messagesAndUpdates
 
 	}
@@ -578,7 +576,6 @@ app.controller('OrderController',function($scope,safemarket,user,$routeParams,mo
 	$scope.addMessage = function(){
 		$scope.isAddingMessage = true
 		var keys = _.map($scope.order.keys,function(key){return key.key})
-		console.log('keys',keys)
 		safemarket.pgp.encrypt(keys,$scope.messageText).then(function(pgpMessage){
 			$scope.order.addMessage(pgpMessage).then(function(){
 				$scope.messageText = ''
