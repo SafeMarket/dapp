@@ -5,10 +5,10 @@
 		</td>
 	</tr>
 	<tbody ng-repeat="comment in forum.commentsGroup.comments">
-		<tr ng-click="showReplies=!showReplies">
+		<tr>
 			<td>
 				{{comment.text}}
-				<div><a>Replies ({{comment.commentsGroup.comments.length}})</a></div>
+				<div><a ng-click="showReplies=!showReplies">Replies ({{comment.commentsGroup.comments.length}})</a></div>
 			</td>
 			<td timestamp="comment.timestamp*1000" class="text-right"></td>
 		</tr>

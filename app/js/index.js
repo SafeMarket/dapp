@@ -415,8 +415,6 @@ app.controller('SimpleModalController',function($scope,title,body){
 
 app.controller('StoreController',function($scope,safemarket,user,$routeParams,modals,utils,Order,growl,confirmGas){
 
-	//$scope.addr = $routeParams.storeAddr
-
 	(new safemarket.Store($routeParams.storeAddr)).updatePromise.then(function(store){
 
 		$scope.store = store
