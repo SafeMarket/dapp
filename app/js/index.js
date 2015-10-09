@@ -88,16 +88,20 @@ app.directive('addComment',function(){
 		,scope:false
 		,link:function($scope,$element,$attributes){
 
-			var parentId = $scope.$eval($attributes.addComment)
+			var commentsGroup = $scope.$eval($attributes.addComment)
 
 			$scope.$watch('text',function(text){
 				$scope.estimatedGas = !text?0:$scope.forum.contract.addComment.estimateGas(0,text)
 			})
 
-			$scope.addComment = function(comments){
+			$scope.addComment = function(){
 				$scope.isAddingComment = true
-				$scope.forum.addComment(parentId,$scope.text).then(function(comment){
-					comments.push(comment)
+				commentsGroup.addComment(commentsGroup.id,$scope.text).then(function(){
+					commentsGroup.update().then(function(){
+						console.log(commentsGroup.comments)
+						$scope.text = null
+						$scope.isAddingComment = false
+					})
 				})
 			}
 		}

@@ -59,7 +59,6 @@
 					var tx = web3.eth.getTransactionReceipt(txHex)
 
 					if(tx){
-						console.log('tx',tx)
 						clearInterval(interval)
 						deferred.resolve(tx)
 					}

@@ -18,8 +18,6 @@ angular.module('safemarket').factory('Key',function(utils,$q){
 
 		Keystore.Key({addr:addr},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
 
-			console.log(results)
-
 			if(error)
 				return deferred.reject(error)
 

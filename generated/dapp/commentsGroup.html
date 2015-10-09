@@ -1,14 +1,14 @@
 <table class="table">
 	<tr>
 		<td colspan="2">
-			<div add-comment="forum.commentsGroup"></div>
+			<div add-comment="commentsGroup"></div>
 		</td>
 	</tr>
-	<tbody ng-repeat="comment in forum.commentsGroup.comments">
+	<tbody ng-repeat="comment in commentsGroup.comments">
 		<tr>
 			<td>
 				{{comment.text}}
-				<div><a ng-click="showReplies=!showReplies">Replies ({{comment.commentsGroup.comments.length}})</a></div>
+				<div><a ng-click="showReplies=!showReplies">Show Replies ({{comment.commentsGroup.comments.length}})</a></div>
 			</td>
 			<td timestamp="comment.timestamp*1000" class="text-right"></td>
 		</tr>

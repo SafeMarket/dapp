@@ -26,7 +26,6 @@ Market.create = function(meta){
 
 	utils.waitForTx(txHex).then(function(tx){
 		(new Market(tx.contractAddress)).updatePromise.then(function(market){
-			console.log(market)
 			deferred.resolve(market)
 		})
 	},function(error){
@@ -127,8 +126,6 @@ Market.prototype.update = function(){
 			return deferred.reject(new Error('no results found'))
 
 		market.meta = utils.convertHexToObject(results[0].args.meta)
-		console.log(results)
-		console.log(market.meta)
 
 		market.meta.stores.forEach(function(storeData){
 			market.stores.push(new Store(storeData.address))

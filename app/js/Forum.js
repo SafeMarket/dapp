@@ -12,7 +12,6 @@ angular.module('safemarket').factory('Forum',function($q,utils,CommentsGroup){
 	Forum.prototype.abi = Forum.abi = contractDB.Forum.compiled.info.abiDefinition
 
 	Forum.prototype.update = function(){
-		console.log('forum update')
 		var deferred = $q.defer()
 			,forum = this
 
@@ -23,21 +22,6 @@ angular.module('safemarket').factory('Forum',function($q,utils,CommentsGroup){
 			deferred.resolve(forum)
 		},function(error){
 			console.error(error)
-		})
-
-		return deferred.promise
-	}
-
-	Forum.prototype.addComment = function(parentId,text){
-		console.log('addComment',arguments)
-		var deferred = $q.defer()
-			,txHex = this.contract.addComment(parentId,text,{gas:this.contract.addComment.estimateGas(parentId,text)})
-
-		utils.waitForTx(txHex).then(function(tx){
-			console.log('tx',tx)
-			deferred.resolve(txHex)
-		},function(error){
-			deferred.reject(error)
 		})
 
 		return deferred.promise
