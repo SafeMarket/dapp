@@ -18,7 +18,9 @@
       </div>
     </nav>
     <div class="container">
-      
+      <div class="alert alert-danger" ng-show="!isConnected">
+        Warning: Unable to Connect to Ethereum Node.
+      </div>
     </div>
     <div growl></div>
     <div ng-view></div>

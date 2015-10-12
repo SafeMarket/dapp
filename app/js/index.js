@@ -31,7 +31,7 @@ app.config(function(growlProvider,$routeProvider) {
 
 });
 
-app.run(function(user,$rootScope){
+app.run(function(user,$rootScope,$interval){
 	user.password = 'password'
 	if(user.password){
 		$rootScope.isLoggedIn = true
@@ -40,6 +40,11 @@ app.run(function(user,$rootScope){
 		$rootScope.isLoggedIn = false
 		window.location.hash='/login'
 	}
+
+	$rootScope.isConnected = web3.isConnected()
+	$interval(function(){
+		$rootScope.isConnected = web3.isConnected()
+	},1000)
 })
 
 app.controller('MainController',function($scope,modals,user,growl){
