@@ -84,6 +84,30 @@ Market.estimateCreationGas = function(meta){
 	})
 }
 
+Market.prototype.claimAliases = function(aliases){
+	var market = this
+		,txHex = this.contract.claimAliases(aliases,{
+			gas:this.contract.claimAliases.estimateGas(aliases)
+		})
+
+	utils.waitForTx(txHex).then(function(){
+		console.log(utils.getAliases(market.contract.address))
+		market.update()
+	})
+}
+
+Market.prototype.claimAlias = function(alias){
+	var market = this
+		,txHex = this.contract.claimAlias(alias,{
+			gas:this.contract.claimAlias.estimateGas(alias)
+		})
+
+	utils.waitForTx(txHex).then(function(){
+		console.log(utils.getAliases(market.contract.address))
+		market.update()
+	})
+}
+
 Market.prototype.set = function(meta){
 	meta = utils.convertObjectToHex(meta)
 
@@ -113,6 +137,7 @@ Market.prototype.update = function(){
 
 	this.admin = this.contract.getAdmin()
 	this.forumAddr = this.contract.getForumAddr()
+	this.aliases = utils.getAliases(this.contract.address)
 
 	this.stores = []
 	this.forum = new Forum(this.forumAddr)

@@ -2,7 +2,15 @@
 
 	angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 
-		
+		function getAliases(addr){
+			var aliases = []
+
+			AliasReg.getAliases(addr).forEach(function(aliasHex){
+				aliases.push(web3.toAscii(aliasHex))
+			})
+
+			return aliases
+		}
 
 		function convertObjectToHex(object){
 			var objectBytes = msgpack.pack(object);
@@ -61,6 +69,7 @@
 					if(tx){
 						clearInterval(interval)
 						deferred.resolve(tx)
+						console.log(tx)
 					}
 
 					if(Date.now() - timeStart > duration){
@@ -137,6 +146,7 @@
 			,waitForTxs:waitForTxs
 			,check:check
 			,nullAddress:'0x'+Array(21).join('00')
+			,getAliases:getAliases
 		})
 		
 	})

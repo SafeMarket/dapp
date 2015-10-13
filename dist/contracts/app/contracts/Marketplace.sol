@@ -8,6 +8,71 @@ contract Keystore{
 
 }
 
+contract AliasReg {
+	mapping(address=>bytes32[]) addrToAliasesMap;
+	mapping(bytes32=>address) aliasToAddrMap;
+
+	function claimAlias(bytes32 alias){
+		if(aliasToAddrMap[alias] != address(0)) return;
+
+		var aliases = addrToAliasesMap[msg.sender];
+		
+		aliases[aliases.length++]=alias;
+		aliasToAddrMap[alias]=msg.sender;
+	}
+
+	function claimAliases(bytes32[] aliases){
+		for(var i = 0; i < aliases.length; i++){
+			claimAlias(aliases[i]);
+		}
+	}
+
+/*
+	function abandonAliasByIndex(uint index){
+		var aliases = addrToAliasesMap[msg.sender];
+		
+		if(aliases.length<=index) return;
+
+		var alias = aliases[index];
+
+		aliases[index] = 0;
+		aliasToAddrMap[alias] = address(0);
+	}
+*/
+
+	function getAliases(address addr) constant returns(bytes32[]){
+		return addrToAliasesMap[addr];
+	}
+
+	function getAddr(bytes32 alias) constant returns(address){
+		return aliasToAddrMap[alias];
+	}
+
+}
+
+contract semiautonomous{
+
+	address operator;
+	bool[] operations;
+
+	function semiautonomous(){
+		operator = msg.sender;
+	}
+
+	function getOperator() constant returns(address){
+		return operator;
+	}
+
+	function getOperations() constant returns(bool[]){
+		return operations;
+	}
+
+	function operate(address addr, string func, bytes32[] values) {
+        var isSuccess = addr.call(func,values);
+        operations[operations.length++] = isSuccess;
+    }
+}
+
 contract Forum{
 	
 	address moderator;
@@ -38,15 +103,17 @@ contract Forum{
 	}
 }
 
-contract Market{
+contract Market is semiautonomous{
 	address admin;
 	address forumAddr;
 	event Meta(bytes meta);
+	AliasReg aliasReg;
 
 	function Market(bytes meta){
 		admin = tx.origin;
 		var forum = new Forum();
 		forumAddr = address(forum);
+		aliasReg = AliasReg(0x4d1785316dd23ac00698373759fdf87ab3da1023);
 		Meta(meta);
 	}
 
@@ -61,6 +128,14 @@ contract Market{
 	function setMeta(bytes meta){
 		if(tx.origin!=admin) return;
 		Meta(meta);
+	}
+
+	function claimAliases(bytes32[] aliases){
+		aliasReg.claimAliases(aliases);
+	}
+
+	function claimAlias(bytes32 alias){
+		aliasReg.claimAlias(alias);
 	}
 
 }
@@ -227,7 +302,7 @@ contract Order{
 
 
 
-contract Store{
+contract Store is semiautonomous{
     address merchant;
     event Meta(bytes meta);
 
