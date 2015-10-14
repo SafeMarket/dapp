@@ -113,7 +113,7 @@ contract Market is semiautonomous{
 		admin = tx.origin;
 		var forum = new Forum();
 		forumAddr = address(forum);
-		aliasReg = AliasReg(0x4d1785316dd23ac00698373759fdf87ab3da1023);
+		aliasReg = AliasReg(0xe42e7754c58b11f7cee145efeca4ec8c232eb9b1);
 		Meta(meta);
 	}
 
