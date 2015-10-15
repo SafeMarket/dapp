@@ -7,6 +7,6 @@ development:
     deploy: false
   Forum:
     deploy: false
-  semiautonomous:
+  aliasable:
     deploy: false
 staging:

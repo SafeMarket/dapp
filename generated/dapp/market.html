@@ -13,8 +13,15 @@
 		</h1>
 		<table class="table">
 			<tr>
-				<td>Aliases</td>
-				<td>{{market.aliases.join(', ')}}</td>
+				<td>
+					Aliases
+					<button class="btn btn-primary btn-xs" ng-click="openAliasesModal(market)">+</button>
+				</td>
+				<td>
+					<div style="max-height:100px;overflow-y:auto;">
+						<div ng-repeat="alias in market.aliases">{{alias}}</div>
+					</div>
+				</td>
 			</tr>
 			<tr>
 				<td>Status</td>

@@ -37,7 +37,7 @@ angular.module('safemarket').factory('Key',function(utils,$q){
 	Key.set = function(data){
 
 		var estimatedGas = Keystore.setKey.estimateGas(data)
-			,txHex = Keystore.setKey(data,{gas:estimatedGas*2})
+			,txHex = Keystore.setKey(data,{gas:estimatedGas})
 			,deferred = $q.defer()
 
 		utils.waitForTx(txHex).then(function(){

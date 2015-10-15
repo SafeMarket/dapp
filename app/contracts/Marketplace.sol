@@ -50,27 +50,25 @@ contract AliasReg {
 
 }
 
-contract semiautonomous{
+contract aliasable{
+	
+	address aliaser;
+	AliasReg aliasReg;
 
-	address operator;
-	bool[] operations;
-
-	function semiautonomous(){
-		operator = msg.sender;
+	function aliasable(){
+		aliaser = msg.sender;
+		aliasReg = AliasReg(0x8b56c69d14a81b95fde78791e2b82d391bcbf7ff);
 	}
 
-	function getOperator() constant returns(address){
-		return operator;
+	function claimAliases(bytes32[] aliases){
+		if(msg.sender!=aliaser) return;
+		aliasReg.claimAliases(aliases);
 	}
 
-	function getOperations() constant returns(bool[]){
-		return operations;
+	function claimAlias(bytes32 alias){
+		if(msg.sender!=aliaser) return;
+		aliasReg.claimAlias(alias);
 	}
-
-	function operate(address addr, string func, bytes32[] values) {
-        var isSuccess = addr.call(func,values);
-        operations[operations.length++] = isSuccess;
-    }
 }
 
 contract Forum{
@@ -103,17 +101,15 @@ contract Forum{
 	}
 }
 
-contract Market is semiautonomous{
+contract Market is aliasable{
 	address admin;
 	address forumAddr;
 	event Meta(bytes meta);
-	AliasReg aliasReg;
 
 	function Market(bytes meta){
 		admin = tx.origin;
 		var forum = new Forum();
 		forumAddr = address(forum);
-		aliasReg = AliasReg(0xe42e7754c58b11f7cee145efeca4ec8c232eb9b1);
 		Meta(meta);
 	}
 
@@ -128,14 +124,6 @@ contract Market is semiautonomous{
 	function setMeta(bytes meta){
 		if(tx.origin!=admin) return;
 		Meta(meta);
-	}
-
-	function claimAliases(bytes32[] aliases){
-		aliasReg.claimAliases(aliases);
-	}
-
-	function claimAlias(bytes32 alias){
-		aliasReg.claimAlias(alias);
 	}
 
 }
@@ -302,7 +290,7 @@ contract Order{
 
 
 
-contract Store is semiautonomous{
+contract Store is aliasable{
     address merchant;
     event Meta(bytes meta);
 

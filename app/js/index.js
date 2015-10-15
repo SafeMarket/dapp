@@ -57,16 +57,16 @@ app.controller('MainController',function($scope,modals,user,growl){
 
 	$scope.openStoreModal = function(){
 		if(!user.keypair){
-			growl.addErrorMessage('You must set a primary keypair')
-			return
+			//growl.addErrorMessage('You must set a primary keypair')
+			//return
 		}
 		modals.openStore()
 	}
 
 	$scope.openMarketModal = function(){
 		if(!user.keypair){
-			growl.addErrorMessage('You must set a primary keypair')
-			return
+			//growl.addErrorMessage('You must set a primary keypair')
+			//return
 		}
 		modals.openMarket()
 	}
@@ -413,6 +413,101 @@ app.controller('SettingsModalController',function($scope,safemarket,growl,$modal
 
 })
 
+app.controller('aliasesModalController',function($scope,$modalInstance,aliasable,safemarket){
+
+	$scope.addr = aliasable.contract.address
+	$scope.aliases = aliasable.aliases
+	$scope.newAliases = []
+	$scope.suggestedAliases = []
+
+	$scope.addNewAlias = function(){
+		$scope.newAliases.push(new NewAlias)
+	}
+
+	$scope.$watch('newAliases',function(){
+		$scope.newAliases.forEach(function(newAlias){
+			newAlias.update()
+		})
+
+		var variants = []
+			,suggestedAliases = []
+			,aliases = $scope.newAliases.map(function(alias){
+				return alias.text
+			})
+
+		console.log(aliases)
+
+		$scope.newAliases.forEach(function(variant){
+			variants = variants.concat([
+				variant.text.replace(/[^a-zA-Z ]/g, "")
+				,variant.text.replace(/[^a-zA-Z ]/g, "").toLowerCase()
+				,variant.text.replace(/[^a-zA-Z ]/g, "").toUpperCase()
+				,variant.text.replace(/[^a-zA-Z ]/g, "").split(' ').join('')
+				,variant.text.replace(/[^a-zA-Z ]/g, "").toLowerCase().split(' ').join('')
+				,variant.text.replace(/[^a-zA-Z ]/g, "").toUpperCase().split(' ').join('')
+			])
+		})
+
+		_.uniq(variants).forEach(function(variant){
+			console.log(
+				variant
+				,aliases.indexOf(variant) > -1
+				,AliasReg.getAddr(variant) !== safemarket.utils.nullAddress
+			)
+
+			if(aliases.indexOf(variant) > -1)
+				return true
+			if(AliasReg.getAddr(variant) !== safemarket.utils.nullAddress)
+				return true
+
+			suggestedAliases.push({text:variant,doTake:false})
+		})
+
+		$scope.suggestedAliases = suggestedAliases
+	},true)
+
+	$scope.addNewAlias()
+
+	function NewAlias(){
+		this.oldText = ''
+		this.text = ''
+		this.isTaken = false
+	}
+	NewAlias.prototype.update = function(){
+		if(this.oldText === this.text) return
+		this.isTaken = AliasReg.getAddr(this.text) !== safemarket.utils.nullAddress
+		this.oldText = this.text
+	}
+
+	$scope.submit = function(){
+		var aliases = []
+
+		$scope.newAliases.forEach(function(alias){
+			if(!alias.text)
+				return true
+			if(alias.isTaken)
+				return true
+			aliases.push(alias.text)
+		})
+
+		$scope.suggestedAliases.forEach(function(alias){
+			if(!alias.doTake)
+				return true
+			aliases.push(alias.text)
+		})
+
+		aliases = _.uniq(aliases)
+		
+		$scope.isUpdating = true
+
+		console.log(aliases)
+		aliasable.claimAliases(aliases).then(function(){
+			$modalInstance.close()
+		})
+
+	}
+})
+
 app.controller('SimpleModalController',function($scope,title,body){
 	$scope.title = title
 	$scope.body = body
@@ -524,7 +619,15 @@ app.controller('MarketController',function($scope,safemarket,user,$routeParams,m
 		modals
 			.openMarket($scope.market)
 			.result.then(function(market){
-				$scope.market = market
+				$scope.market.update()
+			})
+	}
+
+	$scope.openAliasesModal = function(){
+		modals
+			.openAliases($scope.market)
+			.result.then(function(){
+				$scope.market.update()
 			})
 	}
 })
@@ -691,11 +794,28 @@ app.service('modals',function($modal){
 			,controller: 'SettingsModalController'
 	    });
 	}
+
+	this.openAliases = function(aliasable){
+		return openModal({
+			size: 'lg'
+			,templateUrl: 'aliasesModal.html'
+			,controller: 'aliasesModalController'
+			,resolve:{
+				aliasable:function(){
+					return aliasable
+				}
+			}
+	    });
+	}
 })
 
 app.controller('BarController',function($scope){
 	$scope.submit = function(){
-		window.location.hash = '/stores/'+$scope.storeAddress
+		var addrOrAlias = $scope.addrOrAlias
+			,addr = AliasReg.getAddr(addrOrAlias)
+
+		if(utils.Market.verifyAddr(addr))
+			window.location.hash="/markets/"+addr
 	}
 })
 

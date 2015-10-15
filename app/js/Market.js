@@ -13,6 +13,11 @@ window.Market = Market
 Market.prototype.code = Market.code = '0x'+contractDB.Market.compiled.code
 Market.prototype.abi = Market.abi = contractDB.Market.compiled.info.abiDefinition
 
+Market.verifyAddr = function(addr){
+	var code = web3.eth.getCode(addr)
+	return code === this.code
+}
+
 Market.create = function(meta){
 	var meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 		,deferred = $q.defer()
@@ -85,27 +90,19 @@ Market.estimateCreationGas = function(meta){
 }
 
 Market.prototype.claimAliases = function(aliases){
+
+	console.log(aliases)
+
 	var market = this
 		,txHex = this.contract.claimAliases(aliases,{
-			gas:this.contract.claimAliases.estimateGas(aliases)
-		})
+			gas:(this.contract.claimAliases.estimateGas(aliases)+AliasReg.claimAliases.estimateGas(aliases))
+		}),deferred = $q.defer()
 
 	utils.waitForTx(txHex).then(function(){
-		console.log(utils.getAliases(market.contract.address))
-		market.update()
+		deferred.resolve()		
 	})
-}
 
-Market.prototype.claimAlias = function(alias){
-	var market = this
-		,txHex = this.contract.claimAlias(alias,{
-			gas:this.contract.claimAlias.estimateGas(alias)
-		})
-
-	utils.waitForTx(txHex).then(function(){
-		console.log(utils.getAliases(market.contract.address))
-		market.update()
-	})
+	return deferred.promise
 }
 
 Market.prototype.set = function(meta){
