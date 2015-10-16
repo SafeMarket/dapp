@@ -816,6 +816,14 @@ app.service('modals',function($modal){
 	}
 })
 
+app.directive('addrBar',function(){
+	return {
+		templateUrl:'bar.html'
+		,controller:'BarController'
+		,scope:{addrOrAlias:'=addrBar'}
+	}
+})
+
 app.controller('BarController',function($scope,safemarket){
 	$scope.submit = function(){
 		var isAddr = safemarket.utils.isAddr($scope.addrOrAlias)

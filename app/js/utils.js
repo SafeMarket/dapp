@@ -13,7 +13,11 @@
 		}
 
 		function isAddr(string){
-			return cryptocoin.convertHex.hexToBytes(string).length===20
+			try{
+				return cryptocoin.convertHex.hexToBytes(string).length===20
+			}catch(e){
+				return false
+			}
 		}
 
 		function convertObjectToHex(object){
