@@ -71,6 +71,18 @@ contract aliasable{
 	}
 }
 
+contract verifiable{
+	uint blockNumber;
+
+	function verifiable(){
+		blockNumber = block.number;
+	}
+
+	function getBlockNumber() constant returns(uint){
+		return blockNumber;
+	}
+}
+
 contract Forum{
 	
 	address moderator;
@@ -101,7 +113,7 @@ contract Forum{
 	}
 }
 
-contract Market is aliasable{
+contract Market is aliasable,verifiable{
 	address admin;
 	address forumAddr;
 	event Meta(bytes meta);
@@ -128,7 +140,7 @@ contract Market is aliasable{
 
 }
 
-contract Order{
+contract Order is verifiable{
 	address buyer;
 	address merchant;
 	address admin;
@@ -290,7 +302,7 @@ contract Order{
 
 
 
-contract Store is aliasable{
+contract Store is aliasable,verifiable{
     address merchant;
     event Meta(bytes meta);
 

@@ -3033,6 +3033,37 @@ ContractFactory.prototype.estimateGas = function () {
 };
 
 /**
+ * Should be called to create estimate gas for contract creation
+ * 
+ * @method verifyAddr
+ * @param {Any} contract constructor param1 (optional)
+ * @param {Any} contract constructor param2 (optional)
+ * @param {Object} contract transaction object (required)
+ * @param {String} address (required)
+ * @returns {Boolean} returns boolean
+ */
+ContractFactory.prototype.verifyAddr = function () {
+    
+    var contract = new Contract(this.abi)
+      ,args = Array.prototype.slice.call(arguments)
+      ,addr = args.pop()
+      ,txHex = args.pop()
+      ,code = args.pop()
+      ,receipt = web3.eth.getTransactionReceipt(txHex)
+      ,tx = web3.eth.getTransaction(txHex)
+
+    if(receipt.contractAddress !== addr)
+      return false
+
+
+    var bytes = encodeConstructorParams(this.abi, args)
+      ,data = code+bytes;
+
+    return data === tx.input
+
+};
+
+/**
  * Should be called to get access to existing contract on a blockchain
  *
  * @method at
@@ -3065,6 +3096,10 @@ ContractFactory.prototype.at = function (address, callback) {
 var Contract = function (abi, address) {
     this.address = address;
 };
+
+Contract.prototype.getAllEvents = function(eventName){
+
+}
 
 module.exports = contract;
 

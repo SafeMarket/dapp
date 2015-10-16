@@ -10,6 +10,7 @@ module.exports = (grunt) ->
 
       js:
         src: [
+          "node_modules/solc/bin/soljson-latest.js"
           "bower_components/crypto-js/build/rollups/aes.js"
           "bower_components/msgpack-javascript/msgpack.js"
           "bower_components/cryptocoin/dist/cryptocoin.js"
@@ -94,7 +95,7 @@ module.exports = (grunt) ->
         tasks: ["copy"]
 
       js:
-        files: ["<%= files.js.src %>","node_modules/embark-framework/js/web3.js"]
+        files: ["<%= files.js.src %>","<%= files.web3 %>"]
         tasks: ["concat"]
 
       css:

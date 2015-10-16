@@ -3,31 +3,30 @@
 angular.module('safemarket').factory('Market',function(utils,ticker,$q,Store,Key,Forum){
 
 function Market(addr){
+	if(this.runtimeBytecode !== web3.eth.getCode(addr))
+		throw new Error('Invalid')
+
 	this.addr = addr
-	this.contract = web3.eth.contract(this.abi).at(addr)
+	this.contract = this.contractFactory.at(addr)
 	this.updatePromise = this.update()
 }
 
 window.Market = Market
 
 Market.prototype.code = Market.code = '0x'+contractDB.Market.compiled.code
+Market.prototype.runtimeBytecode = Market.runtimeBytecode = '0x'+contractDB.Market.compiled.runtimeBytecode
 Market.prototype.abi = Market.abi = contractDB.Market.compiled.info.abiDefinition
-
-Market.verifyAddr = function(addr){
-	var code = web3.eth.getCode(addr)
-	return code === this.code
-}
+Market.prototype.contractFactory = Market.contractFactory = web3.eth.contract(Market.abi)
 
 Market.create = function(meta){
 	var meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 		,deferred = $q.defer()
-		,MarketContract = web3.eth.contract(Market.abi)
 		,txObject = {
-			data:Market.code
+			data:this.code
 			,gas:this.estimateCreationGas(meta)
 			,gasPrice:web3.eth.gasPrice
 			,from:web3.eth.accounts[0]
-		},txHex = MarketContract.new(meta,txObject).transactionHash
+		},txHex = this.contractFactory.new(meta,txObject).transactionHash
 
 	utils.waitForTx(txHex).then(function(tx){
 		(new Market(tx.contractAddress)).updatePromise.then(function(market){
@@ -127,6 +126,20 @@ Market.prototype.set = function(meta){
 	return deferred.promise
 }
 
+Market.prototype.getEvents = function(eventName){
+	var deferred = $q.defer()
+
+	this.contract.allEvents(eventName).get(function(error,results){
+		console.log(arguments)
+		if(error)
+			deferred.reject(error)
+		else
+			deferred.resolve(results)
+	})
+
+	return deferred.promise
+}
+
 
 Market.prototype.update = function(){
 	var deferred = $q.defer()
@@ -139,13 +152,9 @@ Market.prototype.update = function(){
 	this.stores = []
 	this.forum = new Forum(this.forumAddr)
 
-	this.contract.Meta({},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
+	this.getEvents('Meta').then(function(results){
 
-		if(error)
-			return deferred.reject(error)
-
-		if(results.length === 0)
-			return deferred.reject(new Error('no results found'))
+		console.log(results)
 
 		market.meta = utils.convertHexToObject(results[0].args.meta)
 
@@ -154,6 +163,8 @@ Market.prototype.update = function(){
 		})
 
 		deferred.resolve(market)
+	},function(error){
+		console.error(error)
 	})
 
 

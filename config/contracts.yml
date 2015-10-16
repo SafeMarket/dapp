@@ -9,4 +9,6 @@ development:
     deploy: false
   aliasable:
     deploy: false
+  verifiable:
+    deploy: false
 staging:

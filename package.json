@@ -25,5 +25,8 @@
     "read-yaml": "^1.0.0",
     "compression": "^1.4.3",
     "web3": "^0.13.0"
+  },
+  "dependencies": {
+    "solc": "^0.1.6"
   }
 }
