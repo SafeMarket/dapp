@@ -57,7 +57,7 @@ contract aliasable{
 
 	function aliasable(){
 		aliaser = msg.sender;
-		aliasReg = AliasReg(0x8b56c69d14a81b95fde78791e2b82d391bcbf7ff);
+		aliasReg = AliasReg(0xcba435408b486fb88e74dbaca28e69fe1b9620bc);
 	}
 
 	function claimAliases(bytes32[] aliases){

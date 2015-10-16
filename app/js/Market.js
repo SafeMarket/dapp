@@ -129,7 +129,7 @@ Market.prototype.set = function(meta){
 Market.prototype.getEvents = function(eventName){
 	var deferred = $q.defer()
 
-	this.contract.allEvents(eventName).get(function(error,results){
+	this.contract[eventName]({},{fromBlock:0,toBlock:'latest'}).get(function(error,results){
 		console.log(arguments)
 		if(error)
 			deferred.reject(error)

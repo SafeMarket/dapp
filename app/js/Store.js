@@ -13,6 +13,7 @@ function Store(addr){
 window.Store = Store
 
 Store.prototype.code = Store.code = '0x'+contractDB.Store.compiled.code
+Store.prototype.runtimeBytecode = Store.runtimeBytecode = '0x'+contractDB.Store.compiled.runtimeBytecode
 Store.prototype.abi = Store.abi = contractDB.Store.compiled.info.abiDefinition
 
 Store.create = function(meta){

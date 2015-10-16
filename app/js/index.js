@@ -809,13 +809,20 @@ app.service('modals',function($modal){
 	}
 })
 
-app.controller('BarController',function($scope){
+app.controller('BarController',function($scope,safemarket){
 	$scope.submit = function(){
 		var addrOrAlias = $scope.addrOrAlias
 			,addr = AliasReg.getAddr(addrOrAlias)
+			,runtimeBytecode = web3.eth.getCode(addr)
 
-		if(utils.Market.verifyAddr(addr))
-			window.location.hash="/markets/"+addr
+		switch(runtimeBytecode){
+			case safemarket.Market.runtimeBytecode:
+				window.location.hash="/markets/"+addr
+				break;
+			case safemarket.Store.runtimeBytecode:
+				window.location.hash="/stores/"+addr
+				break;
+		}
 	}
 })
 
