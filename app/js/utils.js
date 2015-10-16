@@ -12,6 +12,10 @@
 			return aliases
 		}
 
+		function isAddr(string){
+			return cryptocoin.convertHex.hexToBytes(string).length===20
+		}
+
 		function convertObjectToHex(object){
 			var objectBytes = msgpack.pack(object);
 			return '0x'+cryptocoin.convertHex.bytesToHex(objectBytes)
@@ -147,6 +151,7 @@
 			,check:check
 			,nullAddress:'0x'+Array(21).join('00')
 			,getAliases:getAliases
+			,isAddr:isAddr
 		})
 		
 	})

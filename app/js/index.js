@@ -27,6 +27,9 @@ app.config(function(growlProvider,$routeProvider) {
 	    }).when('/orders/:orderAddr',{
 	    	templateUrl:'order.html'
 	    	,controller:'OrderController'
+	    }).when('/404/:addrOrAlias',{
+	    	templateUrl:'404.html'
+	    	,controller:'404Controller'
 	    })
 
 });
@@ -146,6 +149,10 @@ app.directive('amounts',function(utils){
 			},true)
 		}
 	}
+})
+
+app.controller('404Controller',function($scope,$routeParams){
+	$scope.addrOrAlias = $routeParams.addrOrAlias
 })
 
 app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,growl,$modal,$modalInstance,store,user,confirmGas){
@@ -811,8 +818,8 @@ app.service('modals',function($modal){
 
 app.controller('BarController',function($scope,safemarket){
 	$scope.submit = function(){
-		var addrOrAlias = $scope.addrOrAlias
-			,addr = AliasReg.getAddr(addrOrAlias)
+		var isAddr = safemarket.utils.isAddr($scope.addrOrAlias)
+			,addr = isAddr ? $scope.addrOrAlias : AliasReg.getAddr($scope.addrOrAlias)
 			,runtimeBytecode = web3.eth.getCode(addr)
 
 		switch(runtimeBytecode){
@@ -821,6 +828,12 @@ app.controller('BarController',function($scope,safemarket){
 				break;
 			case safemarket.Store.runtimeBytecode:
 				window.location.hash="/stores/"+addr
+				break;
+			default:
+				if(isAddr)
+					window.location.hash="/404/"+addr
+				else
+					window.location.hash="/404/"+$scope.addrOrAlias
 				break;
 		}
 	}
