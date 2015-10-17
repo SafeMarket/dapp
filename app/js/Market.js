@@ -7,6 +7,7 @@ function Market(addr){
 		throw new Error('Invalid')
 
 	this.addr = addr
+	this.alias = utils.getAlias(addr)
 	this.contract = this.contractFactory.at(addr)
 	this.updatePromise = this.update()
 }
@@ -18,15 +19,16 @@ Market.prototype.runtimeBytecode = Market.runtimeBytecode = '0x'+contractDB.Mark
 Market.prototype.abi = Market.abi = contractDB.Market.compiled.info.abiDefinition
 Market.prototype.contractFactory = Market.contractFactory = web3.eth.contract(Market.abi)
 
-Market.create = function(meta){
+Market.create = function(alias,meta){
+	console.log('alias',alias)
 	var meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 		,deferred = $q.defer()
 		,txObject = {
 			data:this.code
-			,gas:this.estimateCreationGas(meta)
+			,gas:this.estimateCreationGas(alias,meta)
 			,gasPrice:web3.eth.gasPrice
 			,from:web3.eth.accounts[0]
-		},txHex = this.contractFactory.new(meta,txObject).transactionHash
+		},txHex = this.contractFactory.new(alias,meta,txObject).transactionHash
 
 	utils.waitForTx(txHex).then(function(tx){
 		(new Market(tx.contractAddress)).updatePromise.then(function(market){
@@ -41,7 +43,14 @@ Market.create = function(meta){
 	return deferred.promise
 }
 
-Market.check = function(meta){
+Market.check = function(alias,meta){
+	utils.check({alias:alias},{
+		alias:{
+			presence:true
+			,type:'alias'
+		}
+	})
+
 	utils.check(meta,{
 		name:{
 			presence:true
@@ -77,32 +86,14 @@ Market.check = function(meta){
 	})
 }
 
-Market.estimateCreationGas = function(meta){
+Market.estimateCreationGas = function(alias,meta){
 	meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 
-	var deferred = $q.defer()
-		,MarketContract = web3.eth.contract(this.abi)
-
-	return MarketContract.estimateGas(meta,{
+	return this.contractFactory.estimateGas(alias,meta,{
 		data:Market.code
-	})
+	})+ AliasReg.claimAlias.estimateGas(alias)
 }
 
-Market.prototype.claimAliases = function(aliases){
-
-	console.log(aliases)
-
-	var market = this
-		,txHex = this.contract.claimAliases(aliases,{
-			gas:(this.contract.claimAliases.estimateGas(aliases)+AliasReg.claimAliases.estimateGas(aliases))
-		}),deferred = $q.defer()
-
-	utils.waitForTx(txHex).then(function(){
-		deferred.resolve()		
-	})
-
-	return deferred.promise
-}
 
 Market.prototype.set = function(meta){
 	meta = utils.convertObjectToHex(meta)
@@ -147,7 +138,6 @@ Market.prototype.update = function(){
 
 	this.admin = this.contract.getAdmin()
 	this.forumAddr = this.contract.getForumAddr()
-	this.aliases = utils.getAliases(this.contract.address)
 
 	this.stores = []
 	this.forum = new Forum(this.forumAddr)

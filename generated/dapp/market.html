@@ -12,18 +12,8 @@
 				ng-click="openMarketModal(market)"
 			>Edit</button>
 		</h1>
+		@{{market.alias}}
 		<table class="table">
-			<tr>
-				<td>
-					Aliases
-					<button class="btn btn-primary btn-xs" ng-click="openAliasesModal(market)">+</button>
-				</td>
-				<td>
-					<div style="max-height:100px;overflow-y:auto;">
-						<div ng-repeat="alias in market.aliases">{{alias}}</div>
-					</div>
-				</td>
-			</tr>
 			<tr>
 				<td>Status</td>
 				<td>{{market.meta.isOpen ? 'Open' : 'Closed'}}</td>

@@ -6,7 +6,8 @@ var currencies = Object.keys(ticker.rates)
 
 function Store(addr){
 	this.addr = addr
-	this.contract = web3.eth.contract(this.abi).at(addr)
+	this.alias = utils.getAlias(addr)
+	this.contract = this.contractFactory.at(addr)
 	this.updatePromise = this.update()
 }
 
@@ -15,18 +16,21 @@ window.Store = Store
 Store.prototype.code = Store.code = '0x'+contractDB.Store.compiled.code
 Store.prototype.runtimeBytecode = Store.runtimeBytecode = '0x'+contractDB.Store.compiled.runtimeBytecode
 Store.prototype.abi = Store.abi = contractDB.Store.compiled.info.abiDefinition
+Store.prototype.contractFactory = Store.contractFactory = web3.eth.contract(Store.abi)
 
-Store.create = function(meta){
+Store.create = function(alias,meta){
+
+	console.log('alias',alias)
 	
 	var meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 		,deferred = Q.defer()
 		,StoreContract = web3.eth.contract(Store.abi)
 		,txObject = {
 			data:Store.code
-			,gas:this.estimateCreationGas(meta)
+			,gas:this.estimateCreationGas(alias,meta)
 			,gasPrice:web3.eth.gasPrice
 			,from:web3.eth.accounts[0]
-		},txHex = StoreContract.new(meta,txObject).transactionHash
+		},txHex = StoreContract.new(alias,meta,txObject).transactionHash
 
 	utils.waitForTx(txHex).then(function(tx){
 		(new Store(tx.contractAddress).updatePromise.then(function(store){
@@ -41,7 +45,14 @@ Store.create = function(meta){
 	return deferred.promise
 }
 
-Store.check = function(meta){
+Store.check = function(alias,meta){
+	utils.check({alias:alias},{
+		alias:{
+			presence:true
+			,type:'alias'
+		}
+	})
+
 	utils.check(meta,{
 		name:{
 			presence:true
@@ -94,15 +105,12 @@ Store.check = function(meta){
 	})
 }
 
-Store.estimateCreationGas = function(meta){
+Store.estimateCreationGas = function(alias,meta){
 	meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 
-	var deferred = Q.defer()
-		,StoreContract = web3.eth.contract(this.abi)
-
-	return StoreContract.estimateGas(meta,{
+	return this.contractFactory.estimateGas(alias,meta,{
 		data:Store.code
-	})
+	})+AliasReg.claimAlias.estimateGas(alias)
 }
 
 Store.prototype.setMeta = function(meta){

@@ -2,22 +2,25 @@
 
 	angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 
-		function getAliases(addr){
-			var aliases = []
-
-			AliasReg.getAliases(addr).forEach(function(aliasHex){
-				aliases.push(web3.toAscii(aliasHex))
-			})
-
-			return aliases
-		}
-
 		function isAddr(string){
 			try{
 				return cryptocoin.convertHex.hexToBytes(string).length===20
 			}catch(e){
 				return false
 			}
+		}
+
+		function isAliasAvailable(alias){
+			return AliasReg.getAddr(alias) === ('0x'+Array(21).join('00'))
+		}
+
+		function toAscii(string){
+			var zeroChar = String.fromCharCode(0)
+			return web3.toAscii(string).split(zeroChar).join('')
+		}
+
+		function getAlias(addr){
+			return toAscii(AliasReg.getAlias(addr))
 		}
 
 		function convertObjectToHex(object){
@@ -153,9 +156,11 @@
 			,waitForTx:waitForTx
 			,waitForTxs:waitForTxs
 			,check:check
-			,nullAddress:'0x'+Array(21).join('00')
-			,getAliases:getAliases
+			,nullAddr:'0x'+Array(21).join('00')
 			,isAddr:isAddr
+			,getAlias:getAlias
+			,toAscii:toAscii
+			,isAliasAvailable:isAliasAvailable
 		})
 		
 	})
@@ -177,7 +182,6 @@ validate.validators.exists = function(value, options, key, attributes) {
 			return value+' is '+(typeof value)
 };
 
-
 validate.validators.type = function(value, options, key, attributes) {
 	if(value === null || value === undefined) return null
 
@@ -189,6 +193,12 @@ validate.validators.type = function(value, options, key, attributes) {
 
     if(options==='address')
     	return _.startsWith(value,'0x') && value.length===42 ? null : 'is not a valid address'
+
+    if(options==='alias')
+    	if (value.valueOf() !== value.toLowerCase().replace(/[^a-z]/g, '').valueOf())
+    		return 'can only be lower case letters'
+    	else
+    		return null
 
 	return typeof value===options ? null : 'is not a '+options
 };

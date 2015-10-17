@@ -44,4 +44,10 @@
 		}
 	})
 
+	safemarket.filter('alias',function(utils){
+		return function(addr){
+			return utils.getAlias(addr)
+		}
+	})
+
 })();

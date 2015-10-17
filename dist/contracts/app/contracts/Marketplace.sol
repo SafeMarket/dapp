@@ -9,78 +9,24 @@ contract Keystore{
 }
 
 contract AliasReg {
-	mapping(address=>bytes32[]) addrToAliasesMap;
+	mapping(address=>bytes32) addrToAliasMap;
 	mapping(bytes32=>address) aliasToAddrMap;
 
 	function claimAlias(bytes32 alias){
 		if(aliasToAddrMap[alias] != address(0)) return;
 
-		var aliases = addrToAliasesMap[msg.sender];
-		
-		aliases[aliases.length++]=alias;
+		addrToAliasMap[msg.sender]=alias;
 		aliasToAddrMap[alias]=msg.sender;
 	}
 
-	function claimAliases(bytes32[] aliases){
-		for(var i = 0; i < aliases.length; i++){
-			claimAlias(aliases[i]);
-		}
-	}
-
-/*
-	function abandonAliasByIndex(uint index){
-		var aliases = addrToAliasesMap[msg.sender];
-		
-		if(aliases.length<=index) return;
-
-		var alias = aliases[index];
-
-		aliases[index] = 0;
-		aliasToAddrMap[alias] = address(0);
-	}
-*/
-
-	function getAliases(address addr) constant returns(bytes32[]){
-		return addrToAliasesMap[addr];
+	function getAlias(address addr) constant returns(bytes32){
+		return addrToAliasMap[addr];
 	}
 
 	function getAddr(bytes32 alias) constant returns(address){
 		return aliasToAddrMap[alias];
 	}
 
-}
-
-contract aliasable{
-	
-	address aliaser;
-	AliasReg aliasReg;
-
-	function aliasable(){
-		aliaser = msg.sender;
-		aliasReg = AliasReg(0xcba435408b486fb88e74dbaca28e69fe1b9620bc);
-	}
-
-	function claimAliases(bytes32[] aliases){
-		if(msg.sender!=aliaser) return;
-		aliasReg.claimAliases(aliases);
-	}
-
-	function claimAlias(bytes32 alias){
-		if(msg.sender!=aliaser) return;
-		aliasReg.claimAlias(alias);
-	}
-}
-
-contract verifiable{
-	uint blockNumber;
-
-	function verifiable(){
-		blockNumber = block.number;
-	}
-
-	function getBlockNumber() constant returns(uint){
-		return blockNumber;
-	}
 }
 
 contract Forum{
@@ -113,15 +59,16 @@ contract Forum{
 	}
 }
 
-contract Market is aliasable,verifiable{
+contract Market{
 	address admin;
 	address forumAddr;
 	event Meta(bytes meta);
 
-	function Market(bytes meta){
+	function Market(bytes32 alias, bytes meta){
 		admin = tx.origin;
 		var forum = new Forum();
 		forumAddr = address(forum);
+		AliasReg(0x6d9d2ecf977b9610724095ce76b3863a298e65f1).claimAlias(alias);
 		Meta(meta);
 	}
 
@@ -140,7 +87,7 @@ contract Market is aliasable,verifiable{
 
 }
 
-contract Order is verifiable{
+contract Order{
 	address buyer;
 	address merchant;
 	address admin;
@@ -300,15 +247,14 @@ contract Order is verifiable{
 	}
 }
 
-
-
-contract Store is aliasable,verifiable{
+contract Store{
     address merchant;
     event Meta(bytes meta);
 
-    function Store(bytes meta){
+    function Store(bytes32 alias, bytes meta){
         merchant = tx.origin;
         Meta(meta);
+        AliasReg(0x6d9d2ecf977b9610724095ce76b3863a298e65f1).claimAlias(alias);
     }
     
     function getMerchant() constant returns(address){

@@ -10,6 +10,16 @@
     </div>
     <div ng-show="!isSyncing"><table class="table">
         <tr>
+            <td>Alias</td>
+            <td>
+                <div class="input-group">
+                    <div class="input-group-addon">@</div>
+                    <input class="form-control" ng-model="alias" ng-disabled="isEditing" alias>
+                </div>
+                <div alias-validator="alias"></div>
+            </td>
+        </tr>
+        <tr>
             <td>Market Name</td>
             <td>
                 <input type="text" ng-model="name" class="form-control">

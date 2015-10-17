@@ -27,7 +27,7 @@ app.config(function(growlProvider,$routeProvider) {
 	    }).when('/orders/:orderAddr',{
 	    	templateUrl:'order.html'
 	    	,controller:'OrderController'
-	    }).when('/404/:addrOrAlias',{
+	    }).when('/404/:alias',{
 	    	templateUrl:'404.html'
 	    	,controller:'404Controller'
 	    })
@@ -152,7 +152,7 @@ app.directive('amounts',function(utils){
 })
 
 app.controller('404Controller',function($scope,$routeParams){
-	$scope.addrOrAlias = $routeParams.addrOrAlias
+	$scope.alias = $routeParams.alias
 })
 
 app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,growl,$modal,$modalInstance,store,user,confirmGas){
@@ -178,6 +178,7 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 
 	if(store){
 		$scope.isEditing = true
+		$scope.alias = store.alias
 		$scope.name = store.meta.name
 		$scope.currency = store.meta.currency
 		$scope.products = store.meta.products
@@ -204,18 +205,22 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 	$scope.addProduct = addProduct
 
 	$scope.submit = function(){
-		var meta = {
-			name:$scope.name
-			,currency:$scope.currency
-			,products:$scope.products
-			,disputeSeconds:$scope.disputeSeconds
-			,isOpen:!!$scope.isOpen
-			,info:$scope.info
-		}
-		
+		var alias = $scope.alias.trim().replace(/(\r\n|\n|\r)/gm,"")
+			,meta = {
+				name:$scope.name
+				,currency:$scope.currency
+				,products:$scope.products
+				,disputeSeconds:$scope.disputeSeconds
+				,isOpen:!!$scope.isOpen
+				,info:$scope.info
+			}
+
+
 		try{
-			safemarket.Store.check(meta)
+			console.log(alias)
+			safemarket.Store.check(alias,meta)
 		}catch(e){
+			console.log('error',e)
 			growl.addErrorMessage(e)
 			console.error(e)
 			return
@@ -241,7 +246,12 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 					console.error(error)
 				})
 		}else{
-			var estimatedGas = Store.estimateCreationGas(meta)
+
+			if(!safemarket.utils.isAliasAvailable(alias)){
+				return growl.addErrorMessage('The alias"'+alias+'" is taken')
+			}
+
+			var estimatedGas = Store.estimateCreationGas($scope.alias,meta)
 				,doContinue = confirmGas(estimatedGas)
 
 			if(!doContinue) return
@@ -249,7 +259,7 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 			$scope.isSyncing = true
 
 			safemarket
-				Store.create(meta)
+				Store.create($scope.alias,meta)
 				.then(function(store){
 					user.data.stores.push(store.addr)
 					user.save()
@@ -272,6 +282,7 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 	
 
 	if(market){
+		$scope.alias = market.alias
 		$scope.isEditing = true
 		$scope.name = market.meta.name
 		$scope.info = market.meta.info
@@ -291,20 +302,20 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 	}
 
 	$scope.submit = function(){
-		var meta = {
-			name:$scope.name
-			,info:$scope.info
-			,feePercentage: $scope.feePercentage.toString()
-			,isOpen:$scope.isOpen
-			,stores:$scope.stores
-		}
-		,isOpen=!!$scope.isOpen
+		var alias = $scope.alias
+			,meta = {
+				name:$scope.name
+				,info:$scope.info
+				,feePercentage: $scope.feePercentage.toString()
+				,isOpen:$scope.isOpen
+				,stores:$scope.stores
+			}
+			,isOpen=!!$scope.isOpen
 		
 		try{
-			safemarket.Market.check(meta)
+			safemarket.Market.check(alias,meta)
 		}catch(e){
 			growl.addErrorMessage(e)
-			console.error(e)
 			return
 		}
 
@@ -328,7 +339,12 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 					console.error(error)
 				})
 		}else{
-			var estimatedGas = Market.estimateCreationGas(meta)
+
+			if(!safemarket.utils.isAliasAvailable(alias)){
+				return growl.addErrorMessage('The alias"'+alias+'" is taken')
+			}
+
+			var estimatedGas = Market.estimateCreationGas($scope.alias,meta)
 				,doContinue = confirmGas(estimatedGas)
 	
 			if(!doContinue) return;
@@ -336,7 +352,7 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 			$scope.isSyncing = true
 
 			safemarket
-				.Market.create(meta)
+				.Market.create($scope.alias,meta)
 				.then(function(market){
 					user.data.markets.push(market.addr)
 					user.save()
@@ -459,12 +475,12 @@ app.controller('aliasesModalController',function($scope,$modalInstance,aliasable
 			console.log(
 				variant
 				,aliases.indexOf(variant) > -1
-				,AliasReg.getAddr(variant) !== safemarket.utils.nullAddress
+				,AliasReg.getAddr(variant) !== safemarket.utils.nullAddr
 			)
 
 			if(aliases.indexOf(variant) > -1)
 				return true
-			if(AliasReg.getAddr(variant) !== safemarket.utils.nullAddress)
+			if(AliasReg.getAddr(variant) !== safemarket.utils.nullAddr)
 				return true
 
 			suggestedAliases.push({text:variant,doTake:false})
@@ -482,7 +498,7 @@ app.controller('aliasesModalController',function($scope,$modalInstance,aliasable
 	}
 	NewAlias.prototype.update = function(){
 		if(this.oldText === this.text) return
-		this.isTaken = AliasReg.getAddr(this.text) !== safemarket.utils.nullAddress
+		this.isTaken = AliasReg.getAddr(this.text) !== safemarket.utils.nullAddr
 		this.oldText = this.text
 	}
 
@@ -547,10 +563,10 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 	$scope.createOrder = function(){
 		var meta = {
 			storeAddr:$scope.store.addr
-			,marketAddr: $scope.market ? $scope.market.addr : utils.nullAddress
+			,marketAddr: $scope.market ? $scope.market.addr : utils.nullAddr
 			,products:[]
 		},merchant = $scope.store.merchant
-		,admin = $scope.market ? $scope.market.admin : utils.nullAddress
+		,admin = $scope.market ? $scope.market.admin : utils.nullAddr
 		,fee = 0
 		,disputeSeconds = parseInt($scope.store.meta.disputeSeconds)
 
@@ -820,14 +836,14 @@ app.directive('addrBar',function(){
 	return {
 		templateUrl:'bar.html'
 		,controller:'BarController'
-		,scope:{addrOrAlias:'=addrBar'}
+		,scope:{alias:'=addrBar'}
 	}
 })
 
 app.controller('BarController',function($scope,safemarket){
 	$scope.submit = function(){
-		var isAddr = safemarket.utils.isAddr($scope.addrOrAlias)
-			,addr = isAddr ? $scope.addrOrAlias : AliasReg.getAddr($scope.addrOrAlias)
+		var alias = $scope.alias
+			,addr = AliasReg.getAddr(alias)
 			,runtimeBytecode = web3.eth.getCode(addr)
 
 		switch(runtimeBytecode){
@@ -838,11 +854,7 @@ app.controller('BarController',function($scope,safemarket){
 				window.location.hash="/stores/"+addr
 				break;
 			default:
-				if(isAddr)
-					window.location.hash="/404/"+addr
-				else
-					window.location.hash="/404/"+$scope.addrOrAlias
-				break;
+				window.location.hash="/404/"+alias
 		}
 	}
 })
@@ -1057,6 +1069,35 @@ app.filter('capitalize', function() {
     	input = input.toLowerCase();
     	return input.substring(0,1).toUpperCase()+input.substring(1);
   	}
+});
+
+app.directive('alias', function(growl) {
+  	return {
+    	require: 'ngModel',
+    	link: function (scope, element, attr, ngModelCtrl) {
+      		ngModelCtrl.$parsers.push(function(text) {
+        		var transformedInput = text.toLowerCase().replace(/[^a-z]/g, '');
+        		if(transformedInput !== text) {
+           			ngModelCtrl.$setViewValue(transformedInput);
+            		ngModelCtrl.$render();
+        		}
+        		if(transformedInput!==text) growl.addErrorMessage('Only lower case letters are allowed')
+        		return transformedInput;  // or return Number(transformedInput)
+      		});
+    	}
+  	}; 
+});
+
+app.directive('aliasValidator', function(safemarket) {
+  	return {
+  		scope:{
+  			alias:'=aliasValidator'
+  		},link: function ($scope) {
+      		$scope.$watch('alias',function(alias){
+      			$scope.isValid = AliasReg.getAddr(alias)===safemarket.utils.nullAddr
+      		})
+    	},templateUrl:'aliasValidator.html'
+  	}; 
 });
 
 })();
