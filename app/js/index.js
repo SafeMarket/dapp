@@ -836,7 +836,7 @@ app.directive('addrBar',function(){
 	return {
 		templateUrl:'bar.html'
 		,controller:'BarController'
-		,scope:{alias:'=addrBar'}
+		,scope:{alias:'@addrBar'}
 	}
 })
 
