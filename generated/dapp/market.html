@@ -35,6 +35,7 @@
 	<h3>Forum</h3>
 	<div forum="market.forum"></div>
 	<h3>Stores</h3>
+	<div class="alert alert-info text-center" ng-show="market.stores.length===0">{{market.meta.name}} has not approved any stores</div>
 	<table class="table">
 		<tr ng-repeat="store in market.stores">
 			<td>{{store.meta.name}}</td>
