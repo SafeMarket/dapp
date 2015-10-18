@@ -18,6 +18,8 @@ angular.module('safemarket').factory('Key',function(utils,$q){
 
 		Keystore.Key({addr:addr},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
 
+			console.log(results)
+
 			if(error)
 				return deferred.reject(error)
 
@@ -25,7 +27,9 @@ angular.module('safemarket').factory('Key',function(utils,$q){
 				return deferred.reject(new Error('no results found'))
 
 			try{
-				deferred.resolve(new Key(results[0].args.data,results[0].args.timestamp))
+				console.log(results[0].blockNumber,web3.eth.getBlock(results[0].blockNumber))
+				var key = new Key(results[0].args.data,web3.eth.getBlock(results[0].blockNumber).timestamp)
+				deferred.resolve(key)
 			}catch(e){
 				deferred.reject(e)
 			}

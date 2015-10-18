@@ -68,7 +68,7 @@ contract Market{
 		admin = tx.origin;
 		var forum = new Forum();
 		forumAddr = address(forum);
-		AliasReg(0x6d9d2ecf977b9610724095ce76b3863a298e65f1).claimAlias(alias);
+		AliasReg(0x32674a24d4939b5cb799993b5963e2a55dd10a5c).claimAlias(alias);
 		Meta(meta);
 	}
 
@@ -254,7 +254,7 @@ contract Store{
     function Store(bytes32 alias, bytes meta){
         merchant = tx.origin;
         Meta(meta);
-        AliasReg(0x6d9d2ecf977b9610724095ce76b3863a298e65f1).claimAlias(alias);
+        AliasReg(0x32674a24d4939b5cb799993b5963e2a55dd10a5c).claimAlias(alias);
     }
     
     function getMerchant() constant returns(address){
