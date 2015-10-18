@@ -39,7 +39,7 @@
 	<table class="table">
 		<tr ng-repeat="store in market.stores">
 			<td>{{store.meta.name}}</td>
-			<td><a ng-href="#/markets/{{market.addr}}/stores/{{store.addr}}">{{store.addr}}</a></td>
+			<td><a ng-href="#/markets/{{market.addr}}/stores/{{store.addr}}">@{{store.alias}}</a></td>
 		</tr>
 	</table>
 </div>

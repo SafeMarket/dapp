@@ -4,10 +4,10 @@ angular.module('safemarket').factory('Store',function($q,utils,ticker,Key){
 
 var currencies = Object.keys(ticker.rates)
 
-function Store(addr){
-	this.addr = addr
-	this.alias = utils.getAlias(addr)
-	this.contract = this.contractFactory.at(addr)
+function Store(addrOrAlias){
+	this.addr = utils.isAddr(addrOrAlias) ? addrOrAlias : AliasReg.getAddr(addrOrAlias)
+	this.alias = utils.getAlias(this.addr)
+	this.contract = this.contractFactory.at(this.addr)
 	this.updatePromise = this.update()
 }
 
@@ -43,6 +43,10 @@ Store.create = function(alias,meta){
 	})
 
 	return deferred.promise
+}
+
+Store.validateAlias = function(alias){
+	return web3.eth.getCode(AliasReg.getAddr(alias))===this.runtimeBytecode
 }
 
 Store.check = function(alias,meta){

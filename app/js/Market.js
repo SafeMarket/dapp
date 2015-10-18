@@ -43,6 +43,10 @@ Market.create = function(alias,meta){
 	return deferred.promise
 }
 
+Market.validateAlias = function(alias){
+	return web3.eth.getCode(AliasReg.getAddr(alias))===this.runtimeBytecode
+}
+
 Market.check = function(alias,meta){
 	utils.check({alias:alias},{
 		alias:{
@@ -74,11 +78,12 @@ Market.check = function(alias,meta){
 	})
 
 	meta.stores.forEach(function(store){
+		console.log(store)
 		utils.check(store,{
-			address:{
+			alias:{
 				presence:true
-				,type:'string'
-				,startsWith:'0x'
+				,type:'alias'
+				,aliasType:'store'
 			},tags:{
 				type:'string'
 			}
@@ -149,7 +154,7 @@ Market.prototype.update = function(){
 		market.meta = utils.convertHexToObject(results[0].args.meta)
 
 		market.meta.stores.forEach(function(storeData){
-			market.stores.push(new Store(storeData.address))
+			market.stores.push(new Store(storeData.alias))
 		})
 
 		deferred.resolve(market)

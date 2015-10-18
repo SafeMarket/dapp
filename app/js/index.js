@@ -248,7 +248,7 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 		}else{
 
 			if(!safemarket.utils.isAliasAvailable(alias)){
-				return growl.addErrorMessage('The alias"'+alias+'" is taken')
+				return growl.addErrorMessage('@'+alias+' is already taken')
 			}
 
 			var estimatedGas = Store.estimateCreationGas($scope.alias,meta)
@@ -1092,9 +1092,15 @@ app.directive('aliasValidator', function(safemarket) {
   	return {
   		scope:{
   			alias:'=aliasValidator'
+  			,type:'@aliasType'
   		},link: function ($scope) {
       		$scope.$watch('alias',function(alias){
-      			$scope.isValid = AliasReg.getAddr(alias)===safemarket.utils.nullAddr
+      			if(!$scope.type)
+	      			$scope.isValid = safemarket.utils.isAliasAvailable(alias)
+	      		else if($scope.type==='store')
+	      			$scope.isValid = safemarket.Store.validateAlias(alias)
+	      		else if($scope.type==='market')
+	      			$scope.isValid = safemarket.Market.validateAlias(alias)
       		})
     	},templateUrl:'aliasValidator.html'
   	}; 
