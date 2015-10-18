@@ -1,85 +1,80 @@
 <div class="container">
 	<div alias-bar="{{store.alias}}"></div>
-	<div ng-cloak ng-show="!store" class="alert alert-danger text-center">
-		Could not find store at {{addr}}
+	<h1>
+		<span ng-show="market"><a ng-href="#/markets/{{market.addr}}">{{market.meta.name}}</a> » </span>{{store.meta.name}}
+		<button
+			ng-show="user.data.account === store.merchant"
+			class="btn btn-default"
+			ng-click="openStoreModal(store)"
+		>
+			Edit
+		</button>
+	</h1>
+	<table class="table">
+		<tr>
+			<td>Status</td>
+			<td>{{store.meta.isOpen ? 'Open' : 'Closed'}}</td>
+		</tr>
+		<tr>
+			<td>Dispute Resolution Time</td>
+			<td>{{store.meta.disputeSeconds | disputeSeconds}}</td>
+		</tr>
+		<tr>
+			<td>Info</td>
+			<td>{{store.meta.info}}</td>
+		</tr>
+		<tbody collapsable is-collapsed="true">
+			<tr>
+				<td>Address</td>
+				<td class="oneliner">{{store.addr}}</td>
+			</tr>
+			<tr>
+				<td>Merchant</td>
+				<td class="oneliner">{{store.merchant}}</td>
+			</tr>
+			<tr>
+				<td>Public Key</td>
+				<td key="store.key"></td>
+			</tr>
+		</tbody>
+	</table>
+	<h3>Products</h3>
+	<table class="table">
+		<tr ng-repeat="product in store.products">
+			<td>
+				{{product.name}}
+			</td>
+			<td>
+				{{product.info}}
+			</td>
+			<td>
+				<amounts
+					value="product.price"
+					from="store.meta.currency"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+			<td>
+				<input class="form-control" type="number" ng-model="product.quantity" min="0">
+			</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td>
+				<amounts
+					value="totalInStoreCurrency"
+					from="store.meta.currency"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+	</table>
+	<div class="alert alert-info text-center" ng-show="isCreatingOrder">
+		Creating order...
 	</div>
-	<div ng-cloak ng-if="store">
-		<h1>
-			<span ng-show="market"><a ng-href="#/markets/{{market.addr}}">{{market.meta.name}}</a> » </span>{{store.meta.name}}
-			<button
-				ng-show="user.data.account === store.merchant"
-				class="btn btn-default"
-				ng-click="openStoreModal(store)"
-			>
-				Edit
-			</button>
-		</h1>
-		<table class="table">
-			<tr>
-				<td>Status</td>
-				<td>{{store.meta.isOpen ? 'Open' : 'Closed'}}</td>
-			</tr>
-			<tr>
-				<td>Dispute Resolution Time</td>
-				<td>{{store.meta.disputeSeconds | disputeSeconds}}</td>
-			</tr>
-			<tr>
-				<td>Info</td>
-				<td>{{store.meta.info}}</td>
-			</tr>
-			<tbody collapsable is-collapsed="true">
-				<tr>
-					<td>Address</td>
-					<td class="oneliner">{{store.addr}}</td>
-				</tr>
-				<tr>
-					<td>Merchant</td>
-					<td class="oneliner">{{store.merchant}}</td>
-				</tr>
-				<tr>
-					<td>Public Key</td>
-					<td key="store.key"></td>
-				</tr>
-			</tbody>
-		</table>
-		<h3>Products</h3>
-		<table class="table">
-			<tr ng-repeat="product in store.products">
-				<td>
-					{{product.name}}
-				</td>
-				<td>
-					{{product.info}}
-				</td>
-				<td>
-					<amounts
-						value="product.price"
-						from="store.meta.currency"
-						to="displayCurrencies">
-					</amounts>
-				</td>
-				<td>
-					<input class="form-control" type="number" ng-model="product.quantity" min="0">
-				</td>
-			</tr>
-			<tr>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td>
-					<amounts
-						value="totalInStoreCurrency"
-						from="store.meta.currency"
-						to="displayCurrencies">
-					</amounts>
-				</td>
-			</tr>
-		</table>
-		<div class="alert alert-info text-center" ng-show="isCreatingOrder">
-			Creating order...
-		</div>
-	    <div class="text-right" ng-show="!isCreatingOrder">
-			<button ng-click="createOrder(store,market)" class="btn btn-primary btn-lg">Create Your Order</button>
-		</div>
+    <div class="text-right" ng-show="!isCreatingOrder">
+		<button ng-click="createOrder(store,market)" class="btn btn-primary btn-lg">Create Your Order</button>
 	</div>
 </div>

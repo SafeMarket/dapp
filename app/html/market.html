@@ -1,49 +1,44 @@
 <div class="container">
 	<div alias-bar="{{market.alias}}"></div>
-	<div ng-cloak ng-show="!market" class="alert alert-danger text-center">
-		Could not find market at {{addr}}
-	</div>
-	<div ng-cloak ng-show="market">
-		<h1>
-			{{market.meta.name}} 
-			<button
-				ng-show="user.data.account === market.admin"
-				class="btn btn-default"
-				ng-click="openMarketModal(market)"
-			>Edit</button>
-		</h1>
-		<table class="table">
+	<h1>
+		{{market.meta.name}} 
+		<button
+			ng-show="user.data.account === market.admin"
+			class="btn btn-default"
+			ng-click="openMarketModal(market)"
+		>Edit</button>
+	</h1>
+	<table class="table">
+		<tr>
+			<td>Status</td>
+			<td>{{market.meta.isOpen ? 'Open' : 'Closed'}}</td>
+		</tr>
+		<tr>
+			<td>Fee Percentage</td>
+			<td>{{market.meta.feePercentage}}%</td>
+		</tr>
+		<tr>
+			<td>Info</td>
+			<td>{{market.meta.info}}</td>
+		</tr>
+		<tbody collapsable is-collapsed="true">
 			<tr>
-				<td>Status</td>
-				<td>{{market.meta.isOpen ? 'Open' : 'Closed'}}</td>
+				<td>Address</td>
+				<td class="oneliner">{{market.addr}}</td>
 			</tr>
 			<tr>
-				<td>Fee Percentage</td>
-				<td>{{market.meta.feePercentage}}%</td>
+				<td>Admin</td>
+				<td class="oneliner">{{market.admin}}</td>
 			</tr>
-			<tr>
-				<td>Info</td>
-				<td>{{market.meta.info}}</td>
-			</tr>
-			<tbody collapsable is-collapsed="true">
-				<tr>
-					<td>Address</td>
-					<td class="oneliner">{{market.addr}}</td>
-				</tr>
-				<tr>
-					<td>Admin</td>
-					<td class="oneliner">{{market.admin}}</td>
-				</tr>
-			</tbody>
-		</table>
-		<h3>Forum</h3>
-		<div forum="market.forum"></div>
-		<h3>Stores</h3>
-		<table class="table">
-			<tr ng-repeat="store in market.stores">
-				<td>{{store.meta.name}}</td>
-				<td><a ng-href="#/markets/{{market.addr}}/stores/{{store.addr}}">{{store.addr}}</a></td>
-			</tr>
-		</table>
-	</div>
+		</tbody>
+	</table>
+	<h3>Forum</h3>
+	<div forum="market.forum"></div>
+	<h3>Stores</h3>
+	<table class="table">
+		<tr ng-repeat="store in market.stores">
+			<td>{{store.meta.name}}</td>
+			<td><a ng-href="#/markets/{{market.addr}}/stores/{{store.addr}}">{{store.addr}}</a></td>
+		</tr>
+	</table>
 </div>
