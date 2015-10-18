@@ -832,11 +832,11 @@ app.service('modals',function($modal){
 	}
 })
 
-app.directive('addrBar',function(){
+app.directive('aliasBar',function(){
 	return {
 		templateUrl:'bar.html'
 		,controller:'BarController'
-		,scope:{alias:'@addrBar'}
+		,scope:{alias:'@aliasBar'}
 	}
 })
 
