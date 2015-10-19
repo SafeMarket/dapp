@@ -3,9 +3,6 @@
 angular.module('safemarket').factory('Market',function(utils,ticker,$q,Store,Key,Forum){
 
 function Market(addr){
-	if(this.runtimeBytecode !== web3.eth.getCode(addr))
-		throw new Error('Invalid')
-
 	this.addr = addr
 	this.alias = utils.getAlias(addr)
 	this.contract = this.contractFactory.at(addr)
@@ -141,7 +138,7 @@ Market.prototype.update = function(){
 	var deferred = $q.defer()
 		,market = this
 
-	this.admin = this.contract.getAdmin()
+	this.owner = this.contract.getOwner()
 	this.forumAddr = this.contract.getForumAddr()
 
 	this.stores = []
@@ -163,7 +160,7 @@ Market.prototype.update = function(){
 	})
 
 
-	Key.fetch(this.admin).then(function(key){
+	Key.fetch(this.owner).then(function(key){
 		market.key = key
 	})
 

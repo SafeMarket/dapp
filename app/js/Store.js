@@ -142,7 +142,7 @@ Store.prototype.update = function(){
 		,store = this
 
 	this.products = []
-	this.merchant = this.contract.getMerchant()
+	this.owner = this.contract.getOwner()
 
 	console.log(this.contract)
 
@@ -164,7 +164,7 @@ Store.prototype.update = function(){
 		deferred.resolve(store)
 	})
 
-	Key.fetch(this.merchant).then(function(key){
+	Key.fetch(this.owner).then(function(key){
 		store.key = key
 	})
 

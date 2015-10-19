@@ -3,7 +3,7 @@
 	<h1>
 		<span ng-show="market"><a ng-href="#/markets/{{market.addr}}">{{market.meta.name}}</a> » </span>{{store.meta.name}}
 		<button
-			ng-show="user.data.account === store.merchant"
+			ng-show="user.data.account === store.owner"
 			class="btn btn-default"
 			ng-click="openStoreModal(store)"
 		>
@@ -29,8 +29,8 @@
 				<td class="oneliner">{{store.addr}}</td>
 			</tr>
 			<tr>
-				<td>Merchant</td>
-				<td class="oneliner">{{store.merchant}}</td>
+				<td>Owner</td>
+				<td class="oneliner">{{store.owner}}</td>
 			</tr>
 			<tr>
 				<td>Public Key</td>

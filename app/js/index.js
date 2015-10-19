@@ -1081,7 +1081,7 @@ app.directive('alias', function(growl) {
            			ngModelCtrl.$setViewValue(transformedInput);
             		ngModelCtrl.$render();
         		}
-        		if(transformedInput!==text) growl.addErrorMessage('Only lower case letters are allowed')
+        		if(transformedInput!==text) growl.addErrorMessage('Aliases consist entirely of lower case letters')
         		return transformedInput;  // or return Number(transformedInput)
       		});
     	}

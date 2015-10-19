@@ -3,7 +3,7 @@
 	<h1>
 		{{market.meta.name}} 
 		<button
-			ng-show="user.data.account === market.admin"
+			ng-show="user.data.account === market.owner"
 			class="btn btn-default"
 			ng-click="openMarketModal(market)"
 		>Edit</button>
@@ -27,8 +27,12 @@
 				<td class="oneliner">{{market.addr}}</td>
 			</tr>
 			<tr>
-				<td>Admin</td>
-				<td class="oneliner">{{market.admin}}</td>
+				<td>Owner</td>
+				<td class="oneliner">{{market.owner}}</td>
+			</tr>
+			<tr>
+				<td>Public Key</td>
+				<td key="market.key"></td>
 			</tr>
 		</tbody>
 	</table>

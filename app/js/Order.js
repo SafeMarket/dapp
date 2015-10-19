@@ -13,7 +13,10 @@ window.Order = Order
 Order.prototype.code = Order.code = '0x'+contractDB.Order.compiled.code
 Order.prototype.abi = Order.abi = contractDB.Order.compiled.info.abiDefinition
 
-Order.create = function(meta,merchant,admin,fee,disputeSeconds){
+Order.create = function(meta,store,market,fee,disputeSeconds){
+
+	if(market)
+		market = utils.nullAddress
 
 	var meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 		,deferred = $q.defer()

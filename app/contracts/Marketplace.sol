@@ -3,7 +3,7 @@ contract Keystore{
 	event Key(address indexed addr, bytes data);
 
 	function setKey(bytes data){
-		Key(tx.origin, data);
+		Key(msg.sender, data);
 	}
 
 }
@@ -29,17 +29,46 @@ contract AliasReg {
 
 }
 
-contract Forum{
-	
-	address moderator;
+contract owned{
+	address owner;
 
+	function owned(){
+		owner = msg.sender;
+	}
+
+	function getOwner() constant returns (address){
+		return owner;
+	}
+
+	function setOwner(address _owner){
+		if(msg.sender!=owner) return;
+		owner=_owner;
+	}
+}
+
+contract forumable is owned{
+	address forumAddr;
+
+	function forumable(){
+		var forum = new Forum();
+		forumAddr = address(forum);
+	}
+
+	function getForumAddr() constant returns(address){
+		return forumAddr;
+	}
+
+	function setForumAddr(address _forumAddr){
+		if(msg.sender != owner) return;
+		forumAddr = _forumAddr;
+	}
+}
+
+contract Forum is owned{
+	
 	event Comment(address indexed author, bytes32 indexed parentId, bytes data);
 	event Vote(bytes indexed comment, uint8 direction);
 	event Moderation(bytes indexed comment, uint8 direction);
-
-	function Forum(){
-		moderator = msg.sender;
-	}
 
 	function addComment(bytes32 parentId, bytes data){
 		Comment(msg.sender, parentId, data);
@@ -50,38 +79,23 @@ contract Forum{
 	}
 
 	function addModeration(bytes comment, uint8 direction){
-		if(msg.sender != moderator) return;
+		if(msg.sender != owner) return;
 		Moderation(comment, direction);
-	}
-
-	function test() constant returns(bool){
-		return true;
 	}
 }
 
-contract Market{
-	address admin;
+contract Market is forumable{
+
 	address forumAddr;
 	event Meta(bytes meta);
 
 	function Market(bytes32 alias, bytes meta){
-		admin = tx.origin;
-		var forum = new Forum();
-		forumAddr = address(forum);
-		AliasReg(0x32674a24d4939b5cb799993b5963e2a55dd10a5c).claimAlias(alias);
+		AliasReg(0xb68c1931d659e4a058cb4139e981aa8d5c8a6e8b).claimAlias(alias);
 		Meta(meta);
-	}
-
-	function getAdmin() constant returns(address){
-		return admin;
-	}
-
-	function getForumAddr() constant returns(address){
-		return forumAddr;
 	}
 	
 	function setMeta(bytes meta){
-		if(tx.origin!=admin) return;
+		if(msg.sender!=owner) return;
 		Meta(meta);
 	}
 
@@ -89,8 +103,8 @@ contract Market{
 
 contract Order{
 	address buyer;
-	address merchant;
-	address admin;
+	address store;
+	address market;
 	uint fee;
 	uint disputeSeconds;
 	uint status;
@@ -111,14 +125,14 @@ contract Order{
 
 	function Order(
 		bytes _meta
-		,address _merchant
-		,address _admin
+		,address _store
+		,address _market
 		,uint _fee
 		,uint _disputeSeconds
 	){
-		buyer = tx.origin;
-		merchant = _merchant;
-		admin = _admin;
+		buyer = msg.sender;
+		store = _store;
+		market = _market;
 		fee = _fee;
 		disputeSeconds = _disputeSeconds;
 		timestamp = now;
@@ -126,10 +140,10 @@ contract Order{
 	}
 
 	function addMessage(bytes text){
-		if(tx.origin != buyer && tx.origin != merchant && tx.origin != admin)
+		if(msg.sender != buyer && msg.sender != store && msg.sender != store)
 			return;
 
-		Message(tx.origin, text);
+		Message(msg.sender, text);
 	}
 
 	function(){
@@ -140,12 +154,12 @@ contract Order{
 		return buyer;
 	}
 
-	function getMerchant() constant returns(address){
-		return merchant;
+	function getOwner() constant returns(address){
+		return store;
 	}
 
-	function getAdmin() constant returns(address){
-		return admin;
+	function getMarket() constant returns(address){
+		return market;
 	}
 
 	function getFee() constant returns(uint){
@@ -166,7 +180,7 @@ contract Order{
 
 	function addUpdate(uint _status) private{
 		status = _status;
-		Update(tx.origin,_status);
+		Update(msg.sender,_status);
 	}
 
 	function cancel(){
@@ -174,7 +188,7 @@ contract Order{
 		if(status != initialized)
 			return;
 
-		if(tx.origin != buyer && tx.origin != merchant)
+		if(msg.sender != buyer && msg.sender != store)
 			return;
 
 		var isSent = buyer.send(this.balance);
@@ -188,7 +202,7 @@ contract Order{
 		if(status !=  initialized)
 			return;
 
-		if(tx.origin != merchant)
+		if(msg.sender != store)
 			return;
 
 		shippedAt = now;
@@ -200,20 +214,20 @@ contract Order{
 		if(status !=  shipped)
 			return;
 
-		if(tx.origin != buyer && tx.origin != merchant)
+		if(msg.sender != buyer && msg.sender != store)
 			return;
 
-		if(tx.origin == merchant && now - shippedAt < disputeSeconds)
+		if(msg.sender == store && now - shippedAt < disputeSeconds)
 			return;
 
-		var isSent = merchant.send(this.balance);
+		var isSent = store.send(this.balance);
 		if(!isSent) return;
 		
 		addUpdate(finalized);
 	}
 
 	function dispute(){
-		if(tx.origin != buyer)
+		if(msg.sender != buyer)
 			return;
 
 		if(status != shipped)
@@ -222,7 +236,7 @@ contract Order{
 		if(now - shippedAt > disputeSeconds)
 			return;
 
-		if(admin==0)
+		if(market==address(0))
 			return;
 
 		addUpdate(disputed);
@@ -232,37 +246,31 @@ contract Order{
 		if(status!=disputed)
 			return;
 
-		if(tx.origin != admin)
+		if(msg.sender != market)
 			return;
 
 		if(buyerAmount>0)
 			buyer.send(buyerAmount);
 
-		var merchantAmount = this.balance-buyerAmount;
+		var storeAmount = this.balance-buyerAmount;
 
-		if(merchantAmount>0)
-			merchant.send(merchantAmount);
+		if(storeAmount>0)
+			store.send(storeAmount);
 
 		addUpdate(resolved);
 	}
 }
 
-contract Store{
-    address merchant;
+contract Store is forumable{
     event Meta(bytes meta);
 
     function Store(bytes32 alias, bytes meta){
-        merchant = tx.origin;
         Meta(meta);
-        AliasReg(0x32674a24d4939b5cb799993b5963e2a55dd10a5c).claimAlias(alias);
+        AliasReg(0xb68c1931d659e4a058cb4139e981aa8d5c8a6e8b).claimAlias(alias);
     }
     
-    function getMerchant() constant returns(address){
-    	return merchant;
-    }
-
     function setMeta(bytes meta){
-		if(tx.origin!=merchant) return;
+		if(msg.sender!=owner) return;
 		Meta(meta);
 	}
 }
