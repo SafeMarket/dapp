@@ -103,8 +103,8 @@ contract Market is forumable{
 
 contract Order{
 	address buyer;
-	address store;
-	address market;
+	address storeAddr;
+	address marketAddr;
 	uint fee;
 	uint disputeSeconds;
 	uint status;
@@ -125,14 +125,14 @@ contract Order{
 
 	function Order(
 		bytes _meta
-		,address _store
-		,address _market
+		,address _storeAddr
+		,address _marketAddr
 		,uint _fee
 		,uint _disputeSeconds
 	){
 		buyer = msg.sender;
-		store = _store;
-		market = _market;
+		storeAddr = _storeAddr;
+		marketAddr = _marketAddr;
 		fee = _fee;
 		disputeSeconds = _disputeSeconds;
 		timestamp = now;
@@ -140,7 +140,7 @@ contract Order{
 	}
 
 	function addMessage(bytes text){
-		if(msg.sender != buyer && msg.sender != store && msg.sender != store)
+		if(msg.sender != buyer && msg.sender != storeAddr && msg.sender != marketAddr)
 			return;
 
 		Message(msg.sender, text);
@@ -154,12 +154,12 @@ contract Order{
 		return buyer;
 	}
 
-	function getOwner() constant returns(address){
-		return store;
+	function getStoreAddr() constant returns(address){
+		return storeAddr;
 	}
 
-	function getMarket() constant returns(address){
-		return market;
+	function getMarketAddr() constant returns(address){
+		return marketAddr;
 	}
 
 	function getFee() constant returns(uint){
@@ -188,7 +188,7 @@ contract Order{
 		if(status != initialized)
 			return;
 
-		if(msg.sender != buyer && msg.sender != store)
+		if(msg.sender != buyer && msg.sender != storeAddr)
 			return;
 
 		var isSent = buyer.send(this.balance);
@@ -202,7 +202,7 @@ contract Order{
 		if(status !=  initialized)
 			return;
 
-		if(msg.sender != store)
+		if(msg.sender != storeAddr)
 			return;
 
 		shippedAt = now;
@@ -214,13 +214,13 @@ contract Order{
 		if(status !=  shipped)
 			return;
 
-		if(msg.sender != buyer && msg.sender != store)
+		if(msg.sender != buyer && msg.sender != storeAddr)
 			return;
 
-		if(msg.sender == store && now - shippedAt < disputeSeconds)
+		if(msg.sender == storeAddr && now - shippedAt < disputeSeconds)
 			return;
 
-		var isSent = store.send(this.balance);
+		var isSent = storeAddr.send(this.balance);
 		if(!isSent) return;
 		
 		addUpdate(finalized);
@@ -236,7 +236,7 @@ contract Order{
 		if(now - shippedAt > disputeSeconds)
 			return;
 
-		if(market==address(0))
+		if(marketAddr==address(0))
 			return;
 
 		addUpdate(disputed);
@@ -246,7 +246,7 @@ contract Order{
 		if(status!=disputed)
 			return;
 
-		if(msg.sender != market)
+		if(msg.sender != marketAddr)
 			return;
 
 		if(buyerAmount>0)
@@ -255,7 +255,7 @@ contract Order{
 		var storeAmount = this.balance-buyerAmount;
 
 		if(storeAmount>0)
-			store.send(storeAmount);
+			storeAddr.send(storeAmount);
 
 		addUpdate(resolved);
 	}

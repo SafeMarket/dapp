@@ -1,141 +1,120 @@
 <div class="container">
-	<div ng-cloak ng-show="!order || !order.store" class="alert alert-danger">
-		Could not find order at {{addr}}
-	</div>
-	<div ng-cloak ng-show="order">
-		<h2>
-			<a ng-href="#/stores/{{order.store.addr}}">{{order.store.meta.name}}</a> » Order {{order.addr.substr(0,6)}}...
-		</h2>
-		<table class="table">
+	<h2>
+		<a ng-href="#/stores/{{order.store.addr}}">{{order.store.meta.name}}</a> » Order {{order.addr.substr(0,6)}}...
+	</h2>
+	<table class="table">
+		<tr>
+			<td>Status</td>
+			<td>{{order.status | status}}</td>
+		</tr>
+		<tr>
+			<td>Created</td>
+			<td timestamp = "order.timestamp.times(1000).toNumber()"></td>
+		</tr>
+		<tbody collapsable is-collapsed="true">
 			<tr>
-				<td>Status</td>
-				<td>{{order.status | status}}</td>
+				<td>Address</td>
+				<td class="oneliner">{{order.addr}}</td>
 			</tr>
 			<tr>
-				<td>Created</td>
-				<td timestamp = "order.timestamp.times(1000).toNumber()"></td>
+				<td>Buyer</td>
+				<td class="oneliner">{{order.buyer}}</td>
 			</tr>
-			<tbody collapsable is-collapsed="true">
-				<tr>
-					<td>Address</td>
-					<td class="oneliner">{{order.addr}}</td>
-				</tr>
-				<tr>
-					<td>Buyer</td>
-					<td class="oneliner">{{order.buyer}}</td>
-				</tr>
-				<tr>
-					<td>Store</td>
-					<td class="oneliner">{{order.store.addr}}</td>
-				</tr>
-				<tr>
-					<td>Merchant</td>
-					<td class="oneliner">{{order.store.merchant}}</td>
-				</tr>
-				<tr ng-show="order.market">
-					<td>Market</td>
-					<td class="oneliner">{{order.market.addr}}</td>
-				</tr>
-				<tr ng-show="order.market">
-					<td>Admin</td>
-					<td class="oneliner">{{order.market.admin}}</td>
-				</tr>
-			</tbody>
-		</table>
-		<h3>Products</h3>
-		<table class="table">
-			<tr ng-repeat="product in order.products">
-				<td>
-					{{product.name}}
-				</td>
-				<td>
-					{{product.info}}
-				</td>
+		</tbody>
+	</table>
+	<h3>Products</h3>
+	<table class="table">
+		<tr ng-repeat="product in order.products">
+			<td>
+				{{product.name}}
+			</td>
+			<td>
+				{{product.info}}
+			</td>
+			<td>
+				<amounts
+					value="product.price"
+					from="order.store.meta.currency"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+			<td>
+				x{{product.quantity}}
+			</td>
+		</tr>
+	</table>
+	<h3>Payment</h3>
+	<table class="table">
+		<tr>
+			<td>Total</td>
+			<td>
+				<amounts
+					value="order.total"
+					from="'ETH'"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+		<tbody collapsable is-collapsed="true">
+			<tr>
+				<td>Product Total</td>
 				<td>
 					<amounts
-						value="product.price"
+						value="order.productsTotalInStoreCurrency"
 						from="order.store.meta.currency"
 						to="displayCurrencies">
 					</amounts>
 				</td>
-				<td>
-					x{{product.quantity}}
-				</td>
 			</tr>
-		</table>
-		<h3>Payment</h3>
-		<table class="table">
 			<tr>
-				<td>Total</td>
+				<td>Market Fee</td>
 				<td>
 					<amounts
-						value="order.total"
+						value="order.fee"
 						from="'ETH'"
 						to="displayCurrencies">
 					</amounts>
 				</td>
 			</tr>
-			<tbody collapsable is-collapsed="true">
-				<tr>
-					<td>Product Total</td>
-					<td>
-						<amounts
-							value="order.productsTotalInStoreCurrency"
-							from="order.store.meta.currency"
-							to="displayCurrencies">
-						</amounts>
-					</td>
-				</tr>
-				<tr>
-					<td>Market Fee</td>
-					<td>
-						<amounts
-							value="order.fee"
-							from="'ETH'"
-							to="displayCurrencies">
-						</amounts>
-					</td>
-				</tr>
-			</tbody>
-			<tr>
-				<td>Received</td>
-				<td>
-					<amounts
-						value="order.received"
-						from="'ETH'"
-						to="displayCurrencies">
-					</amounts>
-				</td>
-			</tr>
-		</table>
-		<h3>Messages</h3>
-		<p>Messages are encrypted and stored on the blockchain</p>
-		<table class="table">
-			<tr ng-repeat="messageOrUpdate in messagesAndUpdates">
-				<td>{{messageOrUpdate.from | capitalize}}:</td>
-				<td>
-					<div ng-show="messageOrUpdate.messageArmored">
-						<div ng-show="messageOrUpdate.text">{{messageOrUpdate.text}}</div>
-						<pre ng-show="!messageOrUpdate.text">{{messageOrUpdate.messageArmored}}</pre>
-					</div>
-					<div ng-show="messageOrUpdate.status">
-						Order marked as {{message.status | status}}
-					</div>
-				</td>
-				<td><div timestamp="messageOrUpdate.timestamp*1000"></div></td>
-			</tr>
-			<tr>
-				<td colspan="3">
-					<div class="alert alert-info text-center" ng-show="isAddingMessage">
-						Adding message...
-					</div>
-					<form ng-submit="addMessage()" ng-show="!isAddingMessage">
-						<textarea class="form-control" ng-model="messageText"></textarea>
-						<br>
-						<button class="btn btn-primary">Submit</button>
-					</form>
-				</td>
-			</tr>
-		</table>
-	</div>
+		</tbody>
+		<tr>
+			<td>Received</td>
+			<td>
+				<amounts
+					value="order.received"
+					from="'ETH'"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+	</table>
+	<h3>Messages</h3>
+	<p>Messages are encrypted and stored on the blockchain</p>
+	<table class="table">
+		<tr ng-repeat="messageOrUpdate in messagesAndUpdates">
+			<td>{{messageOrUpdate.from | capitalize}}:</td>
+			<td>
+				<div ng-show="messageOrUpdate.messageArmored">
+					<div ng-show="messageOrUpdate.text">{{messageOrUpdate.text}}</div>
+					<pre ng-show="!messageOrUpdate.text">{{messageOrUpdate.messageArmored}}</pre>
+				</div>
+				<div ng-show="messageOrUpdate.status">
+					Order marked as {{message.status | status}}
+				</div>
+			</td>
+			<td><div timestamp="messageOrUpdate.timestamp*1000"></div></td>
+		</tr>
+		<tr>
+			<td colspan="3">
+				<div class="alert alert-info text-center" ng-show="isAddingMessage">
+					Adding message...
+				</div>
+				<form ng-submit="addMessage()" ng-show="!isAddingMessage">
+					<textarea class="form-control" ng-model="messageText"></textarea>
+					<br>
+					<button class="btn btn-primary">Submit</button>
+				</form>
+			</td>
+		</tr>
+	</table>
 </div>

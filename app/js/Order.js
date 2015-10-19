@@ -4,7 +4,9 @@ angular.module('safemarket').factory('Order',function(utils,ticker,$q,Store,Mark
 
 function Order(addr){
 	this.addr = addr
-	this.contract = web3.eth.contract(this.abi).at(addr)
+	console.log('asdf')
+	this.contract = this.contractFactory.at(addr)
+	console.log('asdf')
 	this.updatePromise = this.update()
 }
 
@@ -12,22 +14,17 @@ window.Order = Order
 
 Order.prototype.code = Order.code = '0x'+contractDB.Order.compiled.code
 Order.prototype.abi = Order.abi = contractDB.Order.compiled.info.abiDefinition
+Order.prototype.contractFactory = Order.contractFactory = web3.eth.contract(Order.abi)
 
-Order.create = function(meta,store,market,fee,disputeSeconds){
-
-	if(market)
-		market = utils.nullAddress
+Order.create = function(meta,storeAddr,marketAddr,fee,disputeSeconds){
+	console.log(arguments)
 
 	var meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 		,deferred = $q.defer()
-		,OrderContract = web3.eth.contract(Order.abi)
 		,txObject = {
 			data:Order.code
-			,gas:this.estimateCreationGas(meta,merchant,admin,fee,disputeSeconds)
-			,gasPrice:web3.eth.gasPrice
-			,gasLimit:5141592
-			,from:web3.eth.accounts[0]
-		},txHex = OrderContract.new(meta,merchant,admin,fee,disputeSeconds,txObject).transactionHash
+			,gas:this.estimateCreationGas(meta,storeAddr,marketAddr,fee,disputeSeconds)
+		},txHex = this.contractFactory.new(meta,storeAddr,marketAddr,fee,disputeSeconds,txObject).transactionHash
 
 	utils.waitForTx(txHex).then(function(tx){
 		(new Order(tx.contractAddress)).updatePromise.then(function(order){
@@ -42,15 +39,9 @@ Order.create = function(meta,store,market,fee,disputeSeconds){
 	return deferred.promise
 }
 
-Order.check = function(meta,merchant,admin,fee,disputeSeconds){
+Order.check = function(meta,storeAddr,marketAddr,fee,disputeSeconds){
 	utils.check(meta,{
-		storeAddr:{
-			presence:true
-			,type:'address'
-		},marketAddr:{
-			presence:true
-			,type:'address'
-		},products:{
+		products:{
 			presence:true
 			,type:'array'
 		}
@@ -77,15 +68,15 @@ Order.check = function(meta,merchant,admin,fee,disputeSeconds){
 	})
 
 	utils.check({
-		merchant:merchant
-		,admin:admin
+		storeAddr:storeAddr
+		,marketAddr:marketAddr
 		,fee:fee
 		,disputeSeconds:disputeSeconds
 	},{
-		merchant:{
+		storeAddr:{
 			presence:true
 			,type:'address'
-		},admin:{
+		},marketAddr:{
 			presence:true
 			,type:'address'
 		},fee:{
@@ -106,13 +97,10 @@ Order.check = function(meta,merchant,admin,fee,disputeSeconds){
 	})
 }
 
-Order.estimateCreationGas = function(meta,merchant,admin,fee,disputeSeconds){
+Order.estimateCreationGas = function(meta,storeAddr,marketAddr,fee,disputeSeconds){
 	meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 
-	var deferred = $q.defer()
-		,OrderContract = web3.eth.contract(this.abi)
-
-	return OrderContract.estimateGas(meta,merchant,admin,fee,disputeSeconds,{
+	return this.contractFactory.estimateGas(meta,storeAddr,marketAddr,fee,disputeSeconds,{
 		data:Order.code
 	})
 }
@@ -121,10 +109,13 @@ Order.prototype.update = function(){
 
 	var deferred = $q.defer()
 		,order = this
+		,storeAddr = this.contract.getStoreAddr()
+		,marketAddr = this.contract.getMarketAddr()
+
 
 	this.buyer = this.contract.getBuyer()
-	this.merchant = this.contract.getMerchant()
-	this.admin = this.contract.getAdmin()
+	this.store = new Store(storeAddr)
+	this.market = marketAddr === utils.nullAddr ? null : new Market(marketAddr)
 	this.fee = this.contract.getFee()
 	this.received = this.contract.getReceived()
 	this.status = this.contract.getStatus().toNumber()
@@ -135,36 +126,34 @@ Order.prototype.update = function(){
 	this.keys = {}
 	this.productsTotalInStoreCurrency = new BigNumber(0)
 
-	this.contract.Meta({},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
+	Key.fetch(this.buyer).then(function(key){
+		order.keys.buyer = key
+	})
 
-		if(error)
-			return deferred.reject(error)
+	Key.fetch(this.store.owner).then(function(key){
+		order.keys.storeOwner = key
+	})
 
-		if(results.length === 0)
-			return deferred.reject(new Error('no results found'))
-
-		order.meta = utils.convertHexToObject(results[0].args.meta)
-		order.market = order.meta.marketAddr !== utils.nullAddress ? new Market(order.meta.marketAddr) : null
-		order.store = new Store(order.meta.storeAddr)
-
-		Key.fetch(order.buyer).then(function(key){
-			console.log('key',key.id)
-			order.keys.buyer = key
+	if(this.market)
+		order.market.updatePromise.then(function(market){
+			Key.fetch(market.owner).then(function(key){
+				order.keys.marketOwner = key
+			})
 		})
 
-		if(order.market)
-			order.market.updatePromise.then(function(market){
-				Key.fetch(market.admin).then(function(key){
-					order.keys.admin = key
-				})
-			})
+	this.store.updatePromise.then(function(store){
 
+		order.contract.Meta({},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
 
-		order.store.updatePromise.then(function(store){
+			if(error)
+				return deferred.reject(error)
 
-			Key.fetch(order.store.merchant).then(function(key){
-				order.keys.mechant = key
-			})
+			if(results.length === 0)
+				return deferred.reject(new Error('no results found'))
+
+			order.meta = utils.convertHexToObject(results[0].args.meta)
+			console.log('orderMeta',order.meta)
+
 
 			order.meta.products.forEach(function(orderProduct){
 				product = _.find(order.store.products,{id:orderProduct.id})
@@ -192,9 +181,9 @@ Order.prototype.update = function(){
 					var timestamp = web3.eth.getBlock(result.blockNumber).timestamp
 					order.updates.push(new Update(result.args.sender,result.args.status,timestamp,order))
 				})
-			})
 
-			deferred.resolve(order)
+				deferred.resolve(order)
+			})
 
 		})
 
@@ -242,11 +231,11 @@ function Message(sender,ciphertext,timestamp,order){
 		case order.buyer:
 			this.from = 'buyer'
 			break;
-		case order.merchant:
-			this.from = 'merchant'
+		case order.store.owner:
+			this.from = 'storeOwner'
 			break;
-		case order.admin:
-			this.from = 'admin'
+		case order.market.owner:
+			this.from = 'marketOwner'
 			break;
 	}
 
@@ -268,17 +257,18 @@ function Update(sender,status,timestamp,order){
 		case order.buyer:
 			this.from = 'buyer'
 			break;
-		case order.merchant:
-			this.from = 'merchant'
+		case order.store.owner:
+			this.from = 'storeOwner'
 			break;
-		case order.admin:
-			this.from = 'admin'
+		case order.marketOwner:
+			this.from = 'marketOwner'
 			break;
 	}
 }
 
 
 Message.prototype.decrypt = function(privateKey){
+	console.log(this.pgpMessage)
 	this.text = this.pgpMessage.decrypt(privateKey).packets[0].data
 }
 

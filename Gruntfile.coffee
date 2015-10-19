@@ -27,6 +27,7 @@ module.exports = (grunt) ->
           "app/js/index.js"
           "app/js/safemarket.js"
           "app/js/pgp.js"
+          "app/js/words.js"
           "app/js/ticker.js"
           "app/js/utils.js"
           "app/js/Store.js"
