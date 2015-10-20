@@ -106,7 +106,6 @@ app.directive('addComment',function(){
 				$scope.isAddingComment = true
 				commentsGroup.addComment(commentsGroup.id,$scope.text).then(function(){
 					commentsGroup.update().then(function(){
-						console.log(commentsGroup.comments)
 						$scope.text = null
 						$scope.isAddingComment = false
 					})
@@ -217,10 +216,8 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 
 
 		try{
-			console.log(alias)
 			safemarket.Store.check(alias,meta)
 		}catch(e){
-			console.log('error',e)
 			growl.addErrorMessage(e)
 			console.error(e)
 			return
@@ -458,8 +455,6 @@ app.controller('aliasesModalController',function($scope,$modalInstance,aliasable
 				return alias.text
 			})
 
-		console.log(aliases)
-
 		$scope.newAliases.forEach(function(variant){
 			variants = variants.concat([
 				variant.text.replace(/[^a-zA-Z ]/g, "")
@@ -472,11 +467,6 @@ app.controller('aliasesModalController',function($scope,$modalInstance,aliasable
 		})
 
 		_.uniq(variants).forEach(function(variant){
-			console.log(
-				variant
-				,aliases.indexOf(variant) > -1
-				,AliasReg.getAddr(variant) !== safemarket.utils.nullAddr
-			)
 
 			if(aliases.indexOf(variant) > -1)
 				return true
@@ -523,13 +513,78 @@ app.controller('aliasesModalController',function($scope,$modalInstance,aliasable
 		
 		$scope.isUpdating = true
 
-		console.log(aliases)
 		aliasable.claimAliases(aliases).then(function(){
 			$modalInstance.close()
 		})
 
 	}
 })
+
+app.controller('PaymentModalController',function($scope,$filter,addr,amount,currency,safemarket,user,growl,$modalInstance){
+	$scope.addr = addr
+	$scope.userCurrency = user.data.currency
+
+	$scope.displayCurrencies = []
+	if($scope.userCurrency!=='ETH')
+		$scope.displayCurrencies.push('ETH')
+
+	if(amount.greaterThan(0))
+		$scope.amountInUserCurrency = safemarket.utils.convertCurrencyAndFormat(amount,{from:currency,to:user.data.currency})
+	else
+		$scope.amountInUserCurrency = '0'
+
+	if(user.data.currency !=='ETH'){
+		$scope.$watch('amountInUserCurrency',function(amountInUserCurrency){
+			$scope.amountInEther = safemarket.utils.convertCurrencyAndFormat(amountInUserCurrency,{
+				from:user.data.currency
+				,to:'ETH'
+			})
+			console.log('amountInEther',$scope.amountInEther)
+		})
+
+		$scope.$watch('amountInEther',function(amountInEther){
+			$scope.amountInUserCurrency = safemarket.utils.convertCurrencyAndFormat(amountInEther,{
+				from:'ETH'
+				,to:user.data.currency
+			})
+		})
+	}
+
+	$scope.cancel = function(){
+		$modalInstance.dismiss('cancel')
+	}
+
+	$scope.submit = function(){
+		try{
+			safemarket.utils.check({
+				addr:$scope.addr
+				,amountInUserCurrency:$scope.amountInUserCurrency
+			},{
+				addr:{
+					presence:true
+					,type:'address'
+				},amountInUserCurrency:{
+					presence:true
+					,type:'string'
+					,numericality:{
+						greaterThan:0
+					}
+				}
+			})
+		}catch(e){
+			return growl.addErrorMessage(e)
+		}
+
+		$scope.isSyncing = true
+
+		var amount = safemarket.utils.convertCurrency($scope.amountInUserCurrency,{from:user.data.currency,to:'WEI'})
+
+		safemarket.utils.send($scope.addr,amount).then(function(){
+			$modalInstance.dismiss()
+		})
+	}
+})
+
 
 app.controller('SimpleModalController',function($scope,title,body){
 	$scope.title = title
@@ -660,14 +715,17 @@ app.controller('OrderController',function($scope,safemarket,user,$routeParams,mo
 		$scope.order = order
 		$scope.displayCurrencies = [order.store.meta.currency]
 
-		var keyId = null
-
 		if(user.data.account === order.buyer)
-			keyId = order.keys.buyer.id
+			$scope.userRole = 'buyer'
 		else if(user.data.account === order.store.owner)
-			keyId = order.keys.storeOwner.id
+			$scope.userRole = 'storeOwner'
 		else if(user.data.acccount === order.market.owner)
-			keyId = order.keys.marketOwner.id
+			$scope.userRole = 'marketOwner'
+
+		if($scope.userRole)
+			var keyId = order.keys[$scope.userRole].id
+		else
+			var keyId = null
 
 		if($scope.displayCurrencies.indexOf(user.data.currency) === -1)
 			$scope.displayCurrencies.push(user.data.currency)
@@ -716,6 +774,21 @@ app.controller('OrderController',function($scope,safemarket,user,$routeParams,mo
 		})
 	}
 
+	$scope.cancel = function(){
+		$scope.isUpdatingStatus = true
+		$scope.order.cancel().then(function(){
+			$scope.order.update().then(function(){
+				$scope.isUpdatingStatus = false
+			})
+		})
+	}
+
+	$scope.makePayment = function(){
+		modals.openPayment($scope.order.addr,$scope.order.unpaid,'WEI').result.then(function(){
+			$scope.order.update();
+		})
+	}
+
 })
 
 app.factory('confirmGas',function(safemarket,user,$filter){
@@ -744,14 +817,11 @@ app.directive('key',function(){
 	}
 })
 
-app.filter('currency',function(){
+app.filter('currency',function(safemarket){
 	return function(amount,currency){
 		if(amount===undefined) return undefined
 
-		if(currency === 'ETH')
-			return amount.toFixed(4).toString()
-		else
-			return amount.toFixed(2).toString()
+		return safemarket.utils.formatCurrency(amount,currency)
 	}
 })
 
@@ -824,6 +894,23 @@ app.service('modals',function($modal){
 			,resolve:{
 				aliasable:function(){
 					return aliasable
+				}
+			}
+	    });
+	}
+
+	this.openPayment = function(addr,amount,currency){
+		return openModal({
+			size: 'lg'
+			,templateUrl: 'paymentModal.html'
+			,controller: 'PaymentModalController'
+			,resolve:{
+				addr:function(){
+					return addr
+				},amount:function(){
+					return amount
+				},currency:function(){
+					return currency
 				}
 			}
 	    });
@@ -1070,13 +1157,62 @@ app.directive('alias', function(growl) {
         		if(transformedInput !== text) {
            			ngModelCtrl.$setViewValue(transformedInput);
             		ngModelCtrl.$render();
+            		growl.addErrorMessage('Aliases consist entirely of lower case letters')
         		}
-        		if(transformedInput!==text) growl.addErrorMessage('Aliases consist entirely of lower case letters')
         		return transformedInput;  // or return Number(transformedInput)
       		});
     	}
   	}; 
 });
+
+app.directive('numeric', function(growl) {
+	return {
+        require: 'ngModel',
+        link: function (scope, element, attr, ngModelCtrl) {  
+        	ngModelCtrl.$parsers.push(function(text) {
+        		var transformedInput = text.replace(/[^0-9.]/g, "");
+        		if(transformedInput !== text) {
+           			ngModelCtrl.$setViewValue(transformedInput);
+            		ngModelCtrl.$render();
+            		growl.addErrorMessage('Numeric input only')
+        		}
+        		return transformedInput;  // or return Number(transformedInput)
+      		});         
+        }
+    };
+});
+
+app.directive('cleanInput', function() {
+  return {
+    require: 'ngModel',
+    link: function(scope, element, attrs, ngModelController) {
+      var el = element[0];
+
+      function clean(x) {
+        return x && x.toUpperCase().replace(/[^A-Z\d]/g, '');
+      }
+
+      ngModelController.$parsers.push(function(val) {
+        var cleaned = clean(val);
+
+        // Avoid infinite loop of $setViewValue <-> $parsers
+        if (cleaned === val) return val;
+
+        var start = el.selectionStart;
+        var end = el.selectionEnd + cleaned.length - val.length;
+
+        // element.val(cleaned) does not behave with
+        // repeated invalid elements
+        ngModelController.$setViewValue(cleaned);
+        ngModelController.$render();
+
+        el.setSelectionRange(start, end);
+        return cleaned;
+      });
+    }
+  }
+});
+
 
 app.directive('aliasValidator', function(safemarket) {
   	return {

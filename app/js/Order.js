@@ -4,9 +4,7 @@ angular.module('safemarket').factory('Order',function(utils,ticker,$q,Store,Mark
 
 function Order(addr){
 	this.addr = addr
-	console.log('asdf')
 	this.contract = this.contractFactory.at(addr)
-	console.log('asdf')
 	this.updatePromise = this.update()
 }
 
@@ -17,7 +15,6 @@ Order.prototype.abi = Order.abi = contractDB.Order.compiled.info.abiDefinition
 Order.prototype.contractFactory = Order.contractFactory = web3.eth.contract(Order.abi)
 
 Order.create = function(meta,storeAddr,marketAddr,fee,disputeSeconds){
-	console.log(arguments)
 
 	var meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 		,deferred = $q.defer()
@@ -105,6 +102,17 @@ Order.estimateCreationGas = function(meta,storeAddr,marketAddr,fee,disputeSecond
 	})
 }
 
+Order.prototype.cancel = function(){
+	var deferred = $q.defer()
+		,txHex = this.contract.cancel()
+
+	utils.waitForTx(txHex).then(function(){
+		deferred.resolve()
+	})
+
+	return deferred.promise
+}
+
 Order.prototype.update = function(){
 
 	var deferred = $q.defer()
@@ -117,12 +125,15 @@ Order.prototype.update = function(){
 	this.store = new Store(storeAddr)
 	this.market = marketAddr === utils.nullAddr ? null : new Market(marketAddr)
 	this.fee = this.contract.getFee()
+	this.feeInEther = web3.fromWei(this.fee,'ether')
 	this.received = this.contract.getReceived()
+	this.receivedInEther = web3.fromWei(this.received,'ether')
 	this.status = this.contract.getStatus().toNumber()
 	this.timestamp = this.contract.getTimestamp()
 
 	this.products = []
 	this.messages = []
+	this.updates = []
 	this.keys = {}
 	this.productsTotalInStoreCurrency = new BigNumber(0)
 
@@ -152,8 +163,6 @@ Order.prototype.update = function(){
 				return deferred.reject(new Error('no results found'))
 
 			order.meta = utils.convertHexToObject(results[0].args.meta)
-			console.log('orderMeta',order.meta)
-
 
 			order.meta.products.forEach(function(orderProduct){
 				product = _.find(order.store.products,{id:orderProduct.id})
@@ -165,8 +174,9 @@ Order.prototype.update = function(){
 				order.productsTotalInStoreCurrency = order.productsTotalInStoreCurrency.plus(subtotal)
 			})
 
-			order.productsTotal = utils.convertCurrency(order.productsTotalInStoreCurrency,{from:order.store.meta.currency,to:'ETH'})
+			order.productsTotal = utils.convertCurrency(order.productsTotalInStoreCurrency,{from:order.store.meta.currency,to:'WEI'})
 			order.total = order.productsTotal.plus(order.fee)
+			order.unpaid = order.total.minus(order.received)
 			order.percentReceived = new BigNumber(web3.fromWei(order.received,'ether')).div(order.total)
 
 			order.contract.Message({},{fromBlock:0,toBlock:'latest'}).get(function(error,results){
@@ -201,8 +211,6 @@ Order.prototype.addMessage = function(pgpMessage){
 		})
 		,order = this
 
-		console.log(ciphertext)
-
 	utils.waitForTx(txHex).then(function(){
 		order.update().then(function(){
 			deferred.resolve(order)
@@ -221,7 +229,6 @@ Order.prototype.decryptMessages = function(privateKey){
 }
 
 function Message(sender,ciphertext,timestamp,order){
-	console.log('sender',sender)
 
 	this.sender = sender
 	this.ciphertext = ciphertext
@@ -247,7 +254,6 @@ function Message(sender,ciphertext,timestamp,order){
 }
 
 function Update(sender,status,timestamp,order){
-	console.log('sender',sender)
 
 	this.sender = sender
 	this.status = status
@@ -268,7 +274,6 @@ function Update(sender,status,timestamp,order){
 
 
 Message.prototype.decrypt = function(privateKey){
-	console.log(this.pgpMessage)
 	this.text = this.pgpMessage.decrypt(privateKey).packets[0].data
 }
 

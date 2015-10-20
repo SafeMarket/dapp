@@ -17,6 +17,8 @@ angular.module('safemarket').service('ticker',function($interval,$http,$q){
 		rates[currency] = web3.toBigNumber(rateHex).div('1000000000000')
 	})
 
+	rates['WEI'] = rates.ETH.times('1000000000000000000')
+
 	this.rates = rates
 
 	web3.setProvider(new web3.providers.HttpProvider('http://localhost:8101'));

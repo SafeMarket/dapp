@@ -65,6 +65,39 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 		return amount
 	}
 
+	function formatCurrency(amount,currency){
+		if(!amount instanceof BigNumber)
+			amount = new BigNumber(amount)
+
+		if(currency === 'ETH')
+			return amount.toFixed(4)
+		else
+			return amount.toFixed(2)
+	}
+
+	function convertCurrencyAndFormat(amount,currencies){
+		return formatCurrency(
+			convertCurrency(amount,currencies)
+			,currencies.to
+		)
+	}
+
+
+	function send(address,value){
+		console.log(arguments)
+		var deferred = $q.defer()
+			,txHex = web3.eth.sendTransaction({
+				to:address
+				,value:value
+			})
+
+		waitForTx(txHex).then(function(){
+			deferred.resolve()
+		})
+
+		return deferred.promise
+	}
+
 	function waitForTx(txHex, duration, pause){
 
 		console.log('waitForTx',txHex)
@@ -155,6 +188,8 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 		convertObjectToHex:convertObjectToHex
 		,convertHexToObject:convertHexToObject
 		,convertCurrency:convertCurrency
+		,formatCurrency:formatCurrency
+		,convertCurrencyAndFormat:convertCurrencyAndFormat
 		,waitForTx:waitForTx
 		,waitForTxs:waitForTxs
 		,check:check
@@ -163,6 +198,7 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 		,getAlias:getAlias
 		,toAscii:toAscii
 		,isAliasAvailable:isAliasAvailable
+		,send:send
 	})
 	
 })

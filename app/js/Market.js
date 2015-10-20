@@ -17,7 +17,7 @@ Market.prototype.abi = Market.abi = contractDB.Market.compiled.info.abiDefinitio
 Market.prototype.contractFactory = Market.contractFactory = web3.eth.contract(Market.abi)
 
 Market.create = function(alias,meta){
-	console.log('alias',alias)
+
 	var meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 		,deferred = $q.defer()
 		,txObject = {
@@ -75,7 +75,6 @@ Market.check = function(alias,meta){
 	})
 
 	meta.stores.forEach(function(store){
-		console.log(store)
 		utils.check(store,{
 			alias:{
 				presence:true
@@ -123,7 +122,6 @@ Market.prototype.getEvents = function(eventName){
 	var deferred = $q.defer()
 
 	this.contract[eventName]({},{fromBlock:0,toBlock:'latest'}).get(function(error,results){
-		console.log(arguments)
 		if(error)
 			deferred.reject(error)
 		else
@@ -145,8 +143,6 @@ Market.prototype.update = function(){
 	this.forum = new Forum(this.forumAddr)
 
 	this.getEvents('Meta').then(function(results){
-
-		console.log(results)
 
 		market.meta = utils.convertHexToObject(results[0].args.meta)
 

@@ -86,8 +86,8 @@ contract Forum is owned{
 
 contract Market is forumable{
 
-	address forumAddr;
 	event Meta(bytes meta);
+	bool constant public isMarket = true;
 
 	function Market(bytes32 alias, bytes meta){
 		AliasReg(0xb68c1931d659e4a058cb4139e981aa8d5c8a6e8b).claimAlias(alias);
@@ -263,6 +263,7 @@ contract Order{
 
 contract Store is forumable{
     event Meta(bytes meta);
+    bool constant public isStore = true;
 
     function Store(bytes32 alias, bytes meta){
         Meta(meta);
@@ -273,4 +274,5 @@ contract Store is forumable{
 		if(msg.sender!=owner) return;
 		Meta(meta);
 	}
+
 }

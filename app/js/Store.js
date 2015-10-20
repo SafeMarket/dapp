@@ -20,8 +20,6 @@ Store.prototype.contractFactory = Store.contractFactory = web3.eth.contract(Stor
 
 Store.create = function(alias,meta){
 
-	console.log('alias',alias)
-	
 	var meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 		,deferred = Q.defer()
 		,StoreContract = web3.eth.contract(Store.abi)
@@ -143,8 +141,6 @@ Store.prototype.update = function(){
 
 	this.products = []
 	this.owner = this.contract.getOwner()
-
-	console.log(this.contract)
 
 	this.contract.Meta({},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
 
