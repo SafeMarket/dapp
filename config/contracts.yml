@@ -11,4 +11,19 @@ development:
     deploy: false
   verifiable:
     deploy: false
+  OpenStoreNamespace:
+    address: 0x0
+  OpenStore:
+    onDeploy:
+      - OpenStore.set('CMC:TETH:USD', new BigNumber('2100000000000'));
+      - OpenStore.set('CMC:TETH:EUR', new BigNumber('2200000000000'));
+      - OpenStore.set('CMC:TETH:CNY', new BigNumber('2300000000000'));
+      - OpenStore.set('CMC:TETH:CAD', new BigNumber('2400000000000'));
+      - OpenStore.set('CMC:TETH:RUB', new BigNumber('2500000000000'));
+      - OpenStore.set('CMC:TETH:BTC', new BigNumber('2600000000000'));
 staging:
+production:
+  OpenStoreNamespace:
+    address: 0xdc99b79555385ab2fe0ff28c3c954a07b28aac5e
+  OpenStore:
+    address: 0xaf527686227cc508ead0d69c7f8a98f76b63e191
