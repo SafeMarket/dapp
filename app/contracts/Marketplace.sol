@@ -90,7 +90,7 @@ contract Market is forumable{
 	bool constant public isMarket = true;
 
 	function Market(bytes32 alias, bytes meta){
-		AliasReg(0xb68c1931d659e4a058cb4139e981aa8d5c8a6e8b).claimAlias(alias);
+		AliasReg(0x62cf35ede4ba3b04fffe9300fa5c421453c60be9).claimAlias(alias);
 		Meta(meta);
 	}
 	
@@ -104,13 +104,18 @@ contract Market is forumable{
 contract Order{
 	address buyer;
 	address storeAddr;
+	address storeOwner;
 	address marketAddr;
-	uint fee;
+	address marketOwner;
+	uint feePercentage;
 	uint disputeSeconds;
 	uint status;
 	uint received;
 	uint timestamp;
 	uint shippedAt;
+	uint disputedAt;
+	uint fee;
+	uint buyerAmount;
 
 	event Meta(bytes meta);
 	event Message(address indexed sender, bytes text);
@@ -127,20 +132,22 @@ contract Order{
 		bytes _meta
 		,address _storeAddr
 		,address _marketAddr
-		,uint _fee
+		,uint _feePercentage
 		,uint _disputeSeconds
 	){
 		buyer = msg.sender;
 		storeAddr = _storeAddr;
+		storeOwner = Store(_storeAddr).getOwner();
 		marketAddr = _marketAddr;
-		fee = _fee;
+		marketOwner = Market(_marketAddr).getOwner();
+		feePercentage = _feePercentage;
 		disputeSeconds = _disputeSeconds;
 		timestamp = now;
 		Meta(_meta);
 	}
 
 	function addMessage(bytes text){
-		if(msg.sender != buyer && msg.sender != storeAddr && msg.sender != marketAddr)
+		if(msg.sender != buyer && msg.sender != storeOwner && msg.sender != marketOwner)
 			return;
 
 		Message(msg.sender, text);
@@ -162,8 +169,8 @@ contract Order{
 		return marketAddr;
 	}
 
-	function getFee() constant returns(uint){
-		return fee;
+	function getFeePercentage() constant returns(uint){
+		return feePercentage;
 	}
 
 	function getStatus() constant returns(uint){
@@ -174,8 +181,25 @@ contract Order{
 		return received;
 	}
 
+	function getDisputeSeconds() constant returns(uint){
+		return disputeSeconds;
+	}
+
 	function getTimestamp() constant returns(uint){
 		return timestamp;
+	}
+
+	function getShippedAt() constant returns(uint){
+		return shippedAt;
+	}
+
+
+	function getFee() constant returns(uint){
+		return fee;
+	}
+
+	function getBuyerAmount() constant returns(uint){
+		return buyerAmount;
 	}
 
 	function addUpdate(uint _status) private{
@@ -188,7 +212,7 @@ contract Order{
 		if(status != initialized)
 			return;
 
-		if(msg.sender != buyer && msg.sender != storeAddr)
+		if(msg.sender != buyer && msg.sender != storeOwner)
 			return;
 
 		var isSent = buyer.send(this.balance);
@@ -202,7 +226,7 @@ contract Order{
 		if(status !=  initialized)
 			return;
 
-		if(msg.sender != storeAddr)
+		if(msg.sender != storeOwner)
 			return;
 
 		shippedAt = now;
@@ -214,13 +238,13 @@ contract Order{
 		if(status !=  shipped)
 			return;
 
-		if(msg.sender != buyer && msg.sender != storeAddr)
+		if(msg.sender != buyer && msg.sender != storeOwner)
 			return;
 
-		if(msg.sender == storeAddr && now - shippedAt < disputeSeconds)
+		if(msg.sender == storeOwner && now - shippedAt < disputeSeconds)
 			return;
 
-		var isSent = storeAddr.send(this.balance);
+		var isSent = storeOwner.send(this.balance);
 		if(!isSent) return;
 		
 		addUpdate(finalized);
@@ -236,26 +260,51 @@ contract Order{
 		if(now - shippedAt > disputeSeconds)
 			return;
 
-		if(marketAddr==address(0))
+		if(marketOwner==address(0))
 			return;
 
 		addUpdate(disputed);
+		disputedAt=now;
 	}
 
-	function resolve(uint buyerAmount){
+	function calculateFee() returns (uint){
+		// show your work:
+		
+		// 1. fee = products(feePercent)
+			// products = fee/feePercent
+			// products = fee/(feePercentage/100)
+			// products = (100*fee)/feePercentage
+
+		// 2. products + fee = received
+			// (100*fee)/feePercentage + fee = received
+			// fee(100/feePercentage + 1) = received
+			// fee(100/feePercentage + feePercentage/feePercentage) = received
+			// fee(100+feePercentage)/feePercentage = received
+			// fee = received/((100+feePercentage)/feePercentage)
+			// fee = (received * feePercentage)/(100 + feePercentage)
+
+		
+		return (received * feePercentage)/(100 + feePercentage);
+	}
+
+	function resolve(uint buyerPercentage){
 		if(status!=disputed)
 			return;
 
-		if(msg.sender != marketAddr)
+		if(msg.sender != marketOwner)
 			return;
+
+		fee = calculateFee();
+		buyerAmount = ((received-fee)*buyerPercentage)/100;
+		var storeOwnerAmount = received - fee - buyerAmount;
+
+		marketOwner.send(fee);
 
 		if(buyerAmount>0)
 			buyer.send(buyerAmount);
 
-		var storeAmount = this.balance-buyerAmount;
-
-		if(storeAmount>0)
-			storeAddr.send(storeAmount);
+		if(storeOwnerAmount>0)
+			storeOwner.send(storeOwnerAmount);
 
 		addUpdate(resolved);
 	}
@@ -267,7 +316,7 @@ contract Store is forumable{
 
     function Store(bytes32 alias, bytes meta){
         Meta(meta);
-        AliasReg(0xb68c1931d659e4a058cb4139e981aa8d5c8a6e8b).claimAlias(alias);
+        AliasReg(0x62cf35ede4ba3b04fffe9300fa5c421453c60be9).claimAlias(alias);
     }
     
     function setMeta(bytes meta){

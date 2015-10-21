@@ -141,7 +141,7 @@ app.directive('amounts',function(utils){
 			scope.amounts = {}
 
 			scope.$watchGroup(["value","from","to"],function(value){
-				if(!scope.from || !scope.to) return
+				if(!scope.from || !scope.to || scope.value===undefined) return
 				scope.to.forEach(function(currency){
 					scope.amounts[currency] = utils.convertCurrency(scope.value,{from:scope.from,to:currency})
 				})
@@ -520,7 +520,40 @@ app.controller('aliasesModalController',function($scope,$modalInstance,aliasable
 	}
 })
 
-app.controller('PaymentModalController',function($scope,$filter,addr,amount,currency,safemarket,user,growl,$modalInstance){
+app.controller('ResolutionModalController',function($scope,$modalInstance,order,user){
+
+	$scope.order = order
+	$scope.percentBuyerRaw = .5
+
+	var multipler = Math.pow(10,10)
+
+	$scope.$watch('percentBuyerRaw',function(percentBuyerRaw){
+		$scope.percentBuyer = new BigNumber(parseInt(percentBuyerRaw*multipler)).div(multipler)
+		$scope.percentStoreOwner = $scope.percentBuyer.minus(1).times(-1)
+	})
+
+	$scope.displayCurrencies = [user.data.currency]
+
+	if(user.data.currency!=='ETH')
+		$scope.displayCurrencies.push('ETH')
+
+	$scope.cancel = function(){
+		$modalInstance.dismiss('cancel')
+	}
+
+	$scope.submit = function(){
+		$scope.isSyncing = true
+
+		console.log($scope.percentBuyer.times(100).round().toString())
+
+		order.resolve($scope.percentBuyer.times(100).round()).then(function(){
+			$modalInstance.close()
+		})
+	}
+
+})
+
+app.controller('PaymentModalController',function($scope,addr,amount,currency,safemarket,user,growl,$modalInstance){
 	$scope.addr = addr
 	$scope.userCurrency = user.data.currency
 
@@ -539,7 +572,6 @@ app.controller('PaymentModalController',function($scope,$filter,addr,amount,curr
 				from:user.data.currency
 				,to:'ETH'
 			})
-			console.log('amountInEther',$scope.amountInEther)
 		})
 
 		$scope.$watch('amountInEther',function(amountInEther){
@@ -580,7 +612,7 @@ app.controller('PaymentModalController',function($scope,$filter,addr,amount,curr
 		var amount = safemarket.utils.convertCurrency($scope.amountInUserCurrency,{from:user.data.currency,to:'WEI'})
 
 		safemarket.utils.send($scope.addr,amount).then(function(){
-			$modalInstance.dismiss()
+			$modalInstance.close()
 		})
 	}
 })
@@ -620,7 +652,7 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 			products:[]
 		},storeAddr = $scope.store.addr
 		,marketAddr = $scope.market ? $scope.market.addr : utils.nullAddr
-		,fee = 0
+		,feePercentage = $scope.market ? $scope.market.meta.feePercentage : '0'
 		,disputeSeconds = parseInt($scope.store.meta.disputeSeconds)
 
 		$scope.store.products.forEach(function(product){
@@ -633,20 +665,20 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 		})
 
 		try{
-			Order.check(meta,storeAddr,marketAddr,fee,disputeSeconds)
+			Order.check(meta,storeAddr,marketAddr,feePercentage,disputeSeconds)
 		}catch(e){
 			growl.addErrorMessage(e)
 			return
 		}
 
-		var estimatedGas = Order.estimateCreationGas(meta,storeAddr,marketAddr,fee,disputeSeconds)
+		var estimatedGas = Order.estimateCreationGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds)
 		 	,doContinue = confirmGas(estimatedGas)
 
 		if(!doContinue) return
 
 		$scope.isCreatingOrder = true
 			
-		Order.create(meta,storeAddr,marketAddr,fee,disputeSeconds).then(function(order){
+		Order.create(meta,storeAddr,marketAddr,feePercentage,disputeSeconds).then(function(order){
 			window.location.hash = "#/orders/"+order.addr
 			user.data.orders.push(order.addr)
 			user.save()
@@ -783,6 +815,30 @@ app.controller('OrderController',function($scope,safemarket,user,$routeParams,mo
 		})
 	}
 
+	$scope.markAsShipped = function(){
+		$scope.isUpdatingStatus = true
+		$scope.order.markAsShipped().then(function(){
+			$scope.order.update().then(function(){
+				$scope.isUpdatingStatus = false
+			})
+		})
+	}
+
+	$scope.dispute = function(){
+		$scope.isUpdatingStatus = true
+		$scope.order.dispute().then(function(){
+			$scope.order.update().then(function(){
+				$scope.isUpdatingStatus = false
+			})
+		})
+	}
+
+	$scope.openResolutionModal = function(){
+		modals.openResolution($scope.order).result.then(function(){
+			$scope.order.update()
+		})
+	}
+
 	$scope.makePayment = function(){
 		modals.openPayment($scope.order.addr,$scope.order.unpaid,'WEI').result.then(function(){
 			$scope.order.update();
@@ -822,6 +878,17 @@ app.filter('currency',function(safemarket){
 		if(amount===undefined) return undefined
 
 		return safemarket.utils.formatCurrency(amount,currency)
+	}
+})
+
+app.filter('percentage',function(safemarket){
+	return function(percent){
+		if(percent === undefined)
+			return ''
+		else if(!percent.isFinite())
+			return 'Infinity%'
+		else
+			return percent.times(100).toFixed(2).toString()+'%'
 	}
 })
 
@@ -911,6 +978,19 @@ app.service('modals',function($modal){
 					return amount
 				},currency:function(){
 					return currency
+				}
+			}
+	    });
+	}
+
+	this.openResolution = function(order){
+		return openModal({
+			size: 'sm'
+			,templateUrl: 'resolutionModal.html'
+			,controller: 'ResolutionModalController'
+			,resolve:{
+				order:function(){
+					return order
 				}
 			}
 	    });

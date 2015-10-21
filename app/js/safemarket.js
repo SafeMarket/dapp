@@ -71,14 +71,13 @@
 
 	safemarket.filter('status',function(){
 		return function(status){
+			console.log('status',status)
 			return [
 				'Initialized'
-				,'Cancelled By Buyer'
-				,'Cancelled By Merchant'
+				,'Cancelled'
 				,'Shipped'
 				,'Finalized'
 				,'Disputed'
-				,'Initialized'
 				,'Resolved'
 			][status]
 		}

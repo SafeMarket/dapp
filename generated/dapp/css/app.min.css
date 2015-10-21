@@ -76,3 +76,4 @@ h3 .btn{float: right}
 [collapsable].isCollapsed + tbody tr:first-child td{border-top:none;}
 
 .comment-child{background-color: #eee}
+.update{background-color:#EFF3FA;}

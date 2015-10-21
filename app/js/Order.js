@@ -14,14 +14,14 @@ Order.prototype.code = Order.code = '0x'+contractDB.Order.compiled.code
 Order.prototype.abi = Order.abi = contractDB.Order.compiled.info.abiDefinition
 Order.prototype.contractFactory = Order.contractFactory = web3.eth.contract(Order.abi)
 
-Order.create = function(meta,storeAddr,marketAddr,fee,disputeSeconds){
+Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 
 	var meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 		,deferred = $q.defer()
 		,txObject = {
 			data:Order.code
-			,gas:this.estimateCreationGas(meta,storeAddr,marketAddr,fee,disputeSeconds)
-		},txHex = this.contractFactory.new(meta,storeAddr,marketAddr,fee,disputeSeconds,txObject).transactionHash
+			,gas:this.estimateCreationGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds)
+		},txHex = this.contractFactory.new(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,txObject).transactionHash
 
 	utils.waitForTx(txHex).then(function(tx){
 		(new Order(tx.contractAddress)).updatePromise.then(function(order){
@@ -36,7 +36,7 @@ Order.create = function(meta,storeAddr,marketAddr,fee,disputeSeconds){
 	return deferred.promise
 }
 
-Order.check = function(meta,storeAddr,marketAddr,fee,disputeSeconds){
+Order.check = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 	utils.check(meta,{
 		products:{
 			presence:true
@@ -67,7 +67,7 @@ Order.check = function(meta,storeAddr,marketAddr,fee,disputeSeconds){
 	utils.check({
 		storeAddr:storeAddr
 		,marketAddr:marketAddr
-		,fee:fee
+		,feePercentage:feePercentage
 		,disputeSeconds:disputeSeconds
 	},{
 		storeAddr:{
@@ -76,9 +76,9 @@ Order.check = function(meta,storeAddr,marketAddr,fee,disputeSeconds){
 		},marketAddr:{
 			presence:true
 			,type:'address'
-		},fee:{
+		},feePercentage:{
 			presence:true
-			,type:'number'
+			,type:'string'
 			,numericality:{
 				onlyInteger:true
 				,greaterThanOrEqualTo:0
@@ -94,10 +94,10 @@ Order.check = function(meta,storeAddr,marketAddr,fee,disputeSeconds){
 	})
 }
 
-Order.estimateCreationGas = function(meta,storeAddr,marketAddr,fee,disputeSeconds){
+Order.estimateCreationGas = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 	meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 
-	return this.contractFactory.estimateGas(meta,storeAddr,marketAddr,fee,disputeSeconds,{
+	return this.contractFactory.estimateGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,{
 		data:Order.code
 	})
 }
@@ -105,6 +105,41 @@ Order.estimateCreationGas = function(meta,storeAddr,marketAddr,fee,disputeSecond
 Order.prototype.cancel = function(){
 	var deferred = $q.defer()
 		,txHex = this.contract.cancel()
+
+	utils.waitForTx(txHex).then(function(){
+		deferred.resolve()
+	})
+
+	return deferred.promise
+}
+
+Order.prototype.dispute = function(){
+	var deferred = $q.defer()
+		,txHex = this.contract.dispute()
+
+	utils.waitForTx(txHex).then(function(){
+		deferred.resolve()
+	})
+
+	return deferred.promise
+}
+
+Order.prototype.resolve = function(buyerPercentage){
+	console.log('buyerPercentage',buyerPercentage.toString())
+	var deferred = $q.defer()
+		,txHex = this.contract.resolve(buyerPercentage)
+
+	utils.waitForTx(txHex).then(function(){
+		deferred.resolve()
+	})
+
+	return deferred.promise
+}
+
+
+Order.prototype.markAsShipped = function(){
+	var deferred = $q.defer()
+		,txHex = this.contract.markAsShipped()
 
 	utils.waitForTx(txHex).then(function(){
 		deferred.resolve()
@@ -124,12 +159,17 @@ Order.prototype.update = function(){
 	this.buyer = this.contract.getBuyer()
 	this.store = new Store(storeAddr)
 	this.market = marketAddr === utils.nullAddr ? null : new Market(marketAddr)
-	this.fee = this.contract.getFee()
-	this.feeInEther = web3.fromWei(this.fee,'ether')
+	this.feePercentage = this.contract.getFeePercentage()
 	this.received = this.contract.getReceived()
-	this.receivedInEther = web3.fromWei(this.received,'ether')
 	this.status = this.contract.getStatus().toNumber()
 	this.timestamp = this.contract.getTimestamp()
+	this.shippedAt = this.contract.getShippedAt()
+	this.disputeSeconds = this.contract.getDisputeSeconds()
+	this.fee = this.contract.getFee()
+	this.buyerAmount = this.contract.getBuyerAmount()
+	this.storeOwnerAmount = this.received.minus(this.fee).minus(this.buyerAmount)
+	this.buyerPercent = this.buyerAmount.div(this.received.minus(this.fee))
+	this.storeOwnerPercent = this.storeOwnerAmount.div(this.received.minus(this.fee))
 
 	this.products = []
 	this.messages = []
@@ -175,9 +215,10 @@ Order.prototype.update = function(){
 			})
 
 			order.productsTotal = utils.convertCurrency(order.productsTotalInStoreCurrency,{from:order.store.meta.currency,to:'WEI'})
-			order.total = order.productsTotal.plus(order.fee)
+			order.estimatedFee = order.productsTotal.times(order.feePercentage).div(100)
+			order.total = order.productsTotal.plus(order.estimatedFee)
 			order.unpaid = order.total.minus(order.received)
-			order.percentReceived = new BigNumber(web3.fromWei(order.received,'ether')).div(order.total)
+			order.percentReceived = new BigNumber(order.received).div(order.total)
 
 			order.contract.Message({},{fromBlock:0,toBlock:'latest'}).get(function(error,results){
 				results.forEach(function(result){
@@ -189,7 +230,7 @@ Order.prototype.update = function(){
 			order.contract.Update({},{fromBlock:0,toBlock:'latest'}).get(function(error,results){
 				results.forEach(function(result){
 					var timestamp = web3.eth.getBlock(result.blockNumber).timestamp
-					order.updates.push(new Update(result.args.sender,result.args.status,timestamp,order))
+					order.updates.push(new Update(result.args.sender,result.args.status.toNumber(),timestamp,order))
 				})
 
 				deferred.resolve(order)
@@ -272,10 +313,14 @@ function Update(sender,status,timestamp,order){
 	}
 }
 
-
 Message.prototype.decrypt = function(privateKey){
 	this.text = this.pgpMessage.decrypt(privateKey).packets[0].data
 }
+
+Update.prototype.isUpdate = true
+Update.prototype.isMessage = false
+Message.prototype.isUpdate = false
+Message.prototype.isMessage = true
 
 return Order
 

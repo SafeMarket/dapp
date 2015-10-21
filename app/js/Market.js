@@ -145,7 +145,6 @@ Market.prototype.update = function(){
 	this.getEvents('Meta').then(function(results){
 
 		market.meta = utils.convertHexToObject(results[0].args.meta)
-
 		market.meta.stores.forEach(function(storeData){
 			market.stores.push(new Store(storeData.alias))
 		})
