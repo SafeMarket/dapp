@@ -21,6 +21,9 @@ development:
       - OpenStore.set('CMC:TETH:CAD', new BigNumber('2400000000000'));
       - OpenStore.set('CMC:TETH:RUB', new BigNumber('2500000000000'));
       - OpenStore.set('CMC:TETH:BTC', new BigNumber('2600000000000'));
+  Token:
+    args:
+      - 10000
 staging:
 production:
   OpenStoreNamespace:
