@@ -1,5 +1,6 @@
 module.exports = (grunt) ->
 
+  grunt.option 'stack', true
   grunt.loadNpmTasks "grunt-embark"
   grunt.loadTasks "tasks"
 
