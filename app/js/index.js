@@ -1276,15 +1276,45 @@ app.directive('aliasValidator', function(safemarket) {
   			,type:'@aliasType'
   		},link: function ($scope) {
       		$scope.$watch('alias',function(alias){
-      			if(!$scope.type)
-	      			$scope.isValid = safemarket.utils.isAliasAvailable(alias)
-	      		else if($scope.type==='store')
-	      			$scope.isValid = safemarket.Store.validateAlias(alias)
-	      		else if($scope.type==='market')
-	      			$scope.isValid = safemarket.Market.validateAlias(alias)
+      			return safemarket.utils.getTypeOfAlias(alias) === $scope.type
       		})
     	},templateUrl:'aliasValidator.html'
   	}; 
 });
+
+app.directive('alias', function(safemarket,helpers) {
+  	return {
+  		scope:{
+  			addr:'=alias'
+  		},link: function ($scope) {
+  			$scope.$watch('addr',function(){
+  				console.log('addr',$scope.addr)
+	      		$scope.alias = safemarket.utils.getAlias($scope.addr)
+	      		console.log('alias',$scope.alias)
+	      		$scope.type = safemarket.utils.getTypeOfAlias($scope.alias)
+	      		$scope.url = helpers.getUrl($scope.type,$scope.addr)
+  			
+	      		if(!$scope.type)
+	      			$scope.isValid = false
+	      		else
+	      			$scope.isValid = true
+  			})
+    	},templateUrl:'alias.html'
+  	}; 
+});
+
+app.service('helpers',function(){
+	this.getUrl = function(type,addr){
+		switch(type){
+			case 'market':
+				return '#/markets/'+addr
+			case 'store':
+				return '#/stores/'+addr
+			default:
+				return null
+		}
+	}
+})
+
 
 })();

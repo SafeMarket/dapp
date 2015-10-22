@@ -15,8 +15,7 @@
 				My Stores 
 				<a ng-click="openStoreModal()">+</a>
 			</h4>
-			<div ng-repeat="store in user.data.stores" class="oneliner">
-				<a ng-href="#/stores/{{store}}">@{{store | alias}}</a>
+			<div ng-repeat="store in user.data.stores" alias="store">
 			</div>
 		</div>
 		<div class="col-sm-4">
@@ -24,8 +23,7 @@
 				My Markets
 				<a ng-click="openMarketModal()">+</a>
 			</h4>
-			<div ng-repeat="market in user.data.markets" class="oneliner">
-				<a ng-href="#/markets/{{market}}">@{{market | alias}}</a>
+			<div ng-repeat="market in user.data.markets" alias="market">
 			</div>
 		</div>
 	</div>
