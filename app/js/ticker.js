@@ -1,6 +1,9 @@
 (function(){
 angular.module('safemarket').service('ticker',function($interval,$http,$q){
-  var tickerAddress = web3.eth.accounts[0] || ((OpenStoreNamespace.address != '0' && OpenStoreNamespace.address) || web3.eth.accounts[0]);
+
+	//TODO: OpenStore namespace will be wrong in production
+
+  	var tickerAddress = web3.eth.accounts[0] || ((OpenStoreNamespace.address != '0' && OpenStoreNamespace.address) || web3.eth.accounts[0]);
 	var symbols = ['CMC:TETH:USD','CMC:TETH:EUR','CMC:TETH:CNY','CMC:TETH:CAD','CMC:TETH:RUB','CMC:TETH:BTC'];
 	var rates = {'ETH': (new BigNumber('1'))};
 
