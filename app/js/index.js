@@ -1235,7 +1235,7 @@ app.filter('capitalize', function() {
   	}
 });
 
-app.directive('alias', function(growl) {
+app.directive('aliasInput', function(growl) {
   	return {
     	require: 'ngModel',
     	link: function (scope, element, attr, ngModelCtrl) {
@@ -1252,7 +1252,7 @@ app.directive('alias', function(growl) {
   	}; 
 });
 
-app.directive('numeric', function(growl) {
+app.directive('numericInput', function(growl) {
 	return {
         require: 'ngModel',
         link: function (scope, element, attr, ngModelCtrl) {  
@@ -1268,38 +1268,6 @@ app.directive('numeric', function(growl) {
         }
     };
 });
-
-app.directive('cleanInput', function() {
-  return {
-    require: 'ngModel',
-    link: function(scope, element, attrs, ngModelController) {
-      var el = element[0];
-
-      function clean(x) {
-        return x && x.toUpperCase().replace(/[^A-Z\d]/g, '');
-      }
-
-      ngModelController.$parsers.push(function(val) {
-        var cleaned = clean(val);
-
-        // Avoid infinite loop of $setViewValue <-> $parsers
-        if (cleaned === val) return val;
-
-        var start = el.selectionStart;
-        var end = el.selectionEnd + cleaned.length - val.length;
-
-        // element.val(cleaned) does not behave with
-        // repeated invalid elements
-        ngModelController.$setViewValue(cleaned);
-        ngModelController.$render();
-
-        el.setSelectionRange(start, end);
-        return cleaned;
-      });
-    }
-  }
-});
-
 
 app.directive('aliasValidator', function(safemarket) {
   	return {
