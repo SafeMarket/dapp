@@ -379,6 +379,13 @@ app.controller('SettingsModalController',function($scope,safemarket,growl,$modal
 		$scope.balanceInEther = web3.fromWei(web3.eth.getBalance(user.data.account))
 	})
 
+	$scope.$watch('user.data.currency',function(){
+		$scope.displayCurrencies = [user.data.currency]
+
+		if(user.data.currency!=='ETH')
+			$scope.displayCurrencies.push('ETH')
+	})
+
 	$scope.submit = function(){
 		user.save()
 		$modalInstance.close()
