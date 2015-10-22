@@ -94,7 +94,7 @@
 			if(disputeTime.equals(0))
 				return "No Disputes Allowed"
 
-			return disputeTime.div(86400).floor().toString()+' Days'
+			return disputeTime.div(86400).floor().toString()+' Days After Shipping'
 		}
 	})
 

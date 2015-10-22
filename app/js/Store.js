@@ -79,7 +79,20 @@ Store.check = function(alias,meta){
 			,type:'boolean'
 		},info:{
 			type:'string'
+		},markets:{
+			exists:true
+			,type:'array'
 		}
+	})
+
+	meta.markets.forEach(function(market){
+		utils.check(market,{
+			alias:{
+				presence:true
+				,type:'alias'
+				,aliasType:'market'
+			}
+		},'market')
 	})
 
 	meta.products.forEach(function(product){

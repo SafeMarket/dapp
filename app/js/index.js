@@ -157,7 +157,6 @@ app.controller('404Controller',function($scope,$routeParams){
 app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,growl,$modal,$modalInstance,store,user,confirmGas){
 	
 	$scope.currencies = Object.keys(ticker.rates)
-
 	$scope.user = user
 
 	$scope.disputeSecondsOptions = [
@@ -184,11 +183,13 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 		$scope.disputeSeconds = store.meta.disputeSeconds
 		$scope.info = store.meta.info
 		$scope.isOpen = store.meta.isOpen
+		$scope.markets = store.meta.markets || []
 	}else{
 		$scope.currency = user.data.currency
 		$scope.products = []
 		$scope.disputeSeconds = "1209600"
 		$scope.isOpen = true
+		$scope.markets = []
 		addProduct()
 	}
 
@@ -212,6 +213,7 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 				,disputeSeconds:$scope.disputeSeconds
 				,isOpen:!!$scope.isOpen
 				,info:$scope.info
+				,markets:$scope.markets
 			}
 
 
@@ -222,6 +224,8 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 			console.error(e)
 			return
 		}
+
+		console.log(meta)
 
 		if(store){
 			var estimatedGas = store.contract.setMeta.estimateGas(meta)
@@ -1276,7 +1280,10 @@ app.directive('aliasValidator', function(safemarket) {
   			,type:'@aliasType'
   		},link: function ($scope) {
       		$scope.$watch('alias',function(alias){
-      			return safemarket.utils.getTypeOfAlias(alias) === $scope.type
+      			if($scope.type)
+      				$scope.isValid = safemarket.utils.getTypeOfAlias(alias) === $scope.type
+      			else
+      				$scope.isValid = safemarket.utils.isAliasAvailable(alias)
       		})
     	},templateUrl:'aliasValidator.html'
   	}; 
