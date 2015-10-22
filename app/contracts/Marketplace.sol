@@ -90,7 +90,7 @@ contract Market is forumable{
 	bool constant public isMarket = true;
 
 	function Market(bytes32 alias, bytes meta){
-		AliasReg(0x62cf35ede4ba3b04fffe9300fa5c421453c60be9).claimAlias(alias);
+		AliasReg(0x4fff9767d04609c3eed2c8fc076bb34158bd09bf).claimAlias(alias);
 		Meta(meta);
 	}
 	
@@ -316,7 +316,7 @@ contract Store is forumable{
 
     function Store(bytes32 alias, bytes meta){
         Meta(meta);
-        AliasReg(0x62cf35ede4ba3b04fffe9300fa5c421453c60be9).claimAlias(alias);
+        AliasReg(0x4fff9767d04609c3eed2c8fc076bb34158bd09bf).claimAlias(alias);
     }
     
     function setMeta(bytes meta){
