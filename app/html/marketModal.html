@@ -14,7 +14,7 @@
             <td>
                 <div class="input-group">
                     <div class="input-group-addon">@</div>
-                    <input class="form-control" ng-model="alias" ng-disabled="isEditing" alias>
+                    <input class="form-control" ng-model="alias" ng-disabled="isEditing" alias-input>
                 </div>
                 <div alias-validator="alias" ng-show="!isEditing"></div>
             </td>
@@ -52,7 +52,7 @@
                 <td>
                     <div class="input-group">
                         <div class="input-group-addon">@</div>
-                        <input class="form-control" ng-model="store.alias" alias>
+                        <input class="form-control" ng-model="store.alias" alias-input>
                     </div>
                     <div alias-validator="store.alias" alias-type="store"></div>
                 </td>

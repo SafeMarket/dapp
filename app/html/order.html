@@ -51,8 +51,8 @@
 			<td>Dispute Resolution Time</td>
 			<td colspan="2">{{order.disputeSeconds | disputeSeconds}}</td>
 		</tr>
-		<tr ng-show="true || order.status===5">
-			<td>Dispute Resolution</td>
+		<tr ng-show="order.status===5">
+			<td>Resolution</td>
 			<td>Buyer ({{order.buyerPercent | percentage}})
 				<amounts value="order.buyerAmount" from="'WEI'" to="displayCurrencies"></amounts>
 			</td>
