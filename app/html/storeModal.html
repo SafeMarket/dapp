@@ -94,13 +94,11 @@
                         <div class="input-group">
                             <div class="input-group-addon">@</div>
                             <input class="form-control" ng-model="market.alias" alias-input>
+                            <div class="input-group-btn">
+                                <button class="btn btn-danger" type="button" ng-click="markets.splice($index,1)">X</button>
+                            </div>
                         </div>
                         <div alias-validator="market.alias" alias-type="market"></div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2" style="text-align:right">
-                        <button class="btn btn-danger btn-sm" ng-click="markets.splice($index,1)">Delete</button>
                     </td>
                 </tr>
             </tbody>
