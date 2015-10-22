@@ -8,82 +8,104 @@
     <div ng-show="error && !isSyncing" ng-cloak class="alert alert-danger text-center">
         {{error}}
     </div>
-    <div ng-show="!isSyncing"><table class="table">
-        <tr>
-            <td>Alias</td>
-            <td>
-                <div class="input-group">
-                    <div class="input-group-addon">@</div>
-                    <input class="form-control" ng-model="alias" ng-disabled="isEditing" alias-input>
-                </div>
-                <div alias-validator="alias" ng-show="!isEditing"></div>
-            </td>
-        </tr>
-        <tr>
-            <td>Store Name</td>
-            <td>
-                <input type="text" ng-model="name" class="form-control">
-            </td>
-        </tr>
-        <tr>
-            <td>Currency</td>
-            <td>
-                <select type="text" ng-model="currency" class="form-control" ng-options="currency for currency in currencies"></select>
-            </td>
-        </tr>
-        <tr>
-            <td>Dispute Resolution Time
-                <div class="text-small text-muted">How long after shipping can buyers open a dispute?</div>
-            </td>
-            <td>
-                <select type="text" ng-model="disputeSeconds" class="form-control" ng-options="option.value as option.label for option in disputeSecondsOptions"></select>
-            </td>
-        </tr>
-        <tr>
-            <td>Info
-            </td>
-            <td>
-                <textarea class="form-control" ng-model="info"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>Open for Business</td>
-            <td>
-                <input type="checkbox" ng-model="isOpen">
-            </td>
-        </tr> 
-    </table>
-    <h3>Products</h3>
-    <table class="table">   
-        <tbody ng-repeat="product in products">
+    <div ng-show="!isSyncing">
+        <table class="table">
             <tr>
-                <td>Name</td>
+                <td>Alias</td>
                 <td>
-                    <input type="text" ng-model="product.name" class="form-control">
+                    <div class="input-group">
+                        <div class="input-group-addon">@</div>
+                        <input class="form-control" ng-model="alias" ng-disabled="isEditing" alias-input>
+                    </div>
+                    <div alias-validator="alias" ng-show="!isEditing"></div>
                 </td>
             </tr>
             <tr>
-                <td>Price ({{currency}})</td>
+                <td>Store Name</td>
                 <td>
-                    <input type="text" ng-model="product.price" class="form-control">
+                    <input type="text" ng-model="name" class="form-control">
                 </td>
             </tr>
             <tr>
-                <td>Info</td>
+                <td>Currency</td>
                 <td>
-                    <textarea type="text" ng-model="product.info" class="form-control"></textarea>
+                    <select type="text" ng-model="currency" class="form-control" ng-options="currency for currency in currencies"></select>
                 </td>
             </tr>
-            <tr ng-show="products.length>1">
-                <td colspan="2" style="text-align:right">
-                    <button class="btn btn-danger btn-sm" ng-click="products.splice($index,1)">Delete</button>
+            <tr>
+                <td>Dispute Resolution Time
+                    <div class="text-small text-muted">How long after shipping can buyers open a dispute?</div>
+                </td>
+                <td>
+                    <select type="text" ng-model="disputeSeconds" class="form-control" ng-options="option.value as option.label for option in disputeSecondsOptions"></select>
                 </td>
             </tr>
-        </tbody>
-        <tr><td colspan="2" style="text-align:right">
-            <button class="btn btn-primary btn-xs" ng-click="addProduct()">+</button>
-        </td></tr>
-    </table></div>
+            <tr>
+                <td>Info
+                </td>
+                <td>
+                    <textarea class="form-control" ng-model="info"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>Open for Business</td>
+                <td>
+                    <input type="checkbox" ng-model="isOpen">
+                </td>
+            </tr> 
+        </table>
+        <h3>Products</h3>
+        <table class="table">   
+            <tbody ng-repeat="product in products">
+                <tr>
+                    <td>Name</td>
+                    <td>
+                        <input type="text" ng-model="product.name" class="form-control">
+                    </td>
+                </tr>
+                <tr>
+                    <td>Price ({{currency}})</td>
+                    <td>
+                        <input type="text" ng-model="product.price" class="form-control" numeric-input>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Info</td>
+                    <td>
+                        <textarea type="text" ng-model="product.info" class="form-control"></textarea>
+                    </td>
+                </tr>
+                <tr ng-show="products.length>1">
+                    <td colspan="2" style="text-align:right">
+                        <button class="btn btn-danger btn-sm" ng-click="products.splice($index,1)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+            <tr><td colspan="2" style="text-align:right">
+                <button class="btn btn-primary btn-xs" ng-click="addProduct()">+</button>
+            </td></tr>
+        </table>
+        <h3>Approved Markets <button class="btn btn-primary btn-xs" ng-click="markets.push({})">+</button></h3>
+        <table class="table">   
+            <tbody ng-repeat="market in markets">
+                <tr>
+                    <td>Alias</td>
+                    <td>
+                        <div class="input-group">
+                            <div class="input-group-addon">@</div>
+                            <input class="form-control" ng-model="market.alias" alias-input>
+                        </div>
+                        <div alias-validator="market.alias" alias-type="market"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="text-align:right">
+                        <button class="btn btn-danger btn-sm" ng-click="markets.splice($index,1)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 <div class="modal-footer" ng-show="!isSyncing">
     <button class="btn btn-primary" type="button" ng-click="submit()">OK</button>

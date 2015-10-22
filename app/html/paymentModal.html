@@ -16,11 +16,11 @@
             <td>Amount</td>
             <td>
                 <div class="input-group">
-                    <input type="text" ng-model="amountInUserCurrency" class="form-control" numeric ng-model-options="{debounce:500}">
+                    <input type="text" ng-model="amountInUserCurrency" class="form-control" numeric-input ng-model-options="{debounce:500}">
                     <div class="input-group-addon">{{userCurrency}}</div>
                 </div>
                 <div class="input-group" ng-show="userCurrency!=='ETH'" style="margin-top:10px">
-                    <input type="text" ng-model="amountInEther" class="form-control" numeric ng-model-options="{debounce:500}">
+                    <input type="text" ng-model="amountInEther" class="form-control" numeric-input ng-model-options="{debounce:500}">
                     <div class="input-group-addon">ETH</div>
                 </div>
             </td>
