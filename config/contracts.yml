@@ -9,7 +9,9 @@ development:
     deploy: false
   aliasable:
     deploy: false
-  verifiable:
+  owned:
+    deploy: false
+  forumable:
     deploy: false
   OpenStoreNamespace:
     address: 0x0
