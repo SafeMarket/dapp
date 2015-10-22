@@ -2,6 +2,8 @@
 
 angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 
+	var utils = this
+
 	function isAddr(string){
 		try{
 			return cryptocoin.convertHex.hexToBytes(string).length===20
@@ -11,9 +13,26 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 	}
 
 	function isAliasAvailable(alias){
-		return AliasReg.getAddr(alias) === ('0x'+Array(21).join('00'))
+		return AliasReg.getAddr(alias) === utils.nullAddr
 	}
 
+	function getTypeOfAlias(alias){
+
+		var addr = AliasReg.getAddr(alias)
+
+		if(addr === utils.nullAddr)
+			return null
+
+		var runtimeBytecode = web3.eth.getCode(addr)
+
+		if(runtimeBytecode === utils.runtimeBytecodes.Store)
+			return 'store'
+
+		if(runtimeBytecode === utils.runtimeBytecodes.Market)
+			return 'market'
+
+		return null
+	}
 	
 
 	function toAscii(string){
@@ -199,6 +218,11 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 		,toAscii:toAscii
 		,isAliasAvailable:isAliasAvailable
 		,send:send
+		,getTypeOfAlias:getTypeOfAlias
+		,runtimeBytecodes:{
+			Store: '0x'+contractDB.Store.compiled.runtimeBytecode
+			,Market: '0x'+contractDB.Market.compiled.runtimeBytecode
+		}
 	})
 	
 })

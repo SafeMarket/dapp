@@ -12,7 +12,7 @@ function Market(addr){
 window.Market = Market
 
 Market.prototype.code = Market.code = '0x'+contractDB.Market.compiled.code
-Market.prototype.runtimeBytecode = Market.runtimeBytecode = '0x'+contractDB.Market.compiled.runtimeBytecode
+Market.prototype.runtimeBytecode = Market.runtimeBytecode = utils.runtimeBytecodes.Market
 Market.prototype.abi = Market.abi = contractDB.Market.compiled.info.abiDefinition
 Market.prototype.contractFactory = Market.contractFactory = web3.eth.contract(Market.abi)
 
