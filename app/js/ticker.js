@@ -7,7 +7,7 @@ angular.module('safemarket').service('ticker',function($interval,$http,$q){
 	symbols.forEach(function(symbol) {
 		var currency = _.last(symbol.split(':')), rateHex = OpenStore.getValue(tickerAddress, symbol)
 		
-		rates[currency] = web3.toBigNumber(rateHex).div('1000000000000')
+		rates[currency] = rates[currency] = rateHex === '0x' ? new BigNumber(0) : web3.toBigNumber(rateHex).div('1000000000000')
 	})
 
 	rates['WEI'] = rates.ETH.times('1000000000000000000')
