@@ -8,38 +8,46 @@
 			ng-click="openMarketModal(market)"
 		>Edit</button>
 	</h1>
-	<table class="table">
-		<tr>
-			<td>Status</td>
-			<td>{{market.meta.isOpen ? 'Open' : 'Closed'}}</td>
-		</tr>
-		<tr>
-			<td>Fee Percentage</td>
-			<td>{{market.meta.feePercentage}}%</td>
-		</tr>
-		<tr>
-			<td>Info</td>
-			<td>{{market.meta.info}}</td>
-		</tr>
-		<tbody collapsable is-collapsed="true">
-			<tr>
-				<td>Address</td>
-				<td class="oneliner">{{market.addr}}</td>
-			</tr>
-			<tr>
-				<td>Owner</td>
-				<td class="oneliner">{{market.owner}}</td>
-			</tr>
-		</tbody>
-	</table>
-	<h3>Forum</h3>
-	<div forum="market.forum"></div>
-	<h3>Stores</h3>
-	<div class="alert alert-info text-center" ng-show="market.stores.length===0">{{market.meta.name}} has not approved any stores</div>
-	<table class="table">
-		<tr ng-repeat="store in market.stores">
-			<td>{{store.meta.name}}</td>
-			<td><a ng-href="#/markets/{{market.addr}}/stores/{{store.addr}}">@{{store.alias}}</a></td>
-		</tr>
-	</table>
+	<tabset>
+	    <tab heading="About">
+			<table class="table">
+				<tr>
+					<td>Status</td>
+					<td>{{market.meta.isOpen ? 'Open' : 'Closed'}}</td>
+				</tr>
+				<tr>
+					<td>Fee Percentage</td>
+					<td>{{market.meta.feePercentage}}%</td>
+				</tr>
+				<tr>
+					<td>Info</td>
+					<td>{{market.meta.info}}</td>
+				</tr>
+				<tbody collapsable is-collapsed="true">
+					<tr>
+						<td>Address</td>
+						<td class="oneliner">{{market.addr}}</td>
+					</tr>
+					<tr>
+						<td>Owner</td>
+						<td class="oneliner">{{market.owner}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</tab>
+		<tab heading="Forum">
+			<div forum="market.forum"></div>
+		</tab>
+		<tab heading="Stores">
+			<div class="alert alert-info text-center" ng-show="market.stores.length===0">
+				{{market.meta.name}} has not approved any stores
+			</div>
+			<table class="table">
+				<tr ng-repeat="store in market.stores">
+					<td>{{store.meta.name}}</td>
+					<td><a ng-href="#/markets/{{market.addr}}/stores/{{store.addr}}">@{{store.alias}}</a></td>
+				</tr>
+			</table>
+		</tab>
+	</tabset>
 </div>
