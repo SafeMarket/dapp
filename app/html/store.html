@@ -71,6 +71,21 @@
 			</td>
 		</tr>
 		<tr>
+			<td>Shipping</td>
+			<td>
+				<select ng-model="transport" ng-options="getTransportLabel(transport) for transport in store.meta.transports" class="form-control"></select>
+			</td>
+			<td>
+			</td>
+			<td>
+				<amounts
+					value="transport.price"
+					from="store.meta.currency"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+		<tr>
 			<td>Market</td>
 			<td>
 				<select ng-model="marketAddr" ng-options="market.addr as market.label for market in marketOptions" class="form-control"></select>

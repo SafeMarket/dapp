@@ -78,6 +78,10 @@ Store.check = function(alias,meta){
 		},marketAddrs:{
 			exists:true
 			,type:'array'
+		},transports:{
+			presence:true
+			,type:'array'
+			,length:{minimum:1}
 		}
 	})
 
@@ -116,6 +120,28 @@ Store.check = function(alias,meta){
 				type:'string'
 			}
 		},'Product')
+	})
+
+	meta.transports.forEach(function(transport){
+		utils.check(transport,{
+			id:{
+				presence:true
+				,type:'string'
+				,numericality:{
+					integerOnly:true
+					,greaterThanOrEqualTo:0
+				}
+			},type:{
+				presence:true
+				,type:'string'
+			},price:{
+				presence:true
+				,type:'string'
+				,numericality:{
+					greaterThanOrEqualTo:0
+				}
+			}
+		},'Transport')
 	})
 }
 

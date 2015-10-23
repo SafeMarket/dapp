@@ -38,9 +38,16 @@ Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 
 Order.check = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 	utils.check(meta,{
-		products:{
+		currency:{
+			presence:true
+			,type:'string'
+			,inclusion:Object.keys(ticker.rates)
+		},products:{
 			presence:true
 			,type:'array'
+		},transport:{
+			presence:true
+			,type:'object'
 		}
 	})
 
@@ -50,19 +57,47 @@ Order.check = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 				presence:true
 				,type:'string'
 				,numericality:{
-					onlyInteger:true
+					integerOnly:true
 					,greaterThanOrEqualTo:0
 				}
-			},quantity:{
+			},name:{
+				presence:true
+				,type:'string'
+			},price:{
 				presence:true
 				,type:'string'
 				,numericality:{
-					onlyInteger:true
-					,greaterThan:0
+					greaterThan:0
+				}
+			},quantity:{
+				type:'number'
+				,numericality:{
+					integerOnly:true
+					,greaterThanOrEqualTo:0
 				}
 			}
-		})
+		},'Product')
 	})
+
+	utils.check(meta.transport,{
+		id:{
+			presence:true
+			,type:'string'
+			,numericality:{
+				integerOnly:true
+				,greaterThanOrEqualTo:0
+			}
+		},type:{
+			presence:true
+			,type:'string'
+		},price:{
+			presence:true
+			,type:'string'
+			,numericality:{
+				greaterThanOrEqualTo:0
+			}
+		}
+	},'Transport')
 
 	utils.check({
 		storeAddr:storeAddr
@@ -171,7 +206,6 @@ Order.prototype.update = function(){
 	this.buyerPercent = this.buyerAmount.div(this.received.minus(this.fee))
 	this.storeOwnerPercent = this.storeOwnerAmount.div(this.received.minus(this.fee))
 
-	this.products = []
 	this.messages = []
 	this.updates = []
 	this.keys = {}
@@ -192,53 +226,47 @@ Order.prototype.update = function(){
 			})
 		})
 
-	this.store.updatePromise.then(function(store){
+	order.contract.Meta({},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
 
-		order.contract.Meta({},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
+		if(error)
+			return deferred.reject(error)
 
-			if(error)
-				return deferred.reject(error)
+		if(results.length === 0)
+			return deferred.reject(new Error('no results found'))
 
-			if(results.length === 0)
-				return deferred.reject(new Error('no results found'))
+		order.meta = utils.convertHexToObject(results[0].args.meta)
 
-			order.meta = utils.convertHexToObject(results[0].args.meta)
+		var productsTotalInOrderCurrency = new BigNumber(0)
+		order.meta.products.forEach(function(product){
+			var subtotal = new BigNumber(product.price).times(product.quantity)
+			productsTotalInOrderCurrency = productsTotalInOrderCurrency.plus(subtotal)
+		})
 
-			order.meta.products.forEach(function(orderProduct){
-				product = _.find(order.store.products,{id:orderProduct.id})
-				product.quantity = orderProduct.quantity
-				
-				order.products.push(product)
+		order.productsTotal = utils.convertCurrency(productsTotalInOrderCurrency,{from:order.store.meta.currency,to:'WEI'})
+		order.transportPrice = utils.convertCurrency(order.meta.transport.price,{from:order.store.meta.currency,to:'WEI'})
+		order.estimatedFee = order.productsTotal.plus(order.transportPrice).times(order.feePercentage).div(100)
+		order.total = order.productsTotal.plus(order.transportPrice).plus(order.estimatedFee)
+		order.unpaid = order.total.minus(order.received)
+		order.percentReceived = new BigNumber(order.received).div(order.total)
 
-				var subtotal = product.price.times(product.quantity)
-				order.productsTotalInStoreCurrency = order.productsTotalInStoreCurrency.plus(subtotal)
+		order.contract.Message({},{fromBlock:0,toBlock:'latest'}).get(function(error,results){
+			results.forEach(function(result){
+				var timestamp = web3.eth.getBlock(result.blockNumber).timestamp
+				order.messages.push(new Message(result.args.sender,web3.toAscii(result.args.text),timestamp,order))
+			})
+		})
+
+		order.contract.Update({},{fromBlock:0,toBlock:'latest'}).get(function(error,results){
+			results.forEach(function(result){
+				var timestamp = web3.eth.getBlock(result.blockNumber).timestamp
+				order.updates.push(new Update(result.args.sender,result.args.status.toNumber(),timestamp,order))
 			})
 
-			order.productsTotal = utils.convertCurrency(order.productsTotalInStoreCurrency,{from:order.store.meta.currency,to:'WEI'})
-			order.estimatedFee = order.productsTotal.times(order.feePercentage).div(100)
-			order.total = order.productsTotal.plus(order.estimatedFee)
-			order.unpaid = order.total.minus(order.received)
-			order.percentReceived = new BigNumber(order.received).div(order.total)
-
-			order.contract.Message({},{fromBlock:0,toBlock:'latest'}).get(function(error,results){
-				results.forEach(function(result){
-					var timestamp = web3.eth.getBlock(result.blockNumber).timestamp
-					order.messages.push(new Message(result.args.sender,web3.toAscii(result.args.text),timestamp,order))
-				})
-			})
-
-			order.contract.Update({},{fromBlock:0,toBlock:'latest'}).get(function(error,results){
-				results.forEach(function(result){
-					var timestamp = web3.eth.getBlock(result.blockNumber).timestamp
-					order.updates.push(new Update(result.args.sender,result.args.status.toNumber(),timestamp,order))
-				})
-
-				deferred.resolve(order)
-			})
-
+			deferred.resolve(order)
 		})
 
 	})
+
 
 	return deferred.promise
 

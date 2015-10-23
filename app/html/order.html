@@ -92,8 +92,18 @@
 				<td>Product Total</td>
 				<td colspan="2">
 					<amounts
-						value="order.productsTotalInStoreCurrency"
-						from="order.store.meta.currency"
+						value="order.productsTotal"
+						from="'WEI'"
+						to="displayCurrencies">
+					</amounts>
+				</td>
+			</tr>
+			<tr>
+				<td>Shipping ({{order.meta.transport.type}})</td>
+				<td colspan="2">
+					<amounts
+						value="order.transportPrice"
+						from="'WEI'"
 						to="displayCurrencies">
 					</amounts>
 				</td>
@@ -129,7 +139,7 @@
 	</table>
 	<h3>Products</h3>
 	<table class="table">
-		<tr ng-repeat="product in order.products">
+		<tr ng-repeat="product in order.meta.products">
 			<td>
 				{{product.name}}
 			</td>
@@ -139,7 +149,7 @@
 			<td>
 				<amounts
 					value="product.price"
-					from="order.store.meta.currency"
+					from="order.meta.currency"
 					to="displayCurrencies">
 				</amounts>
 			</td>
