@@ -43,10 +43,6 @@ Store.create = function(alias,meta){
 	return deferred.promise
 }
 
-Store.validateAlias = function(alias){
-	return web3.eth.getCode(AliasReg.getAddr(alias))===this.runtimeBytecode
-}
-
 Store.check = function(alias,meta){
 	utils.check({alias:alias},{
 		alias:{
@@ -79,20 +75,23 @@ Store.check = function(alias,meta){
 			,type:'boolean'
 		},info:{
 			type:'string'
-		},markets:{
+		},marketAddrs:{
 			exists:true
 			,type:'array'
 		}
 	})
 
-	meta.markets.forEach(function(market){
-		utils.check(market,{
-			alias:{
+	meta.marketAddrs.forEach(function(marketAddr){
+		var results = utils.check({
+			addr:marketAddr
+		},{
+			addr:{
 				presence:true
-				,type:'alias'
-				,aliasType:'market'
+				,type:'address'
+				,addrOfContract:'Market'
 			}
-		},'market')
+		})
+
 	})
 
 	meta.products.forEach(function(product){

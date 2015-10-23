@@ -40,11 +40,8 @@ Market.create = function(alias,meta){
 	return deferred.promise
 }
 
-Market.validateAlias = function(alias){
-	return web3.eth.getCode(AliasReg.getAddr(alias))===this.runtimeBytecode
-}
-
 Market.check = function(alias,meta){
+
 	utils.check({alias:alias},{
 		alias:{
 			presence:true
@@ -68,22 +65,23 @@ Market.check = function(alias,meta){
 		},isOpen:{
 			presence:true
 			,type:'boolean'
-		},stores:{
+		},storeAddrs:{
 			exists:true
 			,type:'array'
 		}
 	})
 
-	meta.stores.forEach(function(store){
-		utils.check(store,{
-			alias:{
+	meta.storeAddrs.forEach(function(storeAddr){
+		utils.check({
+			addr:storeAddr
+		},{
+			addr:{
 				presence:true
-				,type:'alias'
-				,aliasType:'store'
-			},tags:{
-				type:'string'
+				,type:'address'
+				,addrOfContract:'Store'
 			}
-		},'Store')
+		})
+
 	})
 }
 
@@ -145,9 +143,7 @@ Market.prototype.update = function(){
 	this.getEvents('Meta').then(function(results){
 
 		market.meta = utils.convertHexToObject(results[0].args.meta)
-		market.meta.stores.forEach(function(storeData){
-			market.stores.push(new Store(storeData.alias))
-		})
+		market.feePercentage = new BigNumber(market.meta.feePercentage)
 
 		deferred.resolve(market)
 	},function(error){

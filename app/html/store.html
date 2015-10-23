@@ -38,7 +38,7 @@
 			</tr>
 		</tbody>
 	</table>
-	<h3>Products</h3>
+	<h3>Order</h3>
 	<table class="table">
 		<tr ng-repeat="product in store.products">
 			<td>
@@ -64,8 +64,36 @@
 			<td></td>
 			<td>
 				<amounts
-					value="totalInStoreCurrency"
-					from="store.meta.currency"
+					value="productsTotal"
+					from="'WEI'"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+		<tr>
+			<td>Market</td>
+			<td>
+				<select ng-model="marketAddr" ng-options="market.addr as market.label for market in marketOptions" class="form-control"></select>
+			</td>
+			<td>
+				<span ng-show="market">
+					Fee of {{feePercent | percentage}}
+				</span>
+			</td>
+			<td>
+				<amounts
+					value="estimatedFee"
+					from="'WEI'"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3"></td>
+			<td>
+				<amounts
+					value="total"
+					from="'WEI'"
 					to="displayCurrencies">
 				</amounts>
 			</td>

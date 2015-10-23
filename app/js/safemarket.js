@@ -16,12 +16,12 @@
 					return value+' is '+(typeof value)
 		};
 
-		validate.validators.aliasType = function(value, options, key, attributes){
-			console.log('aliasType',arguments)
-			if(options==='store')
-		    	return  Store.validateAlias(value) ? null : '@'+value+' is not a valid store'
-		    if(options==='market')
-		    	return  Market.validateAlias(value) ? null : '@'+value+' is not a valid market'
+		validate.validators.aliasOfContract = function(value, options, key, attributes){
+			return utils.validateAlias(value,options) ? null : 'is not a valid '+options
+		}
+
+		validate.validators.addrOfContract = function(value, options, key, attributes){
+			return utils.validateAddr(value,options) ? null : 'is not a valid '+options
 		}
 
 		validate.validators.type = function(value, options, key, attributes) {
@@ -44,6 +44,20 @@
 
 			return typeof value===options ? null : 'is not a '+options
 		};
+
+		validate.validators.arrayOf = function(value, options, key, attributes){
+			var error = null
+
+			value.forEach(function(element){
+				var _error = validate.validators.type(element,options)
+				if(_error){
+					error = _error
+					return false
+				}
+			})
+
+			return error
+		}
 
 		validate.validators.startsWith = function(value, options, key, attributes) {
 		  if(!value) return null
@@ -71,7 +85,6 @@
 
 	safemarket.filter('status',function(){
 		return function(status){
-			console.log('status',status)
 			return [
 				'Initialized'
 				,'Cancelled'
