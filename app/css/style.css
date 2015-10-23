@@ -17,6 +17,8 @@ input[type="range"]{
 
 h3 .btn{float: right}
 
+.nav.nav-tabs{margin-bottom: 20px}
+
 .growl{
     right: 25px;
     z-index: 100000;
