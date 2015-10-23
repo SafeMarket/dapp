@@ -134,13 +134,16 @@ app.directive('amounts',function(utils){
 			value:'='
 			,from:'='
 			,to:'='
-		},link:function(scope,element,attributes){
-			scope.amounts = {}
+		},link:function($scope){
+			$scope.amounts = {}
 
-			scope.$watchGroup(["value","from","to"],function(value){
-				if(!scope.from || !scope.to || scope.value===undefined) return
-				scope.to.forEach(function(currency){
-					scope.amounts[currency] = utils.convertCurrency(scope.value,{from:scope.from,to:currency})
+			$scope.$watchGroup(["value","from","to"],function(){
+				if(typeof $scope.value === 'string' || typeof $scope.value === 'number')
+					$scope.value = new BigNumber($scope.value)
+
+				if(!$scope.from || !$scope.to || $scope.value===undefined) return
+				$scope.to.forEach(function(currency){
+					$scope.amounts[currency] = utils.convertCurrency($scope.value,{from:$scope.from,to:currency})
 				})
 			},true)
 		}
@@ -181,6 +184,7 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 		$scope.disputeSeconds = store.meta.disputeSeconds
 		$scope.info = store.meta.info
 		$scope.isOpen = store.meta.isOpen
+		$scope.transports = store.meta.transports || []
 		
 		if(store.meta.marketAddrs)
 			store.meta.marketAddrs.forEach(function(marketAddr){
@@ -192,6 +196,7 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 		$scope.products = []
 		$scope.disputeSeconds = "1209600"
 		$scope.isOpen = true
+		$scope.transports = []
 	}
 
 	$scope.cancel = function(){
@@ -205,6 +210,13 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 	}
 	$scope.addProduct = addProduct
 
+	function addTransport(){
+		$scope.transports.push({
+			id:BigNumber.random().times('100000000').round().toString()
+		})
+	}
+	$scope.addTransport = addTransport
+
 	$scope.submit = function(){
 		var alias = $scope.alias.trim().replace(/(\r\n|\n|\r)/gm,"")
 			,meta = {
@@ -215,6 +227,7 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 				,isOpen:!!$scope.isOpen
 				,info:$scope.info
 				,marketAddrs:[]
+				,transports:$scope.transports
 			}
 
 		$scope.markets.forEach(function(market){
@@ -643,19 +656,25 @@ app.controller('SimpleModalController',function($scope,title,body){
 	$scope.body = body
 })
 
-app.controller('StoreController',function($scope,safemarket,user,$routeParams,modals,Order,growl,confirmGas){
+app.controller('StoreController',function($scope,$filter,safemarket,user,$routeParams,modals,Order,growl,confirmGas){
 
 	$scope.marketOptions = [{addr:safemarket.utils.nullAddr,label:'No escrow'}];
 	$scope.marketAddr = $routeParams.marketAddr || safemarket.utils.nullAddr;
 
-
-	(new safemarket.Store($routeParams.storeAddr,true)).updatePromise.then(function(store){
+	(new safemarket.Store($routeParams.storeAddr)).updatePromise.then(function(store){
 
 		$scope.store = store
 
 		$scope.store.meta.marketAddrs.forEach(function(marketAddr){
 			$scope.marketOptions.push({addr:marketAddr,label:'@'+safemarket.utils.getAlias(marketAddr)})
 		})
+
+		$scope.store.meta.transports.forEach(function(transport){
+			var priceInStoreCurrency = new BigNumber(transport.price)
+				,priceInUserCurrency = safemarket.utils.convertCurrency(priceInStoreCurrency,{from:$scope.store.meta.currency,to:user.data.currency})
+				,priceFormatted = $filter('currency')(priceInUserCurrency,user.data.currency)
+		})
+		$scope.transport = store.meta.transports[0]
 
 		$scope.$watch('store.meta.currency',function(){
 
@@ -684,6 +703,13 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 				$scope.feePercent = new BigNumber(0)
 		})
 
+		$scope.getTransportLabel = function(transport){
+			var priceInUserCurrency = safemarket.utils.convertCurrency(transport.price,{from:$scope.store.meta.currency,to:user.data.currency})
+				,priceFormatted = $filter('currency')(priceInUserCurrency,user.data.currency)
+
+			return transport.type+' ('+priceFormatted+' '+user.data.currency+')'
+		}
+
 	})
 
 	if($routeParams.marketAddr)
@@ -693,9 +719,15 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 
 	$scope.createOrder = function(){
 		var meta = {
-			products:[]
+			currency:$scope.store.meta.currency
+			,products:[]
+			,transport:{
+				id:$scope.transport.id
+				,type:$scope.transport.type
+				,price:$scope.transport.price.toString()
+			}
 		},storeAddr = $scope.store.addr
-		,marketAddr = $scope.market ? $scope.market.addr : utils.nullAddr
+		,marketAddr = $scope.marketAddr
 		,feePercentage = $scope.market ? $scope.market.meta.feePercentage : '0'
 		,disputeSeconds = parseInt($scope.store.meta.disputeSeconds)
 
@@ -704,7 +736,9 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 
 			meta.products.push({
 				id:product.id
-				,quantity:product.quantity.toString()
+				,name:product.name
+				,price:product.price.toString()
+				,quantity:product.quantity
 			})
 		})
 
@@ -742,6 +776,9 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 	}
 
 	$scope.$watch('store.products',function(products){
+
+		if(!$scope.store) return
+
 		var total = new BigNumber(0)
 
 		if(products)
@@ -754,13 +791,13 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 
 	},true)
 
-	$scope.$watchGroup(['productsTotal','feePercent'],function(){
+	$scope.$watchGroup(['productsTotal','feePercent','transport.id'],function(){
 		if($scope.market)
-			$scope.estimatedFee = $scope.total.times($scope.feePercent)
+			$scope.estimatedFee = $scope.productsTotal.plus($scope.transport.price).times($scope.feePercent)
 		else
 			$scope.estimatedFee = new BigNumber(0)
 
-		$scope.total = $scope.productsTotal.plus($scope.estimatedFee)
+		$scope.total = $scope.productsTotal.plus($scope.transport.price).plus($scope.estimatedFee)
 	})
 
 })
@@ -793,7 +830,7 @@ app.controller('OrderController',function($scope,safemarket,user,$routeParams,mo
 	(new safemarket.Order($routeParams.orderAddr)).updatePromise.then(function(order){
 
 		$scope.order = order
-		$scope.displayCurrencies = [order.store.meta.currency]
+		$scope.displayCurrencies = [order.meta.currency]
 
 		if(user.data.account === order.buyer)
 			$scope.userRole = 'buyer'
@@ -1269,7 +1306,7 @@ app.service('user',function($q,$rootScope,words,safemarket,modals){
 })
 
 app.filter('capitalize', function() {
- 	return function(input, scope) {
+ 	return function(input) {
     	if (input!=null)
     	input = input.toLowerCase();
     	return input.substring(0,1).toUpperCase()+input.substring(1);
