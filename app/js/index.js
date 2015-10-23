@@ -21,9 +21,6 @@ app.config(function(growlProvider,$routeProvider) {
 	    .when('/markets/:marketAddr',{
 	    	templateUrl:'market.html'
 	    	,controller:'MarketController'
-	    }).when('/markets/:marketAddr/stores/:storeAddr',{
-	    	templateUrl:'store.html'
-	    	,controller:'StoreController'
 	    }).when('/orders/:orderAddr',{
 	    	templateUrl:'order.html'
 	    	,controller:'OrderController'
@@ -158,6 +155,7 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 	
 	$scope.currencies = Object.keys(ticker.rates)
 	$scope.user = user
+	$scope.markets = []
 
 	$scope.disputeSecondsOptions = [
 		{value:'0'}
@@ -183,14 +181,17 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 		$scope.disputeSeconds = store.meta.disputeSeconds
 		$scope.info = store.meta.info
 		$scope.isOpen = store.meta.isOpen
-		$scope.markets = store.meta.markets || []
+		
+		if(store.meta.marketAddrs)
+			store.meta.marketAddrs.forEach(function(marketAddr){
+				$scope.markets.push({alias:safemarket.utils.getAlias(marketAddr)})
+			})
+
 	}else{
 		$scope.currency = user.data.currency
 		$scope.products = []
 		$scope.disputeSeconds = "1209600"
 		$scope.isOpen = true
-		$scope.markets = []
-		addProduct()
 	}
 
 	$scope.cancel = function(){
@@ -213,8 +214,12 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 				,disputeSeconds:$scope.disputeSeconds
 				,isOpen:!!$scope.isOpen
 				,info:$scope.info
-				,markets:$scope.markets
+				,marketAddrs:[]
 			}
+
+		$scope.markets.forEach(function(market){
+			meta.marketAddrs.push(AliasReg.getAddr(market.alias))
+		})
 
 
 		try{
@@ -224,8 +229,6 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 			console.error(e)
 			return
 		}
-
-		console.log(meta)
 
 		if(store){
 			var estimatedGas = store.contract.setMeta.estimateGas(meta)
@@ -281,6 +284,7 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 
 app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$modal,$modalInstance,market,user,confirmGas){
 	
+	$scope.stores = []
 
 	if(market){
 		$scope.alias = market.alias
@@ -289,8 +293,12 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 		$scope.info = market.meta.info
 		$scope.feePercentage = parseFloat(market.meta.feePercentage)
 		$scope.bondInEther = parseInt(web3.fromWei(market.bond,'ether'))
-		$scope.stores = market.meta.stores
 		$scope.isOpen = market.meta.isOpen
+
+		if(market.meta.storeAddrs)
+			market.meta.storeAddrs.forEach(function(storeAddr){
+				$scope.stores.push({alias:safemarket.utils.getAlias(storeAddr)})
+			})
 	}else{
 		$scope.feePercentage = 3
 		$scope.bondInEther = 100
@@ -309,9 +317,13 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 				,info:$scope.info
 				,feePercentage: $scope.feePercentage.toString()
 				,isOpen:$scope.isOpen
-				,stores:$scope.stores
+				,storeAddrs:[]
 			}
 			,isOpen=!!$scope.isOpen
+
+		$scope.stores.forEach(function(store){
+			meta.storeAddrs.push(AliasReg.getAddr(store.alias))
+		})
 		
 		try{
 			safemarket.Market.check(alias,meta)
@@ -554,9 +566,6 @@ app.controller('ResolutionModalController',function($scope,$modalInstance,order,
 
 	$scope.submit = function(){
 		$scope.isSyncing = true
-
-		console.log($scope.percentBuyer.times(100).round().toString())
-
 		order.resolve($scope.percentBuyer.times(100).round()).then(function(){
 			$modalInstance.close()
 		})
@@ -634,11 +643,19 @@ app.controller('SimpleModalController',function($scope,title,body){
 	$scope.body = body
 })
 
-app.controller('StoreController',function($scope,safemarket,user,$routeParams,modals,utils,Order,growl,confirmGas){
+app.controller('StoreController',function($scope,safemarket,user,$routeParams,modals,Order,growl,confirmGas){
 
-	(new safemarket.Store($routeParams.storeAddr)).updatePromise.then(function(store){
+	$scope.marketOptions = [{addr:safemarket.utils.nullAddr,label:'No escrow'}];
+	$scope.marketAddr = $routeParams.marketAddr || safemarket.utils.nullAddr;
+
+
+	(new safemarket.Store($routeParams.storeAddr,true)).updatePromise.then(function(store){
 
 		$scope.store = store
+
+		$scope.store.meta.marketAddrs.forEach(function(marketAddr){
+			$scope.marketOptions.push({addr:marketAddr,label:'@'+safemarket.utils.getAlias(marketAddr)})
+		})
 
 		$scope.$watch('store.meta.currency',function(){
 
@@ -649,6 +666,22 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 
 			if($scope.displayCurrencies.indexOf('ETH') === -1)
 				$scope.displayCurrencies.push('ETH')
+		})
+
+		$scope.$watch('marketAddr',function(marketAddr){
+			
+			if(!marketAddr || marketAddr === safemarket.utils.nullAddr)
+				$scope.market = null
+			else
+				$scope.market = new Market(marketAddr)
+
+			if($scope.market)
+				$scope.market.updatePromise.then(function(){
+					$scope.feePercent = $scope.market.feePercentage.div(100)
+					console.log('feePercent',$scope.feePercent.toString())
+				})
+			else
+				$scope.feePercent = new BigNumber(0)
 		})
 
 	})
@@ -717,20 +750,24 @@ app.controller('StoreController',function($scope,safemarket,user,$routeParams,mo
 				total = total.plus(subtotal)
 			})
 
-		$scope.totalInStoreCurrency = total
+		$scope.productsTotal = safemarket.utils.convertCurrency(total,{from:$scope.store.meta.currency,to:'WEI'})
 
 	},true)
+
+	$scope.$watchGroup(['productsTotal','feePercent'],function(){
+		if($scope.market)
+			$scope.estimatedFee = $scope.total.times($scope.feePercent)
+		else
+			$scope.estimatedFee = new BigNumber(0)
+
+		$scope.total = $scope.productsTotal.plus($scope.estimatedFee)
+	})
 
 })
 
 app.controller('MarketController',function($scope,safemarket,user,$routeParams,modals){
 	
-	try{
-		$scope.market = new safemarket.Market($routeParams.marketAddr)
-	}catch(e){
-		return
-	}
-
+	$scope.market = new safemarket.Market($routeParams.marketAddr,true)
 	$scope.addr = $routeParams.marketAddr
 	$scope.user = user
 
@@ -1295,9 +1332,7 @@ app.directive('alias', function(safemarket,helpers) {
   			addr:'=alias'
   		},link: function ($scope) {
   			$scope.$watch('addr',function(){
-  				console.log('addr',$scope.addr)
 	      		$scope.alias = safemarket.utils.getAlias($scope.addr)
-	      		console.log('alias',$scope.alias)
 	      		$scope.type = safemarket.utils.getTypeOfAlias($scope.alias)
 	      		$scope.url = helpers.getUrl($scope.type,$scope.addr)
   			

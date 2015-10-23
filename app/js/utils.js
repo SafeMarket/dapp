@@ -33,6 +33,14 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 
 		return null
 	}
+
+	function validateAlias(alias,contractName){
+		return validateAddr(AliasReg.getAddr(alias),contractName)
+	}
+
+	function validateAddr(addr,contractName){
+		return web3.eth.getCode(addr)===utils.runtimeBytecodes[contractName]
+	}
 	
 
 	function toAscii(string){
@@ -103,7 +111,6 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 
 
 	function send(address,value){
-		console.log(arguments)
 		var deferred = $q.defer()
 			,txHex = web3.eth.sendTransaction({
 				to:address
@@ -175,6 +182,8 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 
 	function check(data,constraints,prefix){
 
+		console.log('check',arguments)
+
 		if(!data)
 			throw 'data is not an object'
 			
@@ -192,6 +201,8 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 		})  
 
 		var errors = validate(data,constraints)
+
+		console.log('errors',errors)
 
 		if(errors===undefined || errors===null)
 			return null
@@ -222,7 +233,8 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 		,runtimeBytecodes:{
 			Store: '0x'+contractDB.Store.compiled.runtimeBytecode
 			,Market: '0x'+contractDB.Market.compiled.runtimeBytecode
-		}
+		},validateAddr:validateAddr
+		,validateAlias:validateAlias
 	})
 	
 })
