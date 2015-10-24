@@ -19,10 +19,6 @@
 					<td>Fee Percentage</td>
 					<td>{{market.meta.feePercentage}}%</td>
 				</tr>
-				<tr>
-					<td>Info</td>
-					<td>{{market.meta.info}}</td>
-				</tr>
 				<tbody collapsable is-collapsed="true">
 					<tr>
 						<td>Address</td>
@@ -34,6 +30,7 @@
 					</tr>
 				</tbody>
 			</table>
+			<div marked="market.meta.info"></div>
 		</tab>
 		<tab heading="Forum">
 			<div forum="market.forum"></div>
