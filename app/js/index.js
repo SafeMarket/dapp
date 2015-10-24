@@ -1,6 +1,6 @@
 (function(){
 
-var app = angular.module('app',['safemarket','ui.bootstrap','angular-growl','ngRoute','yaru22.angular-timeago'])
+var app = angular.module('app',['safemarket','ui.bootstrap','angular-growl','ngRoute','yaru22.angular-timeago','hc.marked'])
 
 app.config(function(growlProvider,$routeProvider) {
     
@@ -660,6 +660,7 @@ app.controller('StoreController',function($scope,$filter,safemarket,user,$routeP
 
 	$scope.marketOptions = [{addr:safemarket.utils.nullAddr,label:'No escrow'}];
 	$scope.marketAddr = $routeParams.marketAddr || safemarket.utils.nullAddr;
+	$scope.productsTotal = new BigNumber(0);
 
 	(new safemarket.Store($routeParams.storeAddr)).updatePromise.then(function(store){
 
