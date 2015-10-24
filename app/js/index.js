@@ -139,13 +139,15 @@ app.directive('amounts',function(utils){
 
 			$scope.$watchGroup(["value","from","to"],function(){
 				if(typeof $scope.value === 'string' || typeof $scope.value === 'number')
-					$scope.value = new BigNumber($scope.value)
+					var value = new BigNumber($scope.value)
+				else
+					var value = angular.copy($scope.value)
 
-				if(!$scope.from || !$scope.to || $scope.value===undefined) return
+				if(!$scope.from || !$scope.to || value===undefined) return
 				$scope.to.forEach(function(currency){
-					$scope.amounts[currency] = utils.convertCurrency($scope.value,{from:$scope.from,to:currency})
+					$scope.amounts[currency] = utils.convertCurrency(value,{from:$scope.from,to:currency})
 				})
-			},true)
+			})
 		}
 	}
 })

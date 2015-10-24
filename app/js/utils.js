@@ -68,6 +68,8 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 
 	function convertCurrency(amount,currencies){
 
+		console.log('convert',currencies)
+
 		var deferred = $q.defer()
 
 		if(typeof amount!=='string')

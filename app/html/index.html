@@ -1,6 +1,14 @@
 <html>
   <head>
     <title>SafeMarket</title>
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'none';
+      script-src 'self';
+      style-src 'self' 'unsafe-inline';
+      font-src 'self';
+      connect-src http://localhost:*;
+    "> 
+    <script>alert('XSS vulnerability detected. Close SafeMarket immediately.')</script>
     <link rel="stylesheet" href="css/app.min.css">
     <script src="js/app.min.js"></script>
   </head>
