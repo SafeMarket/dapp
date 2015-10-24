@@ -21,10 +21,6 @@
 					<td>Dispute Resolution Time</td>
 					<td>{{store.meta.disputeSeconds | disputeSeconds}}</td>
 				</tr>
-				<tr>
-					<td>Info</td>
-					<td>{{store.meta.info}}</td>
-				</tr>
 				<tbody collapsable is-collapsed="true">
 					<tr>
 						<td>Address</td>
@@ -40,6 +36,7 @@
 					</tr>
 				</tbody>
 			</table>
+			<div marked="store.meta.info"></div>
 		</tab>
 		<tab heading="Products">
 			<table class="table">
