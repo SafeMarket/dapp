@@ -137,6 +137,8 @@ angular.module('app').controller('StoreController',function($scope,$filter,safem
 	},true)
 
 	$scope.$watchGroup(['productsTotal','feePercent','transport.id'],function(){
+		if(!$scope.transport) return
+
 		if($scope.market)
 			$scope.estimatedFee = $scope.productsTotal.plus($scope.transport.price).times($scope.feePercent)
 		else
