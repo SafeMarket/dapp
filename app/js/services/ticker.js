@@ -1,4 +1,5 @@
 (function(){
+
 angular.module('safemarket').service('ticker',function($interval,$http,$q){
 
 	//TODO: OpenStore namespace will be wrong in production
@@ -17,4 +18,5 @@ angular.module('safemarket').service('ticker',function($interval,$http,$q){
 
 	this.rates = rates
 })
+
 })();

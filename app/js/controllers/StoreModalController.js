@@ -1,0 +1,144 @@
+(function(){
+
+angular.module('app').controller('StoreModalController',function($scope,$filter,safemarket,ticker,growl,$modal,$modalInstance,store,user,helpers){
+	
+	$scope.currencies = Object.keys(ticker.rates)
+	$scope.user = user
+	$scope.markets = []
+
+	$scope.disputeSecondsOptions = [
+		{value:'0'}
+		,{value:'86400'}
+		,{value:'172800'}
+		,{value:'259200'}
+		,{value:'604800'}
+		,{value:'1209600'}
+		,{value:'1814400'}
+		,{value:'2592000'}
+	]
+
+	$scope.disputeSecondsOptions.forEach(function(disputeSecondsOption){
+		disputeSecondsOption.label = $filter('disputeSeconds')(disputeSecondsOption.value)
+	})
+
+	if(store){
+		$scope.isEditing = true
+		$scope.alias = store.alias
+		$scope.name = store.meta.name
+		$scope.currency = store.meta.currency
+		$scope.products = store.meta.products
+		$scope.disputeSeconds = store.meta.disputeSeconds
+		$scope.info = store.meta.info
+		$scope.isOpen = store.meta.isOpen
+		$scope.transports = store.meta.transports || []
+		
+		if(store.meta.marketAddrs)
+			store.meta.marketAddrs.forEach(function(marketAddr){
+				$scope.markets.push({alias:safemarket.utils.getAlias(marketAddr)})
+			})
+
+	}else{
+		$scope.currency = user.data.currency
+		$scope.products = []
+		$scope.disputeSeconds = "1209600"
+		$scope.isOpen = true
+		$scope.transports = []
+	}
+
+	$scope.cancel = function(){
+		$modalInstance.dismiss('cancel')
+	}
+
+	function addProduct(){
+		$scope.products.push({
+			id:BigNumber.random().times('100000000').round().toString()
+		})
+	}
+	$scope.addProduct = addProduct
+
+	function addTransport(){
+		$scope.transports.push({
+			id:BigNumber.random().times('100000000').round().toString()
+		})
+	}
+	$scope.addTransport = addTransport
+
+	$scope.submit = function(){
+		var alias = $scope.alias.trim().replace(/(\r\n|\n|\r)/gm,"")
+			,meta = {
+				name:$scope.name
+				,currency:$scope.currency
+				,products:$scope.products
+				,disputeSeconds:$scope.disputeSeconds
+				,isOpen:!!$scope.isOpen
+				,info:$scope.info
+				,marketAddrs:[]
+				,transports:$scope.transports
+			}
+
+		$scope.markets.forEach(function(market){
+			meta.marketAddrs.push(AliasReg.getAddr(market.alias))
+		})
+
+
+		try{
+			safemarket.Store.check(alias,meta)
+		}catch(e){
+			growl.addErrorMessage(e)
+			console.error(e)
+			return
+		}
+
+		if(store){
+			var estimatedGas = store.contract.setMeta.estimateGas(meta)
+				,doContinue = helpers.confirmGas(estimatedGas)
+
+			if(!doContinue) return;
+
+			$scope.isSyncing = true
+
+			store
+				.setMeta(meta)
+				.then(function(store){
+					$scope.isSyncing = false
+					$modalInstance.close(store)
+				},function(error){
+					$scope.error = error
+					$scope.isSyncing = false
+				}).catch(function(error){
+					console.error(error)
+				})
+		}else{
+
+			if(!safemarket.utils.isAliasAvailable(alias)){
+				return growl.addErrorMessage('@'+alias+' is already taken')
+			}
+
+			var estimatedGas = Store.estimateCreationGas($scope.alias,meta)
+				,doContinue = helpers.confirmGas(estimatedGas)
+
+			if(!doContinue) return
+	
+			$scope.isSyncing = true
+
+			safemarket
+				Store.create($scope.alias,meta)
+				.then(function(store){
+					user.data.storesAddrs.push(store.addr)
+					user.save()
+					$modalInstance.dismiss()
+				},function(error){
+					$scope.error = error
+					$scope.isSyncing = false
+				}).catch(function(error){
+					console.error(error)
+				})
+
+		}
+
+	
+
+	}
+})
+
+})();

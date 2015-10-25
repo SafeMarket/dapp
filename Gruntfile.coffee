@@ -27,18 +27,9 @@ module.exports = (grunt) ->
           "bower_components/angular-timeago/dist/angular-timeago.js"
           "bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"
           "bower_components/angular-marked/angular-marked.js"
-          "app/js/index.js"
+          "app/js/app.js"
           "app/js/safemarket.js"
-          "app/js/pgp.js"
-          "app/js/words.js"
-          "app/js/ticker.js"
-          "app/js/utils.js"
-          "app/js/Store.js"
-          "app/js/Market.js"
-          "app/js/Order.js"
-          "app/js/Key.js"
-          "app/js/Forum.js"
-          "app/js/CommentsGroup.js"
+          "app/js/**/*.js"
         ]
 
       css:
