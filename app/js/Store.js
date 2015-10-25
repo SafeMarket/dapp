@@ -60,9 +60,8 @@ Store.check = function(alias,meta){
 			,type:'string'
 			,inclusion:currencies
 		},products:{
-			presence:true
+			exists:true
 			,type:'array'
-			,length:{minimum:1}
 		},disputeSeconds:{
 			presence:true
 			,type:'string'

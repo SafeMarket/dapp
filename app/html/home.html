@@ -6,24 +6,26 @@
 	<div class="row">
 		<div class="col-sm-4">
 			<h4 class="text-center">My Orders</h4>
-			<div ng-repeat="order in user.data.orders" class="oneliner">
-				<a ng-href="#/orders/{{order}}">{{order}}</a>
+			<div ng-repeat="orderAddr in user.data.orderAddrs" class="oneliner">
+				<a ng-href="#/orders/{{orderAddr}}">{{orderAddr}}</a>
 			</div>
 		</div>
 		<div class="col-sm-4">
 			<h4 class="text-center">
 				My Stores 
-				<a ng-click="openStoreModal()">+</a>
+				<a ng-click="openStoreModal()" class="glyphicon glyphicon-plus"></a>
+				<a ng-click="openImportStoreModal()" class="glyphicon glyphicon-import"></a>
 			</h4>
-			<div ng-repeat="store in user.data.stores" alias="store">
+			<div ng-repeat="storeAddr in user.data.storeAddrs" alias="storeAddr">
 			</div>
 		</div>
 		<div class="col-sm-4">
 			<h4 class="text-center">
 				My Markets
-				<a ng-click="openMarketModal()">+</a>
+				<a ng-click="openMarketModal()" class="glyphicon glyphicon-plus"></a>
+				<a ng-click="openImportMarketModal()" class="glyphicon glyphicon-import"></a>
 			</h4>
-			<div ng-repeat="market in user.data.markets" alias="market">
+			<div ng-repeat="marketAddr in user.data.marketAddrs" alias="marketAddr">
 			</div>
 		</div>
 	</div>

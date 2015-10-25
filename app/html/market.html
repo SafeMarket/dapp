@@ -36,13 +36,13 @@
 			<div forum="market.forum"></div>
 		</tab>
 		<tab heading="Stores">
-			<div class="alert alert-info text-center" ng-show="market.stores.length===0">
+			<div class="alert alert-info text-center" ng-show="market.meta.storeAddrs.length===0">
 				{{market.meta.name}} has not approved any stores
 			</div>
 			<table class="table">
-				<tr ng-repeat="store in market.stores">
+				<tr ng-repeat="storeAddr in market.meta.storeAddrs">
 					<td>{{store.meta.name}}</td>
-					<td><a ng-href="#/markets/{{market.addr}}/stores/{{store.addr}}">@{{store.alias}}</a></td>
+					<td alias="storeAddr"></td>
 				</tr>
 			</table>
 		</tab>

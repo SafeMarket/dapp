@@ -68,7 +68,7 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 
 	function convertCurrency(amount,currencies){
 
-		console.log('convert',currencies)
+		console.log()
 
 		var deferred = $q.defer()
 
@@ -184,8 +184,6 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 
 	function check(data,constraints,prefix){
 
-		console.log('check',arguments)
-
 		if(!data)
 			throw 'data is not an object'
 			
@@ -203,8 +201,6 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 		})  
 
 		var errors = validate(data,constraints)
-
-		console.log('errors',errors)
 
 		if(errors===undefined || errors===null)
 			return null

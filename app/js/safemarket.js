@@ -68,6 +68,10 @@
 		  if(!value) return null
 		  return _.endsWith(_.trim(value),options) ? null : 'should end with '+options
 		};
+
+		validate.validators.unique = function(value, options, key, attributes){
+			return _.unique(value).length === value.length ? null : 'should be unique'
+		}
 	})
 
 	safemarket.service('safemarket',function($q,ticker,Store,Market,Order,Key,utils,pgp){

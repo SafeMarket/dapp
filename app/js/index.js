@@ -71,10 +71,18 @@ app.controller('MainController',function($scope,modals,user,growl){
 		modals.openMarket()
 	}
 
+	$scope.openImportStoreModal = function(){
+		modals.openImportStore()
+	}
+
+	$scope.openImportMarketModal = function(){
+		modals.openImportMarket()
+	}
+
 })
 
 app.controller('ForumController',function($scope,modals,user,growl){
-
+	$scope.addrs = user.getAddrs()
 })
 
 app.directive('forum',function(){
@@ -280,7 +288,7 @@ app.controller('StoreModalController',function($scope,$filter,safemarket,ticker,
 			safemarket
 				Store.create($scope.alias,meta)
 				.then(function(store){
-					user.data.stores.push(store.addr)
+					user.data.storesAddrs.push(store.addr)
 					user.save()
 					$modalInstance.dismiss()
 				},function(error){
@@ -382,7 +390,7 @@ app.controller('MarketModalController',function($scope,safemarket,ticker,growl,$
 			safemarket
 				.Market.create($scope.alias,meta)
 				.then(function(market){
-					user.data.markets.push(market.addr)
+					user.data.marketAddrs.push(market.addr)
 					user.save()
 					$modalInstance.dismiss()
 				},function(error){
@@ -556,6 +564,80 @@ app.controller('aliasesModalController',function($scope,$modalInstance,aliasable
 		})
 
 	}
+})
+
+app.controller('ImportStoreModalController',function($scope,$modalInstance,growl,user,safemarket){
+
+
+	$scope.cancel = function(){
+		$modalInstance.dismiss('cancel')
+	}
+
+	$scope.submit = function(){
+		try{
+			safemarket.utils.check({
+				alias:$scope.alias
+			},{
+				alias:{
+					presence:true
+					,type:'alias'
+					,aliasOfContract:'Store'
+				}
+			})
+		}catch(e){
+			return growl.addErrorMessage(e)
+		}
+
+		var storeAddr = AliasReg.getAddr($scope.alias)
+			,store = new Store(storeAddr)
+
+		if(store.owner !== user.data.account)
+			return growl.addErrorMessage('You are not the owner of that store')
+
+		user.data.storeAddrs.push(storeAddr)
+		user.save()
+
+		$modalInstance.close()
+
+	}
+
+})
+
+app.controller('ImportMarketModalController',function($scope,$modalInstance,growl,user,safemarket){
+
+
+	$scope.cancel = function(){
+		$modalInstance.dismiss('cancel')
+	}
+
+	$scope.submit = function(){
+		try{
+			safemarket.utils.check({
+				alias:$scope.alias
+			},{
+				alias:{
+					presence:true
+					,type:'alias'
+					,aliasOfContract:'Market'
+				}
+			})
+		}catch(e){
+			return growl.addErrorMessage(e)
+		}
+
+		var marketAddr = AliasReg.getAddr($scope.alias)
+			,market = new Market(marketAddr)
+
+		if(market.owner !== user.data.account)
+			return growl.addErrorMessage('You are not the owner of that market')
+
+		user.data.marketAddrs.push(marketAddr)
+		user.save()
+
+		$modalInstance.close()
+
+	}
+
 })
 
 app.controller('ResolutionModalController',function($scope,$modalInstance,order,user){
@@ -1083,6 +1165,22 @@ app.service('modals',function($modal){
 			}
 	    });
 	}
+
+	this.openImportStore = function(){
+		return openModal({
+			size: 'md'
+			,templateUrl: 'importStoreModal.html'
+			,controller: 'ImportStoreModalController'
+	    });
+	}
+
+	this.openImportMarket = function(){
+		return openModal({
+			size: 'md'
+			,templateUrl: 'importMarketModal.html'
+			,controller: 'ImportMarketModalController'
+	    });
+	}
 })
 
 app.directive('aliasBar',function(){
@@ -1220,14 +1318,14 @@ app.service('user',function($q,$rootScope,words,safemarket,modals){
 			this.data = {}
 		}
 
-		if(!this.data.orders)
-			this.data.orders = []
+		if(!this.data.orderAddrs)
+			this.data.orderAddrs = []
 
-		if(!this.data.stores)
-			this.data.stores = []
+		if(!this.data.storeAddrs)
+			this.data.storeAddrs = []
 
-		if(!this.data.markets)
-			this.data.markets = []
+		if(!this.data.marketAddrs)
+			this.data.marketAddrs = []
 
 		if(!this.data.account)
 			this.data.account = web3.eth.defaultAccount ? web3.eth.defaultAccount : web3.eth.accounts[0]
@@ -1297,6 +1395,10 @@ app.service('user',function($q,$rootScope,words,safemarket,modals){
 			})
 		
 		this.keypairs = keypairs
+	}
+
+	this.getAddrs = function(){
+		return [this.data.account].concat(this.data.marketAddrs.concat(this.data.storeAddrs))
 	}
 
 	function Keypair(keypairData){
