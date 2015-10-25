@@ -5,6 +5,8 @@ body{
 }
 tbody{border-top: none !important}
 
+a.glyphicon:hover{text-decoration: none;}
+
 table{
     table-layout: fixed
 }

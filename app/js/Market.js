@@ -68,6 +68,7 @@ Market.check = function(alias,meta){
 		},storeAddrs:{
 			exists:true
 			,type:'array'
+			,unique:true
 		}
 	})
 

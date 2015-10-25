@@ -66,31 +66,42 @@ contract forumable is owned{
 
 contract Forum is owned{
 	
+	uint fee;
+
 	event Comment(address indexed author, bytes32 indexed parentId, bytes data);
-	event Vote(bytes indexed comment, uint8 direction);
 	event Moderation(bytes indexed comment, uint8 direction);
 
 	function addComment(bytes32 parentId, bytes data){
 		Comment(msg.sender, parentId, data);
 	}
 
-	function addVote(bytes comment, uint8 direction){
-		Vote(comment, direction);
+	function setFee(uint _fee){
+		if(msg.sender != owner) return;
+		fee = _fee;
 	}
 
-	function addModeration(bytes comment, uint8 direction){
-		if(msg.sender != owner) return;
-		Moderation(comment, direction);
+	function getFee() constant returns(uint){
+		return fee;
 	}
+	
 }
 
-contract Market is forumable{
+contract audible is owned{
+
+	function addComment(address forumAddr, bytes32 parentId, bytes data){
+		if(msg.sender!=owner) return;
+		Forum(forumAddr).addComment(parentId,data);
+	}
+
+}
+
+contract Market is forumable,audible{
 
 	event Meta(bytes meta);
 	bool constant public isMarket = true;
 
 	function Market(bytes32 alias, bytes meta){
-		AliasReg(0x4fff9767d04609c3eed2c8fc076bb34158bd09bf).claimAlias(alias);
+		AliasReg(0x1354ba5f4929a162e5a7423f5932a870de93ce82).claimAlias(alias);
 		Meta(meta);
 	}
 	
@@ -310,13 +321,13 @@ contract Order{
 	}
 }
 
-contract Store is forumable{
+contract Store is forumable,audible{
     event Meta(bytes meta);
     bool constant public isStore = true;
 
     function Store(bytes32 alias, bytes meta){
         Meta(meta);
-        AliasReg(0x4fff9767d04609c3eed2c8fc076bb34158bd09bf).claimAlias(alias);
+        AliasReg(0x1354ba5f4929a162e5a7423f5932a870de93ce82).claimAlias(alias);
     }
     
     function setMeta(bytes meta){
