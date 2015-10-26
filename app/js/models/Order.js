@@ -294,6 +294,23 @@ Order.prototype.addMessage = function(pgpMessage){
 	return deferred.promise
 }
 
+Order.prototype.withdraw = function(amount){
+	console.log(amount.toString(),this.received.toString(),amount.minus(this.received).toString())
+
+	var deferred = $q.defer()
+		,txHex = this.contract.withdraw(amount,{
+			gas: this.contract.withdraw.estimateGas(amount)*2
+		})
+
+	utils.waitForTx(txHex).then(function(){
+		deferred.resolve()
+	},function(error){
+		deferred.reject(error)
+	})
+
+	return deferred.promise
+}
+
 Order.prototype.decryptMessages = function(privateKey){
 	this.messages.forEach(function(message){
 		message.decrypt(privateKey)

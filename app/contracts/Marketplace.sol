@@ -170,6 +170,25 @@ contract Order{
 		receivedAtBlockNumber = block.number;
 	}
 
+	function withdraw(uint amount){
+		
+		if(msg.sender != buyer)
+			return;
+		
+		if(status != initialized)
+			return;
+		
+		if(amount>received)
+			return;
+
+		var isSent = buyer.send(amount);
+
+		if(isSent){
+			receivedAtBlockNumber = block.number;
+			received -= amount;
+		}
+	}
+
 	function getBuyer() constant returns(address){
 		return buyer;
 	}
@@ -243,6 +262,10 @@ contract Order{
 			return;
 
 		if(msg.sender != storeOwner)
+			return;
+
+		//don't allow to mark as shipped on same block that a withdrawl is made
+		if(receivedAtBlockNumber == block.number)
 			return;
 
 		shippedAt = now;

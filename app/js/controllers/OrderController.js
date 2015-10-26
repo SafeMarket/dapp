@@ -9,7 +9,7 @@ angular.module('app').controller('OrderController',function($scope,safemarket,us
 
 		if($scope.displayCurrencies.indexOf('ETH') === -1)
 			$scope.displayCurrencies.push('ETH')
-		
+
 		if($scope.displayCurrencies.indexOf(user.data.currency) === -1)
 			$scope.displayCurrencies.push(user.data.currency)
 
@@ -101,6 +101,12 @@ angular.module('app').controller('OrderController',function($scope,safemarket,us
 
 	$scope.makePayment = function(){
 		modals.openPayment($scope.order.addr,$scope.order.unpaid,'WEI').result.then(function(){
+			$scope.order.update();
+		})
+	}
+
+	$scope.makeWithdrawl = function(){
+		modals.openWithdrawl($scope.order).result.then(function(){
 			$scope.order.update();
 		})
 	}
