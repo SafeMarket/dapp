@@ -19,11 +19,19 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 	function getTypeOfAlias(alias){
 
 		var addr = AliasReg.getAddr(alias)
+		return getTypeOfAddr(addr)
+		
+	}
+
+	function getTypeOfAddr(addr){
 
 		if(addr === utils.nullAddr)
 			return null
 
 		var runtimeBytecode = web3.eth.getCode(addr)
+
+		if(runtimeBytecode === '0x')
+			return 'user'
 
 		if(runtimeBytecode === utils.runtimeBytecodes.Store)
 			return 'store'
@@ -32,6 +40,18 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 			return 'market'
 
 		return null
+	}
+
+	function getContract(addr){
+		var contract = null
+		Object.keys(utils.runtimeBytecodes).forEach(function(contractName){
+			var runtimeBytecode = utils.runtimeBytecodes[contractName]
+			if(web3.eth.getCode(addr)===runtimeBytecode){
+				contract = web3.eth.contract(contractDB[contractName].compiled.info.abiDefinition).at(addr)
+				return false
+			}
+		})
+		return contract
 	}
 
 	function validateAlias(alias,contractName){
@@ -228,11 +248,13 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 		,isAliasAvailable:isAliasAvailable
 		,send:send
 		,getTypeOfAlias:getTypeOfAlias
+		,getTypeOfAddr:getTypeOfAddr
 		,runtimeBytecodes:{
 			Store: '0x'+contractDB.Store.compiled.runtimeBytecode
 			,Market: '0x'+contractDB.Market.compiled.runtimeBytecode
 		},validateAddr:validateAddr
 		,validateAlias:validateAlias
+		,getContract:getContract
 	})
 	
 })

@@ -100,8 +100,8 @@ contract Market is forumable,audible{
 	event Meta(bytes meta);
 	bool constant public isMarket = true;
 
-	function Market(bytes32 alias, bytes meta){
-		AliasReg(0x1354ba5f4929a162e5a7423f5932a870de93ce82).claimAlias(alias);
+	function Market(bytes32 alias, bytes meta, address alasRegAddr){
+		AliasReg(alasRegAddr).claimAlias(alias);
 		Meta(meta);
 	}
 	
@@ -325,9 +325,9 @@ contract Store is forumable,audible{
     event Meta(bytes meta);
     bool constant public isStore = true;
 
-    function Store(bytes32 alias, bytes meta){
+    function Store(bytes32 alias, bytes meta, address alasRegAddr){
         Meta(meta);
-        AliasReg(0x1354ba5f4929a162e5a7423f5932a870de93ce82).claimAlias(alias);
+        AliasReg(alasRegAddr).claimAlias(alias);
     }
     
     function setMeta(bytes meta){

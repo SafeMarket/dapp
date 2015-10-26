@@ -23,6 +23,27 @@ angular.module('safemarket').factory('CommentsGroup',function($q,utils){
 		return deferred.promise
 	}
 
+	CommentsGroup.prototype.addCommentAs = function(parentId,text,addr){
+		var commentsGroup = this
+			,deferred = $q.defer()
+			,contract = utils.getContract(addr)
+			,forumAddr = this.forum.contract.address
+			,txHex = contract.addComment(forumAddr,parentId,text,{
+				gas:contract.addComment.estimateGas(forumAddr,parentId,text)+this.forum.contract.addComment.estimateGas(parentId,text)
+			})
+
+
+			console.log(forumAddr,parentId,text)
+
+		utils.waitForTx(txHex).then(function(tx){
+			deferred.resolve()
+		},function(error){
+			deferred.reject(error)
+		})
+
+		return deferred.promise
+	}
+
 	CommentsGroup.prototype.update = function(){
 		var commentsGroup = this
 			,deferred = $q.defer()
@@ -52,6 +73,7 @@ angular.module('safemarket').factory('CommentsGroup',function($q,utils){
 		this.id = event.transactionHash
 		this.parentId = event.args.parentId
 		this.timestamp = web3.eth.getBlock(event.blockNumber).timestamp
+		this.author = event.args.author
 		this.text = web3.toAscii(event.args.data)
 		this.commentsGroup = new CommentsGroup(this.id,forum)
 	}

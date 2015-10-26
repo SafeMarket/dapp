@@ -33,4 +33,13 @@ angular.module('app').filter('capitalize', function() {
   	}
 });
 
+angular.module('app').filter('shortAddr',function(){
+	return function(addr){
+		if(!addr)
+			return ''
+		else
+			return addr.substr(0,8)+'...'
+	}
+})
+
 })();

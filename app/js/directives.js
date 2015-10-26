@@ -13,24 +13,10 @@ angular.module('app').directive('forum',function(){
 angular.module('app').directive('addComment',function(){
 	return {
 		templateUrl:'addComment.html'
-		,scope:false
+		,scope:true
+		,controller:'AddCommentController'
 		,link:function($scope,$element,$attributes){
-
-			var commentsGroup = $scope.$eval($attributes.addComment)
-
-			$scope.$watch('text',function(text){
-				$scope.estimatedGas = !text?0:$scope.forum.contract.addComment.estimateGas(0,text)
-			})
-
-			$scope.addComment = function(){
-				$scope.isAddingComment = true
-				commentsGroup.addComment(commentsGroup.id,$scope.text).then(function(){
-					commentsGroup.update().then(function(){
-						$scope.text = null
-						$scope.isAddingComment = false
-					})
-				})
-			}
+			$scope.commentsGroup = $scope.$eval($attributes.addComment)
 		}
 	}
 })
