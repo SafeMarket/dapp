@@ -17,6 +17,10 @@ input[type="range"]{
     margin-top: 7px;
 }
 
+.input-group select{
+    -webkit-appearance: none;
+}
+
 h3 .btn{float: right}
 
 .nav.nav-tabs{margin-bottom: 20px}

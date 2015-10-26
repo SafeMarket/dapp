@@ -4,17 +4,18 @@
 <div class="alert alert-info text-center" ng-show="!isAddingComment && commentsGroup.comments.length === 0">
 	Nothing here yet. Why don't you say something?
 </div>
-<form ng-show="!isAddingComment" ng-submit="addComment()">
+<form ng-show="!isAddingComment" ng-submit="addComment()" ng-mouseover="isHovering = true">
 	<textarea class="form-control" ng-model="text"></textarea>
-	<div ng-show="text.length>0" style="margin-top:10px">
+	<div style="margin-top:10px">
 		<table>
 			<tr>
 				<td style="width:50%"><span gas="estimatedGas"></span></td>
 				<td style="text-align:right">
 					<div class="input-group"> 
+						<div class="input-group-addon">Comment as:</div>
 			            <select class="form-control" ng-model="identity" ng-options="identity.label for identity in identities"></select>
 			            <span class="input-group-btn">
-			            	<button class="btn btn-primary">Submit</button>
+			            	<button class="btn btn-primary" ng-disabled="!text">Submit</button>
 			            </span>
 			        </div>
 				</td>
