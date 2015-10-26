@@ -120,7 +120,9 @@
 			</tr>
 		</tbody>
 		<tr>
-			<td>Received ({{order.percentReceived | percentage}})</td>
+			<td>Received ({{order.percentReceived | percentage}})
+			<div class="text-muted text-small" ng-show="order.received.greaterThan(0)">{{order.confirmations}}/{{order.confirmationsNeeded}} Confirmations</div>
+			</td>
 			<td>
 				<amounts
 					value="order.received"

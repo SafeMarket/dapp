@@ -103,7 +103,7 @@ angular.module('app').controller('StoreController',function($scope,$filter,safem
 			
 		Order.create(meta,storeAddr,marketAddr,feePercentage,disputeSeconds).then(function(order){
 			window.location.hash = "#/orders/"+order.addr
-			user.data.orders.push(order.addr)
+			user.data.orderAddrs.push(order.addr)
 			user.save()
 		 	$scope.isCreatingOrder = false
 		})

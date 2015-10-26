@@ -127,6 +127,7 @@ contract Order{
 	uint disputedAt;
 	uint fee;
 	uint buyerAmount;
+	uint receivedAtBlockNumber;
 
 	event Meta(bytes meta);
 	event Message(address indexed sender, bytes text);
@@ -166,6 +167,7 @@ contract Order{
 
 	function(){
 		received += msg.value;
+		receivedAtBlockNumber = block.number;
 	}
 
 	function getBuyer() constant returns(address){
@@ -204,13 +206,16 @@ contract Order{
 		return shippedAt;
 	}
 
-
 	function getFee() constant returns(uint){
 		return fee;
 	}
 
 	function getBuyerAmount() constant returns(uint){
 		return buyerAmount;
+	}
+
+	function getReceivedAtBlockNumber() constant returns(uint){
+		return receivedAtBlockNumber;
 	}
 
 	function addUpdate(uint _status) private{
