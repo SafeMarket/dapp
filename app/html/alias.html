@@ -1,1 +1,2 @@
-<a ng-href="{{url}}">@{{alias}}</a>
+<a ng-href="{{url}}" ng-show="alias">@{{alias}}</a>
+<span ng-show="!alias">{{addr | shortAddr}}</span>

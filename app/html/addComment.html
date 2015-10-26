@@ -4,8 +4,18 @@
 <form ng-show="!isAddingComment" ng-submit="addComment()">
 	<textarea class="form-control" ng-model="text"></textarea>
 	<div ng-show="text.length>0" style="margin-top:10px">
-		<span gas="estimatedGas" style="float:left"></span>
-		<button class="btn btn-primary" style="float:right">Submit</button>
-		<div class="clear"></div>
+		<table>
+			<tr>
+				<td style="width:50%"><span gas="estimatedGas"></span></td>
+				<td style="text-align:right">
+					<div class="input-group"> 
+			            <select class="form-control" ng-model="identity" ng-options="identity.label for identity in identities"></select>
+			            <span class="input-group-btn">
+			            	<button class="btn btn-primary">Submit</button>
+			            </span>
+			        </div>
+				</td>
+			</tr>			
+		</table>
 	</div>
 </form>

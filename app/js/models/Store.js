@@ -28,7 +28,7 @@ Store.create = function(alias,meta){
 			,gas:this.estimateCreationGas(alias,meta)
 			,gasPrice:web3.eth.gasPrice
 			,from:web3.eth.accounts[0]
-		},txHex = StoreContract.new(alias,meta,txObject).transactionHash
+		},txHex = StoreContract.new(alias,meta,AliasReg.address,txObject).transactionHash
 
 	utils.waitForTx(txHex).then(function(tx){
 		(new Store(tx.contractAddress).updatePromise.then(function(store){
@@ -147,7 +147,7 @@ Store.check = function(alias,meta){
 Store.estimateCreationGas = function(alias,meta){
 	meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 
-	return this.contractFactory.estimateGas(alias,meta,{
+	return this.contractFactory.estimateGas(alias,meta,AliasReg.address,{
 		data:Store.code
 	})+AliasReg.claimAlias.estimateGas(alias)
 }

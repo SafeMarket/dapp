@@ -124,7 +124,7 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 			safemarket
 				Store.create($scope.alias,meta)
 				.then(function(store){
-					user.data.storesAddrs.push(store.addr)
+					user.data.storeAddrs.push(store.addr)
 					user.save()
 					$modalInstance.dismiss()
 				},function(error){
