@@ -3,6 +3,10 @@
 
 		$scope.user = user
 
+		$scope.refresh = function(){
+			window.location.reload()
+		}
+
 		$scope.openSettingsModal = function(){
 			modals.openSettings()
 		}
