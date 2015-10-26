@@ -119,7 +119,7 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 			amount = new BigNumber(amount)
 
 		if(currency === 'ETH')
-			return amount.toFixed(4)
+			return amount.toFixed(6)
 		else
 			return amount.toFixed(2)
 	}

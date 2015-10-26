@@ -73,6 +73,19 @@ angular.module('app').service('modals',function($modal){
 	    });
 	}
 
+	this.openWithdrawl = function(order){
+		return openModal({
+			size: 'lg'
+			,templateUrl: 'withdrawlModal.html'
+			,controller: 'WithdrawlModalController'
+			,resolve:{
+				order:function(){
+					return order
+				}
+			}
+	    });
+	}
+
 	this.openResolution = function(order){
 		return openModal({
 			size: 'sm'

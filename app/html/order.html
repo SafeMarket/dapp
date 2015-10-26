@@ -136,6 +136,11 @@
 					ng-show="order.status===0 && userRole === 'buyer'"
 					ng-click="makePayment()"
 				>Make Payment</button>
+				<button
+					class="btn btn-xs btn-default"
+					ng-show="order.status===0 && userRole === 'buyer' && order.received.greaterThan(0)"
+					ng-click="makeWithdrawl()"
+				>Make Withdrawl</button>
 			</td>
 		</tr>
 	</table>
