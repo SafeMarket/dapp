@@ -205,6 +205,9 @@ Order.prototype.update = function(){
 	this.storeOwnerAmount = this.received.minus(this.fee).minus(this.buyerAmount)
 	this.buyerPercent = this.buyerAmount.div(this.received.minus(this.fee))
 	this.storeOwnerPercent = this.storeOwnerAmount.div(this.received.minus(this.fee))
+	this.receivedAtBlockNumber = this.contract.getReceivedAtBlockNumber()
+	this.confirmations = this.receivedAtBlockNumber.minus(web3.eth.blockNumber).times('-1').toNumber()
+	this.confirmationsNeeded = this.received.div(web3.toWei(5,'ether')).ceil().toNumber()
 
 	this.messages = []
 	this.updates = []

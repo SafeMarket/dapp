@@ -7,6 +7,12 @@ angular.module('app').controller('OrderController',function($scope,safemarket,us
 		$scope.order = order
 		$scope.displayCurrencies = [order.meta.currency]
 
+		if($scope.displayCurrencies.indexOf('ETH') === -1)
+			$scope.displayCurrencies.push('ETH')
+		
+		if($scope.displayCurrencies.indexOf(user.data.currency) === -1)
+			$scope.displayCurrencies.push(user.data.currency)
+
 		if(user.data.account === order.buyer)
 			$scope.userRole = 'buyer'
 		else if(user.data.account === order.store.owner)
@@ -18,12 +24,6 @@ angular.module('app').controller('OrderController',function($scope,safemarket,us
 			var keyId = order.keys[$scope.userRole].id
 		else
 			var keyId = null
-
-		if($scope.displayCurrencies.indexOf(user.data.currency) === -1)
-			$scope.displayCurrencies.push(user.data.currency)
-
-		if($scope.displayCurrencies.indexOf('ETH') === -1)
-			$scope.displayCurrencies.push('ETH')
 
 		$scope.$watch('order.messages.length',function(){
 			if(keyId===null) return
@@ -107,4 +107,4 @@ angular.module('app').controller('OrderController',function($scope,safemarket,us
 
 })
 
-});
+})();
