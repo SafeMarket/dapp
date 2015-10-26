@@ -10,7 +10,7 @@
 		<tr ng-show="showReplies" class="comment-child">
 			<td colspan="2" add-comment="comment.commentsGroup"></td>
 		</tr>
-		<tr ng-show="showReplies" ng-repeat="comment in comment.commentsGroup.comments"  class="comment-child" comment="comment" comment-is-repliable="false">
+		<tr ng-show="$parent.showReplies" ng-repeat="comment in comment.commentsGroup.comments"  class="comment-child" comment="comment" comment-is-repliable="false">
 		</tr>
 	</tbody>
 </table>
