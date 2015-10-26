@@ -1,6 +1,9 @@
 <div ng-show="isAddingComment" class="alert alert-info text-center">
 	Adding comment...
 </div>
+<div class="alert alert-info text-center" ng-show="!isAddingComment && commentsGroup.comments.length === 0">
+	Nothing here yet. Why don't you say something?
+</div>
 <form ng-show="!isAddingComment" ng-submit="addComment()">
 	<textarea class="form-control" ng-model="text"></textarea>
 	<div ng-show="text.length>0" style="margin-top:10px">
