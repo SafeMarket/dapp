@@ -10,6 +10,32 @@ angular.module('app').directive('forum',function(){
 	}
 })
 
+angular.module('app').directive('comment',function(user){
+	return {
+		templateUrl:'comment.html'
+		,scope:{
+			comment:'='
+			,isRepliable:'=commentIsRepliable'
+		}
+		,link:function($scope,$element,$attributes){
+			$scope.isHidden = user.data.hiddenCommentIds.indexOf($scope.comment.id)!==-1
+			$scope.toggleIsHidden = function(){
+				if(!$scope.isHidden){
+					user.data.hiddenCommentIds.push($scope.comment.id)
+				}
+				else{
+					var hiddenCommentIdIndex = user.data.hiddenCommentIds.indexOf($scope.comment.id)
+					user.data.hiddenCommentIds.splice(hiddenCommentIdIndex,1)
+				}
+				user.save()
+				$scope.$parent.showReplies = false
+				$scope.isHidden = !$scope.isHidden
+				console.log(user.data.hiddenCommentIds)
+			}
+		}
+	}
+})
+
 angular.module('app').directive('addComment',function(){
 	return {
 		templateUrl:'addComment.html'

@@ -67,6 +67,9 @@ angular.module('app').service('user',function($q,$rootScope,words,safemarket,mod
 		if(!this.data.keypairs)
 			this.data.keypairs = []
 
+		if(!this.data.hiddenCommentIds)
+			this.data.hiddenCommentIds = []
+
 		this.loadKeypairs()
 		this.loadKeypair()
 	}
