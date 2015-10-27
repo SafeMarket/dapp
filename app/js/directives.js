@@ -119,6 +119,14 @@ angular.module('app').directive('collapsable',function(){
 	}
 })
 
+angular.module('app').directive('orderBook',function(){
+	return {
+		templateUrl:'orderBook.html'
+		,controller:'OrderBookController'
+		,scope:{filter:'=orderBook'}
+	}
+})
+
 angular.module('app').directive('aliasBar',function(){
 	return {
 		templateUrl:'bar.html'

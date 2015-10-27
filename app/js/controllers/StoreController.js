@@ -3,13 +3,9 @@
 angular.module('app').controller('StoreController',function($scope,$filter,safemarket,user,$routeParams,modals,growl,helpers){
 
 	$scope.marketOptions = [{addr:safemarket.utils.nullAddr,label:'No escrow'}];
+	$scope.storeAddr = $routeParams.storeAddr
 	$scope.marketAddr = $routeParams.marketAddr || safemarket.utils.nullAddr;
 	$scope.productsTotal = new BigNumber(0);
-	$scope.orderBookEntries = []
-
-	safemarket.OrderBookEntry.fetch({storeAddr:$routeParams.storeAddr}).then(function(orderBookEntries){
-		$scope.orderBookEntries = orderBookEntries
-	});
 
 	$scope.store = new safemarket.Store($routeParams.storeAddr)
 
