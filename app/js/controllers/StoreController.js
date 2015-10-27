@@ -2,7 +2,10 @@
 
 angular.module('app').controller('StoreController',function($scope,$filter,safemarket,user,$routeParams,modals,growl,helpers){
 
+	$scope.storeScope = $scope
+
 	$scope.marketOptions = [{addr:safemarket.utils.nullAddr,label:'No escrow'}];
+	$scope.marketOption = $scope.marketOptions[0]
 	$scope.storeAddr = $routeParams.storeAddr
 	$scope.marketAddr = $routeParams.marketAddr || safemarket.utils.nullAddr;
 	$scope.productsTotal = new BigNumber(0);
@@ -64,6 +67,7 @@ angular.module('app').controller('StoreController',function($scope,$filter,safem
 		})
 
 	$scope.createOrder = function(){
+
 		var meta = {
 			currency:$scope.store.meta.currency
 			,products:[]
@@ -73,7 +77,7 @@ angular.module('app').controller('StoreController',function($scope,$filter,safem
 				,price:$scope.transport.price.toString()
 			}
 		},storeAddr = $scope.store.addr
-		,marketAddr = $scope.marketAddr
+		,marketAddr = $scope.marketOption.addr
 		,feePercentage = $scope.market ? $scope.market.meta.feePercentage : '0'
 		,disputeSeconds = parseInt($scope.store.meta.disputeSeconds)
 

@@ -16,6 +16,8 @@ Order.prototype.contractFactory = Order.contractFactory = web3.eth.contract(Orde
 
 Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 
+	console.log('createOrder',arguments)
+
 	var meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 		,deferred = $q.defer()
 		,txObject = {
