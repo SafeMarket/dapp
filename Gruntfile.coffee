@@ -25,7 +25,7 @@ module.exports = (grunt) ->
           "bower_components/angular-route/angular-route.min.js"
           "bower_components/angular-growl/build/angular-growl.min.js"
           "bower_components/angular-timeago/dist/angular-timeago.js"
-          "bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"
+          "bower_components/angular-bootstrap/ui-bootstrap-tpls.js"
           "bower_components/angular-marked/angular-marked.js"
           "app/js/app.js"
           "app/js/safemarket.js"
