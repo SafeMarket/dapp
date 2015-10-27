@@ -31,7 +31,7 @@ app.config(function(growlProvider,$routeProvider) {
 
 });
 
-app.run(function(user,$rootScope,$interval){
+app.run(function(user,$rootScope,$interval,timeAgo){
 	user.password = 'password'
 	if(user.password){
 		$rootScope.isLoggedIn = true
@@ -45,6 +45,8 @@ app.run(function(user,$rootScope,$interval){
 	$interval(function(){
 		$rootScope.isConnected = web3.isConnected()
 	},1000)
+
+	timeAgo.settings.allowFuture = true
 })
 
 })();

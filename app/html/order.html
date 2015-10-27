@@ -47,8 +47,13 @@
 			</td>
 		</tr>
 		<tr>
-			<td>Dispute Resolution Time</td>
-			<td colspan="2">{{order.disputeSeconds | disputeSeconds}}</td>
+			<td>Dispute Deadline</td>
+			<td colspan="2">
+				<div ng-show="order.status===1">
+					{{order.disputeSeconds | disputeSeconds}}
+				</div>
+				<div ng-show="order.status===2" timestamp="order.disputeDeadline"></div>
+			</td>
 		</tr>
 		<tr ng-show="order.status===5">
 			<td>Resolution</td>

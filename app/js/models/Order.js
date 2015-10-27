@@ -202,6 +202,7 @@ Order.prototype.update = function(){
 	this.timestamp = this.contract.getTimestamp()
 	this.shippedAt = this.contract.getShippedAt()
 	this.disputeSeconds = this.contract.getDisputeSeconds()
+	this.disputeDeadline = this.disputeSeconds.plus(this.shippedAt)
 	this.fee = this.contract.getFee()
 	this.buyerAmount = this.contract.getBuyerAmount()
 	this.storeOwnerAmount = this.received.minus(this.fee).minus(this.buyerAmount)
