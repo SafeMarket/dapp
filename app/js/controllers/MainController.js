@@ -13,16 +13,16 @@
 
 		$scope.openStoreModal = function(){
 			if(!user.keypair){
-				//growl.addErrorMessage('You must set a primary keypair')
-				//return
+				growl.addErrorMessage('You must set a primary keypair')
+				return
 			}
 			modals.openStore()
 		}
 
 		$scope.openMarketModal = function(){
 			if(!user.keypair){
-				//growl.addErrorMessage('You must set a primary keypair')
-				//return
+				growl.addErrorMessage('You must set a primary keypair')
+				return
 			}
 			modals.openMarket()
 		}
