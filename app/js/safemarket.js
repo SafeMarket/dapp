@@ -74,13 +74,14 @@
 		}
 	})
 
-	safemarket.service('safemarket',function($q,ticker,Store,Market,Order,Key,utils,pgp){
+	safemarket.service('safemarket',function($q,ticker,Store,Market,Order,OrderBookEntry,Key,utils,pgp){
 		
 		var safemarket = this
 
 		this.Store = Store
 		this.Market = Market
 		this.Order = Order
+		this.OrderBookEntry = OrderBookEntry
 		this.Key = Key
 		this.utils = utils
 		this.pgp = pgp
