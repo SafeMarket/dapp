@@ -91,6 +91,13 @@ angular.module('app').directive('timestamp',function(){
 	return {
 		scope:{timestamp:'='}
 		,templateUrl:'timestamp.html'
+		,link:function($scope){
+			$scope.timestampMs = 0
+			$scope.$watch('timestamp',function(){
+				if(!$scope.timestamp) return
+				$scope.timestampMs = parseInt($scope.timestamp.toString())*1000
+			})
+		}
 	}
 })
 

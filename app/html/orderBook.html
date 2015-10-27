@@ -8,7 +8,7 @@
 		<th>Status</th>
 	</tr>
 	<tr ng-repeat="orderBookEntry in orderBookEntries">
-		<td timestamp ="orderBookEntry.timestamp * 1000"></td>
+		<td timestamp ="orderBookEntry.timestamp"></td>
 		<td><a ng-href="{{orderBookEntry.orderAddr | url:'order'}}">{{orderBookEntry.orderAddr | shortAddr}}</a></td>
 		<td alias="orderBookEntry.storeAddr"></td>
 		<td>
