@@ -1,14 +1,19 @@
 (function(){
 
-angular.module('app').controller('StoreController',function($scope,$filter,safemarket,user,$routeParams,modals,Order,growl,helpers){
+angular.module('app').controller('StoreController',function($scope,$filter,safemarket,user,$routeParams,modals,growl,helpers){
 
 	$scope.marketOptions = [{addr:safemarket.utils.nullAddr,label:'No escrow'}];
 	$scope.marketAddr = $routeParams.marketAddr || safemarket.utils.nullAddr;
 	$scope.productsTotal = new BigNumber(0);
+	$scope.orderBookEntries = []
 
-	(new safemarket.Store($routeParams.storeAddr)).updatePromise.then(function(store){
+	safemarket.OrderBookEntry.fetch({storeAddr:$routeParams.storeAddr}).then(function(orderBookEntries){
+		$scope.orderBookEntries = orderBookEntries
+	});
 
-		$scope.store = store
+	$scope.store = new safemarket.Store($routeParams.storeAddr)
+
+	$scope.store.updatePromise.then(function(store){
 
 		$scope.store.meta.marketAddrs.forEach(function(marketAddr){
 			$scope.marketOptions.push({addr:marketAddr,label:'@'+safemarket.utils.getAlias(marketAddr)})

@@ -128,13 +128,17 @@
 					<th>Order Address</th>
 					<th>Store</th>
 					<th>Market</th>
+					<th>Status</th>
 				</tr>
-				<tr ng-repeat="orderBookEntry in store.orderBookEntries">
+				<tr ng-repeat="orderBookEntry in orderBookEntries">
 					<td timestamp ="orderBookEntry.timestamp * 1000"></td>
 					<td><a ng-href="{{orderBookEntry.orderAddr | url:'order'}}">{{orderBookEntry.orderAddr | shortAddr}}</a></td>
 					<td alias="orderBookEntry.storeAddr"></td>
 					<td>
 						<div ng-if="orderBookEntry.usesMarket"></div>
+					</td>
+					<td>
+						{{orderBookEntry.status | status}}
 					</td>
 				</tr>
 			</table>
