@@ -42,4 +42,11 @@ angular.module('app').filter('shortAddr',function(){
 	}
 })
 
+angular.module('app').filter('url',function(helpers){
+	return function(addr,type){
+		console.log('url',arguments)
+		return helpers.getUrl(type,addr)
+	}
+})
+
 })();
