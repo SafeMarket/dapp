@@ -8,6 +8,19 @@ contract Keystore{
 
 }
 
+contract OrderBook{
+
+	event Entry(
+		address indexed orderAddr
+		,address indexed storeAddr
+		,address indexed marketAddr
+	);
+
+	function addEntry(address orderAddr, address storeAddr, address marketAddr){
+		Entry(orderAddr, storeAddr, marketAddr);
+	}
+}
+
 contract AliasReg {
 	mapping(address=>bytes32) addrToAliasMap;
 	mapping(bytes32=>address) aliasToAddrMap;
@@ -146,6 +159,7 @@ contract Order{
 		,address _marketAddr
 		,uint _feePercentage
 		,uint _disputeSeconds
+		,address orderBookAddr
 	){
 		buyer = msg.sender;
 		storeAddr = _storeAddr;
@@ -156,6 +170,7 @@ contract Order{
 		disputeSeconds = _disputeSeconds;
 		timestamp = now;
 		Meta(_meta);
+		OrderBook(orderBookAddr).addEntry(address(this),_storeAddr,_marketAddr);
 	}
 
 	function addMessage(bytes text){

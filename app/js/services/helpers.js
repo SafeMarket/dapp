@@ -7,6 +7,8 @@ angular.module('app').service('helpers',function(safemarket,$filter,user){
 				return '#/markets/'+addr
 			case 'store':
 				return '#/stores/'+addr
+			case 'order':
+				return '#/orders/'+addr
 			default:
 				return null
 		}

@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('Store',function($q,utils,ticker,Key){
+angular.module('safemarket').factory('Store',function($q,utils,ticker,Key,OrderBookEntry){
 
 var currencies = Object.keys(ticker.rates)
 
@@ -177,7 +177,12 @@ Store.prototype.update = function(){
 		,store = this
 
 	this.products = []
+	this.orderBookEntries = []
 	this.owner = this.contract.getOwner()
+
+	OrderBookEntry.fetch({storeAddr:this.addr}).then(function(orderBookEntries){
+		store.orderBookEntries = orderBookEntries
+	})
 
 	this.contract.Meta({},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
 

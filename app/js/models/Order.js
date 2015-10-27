@@ -21,7 +21,7 @@ Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 		,txObject = {
 			data:Order.code
 			,gas:this.estimateCreationGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds)
-		},txHex = this.contractFactory.new(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,txObject).transactionHash
+		},txHex = this.contractFactory.new(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,OrderBook.address,txObject).transactionHash
 
 	utils.waitForTx(txHex).then(function(tx){
 		(new Order(tx.contractAddress)).updatePromise.then(function(order){
@@ -132,7 +132,7 @@ Order.check = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 Order.estimateCreationGas = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 	meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 
-	return this.contractFactory.estimateGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,{
+	return this.contractFactory.estimateGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,OrderBook.address,{
 		data:Order.code
 	})
 }
