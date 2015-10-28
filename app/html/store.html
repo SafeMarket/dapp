@@ -1,7 +1,7 @@
 <div class="container">
 	<div alias-bar="{{store.alias}}"></div>
 	<h1>
-		<span ng-show="market"><a ng-href="#/markets/{{market.addr}}">{{market.meta.name}}</a> » </span>{{store.meta.name}}
+		{{store.meta.name}}
 		<button
 			ng-show="user.data.account === store.owner"
 			class="btn btn-default"
@@ -11,123 +11,12 @@
 		</button>
 	</h1>
 	<tabset>
-	    <tab heading="About">
-	    	<div tab-url="['store',store.addr,'about']"></div>
-			<table class="table">
-				<tr>
-					<td>Status</td>
-					<td>{{store.meta.isOpen ? 'Open' : 'Closed'}}</td>
-				</tr>
-				<tr>
-					<td>Dispute Resolution Time</td>
-					<td>{{store.meta.disputeSeconds | disputeSeconds}}</td>
-				</tr>
-				<tbody collapsable is-collapsed="true">
-					<tr>
-						<td>Address</td>
-						<td class="oneliner">{{store.addr}}</td>
-					</tr>
-					<tr>
-						<td>Owner</td>
-						<td class="oneliner">{{store.owner}}</td>
-					</tr>
-					<tr>
-						<td>Public Key</td>
-						<td key="store.key"></td>
-					</tr>
-				</tbody>
-			</table>
-			<div marked="store.info"></div>
-		</tab>
-		<tab heading="Products" >
-			<div tab-url="['store',store.addr,'products']"></div>
-			<div ng-controller="ProductsController">
-				<table class="table">
-					<tr ng-repeat="product in store.products">
-						<td>
-							{{product.name}}
-						</td>
-						<td>
-							{{product.info}}
-						</td>
-						<td>
-							<amounts
-								value="product.price"
-								from="store.meta.currency"
-								to="displayCurrencies">
-							</amounts>
-						</td>
-						<td>
-							<input class="form-control" type="number" ng-model="product.quantity" min="0">
-						</td>
-					</tr>
-					<tr>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td>
-							<amounts
-								value="productsTotal"
-								from="'WEI'"
-								to="displayCurrencies">
-							</amounts>
-						</td>
-					</tr>
-					<tr>
-						<td>Shipping</td>
-						<td>
-							<select ng-model="transport" ng-options="getTransportLabel(transport) for transport in store.meta.transports" class="form-control"></select>
-						</td>
-						<td>
-						</td>
-						<td>
-							<amounts
-								value="transport.price"
-								from="store.meta.currency"
-								to="displayCurrencies">
-							</amounts>
-						</td>
-					</tr>
-					<tr>
-						<td>Market</td>
-						<td>
-							<select ng-model="marketAddr" ng-options="market.addr as market.label for market in marketOptions" class="form-control"></select>
-						</td>
-						<td>
-							<span ng-show="market">
-								Fee of {{feePercent | percentage}}
-							</span>
-						</td>
-						<td>
-							<amounts
-								value="estimatedFee"
-								from="'WEI'"
-								to="displayCurrencies">
-							</amounts>
-						</td>
-					</tr>
-					<tr>
-						<td colspan="3"></td>
-						<td>
-							<amounts
-								value="total"
-								from="'WEI'"
-								to="displayCurrencies">
-							</amounts>
-						</td>
-					</tr>
-				</table>
-				<div class="alert alert-info text-center" ng-show="isCreatingOrder">
-					Creating order...
-				</div>
-			    <div class="text-right" ng-show="!isCreatingOrder">
-					<button ng-click="createOrder(store,market)" class="btn btn-primary btn-lg">Create Your Order</button>
-				</div>
-			</div>
-		</tab>
-		<tab heading="All Orders" tab-slug="orders">
-			<div tab-url="['store',store.addr,'orders']"></div>
-			<div order-book="{storeAddr:storeAddr}"></div>
-		</tab>
-	</tabset>
+        <tab
+            ng-repeat="tab in tabs"
+            heading="{{tab.heading}}"
+            select="go(tab.route)"
+            active="tab.active">
+        </tab>
+    </tabset>
+	<div ui-view></div>
 </div>

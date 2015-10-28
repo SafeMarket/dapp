@@ -1,0 +1,9 @@
+<div class="alert alert-info text-center" ng-show="market.meta.storeAddrs.length===0">
+	{{market.meta.name}} has not approved any stores
+</div>
+<table class="table">
+	<tr ng-repeat="storeAddr in market.meta.storeAddrs">
+		<td>{{store.meta.name}}</td>
+		<td alias="storeAddr"></td>
+	</tr>
+</table>

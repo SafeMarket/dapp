@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').controller('StoreController',function($scope,$filter,safemarket,user,$stateParams,modals,growl,helpers){
+angular.module('app').controller('StoreController',function($scope,$filter,$state,safemarket,user,$stateParams,modals,growl,helpers){
 
 	$scope.storeScope = $scope
 
@@ -12,9 +12,21 @@ angular.module('app').controller('StoreController',function($scope,$filter,safem
 
 	$scope.store = new safemarket.Store($stateParams.storeAddr)
 
-	$scope.setSlug = function(slug){
-		alert(slug)
-	}
+	$scope.tabs = [
+        { heading: "About", route:"store.about", active:false },
+        { heading: "Products", route:"store.products", active:false },
+        { heading: "All Orders", route:"store.orders", active:false },
+    ];
+
+    $scope.go = function(route){
+        $state.go(route);
+    };
+
+    $scope.$on("$stateChangeSuccess", function() {
+        $scope.tabs.forEach(function(tab) {
+            tab.active = $state.is(tab.route);
+        });
+    });
 
 	$scope.store.updatePromise.then(function(store){
 

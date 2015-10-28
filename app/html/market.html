@@ -9,45 +9,12 @@
 		>Edit</button>
 	</h1>
 	<tabset>
-	    <tab heading="About">
-			<table class="table">
-				<tr>
-					<td>Status</td>
-					<td>{{market.meta.isOpen ? 'Open' : 'Closed'}}</td>
-				</tr>
-				<tr>
-					<td>Fee Percentage</td>
-					<td>{{market.meta.feePercentage}}%</td>
-				</tr>
-				<tbody collapsable is-collapsed="true">
-					<tr>
-						<td>Address</td>
-						<td class="oneliner">{{market.addr}}</td>
-					</tr>
-					<tr>
-						<td>Owner</td>
-						<td class="oneliner">{{market.owner}}</td>
-					</tr>
-				</tbody>
-			</table>
-			<div marked="market.meta.info"></div>
-		</tab>
-		<tab heading="Forum">
-			<div forum="market.forum"></div>
-		</tab>
-		<tab heading="Stores">
-			<div class="alert alert-info text-center" ng-show="market.meta.storeAddrs.length===0">
-				{{market.meta.name}} has not approved any stores
-			</div>
-			<table class="table">
-				<tr ng-repeat="storeAddr in market.meta.storeAddrs">
-					<td>{{store.meta.name}}</td>
-					<td alias="storeAddr"></td>
-				</tr>
-			</table>
-		</tab>
-		<tab heading="All Orders">
-			<div order-book="{marketAddr:market.addr}"></div>
-		</tab>
-	</tabset>
+        <tab
+            ng-repeat="tab in tabs"
+            heading="{{tab.heading}}"
+            select="go(tab.route)"
+            active="tab.active">
+        </tab>
+    </tabset>
+	<div ui-view></div>
 </div>
