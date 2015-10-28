@@ -100,8 +100,6 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 		else
 			$scope.estimatedFee = new BigNumber(0)
 
-		console.log('transportPrice',$scope.transport.price,$scope.productsTotal.plus(transportPrice).plus($scope.estimatedFee).toString())
-
 		$scope.total = $scope.productsTotal.plus(transportPrice).plus($scope.estimatedFee)
 	})
 

@@ -1,12 +1,13 @@
 (function(){
 
 angular.module('app').service('helpers',function(safemarket,$filter,user){
-	this.getUrl = function(type,addr){
+	this.getUrl = function(type,addr,tabSlug){
+
 		switch(type){
 			case 'market':
-				return '#/markets/'+addr
+				return '#/markets/'+addr+'/'+(tabSlug||'about')
 			case 'store':
-				return '#/stores/'+addr
+				return '#/stores/'+addr+'/'+(tabSlug||'about')
 			case 'order':
 				return '#/orders/'+addr
 			default:

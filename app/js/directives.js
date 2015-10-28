@@ -224,4 +224,32 @@ angular.module('app').directive('alias', function(safemarket,helpers) {
   	}; 
 });
 
+angular.module('app').directive('tabUrl',function(helpers){
+	return {
+		require: '^tabset'
+		,link: { pre: function($scope,$element,$attributes,$controller){
+
+			$scope.$parent.slugs = $scope.$parent.slugs || []
+
+			var tabIndex = $scope.$parent.slugs.length
+				,args = $scope.$eval($attributes.tabUrl)
+				,type = args[0]
+				,addr = args[1]
+				,slug = args[2]
+				,url = helpers.getUrl(type,addr,slug)
+
+			$scope.$parent.slugs.push(slug)
+
+
+			if(url===window.location.hash)
+				$controller.select($scope.$parent.tabs[tabIndex])
+
+			$scope.$parent.tabs[tabIndex].onSelect=function(){
+				window.location.hash = url
+			}
+			
+		}}
+	}	
+})
+
 })();

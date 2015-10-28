@@ -12,6 +12,7 @@
 	</h1>
 	<tabset>
 	    <tab heading="About">
+	    	<div tab-url="['store',store.addr,'about']"></div>
 			<table class="table">
 				<tr>
 					<td>Status</td>
@@ -38,7 +39,8 @@
 			</table>
 			<div marked="store.info"></div>
 		</tab>
-		<tab heading="Products">
+		<tab heading="Products" >
+			<div tab-url="['store',store.addr,'products']"></div>
 			<div ng-controller="ProductsController">
 				<table class="table">
 					<tr ng-repeat="product in store.products">
@@ -123,7 +125,8 @@
 				</div>
 			</div>
 		</tab>
-		<tab heading="All Orders">
+		<tab heading="All Orders" tab-slug="orders">
+			<div tab-url="['store',store.addr,'orders']"></div>
 			<div order-book="{storeAddr:storeAddr}"></div>
 		</tab>
 	</tabset>
