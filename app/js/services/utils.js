@@ -1,8 +1,12 @@
 (function(){
 
-angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
+angular.module('safemarket').service('utils',function(ticker,$q,$timeout,$sanitize){
 
 	var utils = this
+
+	function sanitize(string){
+		return string.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;');
+	}
 
 	function isAddr(string){
 		try{
@@ -233,7 +237,8 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout){
 	}
 
 	angular.merge(this,{
-		convertObjectToHex:convertObjectToHex
+		sanitize:sanitize
+		,convertObjectToHex:convertObjectToHex
 		,convertHexToObject:convertHexToObject
 		,convertCurrency:convertCurrency
 		,formatCurrency:formatCurrency

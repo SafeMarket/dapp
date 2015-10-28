@@ -187,6 +187,7 @@ Store.prototype.update = function(){
 			return deferred.reject(new Error('no results found'))
 
 		store.meta = utils.convertHexToObject(results[0].args.meta)
+		store.info = utils.sanitize(store.meta.info)
 
 		if(store.meta && store.meta.products)
 			store.meta.products.forEach(function(productData){

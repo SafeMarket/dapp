@@ -1,6 +1,6 @@
 (function(){
 	
-	var safemarket = angular.module('safemarket',[])
+	var safemarket = angular.module('safemarket',['ngSanitize'])
 
 	safemarket.run(function(ticker,utils,Store,Market){
 		validate.validators.exists = function(value, options, key, attributes) {

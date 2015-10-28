@@ -27,6 +27,7 @@ module.exports = (grunt) ->
           "bower_components/angular-timeago/dist/angular-timeago.js"
           "bower_components/angular-bootstrap/ui-bootstrap-tpls.js"
           "bower_components/angular-marked/angular-marked.js"
+          "bower_components/angular-sanitize/angular-sanitize.min.js"
           "app/js/app.js"
           "app/js/safemarket.js"
           "app/js/**/*.js"
