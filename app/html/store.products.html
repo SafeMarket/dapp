@@ -1,0 +1,83 @@
+<div ng-controller="ProductsController">
+	<table class="table">
+		<tr ng-repeat="product in store.products">
+			<td>
+				{{product.name}}
+			</td>
+			<td>
+				{{product.info}}
+			</td>
+			<td>
+				<amounts
+					value="product.price"
+					from="store.meta.currency"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+			<td>
+				<input class="form-control" type="number" ng-model="product.quantity" min="0">
+			</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td>
+				<amounts
+					value="productsTotal"
+					from="'WEI'"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+		<tr>
+			<td>Shipping</td>
+			<td>
+				<select ng-model="transport" ng-options="getTransportLabel(transport) for transport in store.meta.transports" class="form-control"></select>
+			</td>
+			<td>
+			</td>
+			<td>
+				<amounts
+					value="transport.price"
+					from="store.meta.currency"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+		<tr>
+			<td>Market</td>
+			<td>
+				<select ng-model="marketAddr" ng-options="market.addr as market.label for market in marketOptions" class="form-control"></select>
+			</td>
+			<td>
+				<span ng-show="market">
+					Fee of {{feePercent | percentage}}
+				</span>
+			</td>
+			<td>
+				<amounts
+					value="estimatedFee"
+					from="'WEI'"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3"></td>
+			<td>
+				<amounts
+					value="total"
+					from="'WEI'"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+	</table>
+	<div class="alert alert-info text-center" ng-show="isCreatingOrder">
+		Creating order...
+	</div>
+    <div class="text-right" ng-show="!isCreatingOrder">
+		<button ng-click="createOrder(store,market)" class="btn btn-primary btn-lg">Create Your Order</button>
+	</div>
+</div>

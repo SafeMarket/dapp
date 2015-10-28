@@ -16,37 +16,56 @@ app.config(function(growlProvider,$stateProvider, $urlRouterProvider) {
     		,templateUrl:'login.html'
     		,controller:'LoginController'
     	})
-    	.state('stores',{
-    		url:'/stores/:storeAddr/:tabSlug'
+    	.state('store',{
+            abstract:true
+    		,url:'/stores/:storeAddr'
     		,templateUrl:'store.html'
     		,controller:'StoreController'
     	})
-
-    $urlRouterProvider.otherwise("/")
-
-    	/*
-    	.state('stores',
-    		url:'/stores/:storeAddr/:tabSlug'
-    		,templateUrl:'store.html'
-    		,controller:'StoreController'
-    	})
-    	.state('stores',
-    		url:'/stores/:storeAddr/:tabSlug'
-    		,templateUrl:'store.html'
-    		,controller:'StoreController'
-    	})
-	    .when('/markets/:marketAddr',{
-	    	templateUrl:'market.html'
-	    	,controller:'MarketController'
-	    }).when('/orders/:orderAddr',{
-	    	templateUrl:'order.html'
-	    	,controller:'OrderController'
-	    }).when('/404/:alias',{
-	    	templateUrl:'404.html'
-	    	,controller:'404Controller'
-	    })
-		*/
-
+            .state('store.about',{
+                url:'/about'
+                ,templateUrl:'store.about.html'
+            })
+            .state('store.products',{
+                url:'/products'
+                ,templateUrl:'store.products.html'
+            })
+            .state('store.orders',{
+                url:'/orders'
+                ,templateUrl:'store.orders.html'
+            })
+        .state('market',{
+            abstract:true
+            ,url:'/markets/:marketAddr'
+            ,templateUrl:'market.html'
+            ,controller:'MarketController'
+        })
+            .state('market.about',{
+                url:'/about'
+                ,templateUrl:'market.about.html'
+            })
+            .state('market.stores',{
+                url:'/stores'
+                ,templateUrl:'market.stores.html'
+            })
+            .state('market.forum',{
+                url:'/forum'
+                ,templateUrl:'market.forum.html'
+            })
+            .state('market.orders',{
+                url:'/orders'
+                ,templateUrl:'market.orders.html'
+            })
+        .state('order',{
+            url:'/orders/:orderAddr'
+            ,templateUrl:'order.html'
+            ,controller:'OrderController'
+        })
+        .state('404',{
+            url:'/404/:alias'
+            ,templateUrl:'404.html'
+            ,controller:'404Controller'
+        })
 });
 
 app.run(function(user,$rootScope,$interval,timeAgo){
