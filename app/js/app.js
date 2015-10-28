@@ -44,7 +44,7 @@ app.run(function(user,$rootScope,$interval,timeAgo){
 	$rootScope.isConnected = web3.isConnected()
 	$interval(function(){
 		$rootScope.isConnected = web3.isConnected()
-	},1000)
+	},30000)
 
 	timeAgo.settings.allowFuture = true
 })
