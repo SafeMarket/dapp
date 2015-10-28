@@ -1,23 +1,40 @@
 (function(){
 
-var app = angular.module('app',['safemarket','ui.bootstrap','angular-growl','ngRoute','yaru22.angular-timeago','hc.marked'])
+var app = angular.module('app',['safemarket','ui.bootstrap','ui.router','angular-growl','ngRoute','yaru22.angular-timeago','hc.marked'])
 
-app.config(function(growlProvider,$routeProvider) {
+app.config(function(growlProvider,$stateProvider, $urlRouterProvider) {
     
     growlProvider.globalTimeToLive(3000);
 
-    $routeProvider
-    	.when('/',{
-    		templateUrl:'home.html'
+    $stateProvider
+    	.state('home',{
+    		url:'/'
+    		,templateUrl:'home.html'
     	})
-    	.when('/login',{
-    		templateUrl:'login.html'
+    	.state('login',{
+    		url:'/login'
+    		,templateUrl:'login.html'
     		,controller:'LoginController'
     	})
-    	.when('/stores/:storeAddr',{
-	    	templateUrl:'store.html'
-	    	,controller:'StoreController'
-	    })
+    	.state('stores',{
+    		url:'/stores/:storeAddr/:tabSlug'
+    		,templateUrl:'store.html'
+    		,controller:'StoreController'
+    	})
+
+    $urlRouterProvider.otherwise("/")
+
+    	/*
+    	.state('stores',
+    		url:'/stores/:storeAddr/:tabSlug'
+    		,templateUrl:'store.html'
+    		,controller:'StoreController'
+    	})
+    	.state('stores',
+    		url:'/stores/:storeAddr/:tabSlug'
+    		,templateUrl:'store.html'
+    		,controller:'StoreController'
+    	})
 	    .when('/markets/:marketAddr',{
 	    	templateUrl:'market.html'
 	    	,controller:'MarketController'
@@ -28,6 +45,7 @@ app.config(function(growlProvider,$routeProvider) {
 	    	templateUrl:'404.html'
 	    	,controller:'404Controller'
 	    })
+		*/
 
 });
 

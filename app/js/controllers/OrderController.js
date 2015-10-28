@@ -1,8 +1,8 @@
 (function(){
 
-angular.module('app').controller('OrderController',function($scope,safemarket,user,$routeParams,modals){
+angular.module('app').controller('OrderController',function($scope,safemarket,user,$stateParams,modals){
 	
-	(new safemarket.Order($routeParams.orderAddr)).updatePromise.then(function(order){
+	(new safemarket.Order($stateParams.orderAddr)).updatePromise.then(function(order){
 
 		$scope.order = order
 		$scope.displayCurrencies = [order.meta.currency]

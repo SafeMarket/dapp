@@ -3,7 +3,6 @@
 angular.module('safemarket').factory('OrderBookEntry',function($q,utils,Order){
 
 	function OrderBookEntry(result){
-		console.log(result)
 		this.result = result
 		this.orderAddr = result.args.orderAddr
 		this.storeAddr = result.args.storeAddr
@@ -20,7 +19,6 @@ angular.module('safemarket').factory('OrderBookEntry',function($q,utils,Order){
 
 		OrderBook.Entry(filters,{fromBlock:0,toBlock:'latest'}).get(function(error,results){
 			results.forEach(function(result){
-				console.log(result)
 				orderBookEntries.push(new OrderBookEntry(result))
 			})
 			deferred.resolve(orderBookEntries)

@@ -1,16 +1,20 @@
 (function(){
 
-angular.module('app').controller('StoreController',function($scope,$filter,safemarket,user,$routeParams,modals,growl,helpers){
+angular.module('app').controller('StoreController',function($scope,$filter,safemarket,user,$stateParams,modals,growl,helpers){
 
 	$scope.storeScope = $scope
 
 	$scope.marketOptions = [{addr:safemarket.utils.nullAddr,label:'No escrow'}];
 	$scope.marketOption = $scope.marketOptions[0]
-	$scope.storeAddr = $routeParams.storeAddr
-	$scope.marketAddr = $routeParams.marketAddr || safemarket.utils.nullAddr;
+	$scope.storeAddr = $stateParams.storeAddr
+	$scope.marketAddr = $stateParams.marketAddr || safemarket.utils.nullAddr;
 	$scope.productsTotal = new BigNumber(0);
 
-	$scope.store = new safemarket.Store($routeParams.storeAddr)
+	$scope.store = new safemarket.Store($stateParams.storeAddr)
+
+	$scope.setSlug = function(slug){
+		alert(slug)
+	}
 
 	$scope.store.updatePromise.then(function(store){
 
@@ -38,8 +42,8 @@ angular.module('app').controller('StoreController',function($scope,$filter,safem
 
 	})
 
-	if($routeParams.marketAddr)
-		(new safemarket.Market($routeParams.marketAddr)).updatePromise.then(function(market){
+	if($stateParams.marketAddr)
+		(new safemarket.Market($stateParams.marketAddr)).updatePromise.then(function(market){
 			$scope.market = market
 		})
 
