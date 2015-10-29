@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').controller('BarController',function($scope,safemarket){
+angular.module('app').controller('BarController',function($scope,helpers,safemarket){
 	$scope.submit = function(){
 		var alias = $scope.alias
 			,addr = AliasReg.getAddr(alias)
@@ -8,10 +8,10 @@ angular.module('app').controller('BarController',function($scope,safemarket){
 
 		switch(runtimeBytecode){
 			case safemarket.Market.runtimeBytecode:
-				window.location.hash="/markets/"+addr
+				window.location.hash=helpers.getUrl('market',addr)
 				break;
 			case safemarket.Store.runtimeBytecode:
-				window.location.hash="/stores/"+addr
+				window.location.hash=helpers.getUrl('store',addr)
 				break;
 			default:
 				window.location.hash="/404/"+alias
