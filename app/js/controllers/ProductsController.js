@@ -39,6 +39,7 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 		,marketAddr = $scope.marketAddr
 		,feePercentage = $scope.market ? $scope.market.meta.feePercentage : '0'
 		,disputeSeconds = parseInt($scope.store.meta.disputeSeconds)
+		,productsTotal = new BigNumber(0)
 
 		$scope.store.products.forEach(function(product){
 			if(product.quantity===0) return true
@@ -49,12 +50,19 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 				,price:product.price.toString()
 				,quantity:product.quantity
 			})
+
+			productsTotal = productsTotal.plus(product.price.times(product.quantity))
 		})
 
 		try{
 			Order.check(meta,storeAddr,marketAddr,feePercentage,disputeSeconds)
 		}catch(e){
 			growl.addErrorMessage(e)
+			return
+		}
+
+		if(productsTotal.lessThan($scope.store.meta.minTotal)){
+			growl.addErrorMessage('You must order at least '+$scope.store.meta.minTotal+' '+$scope.store.meta.currency+' of products')
 			return
 		}
 

@@ -81,6 +81,12 @@ Store.check = function(alias,meta){
 			presence:true
 			,type:'array'
 			,length:{minimum:1}
+		},minTotal:{
+			presence:true
+			,type:'string'
+			,numericality:{
+				greaterThanOrEqualTo:0
+			}
 		}
 	})
 
@@ -188,6 +194,7 @@ Store.prototype.update = function(){
 
 		store.meta = utils.convertHexToObject(results[0].args.meta)
 		store.info = utils.sanitize(store.meta.info || '')
+		store.minTotal = utils.convertCurrency(store.meta.minTotal,{from:store.meta.currency,to:'ETH'})
 
 		if(store.meta && store.meta.products)
 			store.meta.products.forEach(function(productData){
