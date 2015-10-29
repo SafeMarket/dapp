@@ -18,7 +18,7 @@
     "angular-growl": "~0.4.0",
     "angular-route": "~1.4.5",
     "angular-timeago": "~0.2.4",
-    "bignumber.js": "~2.0.7",
+    "bignumber.js": "git@github.com:SafeMarket/bignumber.js.git#master",
     "bootstrap": "~3.3.5",
     "cryptocoin": "~0.3.0",
     "lodash": "~3.10.1",

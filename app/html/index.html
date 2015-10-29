@@ -6,7 +6,7 @@
       script-src 'self';
       style-src 'self' 'unsafe-inline';
       font-src 'self';
-      connect-src http://localhost:*;
+      connect-src http://localhost:* file://*;
     "> 
     <script>alert('XSS vulnerability detected. Close SafeMarket immediately.')</script>
     <link rel="stylesheet" href="css/app.min.css">
