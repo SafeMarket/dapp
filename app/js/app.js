@@ -66,6 +66,8 @@ app.config(function(growlProvider,$stateProvider, $urlRouterProvider) {
             ,templateUrl:'404.html'
             ,controller:'404Controller'
         })
+
+    $urlRouterProvider.otherwise('/')
 });
 
 app.run(function(user,$rootScope,$interval,timeAgo){
