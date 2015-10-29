@@ -31,6 +31,7 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 		$scope.info = store.meta.info
 		$scope.isOpen = store.meta.isOpen
 		$scope.transports = store.meta.transports || []
+		$scope.minTotal = store.meta.minTotal
 		
 		if(store.meta.marketAddrs)
 			store.meta.marketAddrs.forEach(function(marketAddr){
@@ -43,6 +44,7 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 		$scope.disputeSeconds = "1209600"
 		$scope.isOpen = true
 		$scope.transports = []
+		$scope.minTotal = '0'
 	}
 
 	$scope.cancel = function(){
@@ -74,6 +76,7 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 				,info:$scope.info
 				,marketAddrs:[]
 				,transports:$scope.transports
+				,minTotal:$scope.minTotal
 			}
 
 		$scope.markets.forEach(function(market){
