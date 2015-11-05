@@ -29,6 +29,7 @@
     "web3": "^0.13.0"
   },
   "dependencies": {
+    "jasmine-fail-fast": "^2.0.0",
     "solc": "^0.1.6"
   }
 }

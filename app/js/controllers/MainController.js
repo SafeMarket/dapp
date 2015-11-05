@@ -35,5 +35,10 @@
 			modals.openImportMarket()
 		}
 
+		$scope.logout = function(){
+			user.logout()
+			window.location.hash="/login"
+		}
+
 	})
 })();
