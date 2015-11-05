@@ -26,7 +26,7 @@ contract AliasReg {
 	mapping(bytes32=>address) aliasToAddrMap;
 
 	function claimAlias(bytes32 alias){
-		if(aliasToAddrMap[alias] != address(0)) return;
+		if(aliasToAddrMap[alias] != address(0)) throw;
 
 		addrToAliasMap[msg.sender]=alias;
 		aliasToAddrMap[alias]=msg.sender;
@@ -54,7 +54,7 @@ contract owned{
 	}
 
 	function setOwner(address _owner){
-		if(msg.sender!=owner) return;
+		if(msg.sender!=owner) throw;
 		owner=_owner;
 	}
 }
@@ -72,7 +72,7 @@ contract forumable is owned{
 	}
 
 	function setForumAddr(address _forumAddr){
-		if(msg.sender != owner) return;
+		if(msg.sender != owner) throw;
 		forumAddr = _forumAddr;
 	}
 }
@@ -89,7 +89,7 @@ contract Forum is owned{
 	}
 
 	function setFee(uint _fee){
-		if(msg.sender != owner) return;
+		if(msg.sender != owner) throw;
 		fee = _fee;
 	}
 
@@ -102,7 +102,7 @@ contract Forum is owned{
 contract audible is owned{
 
 	function addComment(address forumAddr, bytes32 parentId, bytes data){
-		if(msg.sender!=owner) return;
+		if(msg.sender!=owner) throw;
 		Forum(forumAddr).addComment(parentId,data);
 	}
 
@@ -119,7 +119,7 @@ contract Market is forumable,audible{
 	}
 	
 	function setMeta(bytes meta){
-		if(msg.sender!=owner) return;
+		if(msg.sender!=owner) throw;
 		Meta(meta);
 	}
 
@@ -175,7 +175,7 @@ contract Order{
 
 	function addMessage(bytes text){
 		if(msg.sender != buyer && msg.sender != storeOwner && msg.sender != marketOwner)
-			return;
+			throw;
 
 		Message(msg.sender, text);
 	}
@@ -188,13 +188,13 @@ contract Order{
 	function withdraw(uint amount){
 		
 		if(msg.sender != buyer)
-			return;
+			throw;
 		
 		if(status != initialized)
-			return;
+			throw;
 		
 		if(amount>received)
-			return;
+			throw;
 
 		var isSent = buyer.send(amount);
 
@@ -260,13 +260,13 @@ contract Order{
 	function cancel(){
 
 		if(status != initialized)
-			return;
+			throw;
 
 		if(msg.sender != buyer && msg.sender != storeOwner)
-			return;
+			throw;
 
 		var isSent = buyer.send(this.balance);
-		if(!isSent) return;
+		if(!isSent) throw;
 
 		addUpdate(cancelled);
 	}
@@ -274,14 +274,14 @@ contract Order{
 	function markAsShipped(){
 
 		if(status !=  initialized)
-			return;
+			throw;
 
 		if(msg.sender != storeOwner)
-			return;
+			throw;
 
 		//don't allow to mark as shipped on same block that a withdrawl is made
 		if(receivedAtBlockNumber == block.number)
-			return;
+			throw;
 
 		shippedAt = now;
 		addUpdate(shipped);
@@ -290,32 +290,32 @@ contract Order{
 	function finalize(){
 
 		if(status !=  shipped)
-			return;
+			throw;
 
 		if(msg.sender != buyer && msg.sender != storeOwner)
-			return;
+			throw;
 
 		if(msg.sender == storeOwner && now - shippedAt < disputeSeconds)
-			return;
+			throw;
 
 		var isSent = storeOwner.send(this.balance);
-		if(!isSent) return;
+		if(!isSent) throw;
 		
 		addUpdate(finalized);
 	}
 
 	function dispute(){
 		if(msg.sender != buyer)
-			return;
+			throw;
 
 		if(status != shipped)
-			return;
+			throw;
 
 		if(now - shippedAt > disputeSeconds)
-			return;
+			throw;
 
 		if(marketOwner==address(0))
-			return;
+			throw;
 
 		addUpdate(disputed);
 		disputedAt=now;
@@ -343,10 +343,10 @@ contract Order{
 
 	function resolve(uint buyerPercentage){
 		if(status!=disputed)
-			return;
+			throw;
 
 		if(msg.sender != marketOwner)
-			return;
+			throw;
 
 		fee = calculateFee();
 		buyerAmount = ((received-fee)*buyerPercentage)/100;
@@ -374,7 +374,7 @@ contract Store is forumable,audible{
     }
     
     function setMeta(bytes meta){
-		if(msg.sender!=owner) return;
+		if(msg.sender!=owner) throw;
 		Meta(meta);
 	}
 
