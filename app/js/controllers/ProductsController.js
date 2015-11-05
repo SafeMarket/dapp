@@ -72,7 +72,9 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 		if(!doContinue) return
 
 		$scope.isCreatingOrder = true
-			
+
+		console.log('meta sent to Order.create',meta)
+
 		Order.create(meta,storeAddr,marketAddr,feePercentage,disputeSeconds).then(function(order){
 			window.location.hash = "#/orders/"+order.addr
 			user.data.orderAddrs.push(order.addr)
