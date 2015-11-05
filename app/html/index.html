@@ -13,7 +13,7 @@
     <script src="js/app.min.js"></script>
   </head>
   <body ng-app="app"><div ng-controller="MainController">
-    <nav class="navbar navbar-default navbar-top navbar-static-top" ng-show="isLoggedIn">
+    <nav class="navbar navbar-default navbar-top navbar-static-top" ng-show="isLoggedIn" id="navbar">
       <div class="container">
         <div class="navbar-header pull-left">
           <a class="navbar-brand" href="#/">SafeMarket</a>
@@ -24,6 +24,9 @@
           </button>
           <button class="navbar-btn btn btn-default btn-lg" ng-click="openSettingsModal()">
             <span class="glyphicon glyphicon-cog"></span>
+          </button>
+          <button class="btn btn-default btn-lg" ng-click="logout()">
+            <span class="glyphicon glyphicon-log-out"></span>
           </button>
         </div>
       </div>

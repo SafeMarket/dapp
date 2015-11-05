@@ -67,6 +67,7 @@ angular.module('app').controller('SettingsModalController',function($scope,safem
 
 		user.reset()
 		user.logout()
+		window.location.hash = 'login'
 		$modalInstance.dismiss('cancel')
 	}
 

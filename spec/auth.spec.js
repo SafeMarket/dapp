@@ -93,8 +93,8 @@ describe('registration', function() {
     })
 
     it('should open the settings modal',function(){
-        var currentModal = browser.executeScript("return angular.element(document.body).injector().get('modals').currentModal")
-        expect(currentModal).toBe('SettingsModalController');
+        var currentController = browser.executeScript("return angular.element(document.body).injector().get('modals').currentController")
+        expect(currentController).toBe('SettingsModalController');
     })
 
     it('should set the default account to web3.eth.defaultAccount',function(){

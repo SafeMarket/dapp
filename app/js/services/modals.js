@@ -1,12 +1,31 @@
 (function(){
 
 angular.module('app').service('modals',function($modal){
+
+	var modals = this
+
+	this.currentController = null
+	this.currentModalInstance = null
+
 	function openModal(options){
-		var modalInstance = $modal.open(options)
-		modalInstance.opened.then(function(){
+		
+		modals.currentController = options.controller
+		modals.currentModalInstance = $modal.open(options)
+		
+		modals.currentModalInstance.opened.then(function(){
 			window.scrollTo(0,1)
 		})
-		return modalInstance
+		modals.currentModalInstance.result.then(function(){
+			modals.currentController = null
+			modals.currentModalInstance = null
+		})
+		
+		return modals.currentModalInstance
+	}
+
+	this.closeInstance = function(){
+		if(this.currentModalInstance)
+			this.currentModalInstance.dismiss()
 	}
 
 	this.openStore = function(store){

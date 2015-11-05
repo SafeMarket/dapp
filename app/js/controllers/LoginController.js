@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').controller('LoginController',function($scope,$rootScope,user,growl){
+angular.module('app').controller('LoginController',function($scope,$rootScope,user,growl,modals){
 	$scope.userExists = !! user.getStorage()
 
 	$scope.login = function(){
@@ -49,6 +49,7 @@ angular.module('app').controller('LoginController',function($scope,$rootScope,us
 		$rootScope.isLoggedIn = true
 
 		window.location.hash = '/'
+		modals.openSettings()
 	}
 
 })
