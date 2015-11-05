@@ -33,7 +33,7 @@
     <table class="table">
         <tr ng-repeat="keypair in user.keypairs">
             <td>{{keypair.data.label}}</td>
-            <td timestamp="keypair.data.timestamp"></td>
+            <td timestamp="keypair.data.timestamp/1000"></td>
             <td style="text-align:right" ng-show="!isChangingKeys">
                 <button
                     class="btn"
