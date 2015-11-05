@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('Order',function(utils,ticker,$q,Store,Market,Key,pgp){
+angular.module('safemarket').factory('Order',function(utils,ticker,$q,Store,Market,Key,KeyGroup,PgpMessageWrapper){
 
 function Order(addr){
 	this.addr = addr
@@ -16,23 +16,47 @@ Order.prototype.contractFactory = Order.contractFactory = web3.eth.contract(Orde
 
 Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 
-	console.log('createOrder',arguments)
+	var deferred = $q.defer()
+		,order = this
+		,store = new Store(storeAddr)
+		,parties = [web3.eth.defaultAccount,store.owner]
 
-	var meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
-		,deferred = $q.defer()
-		,txObject = {
-			data:Order.code
-			,gas:this.estimateCreationGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds)
-		},txHex = this.contractFactory.new(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,OrderBook.address,txObject).transactionHash
+	if(marketAddr!==utils.nullAddr){
+		var market = new Market(marketAddr)
+			,marketOwner = market.getOwner()
 
-	utils.waitForTx(txHex).then(function(tx){
-		(new Order(tx.contractAddress)).updatePromise.then(function(order){
-			deferred.resolve(order)
-		})
+		parties.push(marketOwner)
+	}
+
+	var keyGroup = new KeyGroup(parties)
+
+	keyGroup.promise.then(function(keyGroup){
+
+		var meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
+
+		keyGroup.encrypt(meta).then(function(pgpMessage){
+			var meta = pgpMessage.packets.write()
+				,txObject = {
+					data:Order.code
+					,gas:Order.estimateCreationGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds)
+				},txHex = Order.contractFactory.new(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,OrderBook.address,txObject).transactionHash
+		
+			utils.waitForTx(txHex).then(function(tx){
+				(new Order(tx.contractAddress)).updatePromise.then(function(order){
+					deferred.resolve(order)
+				})
+			},function(error){
+				deferred.reject(error)
+			}).catch(function(error){
+				console.error(error)
+			})
+		},function(error){
+			deferred.reject(error)
+		})			
+			
+
 	},function(error){
 		deferred.reject(error)
-	}).catch(function(error){
-		console.error(error)
 	})
 
 	return deferred.promise
@@ -192,7 +216,6 @@ Order.prototype.update = function(){
 		,storeAddr = this.contract.getStoreAddr()
 		,marketAddr = this.contract.getMarketAddr()
 
-
 	this.buyer = this.contract.getBuyer()
 	this.store = new Store(storeAddr)
 	this.market = marketAddr === utils.nullAddr ? null : new Market(marketAddr)
@@ -240,7 +263,10 @@ Order.prototype.update = function(){
 		if(results.length === 0)
 			return deferred.reject(new Error('no results found'))
 
-		order.meta = utils.convertHexToObject(results[0].args.meta)
+		var metaPgpMessageWrapper = new PgpMessageWrapper(web3.toAscii(results[0].args.meta))
+			,metax = user.decryptPgpMessageWrapper(metaPgpMessageWrapper)
+
+		console.log(metax.packets.write());return;
 
 		var productsTotalInOrderCurrency = new BigNumber(0)
 		order.meta.products.forEach(function(product){
@@ -338,11 +364,6 @@ function Message(sender,ciphertext,timestamp,order){
 			break;
 	}
 
-	var packetlist = new openpgp.packet.List
-	packetlist.read(ciphertext)
-
-	this.pgpMessage = openpgp.message.Message(packetlist)
-	this.messageArmored = this.pgpMessage.armor()
 }
 
 function Update(sender,status,timestamp,order){

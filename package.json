@@ -11,6 +11,7 @@
   "homepage": "",
   "devDependencies": {
     "compression": "^1.4.3",
+    "electron-packager": "^5.1.1",
     "electron-prebuilt": "^0.34.1",
     "embark-framework": "git@github.com:dummymarket/embark-framework.git#develop",
     "express": "^4.12.3",

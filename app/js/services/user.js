@@ -135,6 +135,22 @@ angular.module('app').service('user',function($q,$rootScope,words,safemarket,mod
 		return [this.data.account].concat(this.data.marketAddrs.concat(this.data.storeAddrs))
 	}
 
+	this.decryptPgpMessageWrapper = function(pgpMessageWrapper){
+		var keypair
+
+		this.keypairs.forEach(function(_keypair){
+			if(pgpMessageWrapper.keyIds.indexOf(_keypair.id)){
+				keypair = _keypair
+				return false
+			}
+		})
+
+		if(!keypair)
+			return false
+
+		return pgpMessageWrapper.pgpMessage.decrypt(keypair.private)
+	}
+
 	function Keypair(keypairData){
 		this.data = keypairData
 		this.private = openpgp.key.readArmored(keypairData.private).keys[0]
