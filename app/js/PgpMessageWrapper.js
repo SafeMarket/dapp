@@ -1,7 +1,7 @@
 (function(){
 
 angular.module('app').factory('PgpMessageWrapper',function(){
-	return function PgpMessageWrapper(ciphertext){
+	function PgpMessageWrapper(ciphertext){
 		var pgpMessageWrapper = this
 			,packetlist = new openpgp.packet.List
 
@@ -10,6 +10,7 @@ angular.module('app').factory('PgpMessageWrapper',function(){
 		this.pgpMessage = openpgp.message.Message(packetlist)
 		this.pgpMessageArmored = this.pgpMessage.armor()
 		this.keyIds = []
+		this.text = null
 
 		this.pgpMessage.packets.forEach(function(packet){
 			if(!packet.publicKeyId) return true
@@ -19,6 +20,12 @@ angular.module('app').factory('PgpMessageWrapper',function(){
 			pgpMessageWrapper.keyIds.push(packet.publicKeyId.bytes)
 		})
 	}
+
+	PgpMessageWrapper.prototype.decrypt = function(privateKey){
+		this.text = this.pgpMessage.decrypt(privateKey).packets[0].data
+	}
+
+	return PgpMessageWrapper
 })
 
 })();

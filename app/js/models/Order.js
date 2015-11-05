@@ -20,6 +20,7 @@ Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 		,order = this
 		,store = new Store(storeAddr)
 		,parties = [web3.eth.defaultAccount,store.owner]
+		,meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 
 	if(marketAddr!==utils.nullAddr){
 		var market = new Market(marketAddr)
@@ -32,9 +33,11 @@ Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 
 	keyGroup.promise.then(function(keyGroup){
 
-		var meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
+
+		console.log('meta before encryption', meta)
 
 		keyGroup.encrypt(meta).then(function(pgpMessage){
+			console.log('meta added', pgpMessage.packets.write())
 			var meta = pgpMessage.packets.write()
 				,txObject = {
 					data:Order.code
@@ -263,10 +266,15 @@ Order.prototype.update = function(){
 		if(results.length === 0)
 			return deferred.reject(new Error('no results found'))
 
-		var metaPgpMessageWrapper = new PgpMessageWrapper(web3.toAscii(results[0].args.meta))
-			,metax = user.decryptPgpMessageWrapper(metaPgpMessageWrapper)
+		console.log('meta fetched',web3.toAscii(results[0].args.meta))
 
-		console.log(metax.packets.write());return;
+		var metaPgpMessageWrapper = new PgpMessageWrapper(web3.toAscii(results[0].args.meta))
+		
+		user.decrypt(metaPgpMessageWrapper)
+		
+		order.meta = utils.convertHexToObject(metaPgpMessageWrapper.text)
+
+		console.log(order.meta)
 
 		var productsTotalInOrderCurrency = new BigNumber(0)
 		order.meta.products.forEach(function(product){
