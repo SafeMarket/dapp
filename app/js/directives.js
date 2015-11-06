@@ -160,7 +160,7 @@ angular.module('app').directive('aliasInput', function(growl) {
     	require: 'ngModel',
     	link: function (scope, element, attr, ngModelCtrl) {
       		ngModelCtrl.$parsers.push(function(text) {
-        		var transformedInput = text.toLowerCase().replace(/[^a-z]/g, '');
+        		var transformedInput = text.toLowerCase().replace(/[^a-z0-9]/g, '');
         		if(transformedInput !== text) {
            			ngModelCtrl.$setViewValue(transformedInput);
             		ngModelCtrl.$render();
