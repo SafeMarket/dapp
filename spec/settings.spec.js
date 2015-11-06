@@ -7,8 +7,8 @@ describe('safemarket',function(){
 describe('settings modal',function(){
     it('should open when the settings button is clicked',function(){
         element(by.css('[ng-click="openSettingsModal()"]')).click()
-        var currentModal = browser.executeScript("return angular.element(document.body).injector().get('modals').currentModal")
-        expect(currentModal).toBe('SettingsModalController');
+        var currentController = browser.executeScript("return angular.element(document.body).injector().get('modals').currentController")
+        expect(currentController).toBe('SettingsModalController');
     })
 
     it('should show mulitple currencies',function(){
@@ -39,9 +39,17 @@ describe('settings modal',function(){
         });
         browser.switchTo().alert().accept();
         browser.switchTo().alert().accept();
+        browser.waitForAngular()
         var keypairsCount = browser.executeScript("return angular.element(document.body).injector().get('user').keypairs.length")
         expect(keypairsCount).toBe(2);
-        browser.waitForAngular()
+        browser.wait(function() {
+            var deferred = protractor.promise.defer();
+            element(by.css('[ng-show="isChangingKeys"]')).isDisplayed()
+                .then(function (isDisplayed) {
+                  deferred.fulfill(!isDisplayed);
+            });
+            return deferred.promise;
+        });
         var keypairMatches = browser.executeScript("var user = angular.element(document.body).injector().get('user'); return user.keypairs[1].id === user.keypair.id")
         expect(keypairMatches).toBe(true);
     })
