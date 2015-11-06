@@ -38,13 +38,16 @@ angular.module('app').controller('SettingsModalController',function($scope,safem
 
 	$scope.setPrimaryKeypair = function(index){
 
+		$scope.isChangingKeys = true
+		
 		var keyData = user.keypairs[index].public.toPacketlist().write()
 			,estimatedGas = Keystore.setKey.estimateGas(keyData)
 			,doContinue = helpers.confirmGas(estimatedGas)
 
-		if(!doContinue) return
-
-		$scope.isChangingKeys = true
+		if(!doContinue){
+			$scope.isChangingKeys = false
+			return
+		}
 
 		safemarket.Key.set(keyData).then(function(){
 			$scope.user.loadKeypair()

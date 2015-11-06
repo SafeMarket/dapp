@@ -7,8 +7,8 @@ describe('safemarket',function(){
 describe('market modal',function(){
     it('should open when the market modal button is clicked',function(){
         element(by.css('[ng-click="openMarketModal()"]')).click()
-        var currentModal = browser.executeScript("return angular.element(document.body).injector().get('modals').currentModal")
-        expect(currentModal).toBe('MarketModalController')
+        var currentController = browser.executeScript("return angular.element(document.body).injector().get('modals').currentController")
+        expect(currentController).toBe('MarketModalController')
     })
 
     it('should create The Drink Market',function(){
