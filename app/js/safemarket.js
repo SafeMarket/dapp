@@ -37,8 +37,8 @@
 		    	return _.startsWith(value,'0x') && value.length===42 ? null : 'is not a valid address'
 
 		    if(options==='alias')
-		    	if (value.valueOf() !== value.toLowerCase().replace(/[^a-z]/g, '').valueOf())
-		    		return 'can only be lower case letters'
+		    	if (value.valueOf() !== value.toLowerCase().replace(/[^a-z0-9]/g, '').valueOf())
+		    		return 'can only be lower case letters and numbers'
 		    	else
 		    		return null
 
