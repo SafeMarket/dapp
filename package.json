@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "jasmine-fail-fast": "^2.0.0",
+    "protractor": "^2.5.1",
     "solc": "^0.1.6"
   }
 }
