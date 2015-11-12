@@ -1,3 +1,5 @@
+describe('market',function(){
+
 var marketAlias = 'drinkmarket'+Math.floor(Math.random()*999999)
 
 describe('safemarket',function(){
@@ -33,5 +35,7 @@ describe('market modal',function(){
         })
         
     })
+
+})
 
 })

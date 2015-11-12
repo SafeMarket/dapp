@@ -1,6 +1,6 @@
 {
-  "name": "app_name",
-  "version": "0.0.1",
+  "name": "safemarket",
+  "version": "0.2.5",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -23,8 +23,15 @@
     "grunt-contrib-copy": "^0.8.0",
     "grunt-contrib-uglify": "^0.9.1",
     "grunt-contrib-watch": "^0.6.1",
+    "grunt-electron": "^2.0.1",
     "grunt-embark": "https://github.com/SafeMarket/grunt-embark.git",
+    "grunt-protractor-runner": "^2.1.0",
+    "grunt-rename": "^0.1.4",
+    "grunt-tagrelease": "^0.3.3",
+    "grunt-version": "^1.0.0",
+    "jasmine-reporters": "^1.0.0",
     "matchdep": "^0.3.0",
+    "mkdirp": "^0.5.1",
     "read-yaml": "^1.0.0",
     "web3": "^0.13.0"
   },

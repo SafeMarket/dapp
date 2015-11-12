@@ -1,3 +1,5 @@
+describe('settings',function(){
+
 describe('safemarket',function(){
     it('should exist on port 8000',function(){
         browser.get('http://localhost:8000');
@@ -60,4 +62,6 @@ describe('settings modal',function(){
         var keypairsCount = browser.executeScript("return angular.element(document.body).injector().get('user').keypairs.length")
         expect(keypairsCount).toBe(1);
     })
+})
+
 })
