@@ -1,7 +1,7 @@
 module.exports = (grunt) ->
 
   grunt.option 'stack', true
-  grunt.loadNpmTasks "grunt-embark", "grunt-version", "grunt-protractor-runner", "grunt-tagrelease", "grunt-git"
+  grunt.loadNpmTasks "grunt-embark", "grunt-version", "grunt-protractor-runner", "grunt-tagrelease", "grunt-git", "grunt-contrib-connect"
   grunt.loadTasks "tasks"
 
   grunt.initConfig(
