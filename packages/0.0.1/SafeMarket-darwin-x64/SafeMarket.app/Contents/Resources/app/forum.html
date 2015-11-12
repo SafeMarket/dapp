@@ -1,0 +1,16 @@
+<table class="table">
+	<tr>
+		<td colspan="2">
+			<div add-comment="forum.commentsGroup"></div>
+		</td>
+	</tr>
+	<tbody ng-repeat="comment in forum.commentsGroup.comments">
+		<tr comment="comment" comment-is-repliable="true">
+		</tr>
+		<tr ng-show="showReplies" class="comment-child">
+			<td colspan="2" add-comment="comment.commentsGroup"></td>
+		</tr>
+		<tr ng-show="$parent.showReplies" ng-repeat="comment in comment.commentsGroup.comments"  class="comment-child" comment="comment" comment-is-repliable="false">
+		</tr>
+	</tbody>
+</table>

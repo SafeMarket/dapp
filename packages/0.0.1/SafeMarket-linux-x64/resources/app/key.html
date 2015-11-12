@@ -1,0 +1,16 @@
+<div class="panel panel-default">
+	<div class="panel-heading" ng-click="isExpanded=!isExpanded">
+		<h3 class="panel-title">
+			<div timestamp="key.timestamp">
+				
+			</div>
+			<div style="position:absolute;top:0;right:0;">
+				<span class="glyphicon glyphicon-collapse-down" ng-show="!isExpanded"></span>	
+				<span class="glyphicon glyphicon-collapse-up" ng-show="isExpanded"></span>	
+			</div>
+		</h3>
+	</div>
+	<div class="panel-body" ng-show="isExpanded">
+		<div class="key">{{key.key.armor()}}</div>
+	</div>
+</div>

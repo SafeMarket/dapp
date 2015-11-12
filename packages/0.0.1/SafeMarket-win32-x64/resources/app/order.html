@@ -1,0 +1,205 @@
+<div class="container">
+	<h2>
+		<a ng-href="#/stores/{{order.store.addr}}">{{order.store.meta.name}}</a> » Order {{order.addr.substr(0,6)}}...
+	</h2>
+	<table class="table">
+		<tr>
+			<td>Status</td>
+			<td>
+				{{order.status | status}}
+			</td>
+			<td class="text-right">
+				<div class="alert alert-info text-center" ng-show="isUpdatingStatus">
+					Updating status...
+				</div>
+				<div ng-show="!isUpdatingStatus">
+					<button
+						class="btn btn-xs btn-default"
+						ng-show="order.status===0 && (userRole === 'buyer' || userRole === 'storeOwner')"
+						ng-click="cancel()"
+					>Cancel</button>
+					<button
+						class="btn btn-xs btn-default"
+						ng-show="order.status===0 && userRole === 'storeOwner' || true"
+						ng-click="markAsShipped()"
+					>Mark as Shipped</button>
+					<button
+						class="btn btn-xs btn-default"
+						ng-show="order.status===2 && userRole === 'buyer'"
+						ng-click="dispute()"
+					>Dispute</button>
+					<button
+						class="btn btn-xs btn-default"
+						ng-show="order.status===2 && userRole === 'buyer'"
+						ng-click="finalize()"
+					>Finalize</button>
+					<button
+						class="btn btn-xs btn-default"
+						ng-show="order.status===4 && userRole === 'marketOwner' || true"
+						ng-click="openResolutionModal()"
+					>Resolve Dispute</button>
+				</div>
+			</td>
+		</tr>
+		<tr ng-show="order.market">
+			<td>Market</td>
+			<td colspan="2" alias="order.market.addr">
+			</td>
+		</tr>
+		<tr>
+			<td>Dispute Deadline</td>
+			<td colspan="2">
+				<div ng-show="order.status===1">
+					{{order.disputeSeconds | disputeSeconds}}
+				</div>
+				<div ng-show="order.status===2" timestamp="order.disputeDeadline"></div>
+			</td>
+		</tr>
+		<tr ng-show="order.status===5">
+			<td>Resolution</td>
+			<td>Buyer ({{order.buyerPercent | percentage}})
+				<amounts value="order.buyerAmount" from="'WEI'" to="displayCurrencies"></amounts>
+			</td>
+			<td class="text-right">@{{order.store.addr | alias}}  ({{order.storeOwnerPercent | percentage}})
+				<amounts value="order.storeOwnerAmount" from="'WEI'" to="displayCurrencies"></amounts>
+			</td>
+		</tr>
+		<tr>
+			<td>Created</td>
+			<td timestamp="order.timestamp" colspan="2"></td>
+		</tr>
+		<tr ng-show="order.shippedAt.greaterThan(0)">
+			<td>Shipping Date</td>
+			<td timestamp="order.shippedAt" colspan="2"></td>
+		</tr>
+		<tbody collapsable is-collapsed="true">
+			<tr>
+				<td>Address</td>
+				<td class="oneliner" colspan="2">{{order.addr}}</td>
+			</tr>
+			<tr>
+				<td>Buyer</td>
+				<td class="oneliner" colspan="2">{{order.buyer}}</td>
+			</tr>
+		</tbody>
+		<tr>
+			<td>Total</td>
+			<td colspan="2">
+				<amounts
+					value="order.total"
+					from="'WEI'"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+		<tbody collapsable is-collapsed="true">
+			<tr>
+				<td>Product Total</td>
+				<td colspan="2">
+					<amounts
+						value="order.productsTotal"
+						from="'WEI'"
+						to="displayCurrencies">
+					</amounts>
+				</td>
+			</tr>
+			<tr>
+				<td>Shipping ({{order.meta.transport.type}})</td>
+				<td colspan="2">
+					<amounts
+						value="order.transportPrice"
+						from="'WEI'"
+						to="displayCurrencies">
+					</amounts>
+				</td>
+			</tr>
+			<tr>
+				<td>Market Fee ({{order.feePercentage.div(100) | percentage}})</td>
+				<td colspan="2">
+					<amounts
+						value="order.estimatedFee"
+						from="'WEI'"
+						to="displayCurrencies">
+					</amounts>
+				</td>
+			</tr>
+		</tbody>
+		<tr>
+			<td>Received ({{order.percentReceived | percentage}})
+			<div class="text-muted text-small" ng-show="order.received.greaterThan(0)">{{order.confirmations}}/{{order.confirmationsNeeded}} Confirmations</div>
+			</td>
+			<td>
+				<amounts
+					value="order.received"
+					from="'WEI'"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+			<td class="text-right">
+				<button
+					class="btn btn-xs btn-default"
+					ng-show="order.status===0 && userRole === 'buyer'"
+					ng-click="makePayment()"
+				>Make Payment</button>
+				<button
+					class="btn btn-xs btn-default"
+					ng-show="order.status===0 && userRole === 'buyer' && order.received.greaterThan(0)"
+					ng-click="makeWithdrawl()"
+				>Make Withdrawl</button>
+			</td>
+		</tr>
+	</table>
+	<h3>Products</h3>
+	<table class="table">
+		<tr ng-repeat="product in order.meta.products">
+			<td>
+				{{product.name}}
+			</td>
+			<td>
+				{{product.info}}
+			</td>
+			<td>
+				<amounts
+					value="product.price"
+					from="order.meta.currency"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+			<td>
+				x{{product.quantity}}
+			</td>
+		</tr>
+	</table>
+	<h3>Messages</h3>
+	<p>Messages are encrypted and stored on the blockchain</p>
+	<table class="table">
+		<tr ng-repeat="messageOrUpdate in messagesAndUpdates" ng-class="{'update':messageOrUpdate.isUpdate,'message':messageOrUpdate.isMessage}">
+			<td>
+				<span ng-show="messageOrUpdate.isMessage">{{messageOrUpdate.from | capitalize}}:</span>
+				<span ng-show="messageOrUpdate.isUpdate">Update:</span>
+			</td>
+			<td>
+				<div ng-show="messageOrUpdate.messageArmored">
+					<div ng-show="messageOrUpdate.text">{{messageOrUpdate.text}}</div>
+					<pre ng-show="!messageOrUpdate.text">{{messageOrUpdate.messageArmored}}</pre>
+				</div>
+				<div ng-show="messageOrUpdate.status">
+					{{messageOrUpdate.from | capitalize}} has marked the order as {{messageOrUpdate.status | status | lowercase}}
+				</div>
+			</td>
+			<td class="text-right" timestamp="messageOrUpdate.timestamp"></td>
+		</tr>
+		<tr>
+			<td colspan="3">
+				<div class="alert alert-info text-center" ng-show="isAddingMessage">
+					Adding message...
+				</div>
+				<form ng-submit="addMessage()" ng-show="!isAddingMessage">
+					<textarea class="form-control" ng-model="messageText"></textarea>
+					<br>
+					<button class="btn btn-primary">Submit</button>
+				</form>
+			</td>
+		</tr>
+	</table>
+</div>

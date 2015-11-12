@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <title>SafeMarket</title>
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'none';
+      script-src 'self';
+      style-src 'self' 'unsafe-inline';
+      font-src 'self';
+      connect-src http://localhost:* file://*;
+    "> 
+    <script>alert('XSS vulnerability detected. Close SafeMarket immediately.')</script>
+    <link rel="stylesheet" href="css/app.min.css">
+    <script src="js/app.min.js"></script>
+  </head>
+  <body ng-app="app"><div ng-controller="MainController">
+    <nav class="navbar navbar-default navbar-top navbar-static-top" ng-show="isLoggedIn" id="navbar">
+      <div class="container">
+        <div class="navbar-header pull-left">
+          <a class="navbar-brand" href="#/">SafeMarket</a>
+        </div>
+        <div class="navbar-header pull-right">
+          <button class="navbar-btn btn btn-default btn-lg" ng-click="refresh()">
+            <span class="glyphicon glyphicon-refresh"></span>
+          </button>
+          <button class="navbar-btn btn btn-default btn-lg" ng-click="openSettingsModal()">
+            <span class="glyphicon glyphicon-cog"></span>
+          </button>
+          <button class="btn btn-default btn-lg" ng-click="logout()">
+            <span class="glyphicon glyphicon-log-out"></span>
+          </button>
+        </div>
+      </div>
+    </nav>
+    <div class="container">
+      <div class="alert alert-danger" ng-show="!isConnected">
+        Warning: Unable to Connect to Ethereum Node.
+      </div>
+    </div>
+    <div growl></div>
+    <div ui-view autoscroll="true"></div>
+  </div></body>
+</html>

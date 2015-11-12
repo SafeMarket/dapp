@@ -1,0 +1,17 @@
+<td>
+	<span ng-show="!isHidden">{{comment.text}}</span>
+	<div class="text-muted text-small">
+		<a ng-click="toggleIsHidden()">{{isHidden?'Un-Hide':'Hide'}}</a>
+		<span ng-show="!isHidden">
+			|
+			by <span alias="comment.author"></span>
+		</span>
+		<span ng-show="isRepliable && !isHidden">
+			|
+			<a ng-click="$parent.showReplies=!$parent.showReplies">Replies ({{comment.commentsGroup.comments.length}})</a>
+		</span>
+	</div>
+</td>
+<td class="text-right">
+	<div timestamp="comment.timestamp" ng-show="!isHidden"></div>
+</td>
