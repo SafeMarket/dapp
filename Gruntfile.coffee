@@ -243,7 +243,6 @@ module.exports = (grunt) ->
     "gitpush:ghpages"
     "gitcheckout:master"
     "version::patch"
-    "gitcommit:all"
     "gitcommit:release"
     "tagrelease"
     "gitpush:master"
