@@ -1,10 +1,33 @@
 module.exports = (grunt) ->
 
   grunt.option 'stack', true
-  grunt.loadNpmTasks "grunt-embark", "grunt-version", "grunt-protractor-runner", "grunt-tagrelease"
+  grunt.loadNpmTasks "grunt-embark", "grunt-version", "grunt-protractor-runner", "grunt-tagrelease", "grunt-git"
   grunt.loadTasks "tasks"
 
   grunt.initConfig(
+
+    gitcheckout:
+      master:
+        options:
+          branch: "master"
+      ghpages:
+        options:
+          branch: "gh-pages"
+
+    gitmerge:
+      master:
+        options:
+          branch: "master"
+
+    gitadd:
+      all:
+        options:
+          all: true
+
+    gitcommit:
+      release:
+        options:
+          message: "release"
 
     version:
       project:
@@ -186,7 +209,25 @@ module.exports = (grunt) ->
 
   grunt.registerTask "deploy", ["copy", "coffee", "deploy_contracts", "concat", "copy", "server", "watch"]
   grunt.registerTask "build", ["copy", "clean", "deploy_contracts", "coffee", "concat", "uglify", "copy"]
-  grunt.registerTask "release", ["protractor","version::patch","move_reports","electron","move_packages"]
+  grunt.registerTask "release", [
+    "gitcheckout:ghpages"
+    "gitmerge:master"
+    "protractor"
+    "version::patch"
+    "move_reports"
+    "electron"
+    "move_packages"
+    "gitadd:all"
+    "gitcommit:release"
+    "tagrelease"
+    "gitpush:tags"
+    "gitcheckout:master"
+    "version::patch"
+    "gitcommit:all"
+    "gitcommit:release"
+    "tagrelease"
+    "gitpush:tags"
+  ]
 
   grunt.registerTask "move_reports", ()->
     fs = require('fs')
