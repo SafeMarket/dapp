@@ -245,7 +245,6 @@ module.exports = (grunt) ->
     "version::patch"
     "gitadd:all"
     "gitcommit:release"
-    "tagrelease"
     "gitpush:master"
   ]
 
