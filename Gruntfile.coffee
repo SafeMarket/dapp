@@ -1,7 +1,16 @@
 module.exports = (grunt) ->
 
   grunt.option 'stack', true
-  grunt.loadNpmTasks "grunt-embark", "grunt-version", "grunt-protractor-runner", "grunt-tagrelease", "grunt-git", "grunt-contrib-connect"
+  grunt.loadNpmTasks(
+    "grunt-embark"
+    ,"grunt-version"
+    ,"grunt-protractor-runner"
+    ,"grunt-tagrelease"
+    ,"grunt-git"
+    ,"grunt-contrib-connect"
+    ,"grunt-compress"
+  )
+
   grunt.loadTasks "tasks"
 
   grunt.initConfig(
@@ -61,7 +70,7 @@ module.exports = (grunt) ->
           '--save':
             ''
     electron:
-      osxBuild:
+      all:
         options:
           version: "0.34.3"
           name: "SafeMarket"
@@ -69,6 +78,35 @@ module.exports = (grunt) ->
           platform: "all"
           arch: "x64"
           out: "packages/latest"
+
+    compress:
+      darwin:
+        options:
+          archive: 'packages/latest/SafeMarket-darwin-x64.zip'
+          mode: 'zip'
+        files:[
+          src: '**/**'
+          cwd: 'packages/latest/SafeMarket-darwin-x64/',
+          expand: true
+        ]
+      win32:
+        options:
+          archive: 'packages/latest/SafeMarket-win32-x64.zip'
+          mode: 'zip'
+        files:[
+          src: '**/**'
+          cwd: 'packages/latest/SafeMarket-win32-x64/',
+          expand: true
+        ]
+      linux:
+        options:
+          archive: 'packages/latest/SafeMarket-linux-x64.zip'
+          mode: 'zip'
+        files:[
+          src: '**/**'
+          cwd: 'packages/latest/SafeMarket-linux-x64/',
+          expand: true
+        ]
 
     tagrelease: 
       file: 'package.json'
