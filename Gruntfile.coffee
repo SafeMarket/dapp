@@ -6,6 +6,12 @@ module.exports = (grunt) ->
 
   grunt.initConfig(
 
+    connect:
+      generated:
+        options:
+          port: 8000
+          base: "generated/dapp"
+
     gitcheckout:
       master:
         options:
@@ -18,6 +24,7 @@ module.exports = (grunt) ->
       master:
         options:
           branch: "master"
+          force: true
 
     gitadd:
       all:
@@ -30,9 +37,16 @@ module.exports = (grunt) ->
           message: "release"
 
     gitpush:
-      tags:
+      master:
         options:
           tags: true
+          origin: 'origin'
+          branch: 'master'
+      ghpages:
+        options:
+          tags: true
+          origin: 'origin'
+          branch: 'gh-pages'
 
     version:
       project:
@@ -215,6 +229,7 @@ module.exports = (grunt) ->
   grunt.registerTask "deploy", ["copy", "coffee", "deploy_contracts", "concat", "copy", "server", "watch"]
   grunt.registerTask "build", ["copy", "clean", "deploy_contracts", "coffee", "concat", "uglify", "copy"]
   grunt.registerTask "release", [
+    "connect:generated"
     "gitcheckout:ghpages"
     "gitmerge:master"
     "protractor"
@@ -225,12 +240,13 @@ module.exports = (grunt) ->
     "gitadd:all"
     "gitcommit:release"
     "tagrelease"
-    "gitpush:tags"
+    "gitpush:ghpages"
     "gitcheckout:master"
     "version::patch"
+    "gitcommit:all"
     "gitcommit:release"
     "tagrelease"
-    "gitpush:tags"
+    "gitpush:master"
   ]
 
   grunt.registerTask "move_reports", ()->
