@@ -29,6 +29,11 @@ module.exports = (grunt) ->
         options:
           message: "release"
 
+    gitpush:
+      tags:
+        options:
+          tags: true
+
     version:
       project:
         src: "package.json"
