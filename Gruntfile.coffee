@@ -75,7 +75,7 @@ module.exports = (grunt) ->
       commit:  true
       message: 'Release %version%'
       annotate: false
-      prefix: ''
+      prefix: 'v'
 
     files:
       electron: 
