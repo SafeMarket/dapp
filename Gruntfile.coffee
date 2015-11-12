@@ -228,7 +228,6 @@ module.exports = (grunt) ->
     "gitpush:tags"
     "gitcheckout:master"
     "version::patch"
-    "gitcommit:all"
     "gitcommit:release"
     "tagrelease"
     "gitpush:tags"
