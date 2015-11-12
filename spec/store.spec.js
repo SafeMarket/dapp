@@ -1,3 +1,5 @@
+describe('store',function(){
+
 var storeAlias = 'satoshis'+Math.floor(Math.random()*999999)
 
 describe('safemarket',function(){
@@ -100,5 +102,7 @@ describe('store modal',function(){
     //     })
 
     // })
+
+})
 
 })

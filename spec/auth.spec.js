@@ -1,14 +1,9 @@
-describe('safemarket',function(){
-    it('should exist on port 8000',function(){
-        browser.get('http://localhost:8000');
-    })
-})
-
+describe('auth',function(){
 
 describe('account reset', function() {
 
     it('should have a button in the settigns menu', function() {
-
+        browser.get('http://localhost:8000');
         element(by.css('[ng-click="openSettingsModal()"]')).click();
         var resetButtonPresence = element(by.css('[ng-click="reset()"]')).isPresent();
         expect(resetButtonPresence).toBe(true);
@@ -110,11 +105,9 @@ describe('registration', function() {
 
 describe('logout/login',function(){
 
-    it('dismiss modal if open',function(){
-        browser.executeScript("angular.element(document.body).injector().get('modals').closeInstance()")
-    })
-
     it('should work when clicking the logout button',function(){
+        browser.executeScript("angular.element(document.body).injector().get('modals').closeInstance()")
+        browser.waitForAngular()
         element(by.css('[ng-click="logout()"]')).click()
     })
 
@@ -167,5 +160,7 @@ describe('logout/login',function(){
         expect(browser.getCurrentUrl()).toEqual('http://localhost:8000/#/');
     
     });
+
+})
 
 })

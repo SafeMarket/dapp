@@ -1,11 +1,47 @@
 module.exports = (grunt) ->
 
   grunt.option 'stack', true
-  grunt.loadNpmTasks "grunt-embark"
+  grunt.loadNpmTasks "grunt-embark", "grunt-version", "grunt-protractor-runner", "grunt-tagrelease"
   grunt.loadTasks "tasks"
 
   grunt.initConfig(
+
+    version:
+      project:
+        src: "package.json"
+
+    protractor:
+      options:
+        keepAlive: false
+      all:
+        configFile: "protractor.conf.js"
+        args:
+          '--save':
+            ''
+    electron:
+      osxBuild:
+        options:
+          version: "0.34.3"
+          name: "SafeMarket"
+          dir: "generated/dapp"
+          platform: "all"
+          arch: "x64"
+          out: "packages/latest"
+
+    tagrelease: 
+      file: 'package.json'
+      commit:  true
+      message: 'Release %version%'
+      annotate: false
+      prefix: ''
+
     files:
+      electron: 
+        src: [
+          "main.js"
+          "package.json"
+        ]
+
       web3:
         "app/js/web3.js"
 
@@ -112,6 +148,10 @@ module.exports = (grunt) ->
         tasks: ["deploy", "concat", "copy"]
 
     copy:
+      electron:
+        files: [
+          {expand: true, src: ["<%= files.electron.src %>"], dest: 'generated/dapp/', flatten: true}
+        ]
       html:
         files: [
           {expand: true, src: ["<%= files.html.src %>"], dest: 'generated/dapp/', flatten: true}
@@ -146,4 +186,16 @@ module.exports = (grunt) ->
 
   grunt.registerTask "deploy", ["copy", "coffee", "deploy_contracts", "concat", "copy", "server", "watch"]
   grunt.registerTask "build", ["copy", "clean", "deploy_contracts", "coffee", "concat", "uglify", "copy"]
+  grunt.registerTask "release", ["protractor","version::patch","move_reports","electron","move_packages"]
 
+  grunt.registerTask "move_reports", ()->
+    fs = require('fs')
+    packageJson = fs.readFileSync('package.json','utf8')
+    packageObj = JSON.parse(packageJson)
+    fs.renameSync('reports/latest', 'reports/'+packageObj.version)
+
+  grunt.registerTask "move_packages", ()->
+    fs = require('fs')
+    packageJson = fs.readFileSync('package.json','utf8')
+    packageObj = JSON.parse(packageJson)
+    fs.renameSync('packages/latest', 'packages/'+packageObj.version)
