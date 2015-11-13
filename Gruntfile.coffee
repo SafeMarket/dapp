@@ -25,9 +25,9 @@ module.exports = (grunt) ->
       master:
         options:
           branch: "master"
-      ghpages:
+      release:
         options:
-          branch: "gh-pages"
+          branch: "release"
 
     gitmerge:
       master:
@@ -51,11 +51,11 @@ module.exports = (grunt) ->
           tags: true
           origin: 'origin'
           branch: 'master'
-      ghpages:
+      release:
         options:
           tags: true
           origin: 'origin'
-          branch: 'gh-pages'
+          branch: 'release'
 
     version:
       project:
@@ -273,7 +273,7 @@ module.exports = (grunt) ->
   grunt.registerTask "build", ["copy", "clean:workspaces", "deploy_contracts", "coffee", "concat", "uglify", "copy"]
   grunt.registerTask "release", [
     "connect:generated"
-    "gitcheckout:ghpages"
+    "gitcheckout:release"
     "gitmerge:master"
     "protractor"
     "version::patch"
@@ -283,7 +283,7 @@ module.exports = (grunt) ->
     "gitadd:all"
     "gitcommit:release"
     "tagrelease"
-    "gitpush:ghpages"
+    "gitpush:release"
     "gitcheckout:master"
     "version::patch"
     "gitadd:all"
