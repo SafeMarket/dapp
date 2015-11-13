@@ -15,6 +15,19 @@ module.exports = (grunt) ->
 
   grunt.initConfig(
 
+    ipfsadd:
+      mainjs:
+        options:
+          paths: ["main.js"]
+          save: "ipfs.json"
+      packages:
+        options:
+          paths:[
+            "packages/latest/Safemarket-darwin-x64.zip"
+            "packages/latest/Safemarket-win32-x64.zip"
+            "packages/latest/Safemarket-linux-x64.zip"
+          ]
+
     connect:
       generated:
         options:
