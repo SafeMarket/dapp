@@ -316,7 +316,6 @@ module.exports = (grunt) ->
       if hasUncommitted
         return done false
       else
-        hashes[path] = hash
-        grunt.log.success('Added '+hash);
+        grunt.log.success('No uncommitted changes');
         done()
       
