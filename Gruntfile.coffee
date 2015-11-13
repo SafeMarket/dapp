@@ -279,6 +279,8 @@ module.exports = (grunt) ->
     "version::patch"
     "move_reports"
     "electron"
+    "compress"
+    "clean:packages"
     "move_packages"
     "gitadd:all"
     "gitcommit:release"
