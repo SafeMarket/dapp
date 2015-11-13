@@ -16,17 +16,14 @@ module.exports = (grunt) ->
   grunt.initConfig(
 
     ipfsadd:
-      mainjs:
-        options:
-          paths: ["main.js"]
-          save: "ipfs.json"
       packages:
         options:
           paths:[
-            "packages/latest/Safemarket-darwin-x64.zip"
-            "packages/latest/Safemarket-win32-x64.zip"
-            "packages/latest/Safemarket-linux-x64.zip"
+            "packages/Safemarket-darwin-x64.zip"
+            "packages/Safemarket-win32-x64.zip"
+            "packages/Safemarket-linux-x64.zip"
           ]
+        save: "ipfs.packages.json"
 
     connect:
       generated:
@@ -90,34 +87,34 @@ module.exports = (grunt) ->
           dir: "generated/dapp"
           platform: "all"
           arch: "x64"
-          out: "packages/latest"
+          out: "packages/"
 
     compress:
       darwin:
         options:
-          archive: 'packages/latest/SafeMarket-darwin-x64.zip'
+          archive: 'packages/SafeMarket-darwin-x64.zip'
           mode: 'zip'
         files:[
           src: '**/**'
-          cwd: 'packages/latest/SafeMarket-darwin-x64/',
+          cwd: 'packages/SafeMarket-darwin-x64/',
           expand: true
         ]
       win32:
         options:
-          archive: 'packages/latest/SafeMarket-win32-x64.zip'
+          archive: 'packages/SafeMarket-win32-x64.zip'
           mode: 'zip'
         files:[
           src: '**/**'
-          cwd: 'packages/latest/SafeMarket-win32-x64/',
+          cwd: 'packages/SafeMarket-win32-x64/',
           expand: true
         ]
       linux:
         options:
-          archive: 'packages/latest/SafeMarket-linux-x64.zip'
+          archive: 'packages/SafeMarket-linux-x64.zip'
           mode: 'zip'
         files:[
           src: '**/**'
-          cwd: 'packages/latest/SafeMarket-linux-x64/',
+          cwd: 'packages/SafeMarket-linux-x64/',
           expand: true
         ]
 
@@ -268,9 +265,9 @@ module.exports = (grunt) ->
     clean:
       workspaces: ["dist", "generated"]
       packages: [
-        "packages/latest/SafeMarket-darwin-x64/"
-        "packages/latest/SafeMarket-win32-x64/"
-        "packages/latest/SafeMarket-linux-x64/"
+        "packages/SafeMarket-darwin-x64/"
+        "packages/SafeMarket-win32-x64/"
+        "packages/SafeMarket-linux-x64/"
       ]
 
     deploy:
@@ -288,6 +285,9 @@ module.exports = (grunt) ->
     "protractor"
     "version::patch"
     "move_reports"
+    "electron"
+    "ipfsadd:packages"
+    "clean:packages"
     "gitadd:all"
     "gitcommit:release"
     "tagrelease"
@@ -299,9 +299,3 @@ module.exports = (grunt) ->
     packageJson = fs.readFileSync('package.json','utf8')
     packageObj = JSON.parse(packageJson)
     fs.renameSync('reports/latest', 'reports/'+packageObj.version)
-
-  grunt.registerTask "move_packages", ()->
-    fs = require('fs')
-    packageJson = fs.readFileSync('package.json','utf8')
-    packageObj = JSON.parse(packageJson)
-    fs.renameSync('packages/latest', 'packages/'+packageObj.version)
