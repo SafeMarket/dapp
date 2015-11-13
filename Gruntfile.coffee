@@ -300,3 +300,23 @@ module.exports = (grunt) ->
     packageJson = fs.readFileSync('package.json','utf8')
     packageObj = JSON.parse(packageJson)
     fs.renameSync('reports/latest', 'reports/'+packageObj.version)
+
+  grunt.registerTask "gitstatuscheck", ()->
+    cp = require('child_process')
+    childProcess = cp.exec('git status --porcelain')
+    hasUncommitted = false
+    done = this.async()
+
+    childProcess.stdout.on 'data', (data)->
+      grunt.log.error data
+      hasUncommitted = true
+    
+    
+    childProcess.on 'exit', (code)->
+      if hasUncommitted
+        return done false
+      else
+        hashes[path] = hash
+        grunt.log.success('Added '+hash);
+        done()
+      
