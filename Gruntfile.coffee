@@ -254,6 +254,11 @@ module.exports = (grunt) ->
 
     clean:
       workspaces: ["dist", "generated"]
+      packages: [
+        "packages/latest/SafeMarket-darwin-x64/"
+        "packages/latest/SafeMarket-win32-x64/"
+        "packages/latest/SafeMarket-linux-x64/"
+      ]
 
     deploy:
       contracts: '<%= files.contracts.src %>'
@@ -265,7 +270,7 @@ module.exports = (grunt) ->
   require('matchdep').filterAll('grunt-*').forEach(grunt.loadNpmTasks)
 
   grunt.registerTask "deploy", ["copy", "coffee", "deploy_contracts", "concat", "copy", "server", "watch"]
-  grunt.registerTask "build", ["copy", "clean", "deploy_contracts", "coffee", "concat", "uglify", "copy"]
+  grunt.registerTask "build", ["copy", "clean:workspaces", "deploy_contracts", "coffee", "concat", "uglify", "copy"]
   grunt.registerTask "release", [
     "connect:generated"
     "gitcheckout:ghpages"
