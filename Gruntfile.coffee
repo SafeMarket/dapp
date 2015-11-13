@@ -286,6 +286,7 @@ module.exports = (grunt) ->
     "version::patch"
     "move_reports"
     "electron"
+    "compress:packages"
     "ipfsadd:packages"
     "clean:packages"
     "gitadd:all"
