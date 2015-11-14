@@ -1,6 +1,7 @@
 module.exports = (grunt) ->
 
   grunt.option 'stack', true
+
   grunt.loadNpmTasks(
     "grunt-embark"
     ,"grunt-version"
@@ -24,12 +25,6 @@ module.exports = (grunt) ->
             "packages/Safemarket-linux-x64.zip"
           ]
         save: "ipfs.packages.json"
-
-    connect:
-      generated:
-        options:
-          port: 8000
-          base: "generated/dapp"
 
     gitcheckout:
       master:
