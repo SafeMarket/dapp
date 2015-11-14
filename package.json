@@ -1,10 +1,6 @@
 {
   "name": "safemarket",
-<<<<<<< HEAD
   "version": "0.0.3",
-=======
-  "version": "0.0.5",
->>>>>>> 0887cd4d46215453bd254611a2f782676ae49724
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -17,11 +13,7 @@
     "compression": "^1.4.3",
     "electron-packager": "^5.1.1",
     "electron-prebuilt": "^0.34.1",
-<<<<<<< HEAD
     "embark-framework": "git+https://github.com/SafeMarket/embark-framework.git#develop",
-=======
-    "embark-framework": "https://github.com/SafeMarket/embark-framework.git#develop",
->>>>>>> 0887cd4d46215453bd254611a2f782676ae49724
     "express": "^4.12.3",
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
@@ -34,14 +26,9 @@
     "grunt-contrib-uglify": "^0.9.1",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-electron": "^2.0.1",
-<<<<<<< HEAD
     "grunt-embark": "git+https://github.com/SafeMarket/grunt-embark.git",
     "grunt-git": "^0.3.5",
     "grunt-ipfs": "git+https://github.com/SafeMarket/grunt-ipfs.git",
-=======
-    "grunt-embark": "https://github.com/SafeMarket/grunt-embark.git",
-    "grunt-git": "^0.3.5",
->>>>>>> 0887cd4d46215453bd254611a2f782676ae49724
     "grunt-protractor-runner": "^2.1.0",
     "grunt-rename": "^0.1.4",
     "grunt-tagrelease": "^0.3.3",
@@ -50,11 +37,7 @@
     "matchdep": "^0.3.0",
     "mkdirp": "^0.5.1",
     "read-yaml": "^1.0.0",
-<<<<<<< HEAD
     "shelljs": "^0.5.3"
-=======
-    "web3": "^0.13.0"
->>>>>>> 0887cd4d46215453bd254611a2f782676ae49724
   },
   "dependencies": {
     "jasmine-fail-fast": "^2.0.0",
