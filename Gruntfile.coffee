@@ -302,7 +302,6 @@ module.exports = (grunt) ->
     packageObj = JSON.parse(packageJson)
     hashesJson = fs.readFileSync('packages/ipfs.json','utf8')
     hashesObj = JSON.parse(hashesJson)
-    console.log('hashesObj',hashesObj['packages\/SafeMarket-darwin-x64.zip'])
     readmeTemplate = fs.readFileSync('readme.template.md','utf8')
 
     readme = readmeTemplate
