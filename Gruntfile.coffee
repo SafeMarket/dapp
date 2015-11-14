@@ -282,6 +282,7 @@ module.exports = (grunt) ->
     "compress"
     "ipfsadd:packages"
     "clean:packages"
+    "readme"
     "gitadd:all"
     "gitcommit:release"
     "tagrelease"
