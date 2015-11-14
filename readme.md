@@ -1,11 +1,11 @@
-### SafeMarket 0.0.7
+### SafeMarket 0.0.8
 
-[Test Reports](/reports/0.0.7/)
+[Test Reports](/reports/0.0.8/)
 
 #### Downloads
 
 |Platform   |IPFS Hash                   |
 |-----------|----------------------------|
-|Mac        |`ipfs get QmdzaVwjXs5kbtT1VQ829fxia6LzCMDQhkD4FZ1PHnTP6K`   |
-|Linux      |`ipfs get QmXNeMtKDpFFWs9sEzb4BGXbjzFvupmFzFLJEpSH1aHV57` |
-|Win        |`ipfs get QmakUaQPmyYLsWPiqGesohrmtnhv4DFUTHV5cF8SoreqwG`   |
+|Mac        |`ipfs get QmU8Va31ZqTbTYHrFeQJmtny512SR8jvprpSmRzXsKAYwL`   |
+|Linux      |`ipfs get QmVkbGGKy2EL5jgfYB6Kj1yDUPYvbsb6svRpmoCwF1Pv3i` |
+|Win        |`ipfs get QmNSGw1Dwo4U3Ysz9NKzUVu1nWeXZCo6wbff6oeW7sauLL`   |
