@@ -282,12 +282,13 @@ module.exports = (grunt) ->
   grunt.registerTask "deploy", ["copy", "coffee", "deploy_contracts", "concat", "copy", "server", "watch"]
   grunt.registerTask "build", ["copy", "clean:workspaces", "deploy_contracts", "coffee", "concat", "uglify", "copy"]
   grunt.registerTask "release", [
+    "gitadd:all"
     "gitstatuscheck"
     "protractor"
     "version::patch"
     "move_reports"
     "electron"
-    "compress:packages"
+    "compress"
     "ipfsadd:packages"
     "clean:packages"
     "gitadd:all"
