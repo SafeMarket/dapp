@@ -4,3 +4,4 @@ config/chains/development.json
 generated/
 dist/
 .node-xmlhttprequest-sync-*
+packages/
