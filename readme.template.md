@@ -1,4 +1,4 @@
-### SafeMarket {{version}}
+# SafeMarket {{version}}
 
 [Test Reports](/reports/{{version}}/)
 
