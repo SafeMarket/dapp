@@ -264,11 +264,7 @@ module.exports = (grunt) ->
 
     clean:
       workspaces: ["dist", "generated"]
-      packages: [
-        "packages/SafeMarket-darwin-x64/"
-        "packages/SafeMarket-win32-x64/"
-        "packages/SafeMarket-linux-x64/"
-      ]
+      packages: ["packages/**/*"]
 
     deploy:
       contracts: '<%= files.contracts.src %>'
