@@ -5,3 +5,4 @@ generated/
 dist/
 .node-xmlhttprequest-sync-*
 packages/
+reports/latest

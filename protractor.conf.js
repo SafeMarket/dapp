@@ -8,10 +8,7 @@ exports.config = {
 	]
 	,allScriptsTimeout: 20000
 	,onPrepare: function() {
-
-		if(process.argv.indexOf('--save')==-1)
-			return    
-		
+			
 		require('jasmine-reporters');
 
 		var mkdirp = require('mkdirp')
