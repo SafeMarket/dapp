@@ -1,4 +1,4 @@
-### SafeMarket 0.0.8
+# SafeMarket 0.0.8
 
 [Test Reports](/reports/0.0.8/)
 
