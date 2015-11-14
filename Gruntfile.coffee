@@ -151,7 +151,7 @@ module.exports = (grunt) ->
           "bower_components/angular-sanitize/angular-sanitize.min.js"
           "bower_components/angular-ui-router/release/angular-ui-router.min.js"
           "app/js/app.js"
-          "app/js/SafeMarket.js"
+          "app/js/safemarket.js"
           "app/js/**/*.js"
         ]
 
@@ -248,6 +248,7 @@ module.exports = (grunt) ->
       css:
         files:
           "dist/dapp/css/app.min.css" : "<%= files.css.src %>"
+
       contracts:
         files:
           "dist/contracts/": '<%= files.contracts.src %>'
