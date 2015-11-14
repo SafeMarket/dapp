@@ -265,7 +265,6 @@ module.exports = (grunt) ->
     clean:
       workspaces: ["dist", "generated"]
       packages: ["packages/**/*"]
-      protractor: ["node-xmlhttprequest-sync-*"]
 
     deploy:
       contracts: '<%= files.contracts.src %>'
@@ -288,7 +287,6 @@ module.exports = (grunt) ->
     "compress"
     "ipfsadd:packages"
     "clean:packages"
-    "clean:protractor"
     "gitadd:all"
     "gitcommit:release"
     "tagrelease"
