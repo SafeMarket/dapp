@@ -20,11 +20,11 @@ module.exports = (grunt) ->
       packages:
         options:
           paths:[
-            "packages/Safemarket-darwin-x64.zip"
-            "packages/Safemarket-win32-x64.zip"
-            "packages/Safemarket-linux-x64.zip"
+            "packages/SafeMarket-darwin-x64.zip"
+            "packages/SafeMarket-win32-x64.zip"
+            "packages/SafeMarket-linux-x64.zip"
           ]
-        save: "ipfs.packages.json"
+          save: "packages/ipfs.json"
 
     gitcheckout:
       master:
@@ -151,7 +151,7 @@ module.exports = (grunt) ->
           "bower_components/angular-sanitize/angular-sanitize.min.js"
           "bower_components/angular-ui-router/release/angular-ui-router.min.js"
           "app/js/app.js"
-          "app/js/safemarket.js"
+          "app/js/SafeMarket.js"
           "app/js/**/*.js"
         ]
 
@@ -293,6 +293,24 @@ module.exports = (grunt) ->
     packageJson = fs.readFileSync('package.json','utf8')
     packageObj = JSON.parse(packageJson)
     fs.renameSync('reports/latest', 'reports/'+packageObj.version)
+
+  grunt.registerTask "readme", ()->
+    fs = require('fs')
+    packageJson = fs.readFileSync('package.json','utf8')
+    packageObj = JSON.parse(packageJson)
+    hashesJson = fs.readFileSync('packages/ipfs.json','utf8')
+    hashesObj = JSON.parse(hashesJson)
+    console.log('hashesObj',hashesObj['packages\/SafeMarket-darwin-x64.zip'])
+    readmeTemplate = fs.readFileSync('readme.template.md','utf8')
+
+    readme = readmeTemplate
+      .split('{{version}}').join(packageObj.version)
+      .split('{{hashes.mac}}').join(hashesObj['packages\/SafeMarket-darwin-x64.zip'])
+      .split('{{hashes.linux}}').join(hashesObj['packages\/SafeMarket-linux-x64.zip'])
+      .split('{{hashes.win}}').join(hashesObj['packages\/SafeMarket-win32-x64.zip'])
+
+    fs.writeFileSync('readme.md',readme)
+    
 
   grunt.registerTask "gitstatuscheck", ()->
     cp = require('child_process')
