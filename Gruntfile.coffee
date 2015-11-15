@@ -19,12 +19,12 @@ module.exports = (grunt) ->
     ipfsadd:
       packages:
         options:
-          paths:[
+          files:[
             "packages/SafeMarket-darwin-x64.zip"
             "packages/SafeMarket-win32-x64.zip"
             "packages/SafeMarket-linux-x64.zip"
           ]
-          save: "packages/ipfs.json"
+          output: "packages/ipfs.json"
 
     gitcheckout:
       master:
