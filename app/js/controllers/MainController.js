@@ -2,6 +2,15 @@
 	angular.module('app').controller('MainController',function($scope,modals,user,growl){
 
 		$scope.user = user
+		$scope.canGoBack = false
+
+		$rootScope.$on('$locationChangeSuccess', function() {
+	        $scope.canGoBack = window.location.history.length>1
+	    });
+
+		$scope.goBack = function(){
+			window.history.back()
+		}
 
 		$scope.refresh = function(){
 			window.location.reload()
