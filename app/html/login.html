@@ -4,10 +4,10 @@
 		<form ng-submit="login()"  id="loginForm">
 			<table class="table">
 				<tr>
-					<td>Password:</td>
+					<td>Passphrase:</td>
 					<td>
 						<input type="{{showPassword?'text':'password'}}" ng-model="password" class="form-control">
-						<label><input type="checkbox" ng-model="showPassword"> Show Password</label>
+						<label><input type="checkbox" ng-model="showPassword"> Show Passphrase</label>
 					</td>
 				</tr>
 				<tr>
@@ -24,17 +24,30 @@
 		<form ng-submit="register()" id="registerForm">
 			<table class="table">
 				<tr>
-					<td>Password:</td>
+					<td>Passphrase:</td>
 					<td><input type="{{showPassword?'text':'password'}}" ng-model="password" class="form-control"></td>
 				</tr>
 				<tr>
-					<td>Repeat Password:</td>
+					<td></td>
+					<td>
+						<p class="small">
+						This passphrase will be used to encrypt the data on your local machine. Here are some suggestions for choosing good passphrases.
+						<ul style="padding-left: 15px;">
+							<li class="small">Make it long.</li>
+							<li class="small">Use words that aren't in the dictionary, like proper nouns and slang.</li>
+							<li class="small">Use punctuations and numbers.</li>
+						</ul>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td>Repeat Passphrase:</td>
 					<td><input type="{{showPassword?'text':'password'}}" ng-model="password1" class="form-control"></td>
 				</tr>
 				<tr>
 					<td></td>
 					<td>
-						<label><input type="checkbox" ng-model="showPassword"> Show Password</label>
+						<label><input type="checkbox" ng-model="showPassword"> Show Passphrase</label>
 					</td>
 				</tr>
 				<tr>
