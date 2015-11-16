@@ -14,22 +14,22 @@
     <script src="js/app.min.js"></script>
   </head>
   <body ng-app="app"><div ng-controller="MainController">
-    <nav class="navbar navbar-default navbar-top navbar-static-top" ng-show="isLoggedIn" id="navbar">
+    <nav class="navbar navbar-default navbar-top navbar-static-top" id="navbar">
       <div class="container">
         <div class="navbar-header pull-left">
-          <a class="navbar-brand" href="#/">SafeMarket</a>
+          <a class="navbar-brand" ng-href="{{isLoggedIn?'#/':'.'}}">SafeMarket</a>
         </div>
         <div class="navbar-header pull-right">
-          <button class="navbar-btn btn btn-default btn-lg" ng-click="goBack()">
+          <button class="navbar-btn btn btn-default btn-lg" ng-click="goBack()" ng-if="isLoggedIn">
             <span class="glyphicon glyphicon-menu-left"></span>
           </button>
           <button class="navbar-btn btn btn-default btn-lg" ng-click="refresh()">
             <span class="glyphicon glyphicon-refresh" ng-class="{spin:isRefreshing}"></span>
           </button>
-          <button class="navbar-btn btn btn-default btn-lg" ng-click="openSettingsModal()">
+          <button class="navbar-btn btn btn-default btn-lg" ng-click="openSettingsModal()"  ng-if="isLoggedIn">
             <span class="glyphicon glyphicon-cog"></span>
           </button>
-          <button class="btn btn-default btn-lg" ng-click="logout()">
+          <button class="btn btn-default btn-lg" ng-click="logout()" ng-if="isLoggedIn">
             <span class="glyphicon glyphicon-log-out"></span>
           </button>
         </div>

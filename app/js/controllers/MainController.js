@@ -1,5 +1,5 @@
 (function(){
-	angular.module('app').controller('MainController',function($scope,$timeout,modals,user,growl){
+	angular.module('app').controller('MainController',function($scope,$timeout,$rootScope,modals,user,growl){
 
 		$scope.user = user
 
@@ -44,6 +44,7 @@
 
 		$scope.logout = function(){
 			user.logout()
+			$rootScope.isLoggedIn = false
 			window.location.hash="/login"
 		}
 

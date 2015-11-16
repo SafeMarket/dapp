@@ -4,7 +4,7 @@ angular.module('app').directive('a',function(){
 	return {
 		link:function($scope,$element,$attributes){
 			$element.on("click",function(e){
-				if(!$attributes.href || $attributes.href.indexOf('#')===0) return
+				if(!$attributes.href || $attributes.href.indexOf('#')===0 || $attributes.href==='.') return
 
 				if(!confirm('You are now leaving SafeMarket. This may be an attempt to deanonymize you. Continue?'))
 					e.preventDefault()

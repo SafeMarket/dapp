@@ -6,7 +6,8 @@ body{
 tbody{border-top: none !important}
 
 a.glyphicon:hover{text-decoration: none;}
-a[href]:not([href*="#"]):not([href=""]):before,a[href]:not([href*="#"]):not([href=""]):after{
+a[href]:not([href*="#"]):not([href=""]):not([href="."]):before
+,a[href]:not([href*="#"]):not([href=""]):not([href="."]):after{
     content:'\26a0';color:red;font-weight: bold;padding:0 3px;
 }
 

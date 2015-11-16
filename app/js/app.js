@@ -72,8 +72,13 @@ app.config(function(growlProvider,$stateProvider, $urlRouterProvider) {
 
 app.run(function(user,$rootScope,$interval,timeAgo){
 
-    //set password if not in electron
-	user.password = window.module ? null : 'password'
+    //if electron
+    //TODO: find better way of determining if electron is available
+    if(!window.module){
+        user.password = 'password'
+        $rootScope.isLoggedIn = true
+    }
+
 	
     if(user.password){
 		$rootScope.isLoggedIn = true
@@ -82,6 +87,9 @@ app.run(function(user,$rootScope,$interval,timeAgo){
 		$rootScope.isLoggedIn = false
 		window.location.hash='/login'
 	}
+
+    if(window.module)
+        web3.setProvider(new web3.providers.HttpProvider('http://localhost:8545'));
 
 	$rootScope.isConnected = web3.isConnected()
 	$interval(function(){
