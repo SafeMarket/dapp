@@ -71,8 +71,11 @@ app.config(function(growlProvider,$stateProvider, $urlRouterProvider) {
 });
 
 app.run(function(user,$rootScope,$interval,timeAgo){
-	user.password = 'password'
-	if(user.password){
+
+    //set password if not in electron
+	user.password = window.module ? null : 'password'
+	
+    if(user.password){
 		$rootScope.isLoggedIn = true
 		user.loadData()
 	}else{
