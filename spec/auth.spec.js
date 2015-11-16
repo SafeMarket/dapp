@@ -43,10 +43,6 @@ describe('registration', function() {
         expect(element(by.css('#loginForm')).isDisplayed()).toBe(false)
     })
 
-    it('should not show the navbar',function(){
-        expect(element(by.css('#navbar  ')).isDisplayed()).toBe(false)
-    })
-
     it('should have two password fields', function() {
 
         var passwordInputs = element.all(by.css('#registerForm [type="password"]'))
@@ -121,10 +117,6 @@ describe('logout/login',function(){
 
     it('should not show the register form',function(){
         expect(element(by.css('#registerForm')).isDisplayed()).toBe(false)
-    })
-
-    it('should not show the navbar',function(){
-        expect(element(by.css('#navbar  ')).isDisplayed()).toBe(false)
     })
 
     it('should have one password field', function() {
