@@ -52,6 +52,7 @@ describe('settings modal',function(){
             });
             return deferred.promise;
         });
+        browser.waitForAngular()
         var keypairMatches = browser.executeScript("var user = angular.element(document.body).injector().get('user'); return user.keypairs[1].id === user.keypair.id")
         expect(keypairMatches).toBe(true);
     })
