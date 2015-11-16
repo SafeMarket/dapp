@@ -1,6 +1,6 @@
-# SafeMarket 0.0.17
+# SafeMarket 0.0.18
 
-[Test Reports](/reports/0.0.17/)
+[Test Reports](/reports/0.0.18/)
 
 #### Download
 
@@ -13,7 +13,7 @@ Please note IPFS is not anonymization software.
 
 |Platform   |IPFS Hash                   |
 |-----------|----------------------------|
-|Mac        |`ipfs get ,`   |
+|Mac        |`ipfs get QmSHxXFstzh6C89uDYrkSiEBGVTND93hs73CWojS3nQcbQ`   |
 |Linux      |`ipfs get ,` |
 |Win        |`ipfs get ,`   |
 
