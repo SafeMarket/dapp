@@ -173,6 +173,11 @@ module.exports = (grunt) ->
           "app/html/**/*.html"
         ]
 
+      images:
+        src: [
+          "app/images/*"
+        ]
+
       fonts:
         src: [
           "bower_components/bootstrap/fonts/glyphicons-halflings-regular.woff2"
@@ -216,6 +221,10 @@ module.exports = (grunt) ->
         files: ["<%= files.html.src %>"]
         tasks: ["copy"]
 
+      images:
+        files: ["<%= files.images.src %>"]
+        tasks: ["copy"]
+
       js:
         files: ["<%= files.js.src %>","<%= files.web3 %>"]
         tasks: ["concat"]
@@ -244,6 +253,10 @@ module.exports = (grunt) ->
       html:
         files: [
           {expand: true, src: ["<%= files.html.src %>"], dest: 'generated/dapp/', flatten: true}
+        ]
+      images:
+        files: [
+          {expand: true, src: ["<%= files.images.src %>"], dest: 'generated/dapp/images', flatten: true}
         ]
       fonts:
         files: [
