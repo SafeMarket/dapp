@@ -1,5 +1,5 @@
 (function(){
-	angular.module('app').controller('MainController',function($scope,modals,user,growl){
+	angular.module('app').controller('MainController',function($scope,$timeout,modals,user,growl){
 
 		$scope.user = user
 
@@ -8,7 +8,10 @@
 		}
 
 		$scope.refresh = function(){
-			window.location.reload()
+			$scope.isRefreshing = true
+			$timeout(function(){
+				window.location.reload()
+			},300)
 		}
 
 		$scope.openSettingsModal = function(){

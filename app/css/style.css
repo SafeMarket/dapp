@@ -78,3 +78,6 @@ h3 .btn{float: right}
 
 .comment-child{background-color: #eee}
 .update{background-color:#EFF3FA;}
+
+.spin{ animation: spin 2s linear infinite; }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
