@@ -46,7 +46,7 @@ describe('settings modal',function(){
         expect(keypairsCount).toBe(2);
         browser.wait(function() {
             var deferred = protractor.promise.defer();
-            element(by.css('[ng-show="isChangingKeys"]')).isDisplayed()
+            element(by.css('[src="images/balls.gif"]')).isDisplayed()
                 .then(function (isDisplayed) {
                   deferred.fulfill(!isDisplayed);
             });
