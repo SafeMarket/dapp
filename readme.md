@@ -1,6 +1,6 @@
-# SafeMarket 0.0.18
+# SafeMarket 0.0.19
 
-[Test Reports](/reports/0.0.18/)
+[Test Reports](/reports/0.0.19/)
 
 #### Download
 
@@ -13,9 +13,9 @@ Please note IPFS is not anonymization software.
 
 |Platform   |IPFS Hash                   |
 |-----------|----------------------------|
-|Mac        |`ipfs get QmSHxXFstzh6C89uDYrkSiEBGVTND93hs73CWojS3nQcbQ`   |
-|Linux      |`ipfs get ,` |
-|Win        |`ipfs get ,`   |
+|Mac        |`ipfs get QmZr6Yp1NEfGwaf4AfeeVReytmD8Q9req9tAPwnDiGczdP`   |
+|Linux      |`ipfs get QmSch2oxGn6TSE8L1WDqWDEQi4ttY4T4FyySxE9gifNVLe` |
+|Win        |`ipfs get QmSEbmXh2Up3bMfAqVSFHbTGetsw7x1FCNq2yqKb3YvC3u`   |
 
 3. Rename the file to a zip (for example rename `QmVs1u2CUvJR2ycLxwAzsV7XibxGR24iuGTNWw2t3bfDQf` to `QmVs1u2CUvJR2ycLxwAzsV7XibxGR24iuGTNWw2t3bfDQf.zip`)
 4. Unpack the zip and open it to get the app
