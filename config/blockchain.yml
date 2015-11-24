@@ -1,7 +1,7 @@
 development:
   port: 30304
   rpc_host: localhost
-  rpc_port: 8101
+  rpc_port: 8545
   rpc_whitelist: "*"
   minerthreads: 1
   genesis_block: config/genesis/dev_genesis.json
@@ -10,32 +10,42 @@ development:
   mine_when_needed: true
   mine_periodically: false
   max_peers: 0
-  gas_limit: 3141592
+  gas_limit: 314159
   gas_price: 50000000000
   console: false
   whisper: true
   account:
-    init: true
+    address: 76fcd5035e4d331e11ec613af7e3737560812fcb
     password: config/password
-staging:
+testnet:
+  testnet: true
   rpc_host: localhost
-  rpc_port: 8101
+  rpc_port: 8545
   rpc_whitelist: "*"
   datadir: default
-  network_id: 0
+  chains: config/chains/testnet.json
+  network_id: 2
   max_peers: 4
   console: true
+  deploy_synchronously: true
+  gas_limit: 314159
+  gas_price: 50000000000
   account:
-    init: false
-    address:
+    init: true
+    password: config/password
 production:
   rpc_host: localhost
-  rpc_port: 8101
+  rpc_port: 8545
   rpc_whitelist: "*"
   datadir: default
   network_id: 1
   max_peers: 4
   console: true
+  deploy_synchronously: false
+  chains: config/chains/production.json
+  gas_limit: 3141592
+  gas_price: 50000000000
   account:
     init: false
-    address:
+    address: dc99b79555385ab2fe0ff28c3c954a07b28aac5e
+    password: config/password

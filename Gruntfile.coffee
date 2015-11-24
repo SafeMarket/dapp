@@ -288,8 +288,10 @@ module.exports = (grunt) ->
   # Loads all plugins that match "grunt-", in this case all of our current plugins
   require('matchdep').filterAll('grunt-*').forEach(grunt.loadNpmTasks)
 
-  grunt.registerTask "deploy", ["copy", "coffee", "deploy_contracts", "concat", "copy", "server", "watch"]
-  grunt.registerTask "build", ["copy", "clean:workspaces", "deploy_contracts", "coffee", "concat", "uglify", "copy"]
+  env = grunt.option('env');
+
+  grunt.registerTask "deploy", ["copy", "coffee", "deploy_contracts:"+env, "concat", "copy", "server", "watch"]
+  grunt.registerTask "build", ["copy", "clean:workspaces", "deploy_contracts:"+env, "coffee", "concat", "uglify", "copy"]
   grunt.registerTask "release", [
     "ipfscheck:default"
     "gitadd:all"

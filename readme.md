@@ -13,9 +13,9 @@ Please note IPFS is not anonymization software.
 
 |Platform   |IPFS Hash                   |
 |-----------|----------------------------|
-|Mac        |`ipfs get QmZr6Yp1NEfGwaf4AfeeVReytmD8Q9req9tAPwnDiGczdP`   |
-|Linux      |`ipfs get QmSch2oxGn6TSE8L1WDqWDEQi4ttY4T4FyySxE9gifNVLe` |
-|Win        |`ipfs get QmSEbmXh2Up3bMfAqVSFHbTGetsw7x1FCNq2yqKb3YvC3u`   |
+|Mac        |`ipfs get QmVksC5cdUEXQ6njGRYm2WfDaFv1dLr7BXXYUxhfrTtSCB`   |
+|Linux      |`ipfs get QmSDLN6Wkfa2HyxXpJcng5kAaiHEngj4YwgeFbxZW6aVCn` |
+|Win        |`ipfs get QmcZQ5m8keGT2Akm2FnetXXb6QU5e5J7Y3UdjMjnFVJ6F7`   |
 
 3. Rename the file to a zip (for example rename `QmVs1u2CUvJR2ycLxwAzsV7XibxGR24iuGTNWw2t3bfDQf` to `QmVs1u2CUvJR2ycLxwAzsV7XibxGR24iuGTNWw2t3bfDQf.zip`)
 4. Unpack the zip and open it to get the app
