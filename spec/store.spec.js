@@ -49,6 +49,7 @@ describe('store modal',function(){
     })
 
     it('should update to Satoshis Awesome Lemonade Stand Edited',function(){
+        browser.waitForAngular()
         element(by.css('[ng-click="openStoreModal(store)"]')).click()
         var currentController = browser.executeScript("return angular.element(document.body).injector().get('modals').currentController")
         expect(currentController).toBe('StoreModalController')
