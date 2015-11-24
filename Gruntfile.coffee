@@ -294,6 +294,7 @@ module.exports = (grunt) ->
     "protractor"
     "version::patch"
     "move_reports"
+    "clean:packages"
     "electron"
     "compress"
     "ipfsadd:packages"
