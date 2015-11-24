@@ -15,7 +15,6 @@ development:
   console: false
   whisper: true
   account:
-    address: 76fcd5035e4d331e11ec613af7e3737560812fcb
     password: config/password
 testnet:
   testnet: true
