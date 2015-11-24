@@ -62,6 +62,7 @@ describe('settings modal',function(){
     })
 
     it('should be deleted when clicked',function(){
+        browser.waitForAngular()
         element(by.css('[ng-click="deleteKeypair($index)"]')).click()
         browser.switchTo().alert().accept();
         var keypairsCount = browser.executeScript("return angular.element(document.body).injector().get('user').keypairs.length")
