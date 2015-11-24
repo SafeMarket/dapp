@@ -15,6 +15,7 @@ development:
   console: false
   whisper: true
   account:
+    create: true
     password: config/password
 testnet:
   testnet: true
