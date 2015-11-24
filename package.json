@@ -1,6 +1,6 @@
 {
   "name": "safemarket",
-  "version": "0.0.18",
+  "version": "0.0.22",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -28,7 +28,7 @@
     "grunt-electron": "^2.0.1",
     "grunt-embark": "git+https://github.com/SafeMarket/grunt-embark.git",
     "grunt-git": "^0.3.5",
-    "grunt-ipfs": "git+https://github.com/SafeMarket/grunt-ipfs.git",
+    "grunt-ipfs": "^0.1.1",
     "grunt-protractor-runner": "^2.1.0",
     "grunt-rename": "^0.1.4",
     "grunt-tagrelease": "^0.3.3",

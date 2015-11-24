@@ -266,9 +266,9 @@ Order.prototype.update = function(){
 		if(results.length === 0)
 			return deferred.reject(new Error('no results found'))
 
-		console.log('meta fetched',web3.toAscii(results[0].args.meta))
+		console.log('meta fetched',web3.toAscii(results[results.length-1].args.meta))
 
-		var metaPgpMessageWrapper = new PgpMessageWrapper(web3.toAscii(results[0].args.meta))
+		var metaPgpMessageWrapper = new PgpMessageWrapper(web3.toAscii(results[results.length-1].args.meta))
 		
 		user.decrypt(metaPgpMessageWrapper)
 		

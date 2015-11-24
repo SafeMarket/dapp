@@ -16,6 +16,7 @@ describe('store modal',function(){
     })
 
     it('should create Satoshis Lemonade Stand',function(){
+        browser.waitForAngular()
         element(by.css('.modal-body [ng-model="alias"]')).sendKeys(storeAlias)
         element(by.css('[ng-model="name"]')).sendKeys('Satoshis Lemonade Stand')
         element(by.css('[ng-model="info"]')).sendKeys('The best lemonade on the interweb')
@@ -49,6 +50,7 @@ describe('store modal',function(){
     })
 
     it('should update to Satoshis Awesome Lemonade Stand Edited',function(){
+        browser.waitForAngular()
         element(by.css('[ng-click="openStoreModal(store)"]')).click()
         var currentController = browser.executeScript("return angular.element(document.body).injector().get('modals').currentController")
         expect(currentController).toBe('StoreModalController')

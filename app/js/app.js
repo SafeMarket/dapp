@@ -88,9 +88,6 @@ app.run(function(user,$rootScope,$interval,timeAgo){
 		window.location.hash='/login'
 	}
 
-    if(window.module)
-        web3.setProvider(new web3.providers.HttpProvider('http://localhost:8545'));
-
 	$rootScope.isConnected = web3.isConnected()
 	$interval(function(){
 		$rootScope.isConnected = web3.isConnected()

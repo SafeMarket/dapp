@@ -192,7 +192,7 @@ Store.prototype.update = function(){
 		if(results.length === 0)
 			return deferred.reject(new Error('no results found'))
 
-		store.meta = utils.convertHexToObject(results[0].args.meta)
+		store.meta = utils.convertHexToObject(results[results.length-1].args.meta)
 		store.info = utils.sanitize(store.meta.info || '')
 		store.minTotal = utils.convertCurrency(store.meta.minTotal,{from:store.meta.currency,to:'ETH'})
 
