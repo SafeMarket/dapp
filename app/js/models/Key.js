@@ -25,7 +25,7 @@ angular.module('safemarket').factory('Key',function(utils,$q){
 				return deferred.reject(new Error('no results found'))
 
 			try{
-				var key = new Key(results[0].args.data,web3.eth.getBlock(results[0].blockNumber).timestamp)
+				var key = new Key(results[results.length-1].args.data,web3.eth.getBlock(results[results.length-1].blockNumber).timestamp)
 				deferred.resolve(key)
 			}catch(e){
 				deferred.reject(e)

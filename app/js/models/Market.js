@@ -143,7 +143,7 @@ Market.prototype.update = function(){
 
 	this.getEvents('Meta').then(function(results){
 
-		market.meta = utils.convertHexToObject(results[0].args.meta)
+		market.meta = utils.convertHexToObject(results[results.length-1].args.meta)
 		market.feePercentage = new BigNumber(market.meta.feePercentage)
 
 		deferred.resolve(market)
