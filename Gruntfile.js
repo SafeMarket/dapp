@@ -144,7 +144,7 @@ module.exports = function(grunt) {
     },
     concat: {
       app: {
-        src: ["<%= files.web3 %>", 'generated/tmp/abi.js', "<%= files.js.src %>", "<%= files.coffee.compiled %>"],
+        src: ["app/js/refresh.js","<%= files.web3 %>", 'generated/tmp/abi.js', "<%= files.js.src %>", "<%= files.coffee.compiled %>"],
         dest: "generated/dapp/js/app.min.js"
       },
       css: {
@@ -161,7 +161,7 @@ module.exports = function(grunt) {
         tasks: ["copy"]
       },
       js: {
-        files: ["<%= files.js.src %>", "<%= files.web3 %>"],
+        files: ["app/js/refresh.js","<%= files.js.src %>", "<%= files.web3 %>"],
         tasks: ["concat"]
       },
       css: {

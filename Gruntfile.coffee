@@ -132,7 +132,6 @@ module.exports = (grunt) ->
 
       js:
         src: [
-          "app/js/refresh.js"
           "node_modules/solc/bin/soljson-latest.js"
           "bower_components/crypto-js/build/rollups/aes.js"
           "bower_components/msgpack-javascript/msgpack.js"
@@ -204,7 +203,7 @@ module.exports = (grunt) ->
 
     concat:
       app:
-        src: ["<%= files.web3 %>", 'generated/tmp/abi.js', "<%= files.js.src %>", "<%= files.coffee.compiled %>"]
+        src: ["app/js/refresh.js","<%= files.web3 %>", 'generated/tmp/abi.js', "<%= files.js.src %>", "<%= files.coffee.compiled %>"]
         dest: "generated/dapp/js/app.min.js"
       css:
         src: "<%= files.css.src %>"
