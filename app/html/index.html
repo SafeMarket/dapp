@@ -23,8 +23,8 @@
           <button class="navbar-btn btn btn-default btn-lg" ng-click="goBack()" ng-if="isLoggedIn">
             <span class="glyphicon glyphicon-menu-left"></span>
           </button>
-          <button class="navbar-btn btn btn-default btn-lg" ng-click="refresh()">
-            <span class="glyphicon glyphicon-refresh" ng-class="{spin:isRefreshing}"></span>
+          <button class="navbar-btn btn btn-default btn-lg" id="refreshButton">
+            <span class="glyphicon glyphicon-refresh" id="refreshIcon"></span>
           </button>
           <button class="navbar-btn btn btn-default btn-lg" ng-click="openSettingsModal()"  ng-if="isLoggedIn">
             <span class="glyphicon glyphicon-cog"></span>

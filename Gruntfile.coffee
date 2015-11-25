@@ -132,6 +132,7 @@ module.exports = (grunt) ->
 
       js:
         src: [
+          "app/js/refresh.js"
           "node_modules/solc/bin/soljson-latest.js"
           "bower_components/crypto-js/build/rollups/aes.js"
           "bower_components/msgpack-javascript/msgpack.js"
