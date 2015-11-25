@@ -42,7 +42,7 @@
 			</td>
 		</tr>
 		<tr ng-show="order.market">
-			<td>Market</td>
+			<td>Submarket</td>
 			<td colspan="2" alias="order.market.addr">
 			</td>
 		</tr>
@@ -114,7 +114,7 @@
 				</td>
 			</tr>
 			<tr>
-				<td>Market Fee ({{order.feePercentage.div(100) | percentage}})</td>
+				<td>Submarket Fee ({{order.feePercentage.div(100) | percentage}})</td>
 				<td colspan="2">
 					<amounts
 						value="order.estimatedFee"
