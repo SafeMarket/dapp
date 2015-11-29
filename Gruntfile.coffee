@@ -75,14 +75,15 @@ module.exports = (grunt) ->
           '--save':
             ''
     electron:
-      all:
+      darwin:
         options:
           version: "0.34.3"
           name: "SafeMarket"
           dir: "generated/dapp"
-          platform: "all"
+          platform: "darwin"
           arch: "x64"
           out: "packages/"
+          icon: "assets/icons/1/Icon.icns"
 
     compress:
       darwin:
