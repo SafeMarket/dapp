@@ -297,9 +297,8 @@ module.exports = (grunt) ->
   # Loads all plugins that match "grunt-", in this case all of our current plugins
   require('matchdep').filterAll('grunt-*').forEach(grunt.loadNpmTasks);
 
-  #env = if grunt.cli.tasks.indexOf('release')>-1 then 'production' else grunt.option('env');
-  env = grunt.option('env')
-
+  env = if grunt.cli.tasks.indexOf('release')>-1 then 'production' else grunt.option('env');
+  
   grunt.registerTask "deploy", ["copy", "coffee", "deploy_contracts:"+env, "concat", "copy", "server", "watch"]
   grunt.registerTask "build", ["copy", "clean:workspaces", "deploy_contracts:"+env, "coffee", "concat", "copy"]
   grunt.registerTask "release", [
