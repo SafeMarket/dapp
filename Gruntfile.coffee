@@ -283,12 +283,12 @@ module.exports = (grunt) ->
 
   # loading external tasks (aka: plugins)
   # Loads all plugins that match "grunt-", in this case all of our current plugins
-  require('matchdep').filterAll('grunt-*').forEach(grunt.loadNpmTasks)
+  require('matchdep').filterAll('grunt-*').forEach(grunt.loadNpmTasks);
 
-  env = grunt.option('env');
+  env = if grunt.cli.tasks.indexOf('release')>-1 then 'production' else grunt.option('env');
 
   grunt.registerTask "deploy", ["copy", "coffee", "deploy_contracts:"+env, "concat", "copy", "server", "watch"]
-  grunt.registerTask "build", ["copy", "clean:workspaces", "deploy_contracts:"+env, "coffee", "concat", "uglify", "copy"]
+  grunt.registerTask "build", ["copy", "clean:workspaces", "deploy_contracts:"+env, "coffee", "concat", "copy"]
   grunt.registerTask "release", [
     "gitcheckout:master"
     "gitadd:all"
@@ -296,6 +296,7 @@ module.exports = (grunt) ->
     "protractor"
     "version::patch"
     "move_reports"
+    "build"
     "clean:packages"
     "electron"
     "compress"

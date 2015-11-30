@@ -65,5 +65,3 @@ production:
     deploy: false
   audible:
     deploy: false
-  OpenStore:
-    address: 0xaf527686227cc508ead0d69c7f8a98f76b63e191

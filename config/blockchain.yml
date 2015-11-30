@@ -41,9 +41,9 @@ production:
   network_id: 1
   max_peers: 4
   console: true
-  deploy_synchronously: false
+  deploy_synchronously: true
   chains: config/chains/production.json
-  gas_limit: 3141592
+  gas_limit: 314159
   gas_price: 50000000000
   account:
     init: false
