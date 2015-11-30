@@ -10,11 +10,23 @@ module.exports = (grunt) ->
     ,"grunt-git"
     ,"grunt-contrib-connect"
     ,"grunt-compress"
+    ,"grunt-port-checker"
   )
 
   grunt.loadTasks "tasks"
 
   grunt.initConfig(
+
+    checkport:
+      dev_chain:
+        options:
+          port: 8101
+      prooduction_chain:
+        options:
+          port: 8545
+      webdriver:
+        options:
+          port: 4444
 
     ipfsadd:
       packages:
@@ -285,11 +297,13 @@ module.exports = (grunt) ->
   # Loads all plugins that match "grunt-", in this case all of our current plugins
   require('matchdep').filterAll('grunt-*').forEach(grunt.loadNpmTasks);
 
-  env = if grunt.cli.tasks.indexOf('release')>-1 then 'production' else grunt.option('env');
+  #env = if grunt.cli.tasks.indexOf('release')>-1 then 'production' else grunt.option('env');
+  env = grunt.option('env')
 
   grunt.registerTask "deploy", ["copy", "coffee", "deploy_contracts:"+env, "concat", "copy", "server", "watch"]
   grunt.registerTask "build", ["copy", "clean:workspaces", "deploy_contracts:"+env, "coffee", "concat", "copy"]
   grunt.registerTask "release", [
+    "checkport"
     "gitcheckout:master"
     "gitadd:all"
     "gitstatuscheck"
@@ -342,11 +356,41 @@ module.exports = (grunt) ->
       grunt.log.error data
       hasUncommitted = true
     
-    
     childProcess.on 'exit', (code)->
       if hasUncommitted
         return done false
       else
         grunt.log.success('No uncommitted changes');
         done()
+
+  grunt.registerMultiTask "checkport", ()->
+    
+    tcpPortUsed = require 'tcp-port-used'
+
+    options = this.options()
+    host = options.host || '127.0.0.1'
+    port = parseInt(options.port)
+
+    if(!options.port || isNaN options.port)
+      grunt.log.warn('options.port must be a number')
+      return false
+    
+    done = this.async()
+
+    tcpPortPromise = tcpPortUsed.check port, host
+
+    tcpPortPromise.then (inUse)->
+      if inUse
+        grunt.log.success(host,port,'is running')
+        return done true
+      else
+        grunt.log.warn(host,port,'is not running')
+        return done false
+    ,(err)->
+      grunt.log.error(err)
+      return done false
+
+    
+      
+    
       

@@ -1,7 +1,7 @@
 development:
   port: 30304
   rpc_host: localhost
-  rpc_port: 8545
+  rpc_port: 8101
   rpc_whitelist: "*"
   minerthreads: 1
   genesis_block: config/genesis/dev_genesis.json
@@ -14,22 +14,6 @@ development:
   gas_price: 50000000000
   console: false
   whisper: true
-  account:
-    init: true
-    password: config/password
-testnet:
-  testnet: true
-  rpc_host: localhost
-  rpc_port: 8545
-  rpc_whitelist: "*"
-  datadir: default
-  chains: config/chains/testnet.json
-  network_id: 2
-  max_peers: 4
-  console: true
-  deploy_synchronously: true
-  gas_limit: 314159
-  gas_price: 50000000000
   account:
     init: true
     password: config/password

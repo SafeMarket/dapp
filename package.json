@@ -29,6 +29,7 @@
     "grunt-embark": "git+https://github.com/SafeMarket/grunt-embark.git",
     "grunt-git": "^0.3.5",
     "grunt-ipfs": "^0.1.1",
+    "grunt-port-checker": "^0.1.0",
     "grunt-protractor-runner": "^2.1.0",
     "grunt-rename": "^0.1.4",
     "grunt-tagrelease": "^0.3.3",
@@ -36,8 +37,10 @@
     "jasmine-reporters": "^1.0.0",
     "matchdep": "^0.3.0",
     "mkdirp": "^0.5.1",
+    "portchecker": "^0.1.2",
     "read-yaml": "^1.0.0",
-    "shelljs": "^0.5.3"
+    "shelljs": "^0.5.3",
+    "tcp-port-used": "^0.1.2"
   },
   "dependencies": {
     "jasmine-fail-fast": "^2.0.0",
