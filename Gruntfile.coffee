@@ -11,11 +11,16 @@ module.exports = (grunt) ->
     ,"grunt-contrib-connect"
     ,"grunt-compress"
     ,"grunt-port-checker"
+    ,"grunt-node-version"
   )
 
   grunt.loadTasks "tasks"
 
   grunt.initConfig(
+
+    node_version:
+      options:
+        nvm: true
 
     checkport:
       dev_chain:
@@ -305,6 +310,7 @@ module.exports = (grunt) ->
   grunt.registerTask "deploy", ["copy", "coffee", "deploy_contracts:"+env, "concat", "copy", "server", "watch"]
   grunt.registerTask "build", ["copy", "clean:workspaces", "deploy_contracts:"+env, "coffee", "concat", "copy"]
   grunt.registerTask "release", [
+    "node_version"
     "checkport"
     "gitcheckout:master"
     "gitadd:all"
