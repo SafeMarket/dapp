@@ -20,7 +20,7 @@ module.exports = (grunt) ->
 
     node_version:
       options:
-        nvm: true
+        nvm: false
 
     checkport:
       dev_chain:
