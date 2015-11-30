@@ -27,6 +27,9 @@ module.exports = (grunt) ->
       webdriver:
         options:
           port: 4444
+      server:
+        options:
+          port: 8000
 
     ipfsadd:
       packages:
