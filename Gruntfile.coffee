@@ -355,15 +355,10 @@ module.exports = (grunt) ->
     fs = require('fs')
     packageJson = fs.readFileSync('package.json','utf8')
     packageObj = JSON.parse(packageJson)
-    hashesJson = fs.readFileSync('packages/ipfs.json','utf8')
-    hashesObj = JSON.parse(hashesJson)
     readmeTemplate = fs.readFileSync('readme.template.md','utf8')
 
     readme = readmeTemplate
       .split('{{version}}').join(packageObj.version)
-      .split('{{hashes.mac}}').join(hashesObj['packages\/SafeMarket-darwin-x64.zip'])
-      .split('{{hashes.linux}}').join(hashesObj['packages\/SafeMarket-linux-x64.zip'])
-      .split('{{hashes.win}}').join(hashesObj['packages\/SafeMarket-win32-x64.zip'])
 
     fs.writeFileSync('readme.md',readme)
     
