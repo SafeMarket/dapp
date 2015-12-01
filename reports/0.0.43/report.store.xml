@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites>
+<testsuite name="store" errors="0" tests="0" failures="0" time="0" timestamp="2015-12-01T17:46:06">
+</testsuite>
+<testsuite name="store.safemarket" errors="0" tests="1" failures="0" time="2.132" timestamp="2015-12-01T17:45:54">
+  <testcase classname="store.safemarket" name="should exist on port 8000" time="2.132"></testcase>
+</testsuite>
+<testsuite name="store.store modal" errors="0" tests="3" failures="0" time="9.872" timestamp="2015-12-01T17:45:56">
+  <testcase classname="store.store modal" name="should open when the store modal button is clicked" time="0.189"></testcase>
+  <testcase classname="store.store modal" name="should create Satoshis Lemonade Stand" time="5.644"></testcase>
+  <testcase classname="store.store modal" name="should update to Satoshis Awesome Lemonade Stand Edited" time="4.038"></testcase>
+</testsuite>
+</testsuites>

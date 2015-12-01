@@ -1,6 +1,6 @@
-# SafeMarket 0.0.42
+# SafeMarket 0.0.43
 
-[Test Reports](/reports/0.0.42/)
+[Test Reports](/reports/0.0.43/)
 
 #### Download
 
