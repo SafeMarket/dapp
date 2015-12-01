@@ -336,13 +336,13 @@ module.exports = (grunt) ->
     "clean:packages"
     "electron"
     "compress"
-    "ipfsadd:packages"
     "readme"
-    "clean:packages"
     "gitadd:all"
     "gitcommit:release"
     "tagrelease"
     "gitpush:master"
+    "githubAsset"
+    "clean:packages"
   ]
 
   grunt.registerTask "move_reports", ()->
