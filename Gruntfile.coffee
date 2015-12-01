@@ -347,8 +347,8 @@ module.exports = (grunt) ->
     "gitcommit:release"
     "tagrelease"
     "gitpush:master"
-    "githubAsset"
     "wait:ten"
+    "githubAsset"
     "clean:packages"
   ]
 
