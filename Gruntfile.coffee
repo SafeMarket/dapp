@@ -364,7 +364,6 @@ module.exports = (grunt) ->
     "gitpush:master"
     "wait:ten"
     "githubAsset"
-    "clean:packages"
   ]
 
   grunt.registerTask "move_reports", ()->
