@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites>
+<testsuite name="settings" errors="0" tests="0" failures="0" time="0" timestamp="2015-12-01T14:32:21">
+</testsuite>
+<testsuite name="settings.safemarket" errors="0" tests="1" failures="0" time="2.068" timestamp="2015-12-01T14:32:10">
+  <testcase classname="settings.safemarket" name="should exist on port 8000" time="2.068"></testcase>
+</testsuite>
+<testsuite name="settings.settings modal" errors="0" tests="4" failures="0" time="9.144" timestamp="2015-12-01T14:32:12">
+  <testcase classname="settings.settings modal" name="should open when the settings button is clicked" time="0.36"></testcase>
+  <testcase classname="settings.settings modal" name="should show mulitple currencies" time="0.045"></testcase>
+  <testcase classname="settings.settings modal" name="should create a keypair without setting it as the primary" time="2.591"></testcase>
+  <testcase classname="settings.settings modal" name="should create a keypair and set it as the primary" time="6.148"></testcase>
+</testsuite>
+</testsuites>
