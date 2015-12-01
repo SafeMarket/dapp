@@ -14,6 +14,7 @@ module.exports = (grunt) ->
     ,"grunt-node-version"
     ,"grunt-github-release-asset"
     ,"grunt-wait"
+    ,"grunt-prompt"
   )
 
   grunt.loadTasks "tasks"
@@ -28,6 +29,15 @@ module.exports = (grunt) ->
       ten:
         options:
           delay: 10000
+
+    prompt:
+      release:
+        options:
+          questions:[{
+            config: "githubAsset.options.description"
+            type: "input"
+            message: "Release description:"
+          }]
 
     githubAsset:
         options:
@@ -334,6 +344,7 @@ module.exports = (grunt) ->
   grunt.registerTask "deploy", ["copy", "coffee", "deploy_contracts:"+env, "concat", "copy", "server", "watch"]
   grunt.registerTask "build", ["copy", "clean:workspaces", "deploy_contracts:"+env, "coffee", "concat", "copy"]
   grunt.registerTask "release", [
+    "prompt:release"
     "node_version"
     "checkport"
     "gitcheckout:master"
