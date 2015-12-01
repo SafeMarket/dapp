@@ -13,6 +13,7 @@ module.exports = (grunt) ->
     ,"grunt-port-checker"
     ,"grunt-node-version"
     ,"grunt-github-release-asset"
+    ,"grunt-wait"
   )
 
   grunt.loadTasks "tasks"
@@ -22,6 +23,11 @@ module.exports = (grunt) ->
     node_version:
       options:
         nvm: false
+
+    wait:
+      ten:
+        options:
+          delay: 10000
 
     githubAsset:
         options:
@@ -342,6 +348,7 @@ module.exports = (grunt) ->
     "tagrelease"
     "gitpush:master"
     "githubAsset"
+    "wait:ten"
     "clean:packages"
   ]
 

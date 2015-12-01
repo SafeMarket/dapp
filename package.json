@@ -41,6 +41,7 @@
     "grunt-rename": "^0.1.4",
     "grunt-tagrelease": "^0.3.3",
     "grunt-version": "^1.0.0",
+    "grunt-wait": "^0.1.0",
     "jasmine-reporters": "^1.0.0",
     "matchdep": "^0.3.0",
     "mkdirp": "^0.5.1",
