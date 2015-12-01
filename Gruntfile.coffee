@@ -35,7 +35,11 @@ module.exports = (grunt) ->
           credentials: {
             token: grunt.file.readJSON('.env.json').github.token
           }
-          file: "packages/SafeMarket-darwin-x64.zip"
+          files: [
+            "packages/SafeMarket-darwin-x64.zip"
+            "packages/SafeMarket-win32-x64.zip"
+            "packages/SafeMarket-linux-x64.zip"
+          ]
           releaseName: 'Version {tag}'
 
     checkport:
