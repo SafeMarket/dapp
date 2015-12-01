@@ -103,7 +103,6 @@ module.exports = (grunt) ->
           platform: "all"
           arch: "x64"
           out: "packages/"
-          icon: "assets/icons/1/Icon.icns"
 
     compress:
       darwin:
