@@ -12,6 +12,7 @@ module.exports = (grunt) ->
     ,"grunt-compress"
     ,"grunt-port-checker"
     ,"grunt-node-version"
+    ,"grunt-github-release-asset"
   )
 
   grunt.loadTasks "tasks"
@@ -21,6 +22,15 @@ module.exports = (grunt) ->
     node_version:
       options:
         nvm: false
+
+    githubAsset:
+        options:
+          repo: 'git@github.com:SafeMarket/dapp.git'
+          credentials: {
+            token: grunt.file.readJSON('.env.json').github.token
+          }
+          file: "packages/SafeMarket-darwin-x64.zip"
+          releaseName: 'Version {tag}'
 
     checkport:
       dev_chain:
@@ -233,6 +243,9 @@ module.exports = (grunt) ->
       options:
         livereload: true
 
+      env:
+        files:[".env.json"]
+
       html:
         files: ["<%= files.html.src %>"]
         tasks: ["copy"]
@@ -305,6 +318,8 @@ module.exports = (grunt) ->
   require('matchdep').filterAll('grunt-*').forEach(grunt.loadNpmTasks);
 
   env = if grunt.cli.tasks.indexOf('release')>-1 then 'production' else grunt.option('env');
+
+  grunt.registerTask "re", ["github-release"]
   
   grunt.registerTask "deploy", ["copy", "coffee", "deploy_contracts:"+env, "concat", "copy", "server", "watch"]
   grunt.registerTask "build", ["copy", "clean:workspaces", "deploy_contracts:"+env, "coffee", "concat", "copy"]

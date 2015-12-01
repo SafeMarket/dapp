@@ -6,3 +6,4 @@ dist/
 .node-xmlhttprequest-sync-*
 packages/
 reports/latest
+.env.json
