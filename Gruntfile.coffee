@@ -344,12 +344,12 @@ module.exports = (grunt) ->
   grunt.registerTask "deploy", ["copy", "coffee", "deploy_contracts:"+env, "concat", "copy", "server", "watch"]
   grunt.registerTask "build", ["copy", "clean:workspaces", "deploy_contracts:"+env, "coffee", "concat", "copy"]
   grunt.registerTask "release", [
-    "prompt:release"
     "node_version"
     "checkport"
     "gitcheckout:master"
     "gitadd:all"
     "gitstatuscheck"
+    "prompt:release"
     "protractor"
     "version::patch"
     "move_reports"
