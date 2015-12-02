@@ -7,7 +7,8 @@ angular.module('safemarket').service('ticker',function($interval,$http,$q){
     		,OpenStore = web3.eth.contract(OpenStoreAbi).at("0xaf527686227cc508ead0d69c7f8a98f76b63e191")
 			,tickerAddress = '0xdc99b79555385ab2fe0ff28c3c954a07b28aac5e'
 	}else{
-		var tickerAddress = web3.eth.accounts[0] || ((OpenStoreNamespace.address != '0' && OpenStoreNamespace.address) || web3.eth.accounts[0]);
+		var OpenStore = window.OpenStore
+			,tickerAddress = web3.eth.accounts[0] || ((OpenStoreNamespace.address != '0' && OpenStoreNamespace.address) || web3.eth.accounts[0]);
 	}
 
 	var symbols = ['CMC:TETH:USD','CMC:TETH:EUR','CMC:TETH:CNY','CMC:TETH:CAD','CMC:TETH:RUB','CMC:TETH:BTC'];
