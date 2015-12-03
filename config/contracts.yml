@@ -17,12 +17,12 @@ development:
     deploy: false
   OpenStore:
     onDeploy:
-      - OpenStore.set('CMC:TETH:USD', new BigNumber('2100000000000'));
-      - OpenStore.set('CMC:TETH:EUR', new BigNumber('2200000000000'));
-      - OpenStore.set('CMC:TETH:CNY', new BigNumber('2300000000000'));
-      - OpenStore.set('CMC:TETH:CAD', new BigNumber('2400000000000'));
-      - OpenStore.set('CMC:TETH:RUB', new BigNumber('2500000000000'));
-      - OpenStore.set('CMC:TETH:BTC', new BigNumber('2600000000000'));
+      - OpenStore.set('CMC:TETH:USD', new BigNumber('830075000000'));
+      - OpenStore.set('CMC:TETH:EUR', new BigNumber('782024448475'));
+      - OpenStore.set('CMC:TETH:CNY', new BigNumber('5311462328050'));
+      - OpenStore.set('CMC:TETH:CAD', new BigNumber('1107984940080'));
+      - OpenStore.set('CMC:TETH:RUB', new BigNumber('55780151819800'));
+      - OpenStore.set('CMC:TETH:BTC', new BigNumber('2306400000'));
 testnet:
   Store:
     deploy: false
@@ -42,12 +42,12 @@ testnet:
     deploy: false
   OpenStore:
     onDeploy:
-      - OpenStore.set('CMC:TETH:USD', new BigNumber('2100000000000'));
-      - OpenStore.set('CMC:TETH:EUR', new BigNumber('2200000000000'));
-      - OpenStore.set('CMC:TETH:CNY', new BigNumber('2300000000000'));
-      - OpenStore.set('CMC:TETH:CAD', new BigNumber('2400000000000'));
-      - OpenStore.set('CMC:TETH:RUB', new BigNumber('2500000000000'));
-      - OpenStore.set('CMC:TETH:BTC', new BigNumber('2600000000000'));
+      - OpenStore.set('CMC:TETH:USD', new BigNumber('830075000000'));
+      - OpenStore.set('CMC:TETH:EUR', new BigNumber('782024448475'));
+      - OpenStore.set('CMC:TETH:CNY', new BigNumber('5311462328050'));
+      - OpenStore.set('CMC:TETH:CAD', new BigNumber('1107984940080'));
+      - OpenStore.set('CMC:TETH:RUB', new BigNumber('55780151819800'));
+      - OpenStore.set('CMC:TETH:BTC', new BigNumber('2306400000'));
 production:
   Store:
     deploy: false
