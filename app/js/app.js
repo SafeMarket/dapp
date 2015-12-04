@@ -66,6 +66,11 @@ app.config(function(growlProvider,$stateProvider, $urlRouterProvider) {
             ,templateUrl:'404.html'
             ,controller:'404Controller'
         })
+        .state('advertising',{
+            url:'/advertising'
+            ,templateUrl:'advertising.html'
+            ,controller:'AdvertisingController'
+        })
 
     $urlRouterProvider.otherwise('/')
 });
