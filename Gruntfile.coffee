@@ -336,7 +336,7 @@ module.exports = (grunt) ->
   # Loads all plugins that match "grunt-", in this case all of our current plugins
   require('matchdep').filterAll('grunt-*').forEach(grunt.loadNpmTasks);
 
-  env = if grunt.cli.tasks.indexOf('release')>-1 then 'production' else grunt.option('env');
+  env = if grunt.cli.tasks.indexOf('release')>-1 || grunt.cli.tasks.indexOf('quickrelease') then 'production' else grunt.option('env');
 
   grunt.registerTask "re", ["github-release"]
   
