@@ -57,7 +57,7 @@ module.exports = (grunt) ->
           files: [
             "packages/Win-SafeMarket.exe"
             "packages/Linux-SafeMarket"
-            "packages/Mac-SafeMarket.tar.gz"
+            "packages/Mac-SafeMarket.zip"
           ]
           releaseName: 'Version {tag}'
 
@@ -163,8 +163,8 @@ module.exports = (grunt) ->
     compress:
       darwin:
         options:
-          archive: 'packages/Mac-SafeMarket.tar.gz'
-          mode: 'tgz'
+          archive: 'packages/Mac-SafeMarket.zip'
+          mode: 'zip'
         files:[
           src: '**/**'
           cwd: 'packages/SafeMarket-darwin-x64/',
