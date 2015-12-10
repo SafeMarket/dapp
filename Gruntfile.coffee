@@ -167,8 +167,7 @@ module.exports = (grunt) ->
           mode: 'zip'
         files:[
           src: '**/**'
-          cwd: 'packages/SafeMarket-darwin-x64/',
-          expand: true
+          cwd: 'packages/SafeMarket-darwin-x64/'
         ]
 
     tagrelease: 
@@ -345,7 +344,7 @@ module.exports = (grunt) ->
   # Loads all plugins that match "grunt-", in this case all of our current plugins
   require('matchdep').filterAll('grunt-*').forEach(grunt.loadNpmTasks);
 
-  env = if grunt.cli.tasks.indexOf('release')>-1 || grunt.cli.tasks.indexOf('quickrelease')>-1 then 'production' else grunt.option('env');
+  env = if grunt.cli.tasks.indexOf('release')>-1 || grunt.cli.tasks.indexOf('quickrelease')>-1 || grunt.cli.tasks.indexOf('superquickrelease')>-1 then 'production' else grunt.option('env');
 
   grunt.registerTask "re", ["github-release"]
   
@@ -387,6 +386,20 @@ module.exports = (grunt) ->
     "compress"
     "rename"
     "readme"
+    "gitadd:all"
+    "gitcommit:release"
+    "tagrelease"
+    "gitpush:master"
+    "wait:ten"
+    "githubAsset"
+  ]
+
+  grunt.registerTask "superquickrelease", [
+    "gitcheckout:master"
+    "gitadd:all"
+    "gitstatuscheck"
+    "prompt:release"
+    "version::patch"
     "gitadd:all"
     "gitcommit:release"
     "tagrelease"
