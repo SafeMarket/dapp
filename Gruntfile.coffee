@@ -365,6 +365,25 @@ module.exports = (grunt) ->
     "githubAsset"
   ]
 
+  grunt.registerTask "quickrelease", [
+    "gitcheckout:master"
+    "gitadd:all"
+    "gitstatuscheck"
+    "prompt:release"
+    "version::patch"
+    "build"
+    "clean:packages"
+    "electron"
+    "compress"
+    "readme"
+    "gitadd:all"
+    "gitcommit:release"
+    "tagrelease"
+    "gitpush:master"
+    "wait:ten"
+    "githubAsset"
+  ]
+
   grunt.registerTask "move_reports", ()->
     fs = require('fs')
     packageJson = fs.readFileSync('package.json','utf8')
