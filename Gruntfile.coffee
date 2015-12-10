@@ -46,7 +46,7 @@ module.exports = (grunt) ->
             token: grunt.file.readJSON('.env.json').github.token
           }
           files: [
-            "packages/SafeMarket-darwin-x64.zip"
+            "packages/SafeMarket-mac-x64.zip"
             "packages/SafeMarket-win32-x64.zip"
             "packages/SafeMarket-linux-x64.zip"
           ]
@@ -70,7 +70,7 @@ module.exports = (grunt) ->
       packages:
         options:
           files:[
-            "packages/SafeMarket-darwin-x64.zip"
+            "packages/SafeMarket-mac-x64.zip"
             "packages/SafeMarket-win32-x64.zip"
             "packages/SafeMarket-linux-x64.zip"
           ]
@@ -154,7 +154,7 @@ module.exports = (grunt) ->
     compress:
       darwin:
         options:
-          archive: 'packages/SafeMarket-darwin-x64.zip'
+          archive: 'packages/SafeMarket-mac-x64.zip'
           mode: 'zip'
         files:[
           src: '**/**'
