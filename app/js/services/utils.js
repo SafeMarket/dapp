@@ -4,8 +4,25 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout,$saniti
 
 	var utils = this
 
+	utils.timestamp0 = new BigNumber(web3.eth.getBlock(1).timestamp)
+	utils.billboardSlot0Timestamp = utils.timestamp0.div(86400).floor().times(86400)
+	//not sure why, but putting this at the bottom causes errors
+
 	function sanitize(string){
 		return string.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;');
+	}
+
+	function getBillboardSlot0Timestamp(){
+		return utils.timestamp0
+	}
+
+	function getBillboardSlotIndex(timestamp){
+		timestamp = timestamp || Date.now()
+		return new BigNumber(timestamp).div(1000).minus(utils.billboardSlot0Timestamp).div(86400).floor().toNumber()
+	}
+
+	function getBillboardSlotTimestamp(slotIndex){
+		return utils.billboardSlot0Timestamp.plus(slotIndex*86400)
 	}
 
 	function isAddr(string){
@@ -260,6 +277,8 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout,$saniti
 		},validateAddr:validateAddr
 		,validateAlias:validateAlias
 		,getContract:getContract
+		,getBillboardSlotIndex:getBillboardSlotIndex
+		,getBillboardSlotTimestamp:getBillboardSlotTimestamp
 	})
 	
 })

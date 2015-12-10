@@ -37,4 +37,8 @@ contract Billboard{
 
 		owner.send(msg.value-slot.bid); //send the owner the delta between the bids
 	}
+
+	function getSlot(uint _slotIndex) constant returns(address, uint){
+		return (slots[_slotIndex].winner, slots[_slotIndex].bid);
+	}
 }

@@ -86,3 +86,11 @@ h3 .btn{float: right}
 .btn:focus {
   outline: none !important;
 }
+
+.slot-past{
+    background-color:#eee;
+    color:#666;
+}
+.slot-today{
+    background-color:#FFFBCC;
+}

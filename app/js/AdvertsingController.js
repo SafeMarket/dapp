@@ -1,5 +1,9 @@
 (function(){
+	
+angular.module('app').controller('AdvertisingController',function($scope,billboard){
+	$scope.billboard = billboard
 
-angular.module('app').controller('AdvertisingController',function(){})
+	console.log(billboard)
+})
 
 })();
