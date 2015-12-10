@@ -15,6 +15,7 @@ module.exports = (grunt) ->
     ,"grunt-github-release-asset"
     ,"grunt-wait"
     ,"grunt-prompt"
+    ,"grunt-rename"
   )
 
   grunt.loadTasks "tasks"
@@ -39,6 +40,14 @@ module.exports = (grunt) ->
             message: "Release description:"
           }]
 
+    rename:
+      linux:
+        src: 'packages/SafeMarket-linux-x64/SafeMarket'
+        dest: 'packages/Linux-SafeMarket'
+      win32:
+        src: 'packages/SafeMarket-win32-x64/SafeMarket.exe'
+        dest: 'packages/Win-SafeMarket.exe'
+
     githubAsset:
         options:
           repo: 'git@github.com:SafeMarket/dapp.git'
@@ -46,9 +55,9 @@ module.exports = (grunt) ->
             token: grunt.file.readJSON('.env.json').github.token
           }
           files: [
-            "packages/SafeMarket-mac-x64.tar"
-            "packages/SafeMarket-win32-x64/SafeMarket.exe"
-            "packages/SafeMarket-linux-x64/SafeMarket"
+            "packages/Win-SafeMarket.exe"
+            "packages/Linux-SafeMarket"
+            "packages/Mac-SafeMarket.tar.gz"
           ]
           releaseName: 'Version {tag}'
 
@@ -154,8 +163,8 @@ module.exports = (grunt) ->
     compress:
       darwin:
         options:
-          archive: 'packages/SafeMarket-mac-x64.tar'
-          mode: 'tar'
+          archive: 'packages/Mac-SafeMarket.tar.gz'
+          mode: 'tgz'
         files:[
           src: '**/**'
           cwd: 'packages/SafeMarket-darwin-x64/',
