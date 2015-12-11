@@ -41,9 +41,6 @@ module.exports = (grunt) ->
           }]
 
     rename:
-      darwin:
-        src: 'packages/SafeMarket-darwin-x64/SafeMarket.app'
-        dest: 'packages/Mac-SafeMarket.app'
       linux:
         src: 'packages/SafeMarket-linux-x64/SafeMarket'
         dest: 'packages/Linux-SafeMarket'
@@ -60,7 +57,7 @@ module.exports = (grunt) ->
           files: [
             "packages/Win-SafeMarket.exe"
             "packages/Linux-SafeMarket"
-            "packages/Mac-SafeMarket.app"
+            "packages/Mac-SafeMarket.zip"
           ]
           releaseName: 'Version {tag}'
 
@@ -366,6 +363,7 @@ module.exports = (grunt) ->
     "build"
     "clean:packages"
     "electron"
+    "compress"
     "rename"
     "readme"
     "gitadd:all"
@@ -385,6 +383,7 @@ module.exports = (grunt) ->
     "build"
     "clean:packages"
     "electron"
+    "compress"
     "rename"
     "readme"
     "gitadd:all"
