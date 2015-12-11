@@ -57,7 +57,7 @@ module.exports = (grunt) ->
           files: [
             "packages/Win-SafeMarket.exe"
             "packages/Linux-SafeMarket"
-            "packages/Mac-SafeMarket.app"
+            "packages/Mac-SafeMarket.zip"
           ]
           releaseName: 'Version {tag}'
 
