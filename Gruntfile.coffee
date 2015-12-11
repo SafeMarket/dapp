@@ -55,8 +55,6 @@ module.exports = (grunt) ->
             token: grunt.file.readJSON('.env.json').github.token
           }
           files: [
-            "packages/Win-SafeMarket.exe"
-            "packages/Linux-SafeMarket"
             "packages/Mac-SafeMarket.zip"
           ]
           releaseName: 'Version {tag}'
