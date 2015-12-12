@@ -42,7 +42,7 @@ module.exports = (grunt) ->
 
     githubAsset:
         options:
-          repo: 'git@github.com:SafeMarket/test-release.git'
+          repo: 'git@github.com:SafeMarket/dapp.git'
           credentials: {
             token: grunt.file.readJSON('.env.json').github.token
           }
