@@ -40,14 +40,6 @@ module.exports = (grunt) ->
             message: "Release description:"
           }]
 
-    rename:
-      linux:
-        src: 'packages/SafeMarket-linux-x64/SafeMarket'
-        dest: 'packages/Linux-SafeMarket'
-      win32:
-        src: 'packages/SafeMarket-win32-x64/SafeMarket.exe'
-        dest: 'packages/Win-SafeMarket.exe'
-
     githubAsset:
         options:
           repo: 'git@github.com:SafeMarket/test-release.git'
@@ -55,7 +47,9 @@ module.exports = (grunt) ->
             token: grunt.file.readJSON('.env.json').github.token
           }
           files: [
-            "packages/Mac-SafeMarket.zip"
+            "packages/SafeMarket-mac-x64.zip"
+            "packages/SafeMarket-win32-x64.zip"
+            "packages/SafeMarket-linux-x64.zip"
           ]
           releaseName: 'Version {tag}'
 
@@ -161,11 +155,29 @@ module.exports = (grunt) ->
     compress:
       darwin:
         options:
-          archive: 'packages/Mac-SafeMarket.zip'
+          archive: 'packages/SafeMarket-mac-x64.zip'
           mode: 'zip'
         files:[
           src: '**/**'
-          cwd: 'packages/SafeMarket-darwin-x64/'
+          cwd: 'packages/SafeMarket-darwin-x64/',
+          expand: true
+        ]
+      win32:
+        options:
+          archive: 'packages/SafeMarket-win32-x64.zip'
+          mode: 'zip'
+        files:[
+          src: '**/**'
+          cwd: 'packages/SafeMarket-win32-x64/',
+          expand: true
+        ]
+      linux:
+        options:
+          archive: 'packages/SafeMarket-linux-x64.zip'
+          mode: 'zip'
+        files:[
+          src: '**/**'
+          cwd: 'packages/SafeMarket-linux-x64/',
           expand: true
         ]
 
@@ -363,7 +375,6 @@ module.exports = (grunt) ->
     "clean:packages"
     "electron"
     "compress"
-    "rename"
     "readme"
     "gitadd:all"
     "gitcommit:release"
@@ -383,7 +394,6 @@ module.exports = (grunt) ->
     "clean:packages"
     "electron"
     "compress"
-    "rename"
     "readme"
     "gitadd:all"
     "gitcommit:release"
