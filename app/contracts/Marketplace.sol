@@ -126,21 +126,21 @@ contract Market is forumable,audible{
 }
 
 contract Order{
-	address buyer;
-	address storeAddr;
-	address storeOwner;
-	address marketAddr;
-	address marketOwner;
-	uint feePercentage;
-	uint disputeSeconds;
-	uint status;
-	uint received;
-	uint timestamp;
-	uint shippedAt;
-	uint disputedAt;
-	uint fee;
-	uint buyerAmount;
-	uint receivedAtBlockNumber;
+	address public buyer;
+	address public storeAddr;
+	address public storeOwner;
+	address public marketAddr;
+	address public marketOwner;
+	uint public feePercentage;
+	uint public disputeSeconds;
+	uint public status;
+	uint public received;
+	uint public timestamp;
+	uint public shippedAt;
+	uint public disputedAt;
+	uint public fee;
+	uint public buyerAmount;
+	uint public receivedAtBlockNumber;
 
 	event Meta(bytes meta);
 	event Message(address indexed sender, bytes text);
@@ -362,6 +362,7 @@ contract Order{
 
 		addUpdate(resolved);
 	}
+
 }
 
 contract Store is forumable,audible{
@@ -376,6 +377,46 @@ contract Store is forumable,audible{
     function setMeta(bytes meta){
 		if(msg.sender!=owner) throw;
 		Meta(meta);
+	}
+
+	mapping(address=>Review) reviews;
+
+	struct Review{
+		uint score;
+		uint timestamp;
+	}
+
+	uint[5] scoreCounts;
+
+	event ReviewData(address indexed orderAddr, bytes data);
+
+	function leaveReview(address orderAddr, uint score, bytes data){
+		
+		var order = Order(orderAddr);
+
+		if(order.status() < 3)
+			throw;
+
+		if(order.storeAddr() != address(this))
+			throw;
+
+		if(order.buyer() != msg.sender)
+			throw;
+
+		if(score>5)
+			throw;
+
+		var review = reviews[orderAddr];
+
+		if(review.timestamp != 0)
+			scoreCounts[review.score]--;
+		
+		review.timestamp = now;
+		review.score = score;
+		scoreCounts[score]++;
+
+		ReviewData(orderAddr, data);
+		
 	}
 
 }
