@@ -36,10 +36,10 @@
       </div>
     </nav>
     <div class="container">
-      <div class="alert alert-danger text-center" ng-show="!isConnected">
+      <div class="alert alert-danger text-center" ng-show="!isConnected" ng-cloak>
         Warning: Unable to connect. Make sure (1) your geth node is running (2) you entered your password when unlocking your account.
       </div>
-      <div class="alert alert-danger text-center" ng-show="syncing">
+      <div class="alert alert-danger text-center" ng-show="syncing"  ng-cloak>
         Your node is still syncing. On block {{syncing.currentBlock}} of {{syncing.highestBlock}}.
       </div>
     </div>
