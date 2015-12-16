@@ -1,0 +1,6 @@
+<div class="panel panel-default billboard" ng-show="text.length>0">
+    <div class="panel-body">
+	<a ng-repeat="word in words track by $index" ng-href="{{hrefForWord(word)}}">{{word}} </a>
+    </div>
+    <div class="panel-footer text-muted text-small">Sponsored Message</div>
+</div>

@@ -133,6 +133,19 @@ angular.module('app').service('modals',function($modal){
 			,controller: 'ImportMarketModalController'
 	    });
 	}
+
+	this.openBillboardBid = function(slot){
+		return openModal({
+			size: 'md'
+			,templateUrl: 'billboardBidModal.html'
+			,controller: 'BillboardBidModalController'
+			,resolve:{
+				slot:function(){
+					return slot
+				}
+			}
+	    });
+	}
 })
 
 

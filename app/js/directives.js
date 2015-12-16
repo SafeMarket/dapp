@@ -13,6 +13,33 @@ angular.module('app').directive('a',function(){
 	}
 })
 
+angular.module('app').directive('billboard',function(helpers,safemarket){
+	return {
+		templateUrl:'billboard.html'
+		,scope:{
+			text:'=billboard'
+		},link:function($scope,$element,$attributes){
+			$scope.$watch('text',function(){
+				$scope.words = $scope.text ? $scope.text.split(' ') : []
+			})
+
+			$scope.hrefForWord = function(word){
+				if(word[0]!='@') return null
+				
+				var alias = word.substr(1)
+
+				if(validate({alias:alias},{word:{type:'alias'}})) return null
+
+				var addr = AliasReg.getAddr(alias)
+					,type = safemarket.utils.getTypeOfAlias(alias)
+					,url = helpers.getUrl(type,addr)
+
+				return url
+			}
+		}
+	}
+})
+
 angular.module('app').directive('forum',function(){
 	return {
 		templateUrl:'forum.html'
@@ -43,7 +70,6 @@ angular.module('app').directive('comment',function(user){
 				user.save()
 				$scope.$parent.showReplies = false
 				$scope.isHidden = !$scope.isHidden
-				console.log(user.data.hiddenCommentIds)
 			}
 		}
 	}
@@ -87,9 +113,9 @@ angular.module('app').directive('amounts',function(utils){
 
 			$scope.$watchGroup(["value","from","to"],function(){
 				if(typeof $scope.value === 'string' || typeof $scope.value === 'number')
-					var value = new BigNumber($scope.value)
+					var value = new BigNumber($scope.value || 0)
 				else
-					var value = angular.copy($scope.value)
+					var value = angular.copy($scope.value  || 0)
 
 				if(!$scope.from || !$scope.to || value===undefined) return
 				$scope.to.forEach(function(currency){

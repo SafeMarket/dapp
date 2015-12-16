@@ -11,6 +11,11 @@ a[href]:not([href*="#"]):not([href=""]):not([href="."]):before
     content:'\26a0';color:red;font-weight: bold;padding:0 3px;
 }
 
+.billboard a[ng-href]:not([href]){
+    color: inherit;
+    text-decoration: none !important;
+}
+
 
 table{
     table-layout: fixed

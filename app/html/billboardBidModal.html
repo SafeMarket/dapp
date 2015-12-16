@@ -1,0 +1,48 @@
+<div class="modal-header">
+    <h3 class="modal-title" ng-cloak>Bid on Slot #{{slot.index}}</h3>
+</div>
+<div class="modal-body">
+    <div ng-show="isSyncing" ng-cloak class="alert alert-info text-center">
+        <img src="images/balls.gif"> Syncing with blockchain, this might take a minute or two
+    </div>
+    <div ng-show="error && !isSyncing" ng-cloak class="alert alert-danger text-center">
+        {{error}}
+    </div>
+    <div ng-show="!isSyncing">
+        <table class="table">
+            <tr>
+                <td>Start</td>
+                <td timestamp="slot.timestamp"></td>
+            </tr>
+            <tr>
+                <td>End</td>
+                <td timestamp="slot.timestampEnd"></td>
+            </tr>
+            <tr>
+                <td>Bid</td>
+                <td>
+                    <div class="input-group" ng-show="userCurrency!=='ETH'" style="margin-top:10px">
+                        <input type="text" ng-model="bidInEther" class="form-control" numeric-input>
+                        <div class="input-group-addon">ETH</div>
+                    </div>
+                    <amounts value="bidInEther" from="'ETH'" to="[userCurrency]" class="text-small text-muted">
+                </td>
+            </tr>
+            <tr>
+                <td>Text</td>
+                <td>
+                    <textarea type="text" ng-model="text" class="form-control"></textarea>
+                    <span class="text-muted">{{text.length || 0}}/140</span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" billboard="text">
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="modal-footer" ng-show="!isSyncing">
+    <button class="btn btn-primary" type="button" ng-click="submit()">Submit</button>
+    <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+</div>

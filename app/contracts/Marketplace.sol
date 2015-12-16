@@ -26,7 +26,9 @@ contract AliasReg {
 	mapping(bytes32=>address) aliasToAddrMap;
 
 	function claimAlias(bytes32 alias){
-		if(aliasToAddrMap[alias] != address(0)) throw;
+		if(aliasToAddrMap[alias] != address(0)){
+			throw;
+		}
 
 		addrToAliasMap[msg.sender]=alias;
 		aliasToAddrMap[alias]=msg.sender;
@@ -376,6 +378,54 @@ contract Store is forumable,audible{
     function setMeta(bytes meta){
 		if(msg.sender!=owner) throw;
 		Meta(meta);
+	}
+
+}
+
+contract Billboard is owned{
+
+	uint minimumBid = 10 ether;
+	uint minimumBidDelta = 10 ether;
+
+	event Win(uint indexed slotIndex, bytes data); //event fired when a slot has a new winner
+
+	event Bid(uint value, uint minimumBid);
+	
+	mapping(uint=>Slot) slots; //an array of slots. Each slot is one period of time (for example one day)
+
+	struct Slot{
+		address winner; // winner of the slot
+		uint bid;		// amount of wei the winner bid
+	}
+
+	function bidOnSlot(uint _slotIndex,bytes _data){
+
+		var minimumBid = getMinimumBidForSlot(_slotIndex);
+
+		Bid(msg.value,minimumBid);
+
+		if(msg.value < minimumBid)
+			return;
+
+		slots[_slotIndex].winner = msg.sender;
+		slots[_slotIndex].bid = msg.value;
+		Win(_slotIndex,_data);
+	}
+
+	function getSlot(uint _slotIndex) constant returns(address, uint){
+		return (slots[_slotIndex].winner, slots[_slotIndex].bid);
+	}
+
+	function getTimestampForSlot(uint _slotIndex) constant returns(uint){
+		return (_slotIndex*86400);
+	}
+
+	function getMinimumBidForSlot(uint _slotIndex) constant returns(uint){
+
+		if(slots[_slotIndex].bid == 0)
+			return minimumBid;
+		else
+			return slots[_slotIndex].bid+minimumBidDelta;
 	}
 
 }

@@ -11,9 +11,9 @@
 	<tr ng-repeat="slot in billboard.slots" ng-class="{'slot-past':slot.index<billboard.slotIndexNow,'slot-today':slot.index===billboard.slotIndexNow}">
 		<td timestamp="slot.timestamp"></td>
 		<td>{{slot.winner ? slot.winner : '--'}}</td>
-		<td><amounts value="slot.bid" from="'WEI'" to="['USD']"></amounts></td>
+		<td><amounts value="slot.bid" from="'WEI'" to="displayCurrencies"></amounts></td>
 		<td>
-			<button class="btn btn-primary" ng-if="slot.index>=billboard.slotIndexNow" ng-click="openBillboardBidModal(slot.index)">Place Bid</button>
+			<button class="btn btn-primary" ng-if="slot.index>billboard.slotIndexNow" ng-click="openBillboardBidModal(slot)">Place Bid</button>
 		</td>
 	</tr>
 </table>

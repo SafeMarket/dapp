@@ -1,9 +1,16 @@
 (function(){
 	
-angular.module('app').controller('AdvertisingController',function($scope,billboard){
-	$scope.billboard = billboard
+angular.module('app').controller('AdvertisingController',function($scope,billboard,modals,user){
 
-	console.log(billboard)
+	$scope.billboard = billboard
+	$scope.displayCurrencies = user.getDisplayCurrencies()
+
+	$scope.openBillboardBidModal = function(slot){
+		modals.openBillboardBid(slot).result.then(function(){
+			$scope.billboard.refresh()
+		})
+	}
+
 })
 
 })();

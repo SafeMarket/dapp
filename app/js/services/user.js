@@ -152,6 +152,40 @@ angular.module('app').service('user',function($q,$rootScope,words,safemarket,mod
 		this.id = this.public.primaryKey.keyid.bytes
 	}
 
+	this.getIdentities = function(){
+		var identities  = []
+
+		this.getAddrs().forEach(function(addr){
+			var identity = {
+				addr:addr
+				,type:safemarket.utils.getTypeOfAddr(addr)
+			}
+
+			if(identity.type === null)
+				return true;
+
+			if(identity.type==='user')
+				identity.label = addr
+			else{
+				identity.label = '@'+safemarket.utils.getAlias(addr)
+				identity.contract = safemarket.utils.getContract(addr)
+			}
+
+			identities.push(identity)
+		})
+
+		return identities
+	}
+
+	this.getDisplayCurrencies = function(){
+		var displayCurrencies = [this.data.currency]
+
+		if(this.data.currency!=='ETH')
+			displayCurrencies.push('ETH')
+
+		return displayCurrencies
+	}
+
 })
 
 
