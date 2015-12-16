@@ -22,6 +22,11 @@ angular.module('app').service('helpers',function(safemarket,$filter,user){
 			,gasInUserCurrency = safemarket.utils.convertCurrency(gasInEther,{from:'ETH',to:user.data.currency})
 			,gasInUserCurrencyPretty = $filter('currency')(gasInUserCurrency,user.data.currency)
 
+		if(web3.eth.syncing){
+			alert('Your node is still syncing. Please wait until sync is complete.')
+			return false;
+		}
+
 		if(web3.eth.getBalance(user.data.account).lessThan(gasInWei)){
 			alert('Not enough funds to cover gas costs. You need at least '+gasInEtherPretty+' ETH / '+gasInUserCurrencyPretty+' '+user.data.currency+'.')
 			return false
