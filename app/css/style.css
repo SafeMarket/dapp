@@ -11,6 +11,9 @@ a[href]:not([href*="#"]):not([href=""]):not([href="."]):before
     content:'\26a0';color:red;font-weight: bold;padding:0 3px;
 }
 
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
 
 table{
     table-layout: fixed
