@@ -134,7 +134,7 @@ module.exports = (grunt) ->
           platform: "darwin"
           arch: "x64"
           out: "packages/"
-          icon: "assets/SafeMarket.icns"
+          icon: "generated/tmp/SafeMarket.icns"
       linux:
         options:
           version: "0.34.3"
@@ -337,6 +337,15 @@ module.exports = (grunt) ->
       contracts:
         files:
           "dist/contracts/": '<%= files.contracts.src %>'
+      icns:
+        files: [
+          {
+            expand: true,
+            cwd: "assets/"
+            src: ['SafeMarket.icns'],
+            dest: 'generated/tmp'
+          }
+        ]
 
     uglify:
       dist:
