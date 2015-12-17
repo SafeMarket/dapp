@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites>
+<testsuite name="market" errors="0" tests="0" failures="0" time="0" timestamp="2015-12-17T10:21:31">
+</testsuite>
+<testsuite name="market.safemarket" errors="0" tests="1" failures="0" time="0.905" timestamp="2015-12-17T10:21:25">
+  <testcase classname="market.safemarket" name="should exist on port 8000" time="0.904"></testcase>
+</testsuite>
+<testsuite name="market.market modal" errors="0" tests="2" failures="0" time="5.289" timestamp="2015-12-17T10:21:25">
+  <testcase classname="market.market modal" name="should open when the market modal button is clicked" time="0.153"></testcase>
+  <testcase classname="market.market modal" name="should create The Drink Market" time="5.136"></testcase>
+</testsuite>
+</testsuites>
