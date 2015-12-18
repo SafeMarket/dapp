@@ -6,5 +6,5 @@ dist/
 .node-xmlhttprequest-sync-*
 .node-xmlhttprequest-content-*
 packages/
-reports/latest
+reports/
 .env.json

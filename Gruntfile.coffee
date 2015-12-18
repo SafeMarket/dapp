@@ -47,7 +47,7 @@ module.exports = (grunt) ->
             token: grunt.file.readJSON('.env.json').github.token
           }
           files: [
-            "generated/reports.zip"
+            "reports/reports.zip"
             "packages/SafeMarket-mac-x64.zip"
             "packages/SafeMarket-win32-x64.zip"
             "packages/SafeMarket-linux-x64.zip"
@@ -183,11 +183,11 @@ module.exports = (grunt) ->
         ]
       reports:
         options:
-          archive: 'generated/reports.zip'
+          archive: 'reports/reports.zip'
           mode: 'zip'
         files:[
           src: '**/**'
-          cwd: 'generated/reports/',
+          cwd: 'reports/',
           expand: true
         ]
 
@@ -365,6 +365,7 @@ module.exports = (grunt) ->
     clean:
       workspaces: ["dist", "generated"]
       packages: ["packages/**/*"]
+      reports: ["reports/**/*"]
 
     deploy:
       contracts: '<%= files.contracts.src %>'
@@ -388,6 +389,7 @@ module.exports = (grunt) ->
     "gitadd:all"
     "gitstatuscheck"
     "prompt:release"
+    "clean:reports"
     "protractor"
     "version::patch"
     "build"
