@@ -183,7 +183,7 @@ Store.prototype.update = function(){
 		,store = this
 
 	this.products = []
-	this.owner = this.contract.getOwner()
+	this.owner = this.contract.owner()
 	this.contract.Meta({},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
 
 		if(error)

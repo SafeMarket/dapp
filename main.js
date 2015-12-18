@@ -1,5 +1,6 @@
 var app = require('app');  // Module to control application life.
 var BrowserWindow = require('browser-window');  // Module to create native browser window.
+var Menu = require('menu');
 
 // Report crashes to our server.
 require('crash-reporter').start();
@@ -12,14 +13,101 @@ var mainWindow = null;
 app.on('window-all-closed', function() {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform != 'darwin') {
-    app.quit();
-  }
+  app.quit();
 });
+
+var template = [
+  {
+    label: 'Edit',
+    submenu: [
+      {
+        label: 'Undo',
+        accelerator: 'CmdOrCtrl+Z',
+        role: 'undo'
+      },
+      {
+        label: 'Redo',
+        accelerator: 'Shift+CmdOrCtrl+Z',
+        role: 'redo'
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: 'Cut',
+        accelerator: 'CmdOrCtrl+X',
+        role: 'cut'
+      },
+      {
+        label: 'Copy',
+        accelerator: 'CmdOrCtrl+C',
+        role: 'copy'
+      },
+      {
+        label: 'Paste',
+        accelerator: 'CmdOrCtrl+V',
+        role: 'paste'
+      },
+      {
+        label: 'Select All',
+        accelerator: 'CmdOrCtrl+A',
+        role: 'selectall'
+      },
+    ]
+  },
+  {
+    label: 'View',
+    submenu: [
+      {
+        label: 'Toggle Full Screen',
+        accelerator: (function() {
+          if (process.platform == 'darwin')
+            return 'Ctrl+Command+F';
+          else
+            return 'F11';
+        })(),
+        click: function(item, focusedWindow) {
+          if (focusedWindow)
+            focusedWindow.setFullScreen(!focusedWindow.isFullScreen());
+        }
+      },
+      {
+        label: 'Toggle Developer Tools',
+        accelerator: (function() {
+          if (process.platform == 'darwin')
+            return 'Alt+Command+I';
+          else
+            return 'Ctrl+Shift+I';
+        })(),
+        click: function(item, focusedWindow) {
+          if (focusedWindow)
+            focusedWindow.toggleDevTools();
+        }
+      }
+    ]
+  }
+];
+
+if (process.platform == 'darwin') {
+  template.unshift({
+    label: 'SafeMarket',
+    submenu: [
+      {
+        label: 'Quit',
+        accelerator: 'Command+Q',
+        click: function() { app.quit(); }
+      },
+    ]
+  });
+}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
+
+  menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+
   // Create the browser window.
   mainWindow = new BrowserWindow({width: 800, height: 600});
 

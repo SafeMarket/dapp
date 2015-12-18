@@ -88,10 +88,14 @@ app.run(function(user,$rootScope,$interval,timeAgo){
 		window.location.hash='/login'
 	}
 
-	$rootScope.isConnected = web3.isConnected()
-	$interval(function(){
-		$rootScope.isConnected = web3.isConnected()
-	},30000)
+    function checkConnection(){
+        $rootScope.isConnected = web3.isConnected()
+        $rootScope.syncing = web3.eth.syncing
+    }
+
+    checkConnection()
+
+	$interval(checkConnection,1000)
 
 	timeAgo.settings.allowFuture = true
 })

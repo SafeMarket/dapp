@@ -43,14 +43,10 @@ contract AliasReg {
 }
 
 contract owned{
-	address owner;
+	address public owner;
 
 	function owned(){
 		owner = msg.sender;
-	}
-
-	function getOwner() constant returns (address){
-		return owner;
 	}
 
 	function setOwner(address _owner){
@@ -60,15 +56,11 @@ contract owned{
 }
 
 contract forumable is owned{
-	address forumAddr;
+	address public forumAddr;
 
 	function forumable(){
 		var forum = new Forum();
 		forumAddr = address(forum);
-	}
-
-	function getForumAddr() constant returns(address){
-		return forumAddr;
 	}
 
 	function setForumAddr(address _forumAddr){
@@ -79,7 +71,7 @@ contract forumable is owned{
 
 contract Forum is owned{
 	
-	uint fee;
+	uint public fee;
 
 	event Comment(address indexed author, bytes32 indexed parentId, bytes data);
 	event Moderation(bytes indexed comment, uint8 direction);
@@ -91,10 +83,6 @@ contract Forum is owned{
 	function setFee(uint _fee){
 		if(msg.sender != owner) throw;
 		fee = _fee;
-	}
-
-	function getFee() constant returns(uint){
-		return fee;
 	}
 	
 }
@@ -146,12 +134,12 @@ contract Order{
 	event Message(address indexed sender, bytes text);
 	event Update(address indexed sender, uint indexed status);
 
-	uint constant initialized = 0;
-	uint constant cancelled = 1;
-	uint constant shipped = 2;
-	uint constant finalized = 3;
-	uint constant disputed = 4;
-	uint constant resolved = 5;
+	uint public constant initialized = 0;
+	uint public constant cancelled = 1;
+	uint public constant shipped = 2;
+	uint public constant finalized = 3;
+	uint public constant disputed = 4;
+	uint public constant resolved = 5;
 
 	function Order(
 		bytes _meta
@@ -163,9 +151,9 @@ contract Order{
 	){
 		buyer = msg.sender;
 		storeAddr = _storeAddr;
-		storeOwner = Store(_storeAddr).getOwner();
+		storeOwner = Store(_storeAddr).owner();
 		marketAddr = _marketAddr;
-		marketOwner = Market(_marketAddr).getOwner();
+		marketOwner = Market(_marketAddr).owner();
 		feePercentage = _feePercentage;
 		disputeSeconds = _disputeSeconds;
 		timestamp = now;
@@ -202,54 +190,6 @@ contract Order{
 			receivedAtBlockNumber = block.number;
 			received -= amount;
 		}
-	}
-
-	function getBuyer() constant returns(address){
-		return buyer;
-	}
-
-	function getStoreAddr() constant returns(address){
-		return storeAddr;
-	}
-
-	function getMarketAddr() constant returns(address){
-		return marketAddr;
-	}
-
-	function getFeePercentage() constant returns(uint){
-		return feePercentage;
-	}
-
-	function getStatus() constant returns(uint){
-		return status;
-	}
-
-	function getReceived() constant returns(uint){
-		return received;
-	}
-
-	function getDisputeSeconds() constant returns(uint){
-		return disputeSeconds;
-	}
-
-	function getTimestamp() constant returns(uint){
-		return timestamp;
-	}
-
-	function getShippedAt() constant returns(uint){
-		return shippedAt;
-	}
-
-	function getFee() constant returns(uint){
-		return fee;
-	}
-
-	function getBuyerAmount() constant returns(uint){
-		return buyerAmount;
-	}
-
-	function getReceivedAtBlockNumber() constant returns(uint){
-		return receivedAtBlockNumber;
 	}
 
 	function addUpdate(uint _status) private{

@@ -135,8 +135,8 @@ Market.prototype.update = function(){
 	var deferred = $q.defer()
 		,market = this
 
-	this.owner = this.contract.getOwner()
-	this.forumAddr = this.contract.getForumAddr()
+	this.owner = this.contract.owner()
+	this.forumAddr = this.contract.forumAddr()
 
 	this.stores = []
 	this.forum = new Forum(this.forumAddr)

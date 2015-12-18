@@ -24,7 +24,7 @@ Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 
 	if(marketAddr!==utils.nullAddr){
 		var market = new Market(marketAddr)
-			,marketOwner = market.getOwner()
+			,marketOwner = market.owner
 
 		parties.push(marketOwner)
 	}
@@ -216,25 +216,25 @@ Order.prototype.update = function(){
 
 	var deferred = $q.defer()
 		,order = this
-		,storeAddr = this.contract.getStoreAddr()
-		,marketAddr = this.contract.getMarketAddr()
+		,storeAddr = this.contract.storeAddr()
+		,marketAddr = this.contract.marketAddr()
 
-	this.buyer = this.contract.getBuyer()
+	this.buyer = this.contract.buyer()
 	this.store = new Store(storeAddr)
 	this.market = marketAddr === utils.nullAddr ? null : new Market(marketAddr)
-	this.feePercentage = this.contract.getFeePercentage()
-	this.received = this.contract.getReceived()
-	this.status = this.contract.getStatus().toNumber()
-	this.timestamp = this.contract.getTimestamp()
-	this.shippedAt = this.contract.getShippedAt()
-	this.disputeSeconds = this.contract.getDisputeSeconds()
+	this.feePercentage = this.contract.feePercentage()
+	this.received = this.contract.received()
+	this.status = this.contract.status().toNumber()
+	this.timestamp = this.contract.timestamp()
+	this.shippedAt = this.contract.shippedAt()
+	this.disputeSeconds = this.contract.disputeSeconds()
 	this.disputeDeadline = this.disputeSeconds.plus(this.shippedAt)
-	this.fee = this.contract.getFee()
-	this.buyerAmount = this.contract.getBuyerAmount()
+	this.fee = this.contract.fee()
+	this.buyerAmount = this.contract.buyerAmount()
 	this.storeOwnerAmount = this.received.minus(this.fee).minus(this.buyerAmount)
 	this.buyerPercent = this.buyerAmount.div(this.received.minus(this.fee))
 	this.storeOwnerPercent = this.storeOwnerAmount.div(this.received.minus(this.fee))
-	this.receivedAtBlockNumber = this.contract.getReceivedAtBlockNumber()
+	this.receivedAtBlockNumber = this.contract.receivedAtBlockNumber()
 	this.confirmations = this.receivedAtBlockNumber.minus(web3.eth.blockNumber).times('-1').toNumber()
 	this.confirmationsNeeded = this.received.div(web3.toWei(5,'ether')).ceil().toNumber()
 

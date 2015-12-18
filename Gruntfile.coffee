@@ -47,6 +47,7 @@ module.exports = (grunt) ->
             token: grunt.file.readJSON('.env.json').github.token
           }
           files: [
+            "reports/reports.zip"
             "packages/SafeMarket-mac-x64.zip"
             "packages/SafeMarket-win32-x64.zip"
             "packages/SafeMarket-linux-x64.zip"
@@ -134,7 +135,7 @@ module.exports = (grunt) ->
           platform: "darwin"
           arch: "x64"
           out: "packages/"
-          icon: "assets/SafeMarket.icns"
+          icon: "generated/tmp/SafeMarket.icns"
       linux:
         options:
           version: "0.34.3"
@@ -180,6 +181,15 @@ module.exports = (grunt) ->
           cwd: 'packages/SafeMarket-linux-x64/',
           expand: true
         ]
+      reports:
+        options:
+          archive: 'reports/reports.zip'
+          mode: 'zip'
+        files:[
+          src: '**/**'
+          cwd: 'reports/',
+          expand: true
+        ]
 
     tagrelease: 
       file: 'package.json'
@@ -218,6 +228,7 @@ module.exports = (grunt) ->
           "bower_components/angular-marked/angular-marked.js"
           "bower_components/angular-sanitize/angular-sanitize.min.js"
           "bower_components/angular-ui-router/release/angular-ui-router.min.js"
+          "app/js/connection.js"
           "app/js/app.js"
           "app/js/safemarket.js"
           "app/js/**/*.js"
@@ -336,6 +347,15 @@ module.exports = (grunt) ->
       contracts:
         files:
           "dist/contracts/": '<%= files.contracts.src %>'
+      icns:
+        files: [
+          {
+            expand: true,
+            cwd: "assets/"
+            src: ['SafeMarket.icns'],
+            dest: 'generated/tmp'
+          }
+        ]
 
     uglify:
       dist:
@@ -345,6 +365,7 @@ module.exports = (grunt) ->
     clean:
       workspaces: ["dist", "generated"]
       packages: ["packages/**/*"]
+      reports: ["reports/**/*"]
 
     deploy:
       contracts: '<%= files.contracts.src %>'
@@ -368,9 +389,9 @@ module.exports = (grunt) ->
     "gitadd:all"
     "gitstatuscheck"
     "prompt:release"
+    "clean:reports"
     "protractor"
     "version::patch"
-    "move_reports"
     "build"
     "clean:packages"
     "electron"
@@ -416,12 +437,6 @@ module.exports = (grunt) ->
     "wait:ten"
     "githubAsset"
   ]
-
-  grunt.registerTask "move_reports", ()->
-    fs = require('fs')
-    packageJson = fs.readFileSync('package.json','utf8')
-    packageObj = JSON.parse(packageJson)
-    fs.renameSync('reports/latest', 'reports/'+packageObj.version)
 
   grunt.registerTask "readme", ()->
     fs = require('fs')

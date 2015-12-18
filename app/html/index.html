@@ -36,8 +36,11 @@
       </div>
     </nav>
     <div class="container">
-      <div class="alert alert-danger" ng-show="!isConnected">
-        Warning: Unable to connect. Make sure (1) your geth node is running (2) you entered your password when unlocking your account (3) your node is fully synced. You'll know that your node is fully synced because instead of saying "Imported 256 blocks" it'll start saying "Imported 1 block".
+      <div class="alert alert-danger text-center" ng-show="!isConnected">
+        Warning: Unable to connect. Make sure (1) your geth node is running (2) you entered your password when unlocking your account.
+      </div>
+      <div class="alert alert-danger text-center" ng-show="syncing"  ng-cloak>
+        Your node is still syncing. On block {{syncing.currentBlock}} of {{syncing.highestBlock}}.
       </div>
     </div>
     <div growl></div>
