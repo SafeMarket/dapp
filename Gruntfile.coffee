@@ -47,6 +47,7 @@ module.exports = (grunt) ->
             token: grunt.file.readJSON('.env.json').github.token
           }
           files: [
+            "generated/reports.zip"
             "packages/SafeMarket-mac-x64.zip"
             "packages/SafeMarket-win32-x64.zip"
             "packages/SafeMarket-linux-x64.zip"
@@ -178,6 +179,15 @@ module.exports = (grunt) ->
         files:[
           src: '**/**'
           cwd: 'packages/SafeMarket-linux-x64/',
+          expand: true
+        ]
+      reports:
+        options:
+          archive: 'generated/reports.zip'
+          mode: 'zip'
+        files:[
+          src: '**/**'
+          cwd: 'generated/reports/',
           expand: true
         ]
 
@@ -380,7 +390,6 @@ module.exports = (grunt) ->
     "prompt:release"
     "protractor"
     "version::patch"
-    "move_reports"
     "build"
     "clean:packages"
     "electron"
@@ -426,12 +435,6 @@ module.exports = (grunt) ->
     "wait:ten"
     "githubAsset"
   ]
-
-  grunt.registerTask "move_reports", ()->
-    fs = require('fs')
-    packageJson = fs.readFileSync('package.json','utf8')
-    packageObj = JSON.parse(packageJson)
-    fs.renameSync('reports/latest', 'reports/'+packageObj.version)
 
   grunt.registerTask "readme", ()->
     fs = require('fs')
