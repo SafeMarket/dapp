@@ -2,6 +2,11 @@ module.exports = (grunt) ->
 
   grunt.option 'stack', true
 
+  if grunt.file.exists('.env.json')
+    githubToken = grunt.file.readJSON('.env.json').github.token
+  else
+    githubToken = ''
+
   grunt.loadNpmTasks(
     "grunt-embark"
     ,"grunt-version"
@@ -44,7 +49,7 @@ module.exports = (grunt) ->
         options:
           repo: 'git@github.com:SafeMarket/dapp.git'
           credentials: {
-            token: grunt.file.exists('.env.json') ? grunt.file.readJSON('.env.json').github.token || ''
+            token: githubToken
           }
           files: [
             "reports/reports.zip"
