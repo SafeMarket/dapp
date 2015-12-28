@@ -232,10 +232,7 @@ contract Order{
 		if(status !=  shipped)
 			throw;
 
-		if(msg.sender != buyer && msg.sender != storeOwner)
-			throw;
-
-		if(msg.sender == storeOwner && now - shippedAt < disputeSeconds)
+		if(msg.sender != buyer)
 			throw;
 
 		var isSent = storeOwner.send(this.balance);

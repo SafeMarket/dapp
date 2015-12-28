@@ -188,6 +188,17 @@ Order.prototype.dispute = function(){
 	return deferred.promise
 }
 
+Order.prototype.finalize = function(){
+	var deferred = $q.defer()
+		,txHex = this.contract.finalize()
+
+	utils.waitForTx(txHex).then(function(){
+		deferred.resolve()
+	})
+
+	return deferred.promise
+}
+
 Order.prototype.resolve = function(buyerPercentage){
 	console.log('buyerPercentage',buyerPercentage.toString())
 	var deferred = $q.defer()
@@ -352,6 +363,20 @@ Order.prototype.decryptMessages = function(privateKey){
 	this.messages.forEach(function(message){
 		message.decrypt(privateKey)
 	})
+}
+
+Order.prototype.leaveReview = function(score,text){
+	var deferred = $q.defer()
+		,dataHex = utils.convertObjectToHex({
+			text:text
+		})
+		,txHex = this.store.contract.leaveReview(this.addr,score,dataHex)
+
+	utils.waitForTx(txHex).then(function(){
+		deferred.resolve()
+	})
+
+	return deferred.promise
 }
 
 function Message(sender,ciphertext,timestamp,order){

@@ -1,0 +1,22 @@
+<div class="modal-header">
+    <h3 class="modal-title">Leave a Review</h3>
+</div>
+<div class="modal-body">
+    
+    <table class="table" ng-show="!isSyncing">
+        <tr>
+            <td>Score</td>
+            <td>
+                 <select ng-model="score" ng-options="score for score in scores" class="form-control"></select>
+            </td>
+        </tr>
+        <tr>
+            <td>Reason (Optional)</td>
+            <td><textarea ng-model="text" class="form-control"></textarea></td>
+        </tr>
+    </table>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+    <button class="btn btn-primary" type="button" ng-click="submit()">OK</button>
+</div>

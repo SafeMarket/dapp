@@ -133,6 +133,19 @@ angular.module('app').service('modals',function($modal){
 			,controller: 'ImportMarketModalController'
 	    });
 	}
+
+	this.openLeaveReview = function(order){
+		return openModal({
+			size: 'md'
+			,templateUrl: 'leaveReviewModal.html'
+			,controller: 'LeaveReviewModalController'
+			,resolve:{
+				order:function(){
+					return order
+				}
+			}
+	    });
+	}
 })
 
 
