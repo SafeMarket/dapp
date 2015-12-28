@@ -44,7 +44,7 @@ module.exports = (grunt) ->
         options:
           repo: 'git@github.com:SafeMarket/dapp.git'
           credentials: {
-            token: grunt.file.readJSON('.env.json').github.token
+            token: grunt.file.exists('.env.json') ? grunt.file.readJSON('.env.json').github.token || ''
           }
           files: [
             "reports/reports.zip"
