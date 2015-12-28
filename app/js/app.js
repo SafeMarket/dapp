@@ -34,6 +34,10 @@ app.config(function(growlProvider,$stateProvider, $urlRouterProvider) {
                 url:'/orders'
                 ,templateUrl:'store.orders.html'
             })
+            .state('store.reviews',{
+                url:'/reviews'
+                ,templateUrl:'store.reviews.html'
+            })
         .state('market',{
             abstract:true
             ,url:'/markets/:marketAddr'
