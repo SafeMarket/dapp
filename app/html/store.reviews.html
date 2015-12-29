@@ -1,0 +1,10 @@
+<div class="alert alert-info text-center" ng-show="store.reviews.length==0">
+	No reviews yet
+</div>
+<table class="table">
+	<tr ng-repeat="review in store.reviews | orderBy: 'timestamp' : true">
+		<td timestamp="review.timestamp"></td>
+		<td>{{review.score}}</td>
+		<td>{{review.data.text}}</td>
+	</tr>
+</table>
