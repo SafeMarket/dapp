@@ -1,29 +1,10 @@
+<div class="alert alert-info text-center" ng-show="store.reviews.length==0">
+	No reviews yet
+</div>
 <table class="table">
-	<tr>
-		<td>Status</td>
-		<td>{{store.meta.isOpen ? 'Open' : 'Closed'}}</td>
+	<tr ng-repeat="review in store.reviews | orderBy: 'timestamp' : true">
+		<td timestamp="review.timestamp"></td>
+		<td>{{review.score}}</td>
+		<td>{{review.data.text}}</td>
 	</tr>
-	<tr>
-		<td>Dispute Resolution Time</td>
-		<td>{{store.meta.disputeSeconds | disputeSeconds}}</td>
-	</tr>
-	<tr>
-		<td>Minimum Total Order Size</td>
-		<td>{{store.meta.minTotal}} {{store.meta.currency}}</td>
-	</tr>
-	<tbody collapsable is-collapsed="true">
-		<tr>
-			<td>Address</td>
-			<td class="oneliner">{{store.addr}}</td>
-		</tr>
-		<tr>
-			<td>Owner</td>
-			<td class="oneliner">{{store.owner}}</td>
-		</tr>
-		<tr>
-			<td>Public Key</td>
-			<td key="store.key"></td>
-		</tr>
-	</tbody>
 </table>
-<div marked="store.info"></div>

@@ -370,7 +370,10 @@ Order.prototype.leaveReview = function(score,text){
 		,dataHex = utils.convertObjectToHex({
 			text:text
 		})
-		,txHex = this.store.contract.leaveReview(this.addr,score,dataHex)
+		,gas = this.store.contract.leaveReview.estimateGas(this.addr,score,dataHex)
+		,txHex = this.store.contract.leaveReview(this.addr,score,dataHex,{
+			gas:gas
+		})
 
 	utils.waitForTx(txHex).then(function(){
 		deferred.resolve()

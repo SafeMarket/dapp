@@ -323,9 +323,18 @@ contract Store is forumable,audible{
 		uint timestamp;
 	}
 
-	uint[5] scoreCounts;
+	uint[6] scoreCounts;
 
 	event ReviewData(address indexed orderAddr, bytes data);
+
+	function getReview(address orderAddr) constant returns (uint, uint){
+		var review = reviews[orderAddr];
+		return (review.score,review.timestamp);
+	}
+
+	function getScoreCounts() constant returns (uint, uint, uint, uint, uint, uint){
+		return (scoreCounts[0],scoreCounts[1],scoreCounts[2],scoreCounts[3],scoreCounts[4],scoreCounts[5]);
+	}
 
 	function leaveReview(address orderAddr, uint score, bytes data){
 		

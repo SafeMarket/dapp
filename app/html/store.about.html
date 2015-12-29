@@ -11,6 +11,18 @@
 		<td>Minimum Total Order Size</td>
 		<td>{{store.meta.minTotal}} {{store.meta.currency}}</td>
 	</tr>
+	<tr>
+		<td>Reviews ({{store.averageScore.toFixed(1).toString()}})</td>
+		<td><table class="table">
+			<tr ng-repeat="scoreCount in store.scoreCountsReversed track by $index">
+				<td>{{5-$index}} ({{scoreCount}})</td>
+				<td>
+					<progressbar value="scoreCount/store.scoreCountsTotal" max="1"></progressbar>
+				</td>
+				<td>{{scoreCount/store.scoreCountsTotal | percentage}}</td>
+			</tr>
+		</table></td>
+	</tr>
 	<tbody collapsable is-collapsed="true">
 		<tr>
 			<td>Address</td>

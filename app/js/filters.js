@@ -10,6 +10,9 @@ angular.module('app').filter('currency',function(safemarket){
 
 angular.module('app').filter('percentage',function(safemarket){
 	return function(percent){
+		if(!isNaN(percent))
+			percent = new BigNumber(percent)
+
 		if(percent === undefined)
 			return ''
 		else if(!percent.isFinite())
@@ -47,5 +50,27 @@ angular.module('app').filter('url',function(helpers){
 		return helpers.getUrl(type,addr)
 	}
 })
+
+angular.module('app').filter('orderObjectBy', function() {
+  	return function(items, field, reverse) {
+    var filtered = [];
+    angular.forEach(items, function(item) {
+    	filtered.push(item);
+    });
+    filtered.sort(function (a, b) {
+    	return (a[field] > b[field] ? 1 : -1);
+    });
+    if(reverse) filtered.reverse();
+    	return filtered;
+  	};
+});
+
+angular.module('app').filter('reverse', function() {
+	return function(items) {
+		console.log(items)
+    	return items.slice().reverse();
+  	};
+});
+
 
 })();
