@@ -155,6 +155,14 @@ angular.module('app').directive('aliasBar',function(){
 	}
 })
 
+angular.module('app').directive('affiliateBar',function(){
+	return {
+		templateUrl:'affiliateBar.html'
+		,controller:'AffiliateController'
+		,scope:{affiliate:'@affiliateBar'}
+	}
+})
+
 angular.module('app').directive('aliasInput', function(growl) {
   	return {
     	require: 'ngModel',
@@ -169,13 +177,13 @@ angular.module('app').directive('aliasInput', function(growl) {
         		return transformedInput;  // or return Number(transformedInput)
       		});
     	}
-  	}; 
+  	};
 });
 
 angular.module('app').directive('numericInput', function(growl) {
 	return {
         require: 'ngModel',
-        link: function (scope, element, attr, ngModelCtrl) {  
+        link: function (scope, element, attr, ngModelCtrl) {
         	ngModelCtrl.$parsers.push(function(text) {
         		var transformedInput = text.replace(/[^0-9.]/g, "");
         		if(transformedInput !== text) {
@@ -184,7 +192,7 @@ angular.module('app').directive('numericInput', function(growl) {
             		growl.addErrorMessage('Numeric input only')
         		}
         		return transformedInput;  // or return Number(transformedInput)
-      		});         
+      		});
         }
     };
 });
@@ -202,7 +210,7 @@ angular.module('app').directive('aliasValidator', function(safemarket) {
       				$scope.isValid = safemarket.utils.isAliasAvailable(alias)
       		})
     	},templateUrl:'aliasValidator.html'
-  	}; 
+  	};
 });
 
 angular.module('app').directive('alias', function(safemarket,helpers) {
@@ -214,14 +222,14 @@ angular.module('app').directive('alias', function(safemarket,helpers) {
 	      		$scope.alias = safemarket.utils.getAlias($scope.addr)
 	      		$scope.type = safemarket.utils.getTypeOfAlias($scope.alias)
 	      		$scope.url = helpers.getUrl($scope.type,$scope.addr)
-  			
+
 	      		if(!$scope.type)
 	      			$scope.isValid = false
 	      		else
 	      			$scope.isValid = true
   			})
     	},templateUrl:'alias.html'
-  	}; 
+  	};
 });
 
 angular.module('app').directive('tabUrl',function(helpers){
@@ -247,9 +255,9 @@ angular.module('app').directive('tabUrl',function(helpers){
 			$scope.$parent.tabs[tabIndex].onSelect=function(){
 				window.location.hash = url
 			}
-			
+
 		}}
-	}	
+	}
 })
 
 })();

@@ -89,3 +89,28 @@ h3 .btn{float: right}
 .btn:focus {
   outline: none !important;
 }
+
+.clear-margin {
+	margin: 0;
+}
+
+.clear-margin-horizontal {
+	margin: 0;
+}
+
+.aligner {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.aligner-item {
+	margin: auto;
+}
+
+.aligner-bottom {
+	margin-top: auto;
+	margin-bottom: auto;
+	align-self: flex-end;
+	padding: 5px;
+}

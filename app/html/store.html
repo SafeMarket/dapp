@@ -1,22 +1,26 @@
 <div class="container">
 	<div alias-bar="{{store.alias}}"></div>
-	<h1>
-		{{store.meta.name}}
+	<div class="row aligner">
+		<h1 class="pull-left aligner-bottom clear-margin-horizontal">
+			{{store.meta.name}}
+		</h1>
 		<button
-			ng-show="user.data.account === store.owner"
-			class="btn btn-default"
-			ng-click="openStoreModal(store)"
+		ng-show="user.data.account === store.owner"
+		class="pull-left btn btn-default aligner-bottom clear-margin-horizontal"
+		ng-click="openStoreModal(store)"
 		>
-			Edit
-		</button>
-	</h1>
-	<tabset>
-        <tab
-            ng-repeat="tab in tabs"
-            heading="{{tab.heading}}"
-            select="go(tab.route)"
-            active="tab.active">
-        </tab>
-    </tabset>
-	<div ui-view></div>
+		Edit
+	</button>
+	<div class="aligner-item"></div>
+	<div class="col-md-6 aligner" affiliate-bar="nchinda2"></div>
+</div>
+<tabset>
+	<tab
+	ng-repeat="tab in tabs"
+	heading="{{tab.heading}}"
+	select="go(tab.route)"
+	active="tab.active">
+</tab>
+</tabset>
+<div ui-view></div>
 </div>
