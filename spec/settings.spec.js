@@ -13,6 +13,11 @@ describe('settings modal',function(){
         expect(currentController).toBe('SettingsModalController');
     })
 
+    if('should save an affiliate alias'){
+      var affiliateAddr = element(by.css('[name=affiliateAddress]')).selected()
+      //TODO: verify address has been set
+    }
+
     it('should show mulitple currencies',function(){
         var currencyCount = element.all(by.css('[ng-model="user.data.currency"] option')).count()
         expect(currencyCount).toBeGreaterThan(1);
@@ -22,7 +27,7 @@ describe('settings modal',function(){
         element(by.css('[ng-click="addKeypair()"]')).click()
         browser.wait(function() {
             return browser.switchTo().alert().then(
-                function() { return true; }, 
+                function() { return true; },
                 function() { return false; }
             );
         });
@@ -35,7 +40,7 @@ describe('settings modal',function(){
         element(by.css('[ng-click="addKeypair()"]')).click()
         browser.wait(function() {
             return browser.switchTo().alert().then(
-                function() { return true; }, 
+                function() { return true; },
                 function() { return false; }
             );
         });
@@ -44,7 +49,7 @@ describe('settings modal',function(){
         browser.waitForAngular()
         var keypairsCount = browser.executeScript("return angular.element(document.body).injector().get('user').keypairs.length")
         expect(keypairsCount).toBe(2);
-        
+
         browser.wait(function() {
             var deferred = protractor.promise.defer();
             element(by.css('[src="images/balls.gif"]')).isDisplayed()
