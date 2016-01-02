@@ -84,7 +84,7 @@ angular.module('app').service('user',function($q,$rootScope,words,safemarket,mod
 			,deferred = $q.defer()
 
 		safemarket.pgp.generateKeypair().then(function(keypair){
-			
+
 			var publicKey = openpgp.key.readArmored(keypair.publicKeyArmored).keys[0]
 				,keyData = publicKey.toPacketlist().write()
 
@@ -105,7 +105,7 @@ angular.module('app').service('user',function($q,$rootScope,words,safemarket,mod
 	this.loadKeypair = function(){
 		var user = this
 			,deferred = $q.defer()
-		
+
 		safemarket.Key.fetch(user.data.account).then(function(key){
 			user.keypair = _.find(user.keypairs,{id:key.id})
 			deferred.resolve(user.keypair)
@@ -121,7 +121,7 @@ angular.module('app').service('user',function($q,$rootScope,words,safemarket,mod
 			this.data.keypairs.forEach(function(keypairData){
 				keypairs.push(new Keypair(keypairData))
 			})
-		
+
 		this.keypairs = keypairs
 	}
 

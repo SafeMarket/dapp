@@ -1,11 +1,13 @@
 (function(){
 
 angular.module('app').controller('OrderController',function($scope,safemarket,user,$stateParams,modals){
-	
-	(new safemarket.Order($stateParams.orderAddr)).updatePromise.then(function(order){
 
+	(new safemarket.Order($stateParams.orderAddr)).updatePromise.then(function(order){
+		console.log(order);
 		$scope.order = order
 		$scope.displayCurrencies = [order.meta.currency]
+		console.log(order.affiliate,AffiliateReg.getAlias.call(order.affiliate));
+		$scope.affiliate = web3.toAscii(AffiliateReg.getAlias.call(order.affiliate))
 
 		if($scope.displayCurrencies.indexOf('ETH') === -1)
 			$scope.displayCurrencies.push('ETH')

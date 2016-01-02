@@ -21,51 +21,6 @@ contract OrderBook{
 	}
 }
 
-contract AffiliateReg {
-	mapping(address=>address) public addrToOwnerMap;
-	mapping(address=>bytes32) public addrToAliasMap;
-	mapping(bytes32=>address) public aliasToAddrMap;
-
-	function claimAlias(bytes32 alias, address addr){
-		//if(aliasToAddrMap[alias] != address(0)) throw;
-		//if(addrToAffiliateMap[coinbase].owner != address(0)) throw;
-
-		aliasToAddrMap[alias]=addr;
-		addrToAliasMap[addr]=alias;
-		addrToOwnerMap[addr]=msg.sender;
-	}
-
-	function getAlias(address addr) returns(bytes32){
-		return addrToAliasMap[addr];
-	}
-
-	function getAddr(bytes32 alias) returns(address){
-		return aliasToAddrMap[alias];
-	}
-
-	/*No frontend for these methods has been created
-	function changeAlias(bytes32 alias, address coinbase){
-		Affiliate affiliate = addrToAffiliateMap[coinbase];
-		if(affiliate == address(0)) throw;
-		if(affiliate.owner != msg.sender) throw;
-
-		addrToAffiliateMap[coinbase].alias = alias;
-		delete aliasToAddrMap[alias];
-		aliasToAddrMap[alias]=coinbase;
-	}
-
-	function changeAffiliate(bytes32 alias, address coinbase){
-		Affiliate memory affiliate = addrToAffiliateMap[aliasToAddressMap[alias]];
-		if(affiliate == address(0)) throw;
-		if(affiliate.owner != msg.sender) throw;
-
-		delete addrToAffiliateMap[aliasToAddrMap[alias]];
-		newAffiliate = Affiliate({owner:msg.sender,coinbase:coinbase,alias:alias});
-		addrToAffiliateMap[coinbase]=newAffiliate;
-		aliasToAddrMap[alias]=coinbase;
-		}*/
-}
-
 contract AliasReg {
 	mapping(address=>bytes32) addrToAliasMap;
 	mapping(bytes32=>address) aliasToAddrMap;
@@ -115,7 +70,7 @@ contract forumable is owned{
 }
 
 contract Forum is owned{
-
+	
 	uint public fee;
 
 	event Comment(address indexed author, bytes32 indexed parentId, bytes data);
@@ -129,7 +84,7 @@ contract Forum is owned{
 		if(msg.sender != owner) throw;
 		fee = _fee;
 	}
-
+	
 }
 
 contract audible is owned{
@@ -150,7 +105,7 @@ contract Market is forumable,audible{
 		AliasReg(alasRegAddr).claimAlias(alias);
 		Meta(meta);
 	}
-
+	
 	function setMeta(bytes meta){
 		if(msg.sender!=owner) throw;
 		Meta(meta);
@@ -160,7 +115,6 @@ contract Market is forumable,audible{
 
 contract Order{
 	address public buyer;
-	address public affiliate;
 	address public storeAddr;
 	address public storeOwner;
 	address public marketAddr;
@@ -174,8 +128,6 @@ contract Order{
 	uint public disputedAt;
 	uint public fee;
 	uint public buyerAmount;
-	uint public affiliateAmount;
-	uint public affiliatePercentage;
 	uint public receivedAtBlockNumber;
 
 	event Meta(bytes meta);
@@ -195,27 +147,23 @@ contract Order{
 		,address _marketAddr
 		,uint _feePercentage
 		,uint _disputeSeconds
-		,address _affiliate
 		,address orderBookAddr
-		){
-			buyer = msg.sender;
-			storeAddr = _storeAddr;
-			storeOwner = Store(_storeAddr).owner();
-			marketAddr = _marketAddr;
-			marketOwner = Market(_marketAddr).owner();
-			feePercentage = _feePercentage;
-			disputeSeconds = _disputeSeconds;
-			affiliate = _affiliate;
-			affiliatePercentage = Store(_storeAddr).affiliatePercentage();
-
-			timestamp = now;
-			Meta(_meta);
-			OrderBook(orderBookAddr).addEntry(address(this),_storeAddr,_marketAddr);
+	){
+		buyer = msg.sender;
+		storeAddr = _storeAddr;
+		storeOwner = Store(_storeAddr).owner();
+		marketAddr = _marketAddr;
+		marketOwner = Market(_marketAddr).owner();
+		feePercentage = _feePercentage;
+		disputeSeconds = _disputeSeconds;
+		timestamp = now;
+		Meta(_meta);
+		OrderBook(orderBookAddr).addEntry(address(this),_storeAddr,_marketAddr);
 	}
 
 	function addMessage(bytes text){
 		if(msg.sender != buyer && msg.sender != storeOwner && msg.sender != marketOwner)
-		throw;
+			throw;
 
 		Message(msg.sender, text);
 	}
@@ -226,15 +174,15 @@ contract Order{
 	}
 
 	function withdraw(uint amount){
-
+		
 		if(msg.sender != buyer)
-		throw;
-
+			throw;
+		
 		if(status != initialized)
-		throw;
-
+			throw;
+		
 		if(amount>received)
-		throw;
+			throw;
 
 		var isSent = buyer.send(amount);
 
@@ -252,10 +200,10 @@ contract Order{
 	function cancel(){
 
 		if(status != initialized)
-		throw;
+			throw;
 
 		if(msg.sender != buyer && msg.sender != storeOwner)
-		throw;
+			throw;
 
 		var isSent = buyer.send(this.balance);
 		if(!isSent) throw;
@@ -266,14 +214,14 @@ contract Order{
 	function markAsShipped(){
 
 		if(status !=  initialized)
-		throw;
+			throw;
 
 		if(msg.sender != storeOwner)
-		throw;
+			throw;
 
 		//don't allow to mark as shipped on same block that a withdrawl is made
 		if(receivedAtBlockNumber == block.number)
-		throw;
+			throw;
 
 		shippedAt = now;
 		addUpdate(shipped);
@@ -282,32 +230,29 @@ contract Order{
 	function finalize(){
 
 		if(status !=  shipped)
-		throw;
+			throw;
 
-		if(msg.sender != buyer && msg.sender != storeOwner)
-		throw;
-
-		if(msg.sender == storeOwner && now - shippedAt < disputeSeconds)
-		throw;
+		if(msg.sender != buyer)
+			throw;
 
 		var isSent = storeOwner.send(this.balance);
 		if(!isSent) throw;
-
+		
 		addUpdate(finalized);
 	}
 
 	function dispute(){
 		if(msg.sender != buyer)
-		throw;
+			throw;
 
 		if(status != shipped)
-		throw;
+			throw;
 
 		if(now - shippedAt > disputeSeconds)
-		throw;
+			throw;
 
 		if(marketOwner==address(0))
-		throw;
+			throw;
 
 		addUpdate(disputed);
 		disputedAt=now;
@@ -315,65 +260,109 @@ contract Order{
 
 	function calculateFee() returns (uint){
 		// show your work:
-
+		
 		// 1. fee = products(feePercent)
-		// products = fee/feePercent
-		// products = fee/(feePercentage/100)
-		// products = (100*fee)/feePercentage
+			// products = fee/feePercent
+			// products = fee/(feePercentage/100)
+			// products = (100*fee)/feePercentage
 
 		// 2. products + fee = received
-		// (100*fee)/feePercentage + fee = received
-		// fee(100/feePercentage + 1) = received
-		// fee(100/feePercentage + feePercentage/feePercentage) = received
-		// fee(100+feePercentage)/feePercentage = received
-		// fee = received/((100+feePercentage)/feePercentage)
-		// fee = (received * feePercentage)/(100 + feePercentage)
+			// (100*fee)/feePercentage + fee = received
+			// fee(100/feePercentage + 1) = received
+			// fee(100/feePercentage + feePercentage/feePercentage) = received
+			// fee(100+feePercentage)/feePercentage = received
+			// fee = received/((100+feePercentage)/feePercentage)
+			// fee = (received * feePercentage)/(100 + feePercentage)
 
-
+		
 		return (received * feePercentage)/(100 + feePercentage);
 	}
 
 	function resolve(uint buyerPercentage){
 		if(status!=disputed)
-		throw;
+			throw;
 
 		if(msg.sender != marketOwner)
-		throw;
+			throw;
 
 		fee = calculateFee();
 		buyerAmount = ((received-fee)*buyerPercentage)/100;
-		affiliateAmount = ((received-fee-buyerAmount)*affiliatePercentage)/100;
-		var storeOwnerAmount = received - fee - buyerAmount - affiliateAmount;
+		var storeOwnerAmount = received - fee - buyerAmount;
 
 		marketOwner.send(fee);
 
 		if(buyerAmount>0)
-		buyer.send(buyerAmount);
-
-		if(affiliateAmount>0)
-		affiliate.send(affiliateAmount);
+			buyer.send(buyerAmount);
 
 		if(storeOwnerAmount>0)
-		storeOwner.send(storeOwnerAmount);
+			storeOwner.send(storeOwnerAmount);
 
 		addUpdate(resolved);
 	}
+
 }
 
 contract Store is forumable,audible{
-	event Meta(bytes meta);
-	bool constant public isStore = true;
-	uint public affiliatePercentage;
+    event Meta(bytes meta);
+    bool constant public isStore = true;
 
-	function Store(bytes32 alias, uint _affiliatePercentage,bytes meta,address alasRegAddr){
-		Meta(meta);
-		AliasReg(alasRegAddr).claimAlias(alias);
-		affiliatePercentage = _affiliatePercentage;
-	}
-
-	function setMeta(bytes meta){
+    function Store(bytes32 alias, bytes meta, address alasRegAddr){
+        Meta(meta);
+        AliasReg(alasRegAddr).claimAlias(alias);
+    }
+    
+    function setMeta(bytes meta){
 		if(msg.sender!=owner) throw;
 		Meta(meta);
+	}
+
+	mapping(address=>Review) reviews;
+
+	struct Review{
+		uint score;
+		uint timestamp;
+	}
+
+	uint[6] scoreCounts;
+
+	event ReviewData(address indexed orderAddr, bytes data);
+
+	function getReview(address orderAddr) constant returns (uint, uint){
+		var review = reviews[orderAddr];
+		return (review.score,review.timestamp);
+	}
+
+	function getScoreCounts() constant returns (uint, uint, uint, uint, uint, uint){
+		return (scoreCounts[0],scoreCounts[1],scoreCounts[2],scoreCounts[3],scoreCounts[4],scoreCounts[5]);
+	}
+
+	function leaveReview(address orderAddr, uint score, bytes data){
+		
+		var order = Order(orderAddr);
+
+		if(order.status() < 3)
+			throw;
+
+		if(order.storeAddr() != address(this))
+			throw;
+
+		if(order.buyer() != msg.sender)
+			throw;
+
+		if(score>5)
+			throw;
+
+		var review = reviews[orderAddr];
+
+		if(review.timestamp != 0)
+			scoreCounts[review.score]--;
+		
+		review.timestamp = now;
+		review.score = score;
+		scoreCounts[score]++;
+
+		ReviewData(orderAddr, data);
+		
 	}
 
 }

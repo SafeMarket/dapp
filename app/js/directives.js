@@ -155,14 +155,6 @@ angular.module('app').directive('aliasBar',function(){
 	}
 })
 
-angular.module('app').directive('affiliateBar',function(){
-	return {
-		templateUrl:'affiliateBar.html'
-		,controller:'AffiliateController'
-		,scope:{affiliate:'@affiliateBar'}
-	}
-})
-
 angular.module('app').directive('aliasInput', function(growl) {
   	return {
     	require: 'ngModel',

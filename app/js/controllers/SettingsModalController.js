@@ -14,7 +14,7 @@
 		})
 
 		$scope.$watch('affiliateAccount',function(){
-			$scope.affiliateAlias = web3.toAscii(AffiliateReg.getAlias($scope.affiliateAccount))
+			$scope.affiliateAlias = web3.toAscii(AffiliateReg.getAlias.call($scope.affiliateAccount))
 		})
 
 		$scope.$watch('user.data.currency',function(){
@@ -55,7 +55,9 @@
 				return
 			}
 
-			AffiliateReg.claimAlias(alias, account,{from:web3.eth.accounts[0]},function(err, res){
+			console.log(alias,account,typeof alias, typeof account);
+			AffiliateReg.claimAlias(alias, account,function(err, res){
+				console.log(err,res);
 				$scope.isChangingKeys = false
 			})
 		}

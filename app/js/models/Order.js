@@ -14,7 +14,7 @@ Order.prototype.code = Order.code = '0x'+contractDB.Order.compiled.code
 Order.prototype.abi = Order.abi = contractDB.Order.compiled.info.abiDefinition
 Order.prototype.contractFactory = Order.contractFactory = web3.eth.contract(Order.abi)
 
-Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
+Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,affiliateAddr){
 
 	var deferred = $q.defer()
 		,order = this
@@ -41,9 +41,9 @@ Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 			var meta = pgpMessage.packets.write()
 				,txObject = {
 					data:Order.code
-					,gas:Order.estimateCreationGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds)
-				},txHex = Order.contractFactory.new(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,OrderBook.address,txObject).transactionHash
-		
+					,gas:Order.estimateCreationGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,affiliateAddr)
+				},txHex = Order.contractFactory.new(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,affiliateAddr,OrderBook.address,txObject).transactionHash
+
 			utils.waitForTx(txHex).then(function(tx){
 				(new Order(tx.contractAddress)).updatePromise.then(function(order){
 					deferred.resolve(order)
@@ -55,8 +55,8 @@ Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 			})
 		},function(error){
 			deferred.reject(error)
-		})			
-			
+		})
+
 
 	},function(error){
 		deferred.reject(error)
@@ -65,7 +65,7 @@ Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 	return deferred.promise
 }
 
-Order.check = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
+Order.check = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,affiliateAddr){
 	utils.check(meta,{
 		currency:{
 			presence:true
@@ -133,6 +133,7 @@ Order.check = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 		,marketAddr:marketAddr
 		,feePercentage:feePercentage
 		,disputeSeconds:disputeSeconds
+		,affiliateAddr:affiliateAddr
 	},{
 		storeAddr:{
 			presence:true
@@ -155,13 +156,17 @@ Order.check = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 				,greaterThanOrEqualTo:0
 			}
 		}
+		,affiliateAddr:{
+			presence:true
+			,type:'address'
+		}
 	})
 }
 
-Order.estimateCreationGas = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
+Order.estimateCreationGas = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,affiliateAddr){
 	meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 
-	return this.contractFactory.estimateGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,OrderBook.address,{
+	return this.contractFactory.estimateGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,affiliateAddr,OrderBook.address,{
 		data:Order.code
 	})
 }
@@ -189,7 +194,6 @@ Order.prototype.dispute = function(){
 }
 
 Order.prototype.resolve = function(buyerPercentage){
-	console.log('buyerPercentage',buyerPercentage.toString())
 	var deferred = $q.defer()
 		,txHex = this.contract.resolve(buyerPercentage)
 
@@ -235,6 +239,9 @@ Order.prototype.update = function(){
 	this.buyerPercent = this.buyerAmount.div(this.received.minus(this.fee))
 	this.storeOwnerPercent = this.storeOwnerAmount.div(this.received.minus(this.fee))
 	this.receivedAtBlockNumber = this.contract.receivedAtBlockNumber()
+	this.affiliate = this.contract.affiliate()
+	this.affiliateAmount = this.contract.affiliateAmount()
+	this.affiliatePercentage = this.contract.affiliatePercentage()
 	this.confirmations = this.receivedAtBlockNumber.minus(web3.eth.blockNumber).times('-1').toNumber()
 	this.confirmationsNeeded = this.received.div(web3.toWei(5,'ether')).ceil().toNumber()
 
@@ -269,9 +276,9 @@ Order.prototype.update = function(){
 		console.log('meta fetched',web3.toAscii(results[results.length-1].args.meta))
 
 		var metaPgpMessageWrapper = new PgpMessageWrapper(web3.toAscii(results[results.length-1].args.meta))
-		
+
 		user.decrypt(metaPgpMessageWrapper)
-		
+
 		order.meta = utils.convertHexToObject(metaPgpMessageWrapper.text)
 
 		console.log(order.meta)

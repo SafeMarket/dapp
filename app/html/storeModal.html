@@ -1,156 +1,176 @@
 <div class="modal-header">
-    <h3 class="modal-title" ng-cloak>{{isEditing?'Edit':'Create a'}} Store</h3>
+  <h3 class="modal-title" ng-cloak>{{isEditing?'Edit':'Create a'}} Store</h3>
 </div>
 <div class="modal-body">
-    <div ng-show="isSyncing" ng-cloak class="alert alert-info text-center">
-        <img src="images/balls.gif"> Syncing with blockchain, this might take a minute or two
-    </div>
-    <div ng-show="error && !isSyncing" ng-cloak class="alert alert-danger text-center">
-        {{error}}
-    </div>
-    <div ng-show="!isSyncing">
-        <table class="table">
+  <div ng-show="isSyncing" ng-cloak class="alert alert-info text-center">
+    <img src="images/balls.gif"> Syncing with blockchain, this might take a minute or two
+  </div>
+  <div ng-show="error && !isSyncing" ng-cloak class="alert alert-danger text-center">
+    {{error}}
+  </div>
+  <div ng-show="!isSyncing">
+    <table class="table">
+      <tr>
+        <td>Alias</td>
+        <td>
+          <div class="input-group">
+            <div class="input-group-addon">@</div>
+            <input class="form-control" ng-model="alias" ng-disabled="isEditing" alias-input>
+          </div>
+          <div alias-validator="alias" ng-show="!isEditing"></div>
+        </td>
+      </tr>
+      <tr>
+        <td>Store Name</td>
+        <td>
+          <input type="text" ng-model="name" class="form-control">
+        </td>
+      </tr>
+      <tr>
+        <td>Currency</td>
+        <td>
+          <select type="text" ng-model="currency" class="form-control" ng-options="currency for currency in currencies"></select>
+        </td>
+      </tr>
+      <tr>
+        <td>Dispute Resolution Time
+          <div class="text-small text-muted">How long after shipping can buyers open a dispute?</div>
+        </td>
+        <td>
+          <select type="text" ng-model="disputeSeconds" class="form-control" ng-options="option.value as option.label for option in disputeSecondsOptions"></select>
+        </td>
+      </tr>
+      <tr>
+        <td>Minimum Total Order
+          <p class="text-muted text-small">Not Including Shipping</p>
+        </td>
+        <td>
+          <div class="input-group">
+            <input type="text" ng-model="minTotal" class="form-control" numeric-input>
+            <div class="input-group-addon">{{currency}}</div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>Info
+        </td>
+        <td>
+          <textarea class="form-control" ng-model="info"></textarea>
+        </td>
+      </tr>
+      <tr>
+        <td>Affiliate shares</td>
+        <td>
+          <input type="range" ng-model="percentAffiliateRaw" min="0" max="1" step=".01">
+          <table class="table">
             <tr>
-                <td>Alias</td>
-                <td>
-                    <div class="input-group">
-                        <div class="input-group-addon">@</div>
-                        <input class="form-control" ng-model="alias" ng-disabled="isEditing" alias-input>
-                    </div>
-                    <div alias-validator="alias" ng-show="!isEditing"></div>
-                </td>
+              <td class="text-left">@{{alias}}</td>
+              <td class="text-right">Affiliates</td>
             </tr>
             <tr>
-                <td>Store Name</td>
-                <td>
-                    <input type="text" ng-model="name" class="form-control">
-                </td>
+              <td class="text-right">
+                {{percentStoreOwner | percentage}}
+              </td>
+              <td>
+                {{percentAffiliate | percentage}}
+              </td>
             </tr>
-            <tr>
-                <td>Currency</td>
-                <td>
-                    <select type="text" ng-model="currency" class="form-control" ng-options="currency for currency in currencies"></select>
-                </td>
-            </tr>
-            <tr>
-                <td>Dispute Resolution Time
-                    <div class="text-small text-muted">How long after shipping can buyers open a dispute?</div>
-                </td>
-                <td>
-                    <select type="text" ng-model="disputeSeconds" class="form-control" ng-options="option.value as option.label for option in disputeSecondsOptions"></select>
-                </td>
-            </tr>
-            <tr>
-                <td>Minimum Total Order
-                    <p class="text-muted text-small">Not Including Shipping</p>
-                </td>
-                <td>
-                    <div class="input-group">
-                        <input type="text" ng-model="minTotal" class="form-control" numeric-input>
-                        <div class="input-group-addon">{{currency}}</div>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>Info
-                </td>
-                <td>
-                    <textarea class="form-control" ng-model="info"></textarea>
-                </td>
-            </tr>
-            <tr>
-                <td>Open for Business</td>
-                <td>
-                    <input type="checkbox" ng-model="isOpen">
-                </td>
-            </tr> 
-        </table>
-        <h3>Products</h3>
-        <table class="table">   
-            <tbody ng-repeat="product in products">
-                <tr>
-                    <td>Name</td>
-                    <td>
-                        <input type="text" ng-model="product.name" class="form-control">
-                    </td>
-                </tr>
-                <tr>
-                    <td>Price</td>
-                    <td>
-                        <div class="input-group">
-                            <input type="text" ng-model="product.price" class="form-control" numeric-input>
-                            <div class="input-group-addon">{{currency}}</div>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Info</td>
-                    <td>
-                        <textarea type="text" ng-model="product.info" class="form-control"></textarea>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2" class="text-right">
-                        <button class="btn btn-danger btn-sm" ng-click="products.splice($index,1)">Delete</button>
-                    </td>
-                </tr>
-            </tbody>
-            <tr><td colspan="2" class="text-right">
-                <button class="btn btn-primary btn-xs" ng-click="addProduct()">+</button>
-            </td></tr>
-        </table>
-        <h3>Transport Options</h3>
-        <table class="table">   
-            <tbody ng-repeat="transport in transports">
-                <tr>
-                    <td>Type</td>
-                    <td>
-                        <input type="text" ng-model="transport.type" class="form-control">
-                    </td>
-                </tr>
-                <tr>
-                    <td>Price</td>
-                    <td>
-                        <div class="input-group">
-                            <input type="text" ng-model="transport.price" class="form-control" numeric-input>
-                            <div class="input-group-addon">{{currency}}</div>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2" class="text-right">
-                        <button class="btn btn-danger btn-sm" ng-click="transports.splice($index,1)">Delete</button>
-                    </td>
-                </tr>
-            </tbody>
-            <tr><td colspan="2" class="text-right">
-                <button class="btn btn-primary btn-xs" ng-click="addTransport()">+</button>
-            </td></tr>
-        </table>
-        <h3>Approved Submarkets</h3>
-        <table class="table">   
-            <tbody ng-repeat="market in markets">
-                <tr>
-                    <td>Alias</td>
-                    <td>
-                        <div class="input-group">
-                            <div class="input-group-addon">@</div>
-                            <input class="form-control" ng-model="market.alias" alias-input>
-                            <div class="input-group-btn">
-                                <button class="btn btn-danger" type="button" ng-click="markets.splice($index,1)">X</button>
-                            </div>
-                        </div>
-                        <div alias-validator="market.alias" alias-type="market"></div>
-                    </td>
-                </tr>
-            </tbody>
-            <tr>
-                <td colspan="2" class="text-right"><button class="btn btn-primary btn-xs" ng-click="markets.push({})">+</button></td>
-            </tr>
-        </table>
-    </div>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>Open for Business</td>
+        <td>
+          <input type="checkbox" ng-model="isOpen">
+        </td>
+      </tr>
+    </table>
+    <h3>Products</h3>
+    <table class="table">
+      <tbody ng-repeat="product in products">
+        <tr>
+          <td>Name</td>
+          <td>
+            <input type="text" ng-model="product.name" class="form-control">
+          </td>
+        </tr>
+        <tr>
+          <td>Price</td>
+          <td>
+            <div class="input-group">
+              <input type="text" ng-model="product.price" class="form-control" numeric-input>
+              <div class="input-group-addon">{{currency}}</div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Info</td>
+          <td>
+            <textarea type="text" ng-model="product.info" class="form-control"></textarea>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" class="text-right">
+            <button class="btn btn-danger btn-sm" ng-click="products.splice($index,1)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+      <tr><td colspan="2" class="text-right">
+        <button class="btn btn-primary btn-xs" ng-click="addProduct()">+</button>
+      </td></tr>
+    </table>
+    <h3>Transport Options</h3>
+    <table class="table">
+      <tbody ng-repeat="transport in transports">
+        <tr>
+          <td>Type</td>
+          <td>
+            <input type="text" ng-model="transport.type" class="form-control">
+          </td>
+        </tr>
+        <tr>
+          <td>Price</td>
+          <td>
+            <div class="input-group">
+              <input type="text" ng-model="transport.price" class="form-control" numeric-input>
+              <div class="input-group-addon">{{currency}}</div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" class="text-right">
+            <button class="btn btn-danger btn-sm" ng-click="transports.splice($index,1)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+      <tr><td colspan="2" class="text-right">
+        <button class="btn btn-primary btn-xs" ng-click="addTransport()">+</button>
+      </td></tr>
+    </table>
+    <h3>Approved Submarkets</h3>
+    <table class="table">
+      <tbody ng-repeat="market in markets">
+        <tr>
+          <td>Alias</td>
+          <td>
+            <div class="input-group">
+              <div class="input-group-addon">@</div>
+              <input class="form-control" ng-model="market.alias" alias-input>
+              <div class="input-group-btn">
+                <button class="btn btn-danger" type="button" ng-click="markets.splice($index,1)">X</button>
+              </div>
+            </div>
+            <div alias-validator="market.alias" alias-type="market"></div>
+          </td>
+        </tr>
+      </tbody>
+      <tr>
+        <td colspan="2" class="text-right"><button class="btn btn-primary btn-xs" ng-click="markets.push({})">+</button></td>
+      </tr>
+    </table>
+  </div>
 </div>
 <div class="modal-footer" ng-show="!isSyncing">
-    <button class="btn btn-primary" type="button" ng-click="submit()">OK</button>
-    <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+  <button class="btn btn-primary" type="button" ng-click="submit()">OK</button>
+  <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
 </div>

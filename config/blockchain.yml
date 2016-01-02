@@ -2,7 +2,7 @@ development:
   port: 30304
   rpc_host: localhost
   rpc_port: 8101
-  rpc_whitelist: http://localhost:8000
+  rpc_whitelist: http://127.0.0.1:8000
   minerthreads: 1
   genesis_block: config/genesis/dev_genesis.json
   datadir: /tmp/embark

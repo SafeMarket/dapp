@@ -4,6 +4,7 @@ angular.module('app').controller('StoreController',function($scope,$filter,$stat
 
 	$scope.storeScope = $scope
 
+	$scope.affiliateAlias = ""
 	$scope.marketOptions = [{addr:safemarket.utils.nullAddr,label:'No escrow'}];
 	$scope.marketOption = $scope.marketOptions[0]
 	$scope.storeAddr = $stateParams.storeAddr

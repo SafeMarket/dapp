@@ -3,7 +3,7 @@
 angular.module('app').controller('ProductsController',function($scope,$filter,safemarket,helpers,growl){
 
 	$scope.$watch('marketAddr',function(marketAddr){
-			
+
 		if(!marketAddr || marketAddr === safemarket.utils.nullAddr)
 			$scope.market = null
 		else
@@ -26,7 +26,6 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 	}
 
 	$scope.createOrder = function(){
-
 		var meta = {
 			currency:$scope.store.meta.currency
 			,products:[]
@@ -40,7 +39,14 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 		,feePercentage = $scope.market ? $scope.market.meta.feePercentage : '0'
 		,disputeSeconds = parseInt($scope.store.meta.disputeSeconds)
 		,productsTotal = new BigNumber(0)
+		,affiliateAddr = ""
 
+		if($scope.affiliateAlias.length == 0)
+			affiliateAddr = storeAddr
+		else
+			affiliateAddr = AffiliateReg.getAddr.call($scope.affiliateAlias)
+
+		console.log($scope.affiliateAlias, affiliateAddr);
 		$scope.store.products.forEach(function(product){
 			if(product.quantity===0) return true
 
@@ -55,7 +61,7 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 		})
 
 		try{
-			Order.check(meta,storeAddr,marketAddr,feePercentage,disputeSeconds)
+			Order.check(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,affiliateAddr)
 		}catch(e){
 			growl.addErrorMessage(e)
 			return
@@ -66,7 +72,7 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 			return
 		}
 
-		var estimatedGas = Order.estimateCreationGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds)
+		var estimatedGas = Order.estimateCreationGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,affiliateAddr)
 		 	,doContinue = helpers.confirmGas(estimatedGas)
 
 		if(!doContinue) return
@@ -75,7 +81,7 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 
 		console.log('meta sent to Order.create',meta)
 
-		Order.create(meta,storeAddr,marketAddr,feePercentage,disputeSeconds).then(function(order){
+		Order.create(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,affiliateAddr).then(function(order){
 			window.location.hash = "#/orders/"+order.addr
 			user.data.orderAddrs.push(order.addr)
 			user.save()
