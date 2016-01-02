@@ -95,6 +95,15 @@ angular.module('app').controller('OrderController',function($scope,safemarket,us
 		})
 	}
 
+	$scope.finalize = function(){
+		$scope.isUpdatingStatus = true
+		$scope.order.finalize().then(function(){
+			$scope.order.update().then(function(){
+				$scope.isUpdatingStatus = false
+			})
+		})
+	}
+
 	$scope.openResolutionModal = function(){
 		modals.openResolution($scope.order).result.then(function(){
 			$scope.order.update()
@@ -109,6 +118,12 @@ angular.module('app').controller('OrderController',function($scope,safemarket,us
 
 	$scope.makeWithdrawl = function(){
 		modals.openWithdrawl($scope.order).result.then(function(){
+			$scope.order.update();
+		})
+	}
+
+	$scope.leaveReview = function(){
+		modals.openLeaveReview($scope.order).result.then(function(){
 			$scope.order.update();
 		})
 	}

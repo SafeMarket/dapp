@@ -4,13 +4,10 @@
 		$scope.currencies = Object.keys(ticker.rates)
 		$scope.user = user
 		$scope.accounts = web3.eth.accounts
+		$scope.affiliateAccount = web3.eth.accounts[0]
 
 		$scope.$watch('user.data.account',function(){
 			$scope.balanceInEther = web3.fromWei(web3.eth.getBalance(user.data.account))
-			$scope.affiliateAccounts = $scope.accounts.filter(function(account){
-				return account != user.data.account
-			})
-			$scope.affiliateAccount = $scope.affiliateAccounts[0]
 		})
 
 		$scope.$watch('affiliateAccount',function(){

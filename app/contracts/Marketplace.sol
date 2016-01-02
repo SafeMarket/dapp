@@ -266,14 +266,14 @@ contract Order{
 	function markAsShipped(){
 
 		if(status !=  initialized)
-		throw;
+			throw;
 
 		if(msg.sender != storeOwner)
-		throw;
+			throw;
 
 		//don't allow to mark as shipped on same block that a withdrawl is made
 		if(receivedAtBlockNumber == block.number)
-		throw;
+			throw;
 
 		shippedAt = now;
 		addUpdate(shipped);
@@ -282,32 +282,29 @@ contract Order{
 	function finalize(){
 
 		if(status !=  shipped)
-		throw;
+			throw;
 
-		if(msg.sender != buyer && msg.sender != storeOwner)
-		throw;
-
-		if(msg.sender == storeOwner && now - shippedAt < disputeSeconds)
-		throw;
+		if(msg.sender != buyer)
+			throw;
 
 		var isSent = storeOwner.send(this.balance);
 		if(!isSent) throw;
-
+		
 		addUpdate(finalized);
 	}
 
 	function dispute(){
 		if(msg.sender != buyer)
-		throw;
+			throw;
 
 		if(status != shipped)
-		throw;
+			throw;
 
 		if(now - shippedAt > disputeSeconds)
-		throw;
+			throw;
 
 		if(marketOwner==address(0))
-		throw;
+			throw;
 
 		addUpdate(disputed);
 		disputedAt=now;
@@ -315,21 +312,21 @@ contract Order{
 
 	function calculateFee() returns (uint){
 		// show your work:
-
+		
 		// 1. fee = products(feePercent)
-		// products = fee/feePercent
-		// products = fee/(feePercentage/100)
-		// products = (100*fee)/feePercentage
+			// products = fee/feePercent
+			// products = fee/(feePercentage/100)
+			// products = (100*fee)/feePercentage
 
 		// 2. products + fee = received
-		// (100*fee)/feePercentage + fee = received
-		// fee(100/feePercentage + 1) = received
-		// fee(100/feePercentage + feePercentage/feePercentage) = received
-		// fee(100+feePercentage)/feePercentage = received
-		// fee = received/((100+feePercentage)/feePercentage)
-		// fee = (received * feePercentage)/(100 + feePercentage)
+			// (100*fee)/feePercentage + fee = received
+			// fee(100/feePercentage + 1) = received
+			// fee(100/feePercentage + feePercentage/feePercentage) = received
+			// fee(100+feePercentage)/feePercentage = received
+			// fee = received/((100+feePercentage)/feePercentage)
+			// fee = (received * feePercentage)/(100 + feePercentage)
 
-
+		
 		return (received * feePercentage)/(100 + feePercentage);
 	}
 
@@ -374,6 +371,55 @@ contract Store is forumable,audible{
 	function setMeta(bytes meta){
 		if(msg.sender!=owner) throw;
 		Meta(meta);
+	}
+
+	mapping(address=>Review) reviews;
+
+	struct Review{
+		uint score;
+		uint timestamp;
+	}
+
+	uint[6] scoreCounts;
+
+	event ReviewData(address indexed orderAddr, bytes data);
+
+	function getReview(address orderAddr) constant returns (uint, uint){
+		var review = reviews[orderAddr];
+		return (review.score,review.timestamp);
+	}
+
+	function getScoreCounts() constant returns (uint, uint, uint, uint, uint, uint){
+		return (scoreCounts[0],scoreCounts[1],scoreCounts[2],scoreCounts[3],scoreCounts[4],scoreCounts[5]);
+	}
+
+	function leaveReview(address orderAddr, uint score, bytes data){
+		
+		var order = Order(orderAddr);
+
+		if(order.status() < 3)
+			throw;
+
+		if(order.storeAddr() != address(this))
+			throw;
+
+		if(order.buyer() != msg.sender)
+			throw;
+
+		if(score>5)
+			throw;
+
+		var review = reviews[orderAddr];
+
+		if(review.timestamp != 0)
+			scoreCounts[review.score]--;
+		
+		review.timestamp = now;
+		review.score = score;
+		scoreCounts[score]++;
+
+		ReviewData(orderAddr, data);
+		
 	}
 
 }

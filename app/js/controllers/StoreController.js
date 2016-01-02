@@ -16,6 +16,7 @@ angular.module('app').controller('StoreController',function($scope,$filter,$stat
 	$scope.tabs = [
         { heading: "About", route:"store.about", active:false },
         { heading: "Products", route:"store.products", active:false },
+        { heading: "Reviews", route:"store.reviews", active:false },
         { heading: "All Orders", route:"store.orders", active:false },
     ];
 

@@ -182,18 +182,33 @@
 			},function(error){
 				deferred.reject(error)
 			})
-
 			return deferred.promise
 		}
-
 
 		Store.prototype.update = function(){
 			var deferred = $q.defer()
 			,store = this
 
 			this.products = []
+			this.reviews = []
+			this.scoreCounts = []
+			this.scoreCountsReversed = []
+			this.scoreCountsSum = 0
+			this.scoreCountsTotal = 0
 			this.owner = this.contract.owner()
 			this.affiliatePercentage = this.contract.affiliatePercentage()
+			this.contract.getScoreCounts().forEach(function(scoreCount,index){
+				var scoreCount = scoreCount.toNumber()
+				store.scoreCounts.push(scoreCount)
+				store.scoreCountsTotal += scoreCount
+				store.scoreCountsSum += index*scoreCount
+			})
+
+			this.averageScore = (new BigNumber(this.scoreCountsTotal)).pow(-1).times(this.scoreCountsSum)
+
+
+			this.scoreCountsReversed = this.scoreCounts.slice().reverse()
+
 			this.contract.Meta({},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
 
 				if(error)
@@ -211,7 +226,24 @@
 					store.products.push(new Product(productData))
 				})
 
-				deferred.resolve(store)
+				store.contract.ReviewData({},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
+
+					if(error)
+					return deferred.reject(error)
+
+					var reviewsObject = {};
+
+					results.forEach(function(result){
+						reviewsObject[result.args.orderAddr] = new Review(result,store)
+					})
+
+					Object.keys(reviewsObject).forEach(function(orderAddr){
+						store.reviews.push(reviewsObject[orderAddr])
+					})
+
+					deferred.resolve(store)
+				})
+
 			})
 
 			Key.fetch(this.owner).then(function(key){
@@ -219,6 +251,15 @@
 			})
 
 			return deferred.promise
+		}
+
+		function Review(result,store){
+			this.data = utils.convertHexToObject(result.args.data)
+			this.orderAddr = result.args.orderAddr
+
+			var reviewData = store.contract.getReview(result.args.orderAddr)
+			this.score = reviewData[0].toNumber()
+			this.timestamp = reviewData[1].toNumber()
 		}
 
 		function Product(data){

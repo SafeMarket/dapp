@@ -1,7 +1,10 @@
 <div class="container">
 	<h2>
-		<a ng-href="#/stores/{{order.store.addr}}">{{order.store.meta.name}}</a> » Order {{order.addr.substr(0,6)}}...
+		<a ng-href="{{order.store.addr | url:'store'}}">{{order.store.meta.name}}</a> » Order {{order.addr.substr(0,6)}}...
 	</h2>
+	<div class="alert alert-info text-center" ng-show="order.status>=3">
+		<a ng-click="leaveReview()">Leave a review</a> for @{{order.store.addr | alias}}	
+	</div>
 	<table class="table">
 		<tr>
 			<td>Status</td>
@@ -46,7 +49,7 @@
 			<td colspan="2" alias="order.market.addr">
 			</td>
 		</tr>
-		<tr>
+		<tr ng-show="order.status<3">
 			<td>Dispute Deadline</td>
 			<td colspan="2">
 				<div ng-show="order.status===1">

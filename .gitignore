@@ -9,3 +9,5 @@ packages/
 reports/
 .env.json
 .*
+**/.*
+!/.gitignore
