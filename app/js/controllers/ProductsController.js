@@ -44,7 +44,7 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 		if($scope.affiliateAlias.length == 0)
 			affiliateAddr = storeAddr
 		else
-			affiliateAddr = AffiliateReg.getAddr.call($scope.affiliateAlias)
+			affiliateAddr = AffiliateReg.contract.getAddr.call($scope.affiliateAlias)
 
 		console.log($scope.affiliateAlias, affiliateAddr);
 		$scope.store.products.forEach(function(product){

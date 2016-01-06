@@ -3,11 +3,11 @@ describe('auth',function(){
 describe('account reset', function() {
 
     it('should have a button in the settigns menu', function() {
-        browser.get('http://localhost:8000');
+        browser.get('http://127.0.0.1:8000');
         element(by.css('[ng-click="openSettingsModal()"]')).click();
         var resetButtonPresence = element(by.css('[ng-click="reset()"]')).isPresent();
         expect(resetButtonPresence).toBe(true);
-    
+
     });
 
     it('should trigger an alert',function(){
@@ -27,7 +27,7 @@ describe('account reset', function() {
     })
 
     it('should send user to login page',function(){
-        expect(browser.getCurrentUrl()).toEqual('http://localhost:8000/#/login');
+        expect(browser.getCurrentUrl()).toEqual('http://127.0.0.1:8000/#/login');
         var registerFormPresence = element(by.css('[ng-submit="register()"]')).isPresent()
         expect(registerFormPresence).toEqual(true);
     })
@@ -47,7 +47,7 @@ describe('registration', function() {
 
         var passwordInputs = element.all(by.css('#registerForm [type="password"]'))
         expect(passwordInputs.count()).toBe(2);
-    
+
     });
 
     it('should switch password fields to text fileds when "show password" is checked', function() {
@@ -56,12 +56,12 @@ describe('registration', function() {
         showPasswordCheckbox.click()
         var passwordInputs = element.all(by.css('#registerForm [type="text"]'))
         expect(passwordInputs.count()).toBe(2);
-    
+
     });
 
     it('should fail to register when no password is given',function(){
         element(by.css('#registerForm')).submit()
-        expect(browser.getCurrentUrl()).toEqual('http://localhost:8000/#/login');
+        expect(browser.getCurrentUrl()).toEqual('http://127.0.0.1:8000/#/login');
     })
 
     it('should fail to registerwhen no passwords dont match',function(){
@@ -69,7 +69,7 @@ describe('registration', function() {
         passwordInputs.get(0).sendKeys('password')
         passwordInputs.get(1).sendKeys('pass')
         element(by.css('#registerForm')).submit()
-        expect(browser.getCurrentUrl()).toEqual('http://localhost:8000/#/login');
+        expect(browser.getCurrentUrl()).toEqual('http://127.0.0.1:8000/#/login');
     })
 
     it('should create a user with a password of "password"',function(){
@@ -80,7 +80,7 @@ describe('registration', function() {
     })
 
     it('should send the user to the home page',function(){
-        expect(browser.getCurrentUrl()).toEqual('http://localhost:8000/#/');
+        expect(browser.getCurrentUrl()).toEqual('http://127.0.0.1:8000/#/');
     })
 
     it('should open the settings modal',function(){
@@ -108,7 +108,7 @@ describe('logout/login',function(){
     })
 
     it('should send the user to the login page',function(){
-        expect(browser.getCurrentUrl()).toEqual('http://localhost:8000/#/login');
+        expect(browser.getCurrentUrl()).toEqual('http://127.0.0.1:8000/#/login');
     })
 
     it('should show the login form',function(){
@@ -123,7 +123,7 @@ describe('logout/login',function(){
 
         var passwordInputs = element.all(by.css('#loginForm [type="password"]'))
         expect(passwordInputs.count()).toBe(1);
-    
+
     });
 
     it('should switch password fields to text fileds when "show password" is checked', function() {
@@ -132,7 +132,7 @@ describe('logout/login',function(){
         showPasswordCheckbox.click()
         var passwordInputs = element.all(by.css('#loginForm [type="text"]'))
         expect(passwordInputs.count()).toBe(1);
-    
+
     });
 
     it('should fail with the wrong password', function() {
@@ -140,8 +140,8 @@ describe('logout/login',function(){
         var passwordInput = element(by.css('#loginForm [type="text"]'))
         passwordInput.sendKeys('pass')
         element(by.css('#loginForm')).submit()
-        expect(browser.getCurrentUrl()).toEqual('http://localhost:8000/#/login');
-    
+        expect(browser.getCurrentUrl()).toEqual('http://127.0.0.1:8000/#/login');
+
     });
 
     it('should login with the right password', function() {
@@ -149,8 +149,8 @@ describe('logout/login',function(){
         var passwordInput = element(by.css('#loginForm [type="text"]'))
         passwordInput.sendKeys('word')
         element(by.css('#loginForm')).submit()
-        expect(browser.getCurrentUrl()).toEqual('http://localhost:8000/#/');
-    
+        expect(browser.getCurrentUrl()).toEqual('http://127.0.0.1:8000/#/');
+
     });
 
 })

@@ -27,7 +27,7 @@ contract AffiliateReg {
 	mapping(bytes32=>address) public aliasToAddrMap;
 
 	function claimAlias(bytes32 alias, address addr){
-		//if(aliasToAddrMap[alias] != address(0)) throw;
+		if(aliasToAddrMap[alias] != address(0)) throw;
 		//if(addrToAffiliateMap[coinbase].owner != address(0)) throw;
 
 		aliasToAddrMap[alias]=addr;
@@ -289,7 +289,7 @@ contract Order{
 
 		var isSent = storeOwner.send(this.balance);
 		if(!isSent) throw;
-		
+
 		addUpdate(finalized);
 	}
 
@@ -312,7 +312,7 @@ contract Order{
 
 	function calculateFee() returns (uint){
 		// show your work:
-		
+
 		// 1. fee = products(feePercent)
 			// products = fee/feePercent
 			// products = fee/(feePercentage/100)
@@ -326,7 +326,7 @@ contract Order{
 			// fee = received/((100+feePercentage)/feePercentage)
 			// fee = (received * feePercentage)/(100 + feePercentage)
 
-		
+
 		return (received * feePercentage)/(100 + feePercentage);
 	}
 
@@ -394,7 +394,7 @@ contract Store is forumable,audible{
 	}
 
 	function leaveReview(address orderAddr, uint score, bytes data){
-		
+
 		var order = Order(orderAddr);
 
 		if(order.status() < 3)
@@ -413,13 +413,13 @@ contract Store is forumable,audible{
 
 		if(review.timestamp != 0)
 			scoreCounts[review.score]--;
-		
+
 		review.timestamp = now;
 		review.score = score;
 		scoreCounts[score]++;
 
 		ReviewData(orderAddr, data);
-		
+
 	}
 
 }

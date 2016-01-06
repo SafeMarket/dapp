@@ -11,7 +11,7 @@
 		})
 
 		$scope.$watch('affiliateAccount',function(){
-			$scope.affiliateAlias = web3.toAscii(AffiliateReg.getAlias.call($scope.affiliateAccount))
+			$scope.affiliateAlias = web3.toAscii(AffiliateReg.contract.getAlias.call($scope.affiliateAccount))
 		})
 
 		$scope.$watch('user.data.currency',function(){
@@ -44,7 +44,7 @@
 
 			var alias = $scope.affiliateAlias
 			,account = $scope.affiliateAccount
-			,estimatedGas = AffiliateReg.claimAlias.estimateGas(alias,account)
+			,estimatedGas = AffiliateReg.contract.claimAlias.estimateGas(alias,account)
 			,doContinue = helpers.confirmGas(estimatedGas)
 
 			if(!doContinue){
@@ -52,9 +52,8 @@
 				return
 			}
 
-			console.log(alias,account,typeof alias, typeof account);
-			AffiliateReg.claimAlias(alias, account,function(err, res){
-				console.log(err,res);
+			console.log(alias,account,typeof alias, typeof account,web3.eth.defaultAccount);
+			AffiliateReg.claimAlias(alias, account,{from:web3.eth.defaultAccount}).then(function(err, res){
 				$scope.isChangingKeys = false
 			})
 		}

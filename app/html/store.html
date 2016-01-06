@@ -1,6 +1,6 @@
 <div class="container">
 	<div alias-bar="{{store.alias}}"></div>
-	<div class="row aligner">
+	<div class="aligner">
 		<h1 class="pull-left aligner-bottom clear-margin-horizontal">
 			{{store.meta.name}}
 		</h1>
@@ -11,16 +11,15 @@
 		>
 		Edit
 	</button>
-	<div class="aligner-item"></div>
-	<h3 class="aligner-bottom">Referred By:</h3>
-	<div class="col-md-6 aligner">
-		<form class="clear-margin col-md-8 aligner-bottom" ng-submit="submit()">
-			<div class="input-group">
-				<div class="input-group-addon">@</div>
-				<input class="form-control" ng-model="affiliateAlias">
-			</div>
-		</form>
-	</div>
+</div>
+<div class="pull-left">
+	<h4 class="pull-left">Referred By:</h4>
+	<form class="" ng-submit="submit()">
+		<div class="input-group">
+			<div class="input-group-addon">@</div>
+			<input class="form-control" ng-model="affiliateAlias">
+		</div>
+	</form>
 </div>
 <tabset>
 	<tab

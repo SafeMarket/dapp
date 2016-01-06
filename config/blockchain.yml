@@ -20,7 +20,7 @@ development:
 production:
   rpc_host: localhost
   rpc_port: 8545
-  rpc_whitelist: http://localhost:8000
+  rpc_whitelist: http://127.0.0.1:8000
   datadir: default
   network_id: 1
   max_peers: 4

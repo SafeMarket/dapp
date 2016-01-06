@@ -8,6 +8,4 @@ dist/
 packages/
 reports/
 .env.json
-.*
-**/.*
-!/.gitignore
+.*% 

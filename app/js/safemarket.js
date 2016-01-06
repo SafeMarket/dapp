@@ -1,5 +1,5 @@
 (function(){
-	
+
 	var safemarket = angular.module('safemarket',['ngSanitize'])
 
 	safemarket.run(function(ticker,utils,Store,Market){
@@ -74,8 +74,9 @@
 		}
 	})
 
-	safemarket.service('safemarket',function($q,ticker,Store,Market,Order,OrderBookEntry,Key,utils,pgp){
-		
+	var origAffiliateReg = AffiliateReg
+	safemarket.service('safemarket',function($q,ticker,Store,Market,Order,OrderBookEntry,Key,AffiliateReg,utils,pgp){
+
 		var safemarket = this
 
 		this.Store = Store
@@ -83,6 +84,7 @@
 		this.Order = Order
 		this.OrderBookEntry = OrderBookEntry
 		this.Key = Key
+		this.AffiliateReg = new AffiliateReg(origAffiliateReg.address)
 		this.utils = utils
 		this.pgp = pgp
 

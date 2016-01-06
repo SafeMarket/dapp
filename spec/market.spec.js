@@ -4,7 +4,7 @@ var marketAlias = 'drinkmarket'+Math.floor(Math.random()*999999)
 
 describe('safemarket',function(){
     it('should exist on port 8000',function(){
-        browser.get('http://localhost:8000');
+        browser.get('http://127.0.0.1:8000');
     })
 })
 
@@ -33,7 +33,7 @@ describe('market modal',function(){
         element(by.css('h1')).getText().then(function(text){
             expect(text.indexOf('The Drink Market')).toNotEqual(-1)
         })
-        
+
     })
 
 })
