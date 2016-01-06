@@ -1,4 +1,4 @@
-angular.module('app').controller('SettingsController',function($scope,safemarket,growl,user,ticker,helpers,txMonitor){
+angular.module('app').controller('SettingsModalController',function($scope,safemarket,growl,user,ticker,helpers,txMonitor){
 	
 	$scope.currencies = Object.keys(ticker.rates)
 	

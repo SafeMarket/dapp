@@ -2,7 +2,7 @@
     <h3 class="modal-title" ng-cloak>SafeMarket Would Like to {{proposal.label}}</h3>
 </div>
 <div class="modal-body">
-	<div ng-show="!isApproved">
+	<div ng-show="!isApproved && !isThrown">
 		This will cost roughly {{proposal.cost | currency:'WEI':user.data.currency}} or {{proposal.cost | currency:'WEI':'ETH'}}.
 	</div>
 	<div ng-show="isSyncing" class="alert alert-info text-center">
@@ -11,14 +11,17 @@
 	<div ng-show="error" class="alert alert-danger text-center">
 		{{error.message}}
 	</div>
+	<div ng-show="isThrown" class="alert alert-danger text-center">
+		Doing that will cause the EVM to throw.
+	</div>
 </div>
-<div class="modal-footer" ng-show="!isSyncing && !isApproved">
+<div class="modal-footer" ng-show="!isSyncing && !isApproved && !isThrown">
     <button class="btn btn-primary" type="button" ng-click="approve()">Approve</button>
     <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
 </div>
 <div class="modal-footer" ng-show="isSyncing">
     <button class="btn btn-danger" type="button" ng-click="stopWaiting()">Stop Waiting</button>
 </div>
-<div class="modal-footer" ng-show="error">
+<div class="modal-footer" ng-show="error || isThrown">
     <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
 </div>

@@ -16,11 +16,6 @@ app.config(function(growlProvider,$stateProvider, $urlRouterProvider) {
     		,templateUrl:'login.html'
     		,controller:'LoginController'
     	})
-        .state('settings',{
-            url:'/settings'
-            ,templateUrl:'settings.html'
-            ,controller:'SettingsController'
-        })
     	.state('store',{
             abstract:true
     		,url:'/stores/:storeAddr'

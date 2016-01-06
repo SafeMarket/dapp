@@ -11,11 +11,10 @@ angular.module('app').controller('TxMonitorModalController',function($scope,$int
 	console.log(proposal.contractFactoryOrFunction)
 	
 	proposal.value = txOptions.value = txOptions.value || 0
-	proposal.gas = txOptions.gas = txOptions.gas || (proposal.contractFactoryOrFunction.estimateGas.apply(proposal.contractFactoryOrFunction, proposal.args)*1)
+	proposal.gas = txOptions.gas = txOptions.gas || (proposal.contractFactoryOrFunction.estimateGas.apply(proposal.contractFactoryOrFunction, proposal.args)*2)
 	proposal.cost = web3.eth.gasPrice.times(proposal.value+proposal.gas).toNumber()
 
-	console.log(proposal.gas)
-
+	$scope.isThrown = web3.eth.getBlock(web3.eth.blockNumber).gasLimit<proposal.gas
 	$scope.isProposalAffordable = user.balance.lessThan(proposal.cost)
 
 	var currentBlockNumber

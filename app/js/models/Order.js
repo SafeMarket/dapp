@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('Order',function(utils,ticker,$q,Store,Market,Key,KeyGroup,PgpMessageWrapper,txMonitor){
+angular.module('safemarket').factory('Order',function(utils,ticker,$q,Store,Market,Key,KeyGroup,PgpMessageWrapper,txMonitor,user){
 
 function Order(addr){
 	this.addr = addr
@@ -40,8 +40,9 @@ Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 			console.log('meta added', pgpMessage.packets.write())
 			var meta = pgpMessage.packets.write()
 
-			txMonitor.propose('Create a New Order',Order.contractFactory,[meta,storeAddr,marketAddr,feePercentage,disputeSeconds,OrderBook.address]).then(function(receipt){
-				var order = new Order(receipt.transactionHash)
+			txMonitor.propose('Create a New Order',Order.contractFactory,[meta,storeAddr,marketAddr,feePercentage,disputeSeconds,OrderBook.address,{data:order.code}]).then(function(receipt){
+				console.log(receipt)
+				var order = new Order(receipt.contractAddress)
 				deferred.resolve(order)
 			})
 		},function(error){
@@ -149,69 +150,25 @@ Order.check = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 	})
 }
 
-Order.estimateCreationGas = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
-	meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
-
-	return this.contractFactory.estimateGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,OrderBook.address,{
-		data:Order.code
-	})
-}
-
 Order.prototype.cancel = function(){
-	var deferred = $q.defer()
-		,txHex = this.contract.cancel()
-
-	utils.waitForTx(txHex).then(function(){
-		deferred.resolve()
-	})
-
-	return deferred.promise
+	return txMonitor.propose('Cancel this Order',this.contract.cancel,[])
 }
 
 Order.prototype.dispute = function(){
-	var deferred = $q.defer()
-		,txHex = this.contract.dispute()
-
-	utils.waitForTx(txHex).then(function(){
-		deferred.resolve()
-	})
-
-	return deferred.promise
+	return txMonitor.propose('Dispute this Order',this.contract.dispute,[])
 }
 
 Order.prototype.finalize = function(){
-	var deferred = $q.defer()
-		,txHex = this.contract.finalize()
-
-	utils.waitForTx(txHex).then(function(){
-		deferred.resolve()
-	})
-
-	return deferred.promise
+	return txMonitor.propose('Finalize this Order',this.contract.finalize,[])
 }
 
 Order.prototype.resolve = function(buyerPercentage){
-	console.log('buyerPercentage',buyerPercentage.toString())
-	var deferred = $q.defer()
-		,txHex = this.contract.resolve(buyerPercentage)
-
-	utils.waitForTx(txHex).then(function(){
-		deferred.resolve()
-	})
-
-	return deferred.promise
+	return txMonitor.propose('Resolve this Order',this.contract.resolve,[buyerPercentage])
 }
 
 
 Order.prototype.markAsShipped = function(){
-	var deferred = $q.defer()
-		,txHex = this.contract.markAsShipped()
-
-	utils.waitForTx(txHex).then(function(){
-		deferred.resolve()
-	})
-
-	return deferred.promise
+	return txMonitor.propose('Mark the Order as Shipped',this.contract.markAsShipped,[])
 }
 
 Order.prototype.update = function(){
@@ -357,20 +314,11 @@ Order.prototype.decryptMessages = function(privateKey){
 }
 
 Order.prototype.leaveReview = function(score,text){
-	var deferred = $q.defer()
-		,dataHex = utils.convertObjectToHex({
-			text:text
-		})
-		,gas = this.store.contract.leaveReview.estimateGas(this.addr,score,dataHex)
-		,txHex = this.store.contract.leaveReview(this.addr,score,dataHex,{
-			gas:gas
-		})
-
-	utils.waitForTx(txHex).then(function(){
-		deferred.resolve()
+	var dataHex = utils.convertObjectToHex({
+		text:text
 	})
 
-	return deferred.promise
+	return txMonitor.propose('Leave a Review',this.store.contract.leaveReview,[this.addr,score,dataHex])
 }
 
 function Message(sender,ciphertext,timestamp,order){

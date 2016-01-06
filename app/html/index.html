@@ -13,9 +13,9 @@
     <link rel="stylesheet" href="css/app.min.css">
     <script src="js/app.min.js"></script>
   </head>
-  <body ng-app="app">
+  <body ng-app="app"><div ng-controller="MainController">
     <nav class="navbar navbar-default navbar-top navbar-static-top" id="navbar">
-      <div>
+      <div class="container">
         <div class="navbar-header pull-left">
           <a class="navbar-brand" ng-href="{{isLoggedIn?'#/':'.'}}">SafeMarket</a>
         </div>
@@ -26,9 +26,9 @@
           <button class="navbar-btn btn btn-default btn-lg" id="refreshButton">
             <span class="glyphicon glyphicon-refresh" id="refreshIcon"></span>
           </button>
-          <a class="navbar-btn btn btn-default btn-lg" ng-if="isLoggedIn" href="#/settings">
+          <button class="navbar-btn btn btn-default btn-lg" ng-if="isLoggedIn" ng-click="openSettingsModal()">
             <span class="glyphicon glyphicon-cog"></span>
-          </a>
+          </button>
           <button class="btn btn-default btn-lg" ng-click="logout()" ng-if="isLoggedIn">
             <span class="glyphicon glyphicon-log-out"></span>
           </button>
@@ -36,7 +36,7 @@
       </div>
     </nav>
     <div class="container">
-      <div ng-controller="MainController">
+      <div>
         <div>
           <div class="alert alert-danger text-center" ng-show="!isConnected">
             Warning: Unable to connect. Make sure (1) your geth node is running (2) you entered your password when unlocking your account.
@@ -49,5 +49,5 @@
         <div ui-view autoscroll="true" class="mainView"></div>
       </div>
     </div>
-  </body>
+  </div></body>
 </html>

@@ -10,7 +10,6 @@ angular.module('app').controller('LeaveReviewModalController',function($scope,$m
 	}
 
 	$scope.submit = function(){
-		$scope.isSyncing = true
 		order.leaveReview($scope.score,$scope.text).then(function(){
 			$modalInstance.close()
 		})

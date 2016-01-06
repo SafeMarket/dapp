@@ -67,38 +67,26 @@ angular.module('app').controller('OrderController',function($scope,safemarket,us
 	}
 
 	$scope.cancel = function(){
-		$scope.isUpdatingStatus = true
 		$scope.order.cancel().then(function(){
-			$scope.order.update().then(function(){
-				$scope.isUpdatingStatus = false
-			})
+			$scope.order.update()
 		})
 	}
 
 	$scope.markAsShipped = function(){
-		$scope.isUpdatingStatus = true
 		$scope.order.markAsShipped().then(function(){
-			$scope.order.update().then(function(){
-				$scope.isUpdatingStatus = false
-			})
+			$scope.order.update()
 		})
 	}
 
 	$scope.dispute = function(){
-		$scope.isUpdatingStatus = true
 		$scope.order.dispute().then(function(){
-			$scope.order.update().then(function(){
-				$scope.isUpdatingStatus = false
-			})
+			$scope.order.update()
 		})
 	}
 
 	$scope.finalize = function(){
-		$scope.isUpdatingStatus = true
 		$scope.order.finalize().then(function(){
-			$scope.order.update().then(function(){
-				$scope.isUpdatingStatus = false
-			})
+			$scope.order.update()
 		})
 	}
 
