@@ -25,6 +25,11 @@ angular.module('app').controller('TxMonitorModalController',function($scope,$int
 		$scope.isSyncing = true
 		$scope.isApproved = true
 
+		$scope.secondsWaited  = 0
+		var waitInterval = $interval(function(){
+			$scope.secondsWaited = new BigNumber(Date.now()).minus(startTimestamp).div(1000).floor().toNumber()
+		})
+
 		var args = proposal.args.slice(0)
 
 		args.push(function(error,result){
@@ -41,6 +46,7 @@ angular.module('app').controller('TxMonitorModalController',function($scope,$int
 			}
 
 			txMonitor.waitForTx(result.transactionHash || result).then(function(receipt){
+				$interval.cancel(waitInterval)
 				$modalInstance.close(receipt)
 			})
 
@@ -68,8 +74,5 @@ angular.module('app').controller('TxMonitorModalController',function($scope,$int
 	var startTimestamp = Date.now()
 
 	$scope.secondsWaited = 0
-	$interval(function(){
-		$scope.secondsWaited = new BigNumber(Date.now()).minus(startTimestamp).div(1000).floor().toNumber()
-	})
 
 });

@@ -1,4 +1,4 @@
-angular.module('app').controller('SettingsModalController',function($scope,safemarket,growl,user,ticker,helpers,txMonitor){
+angular.module('app').controller('SettingsModalController',function($scope,safemarket,growl,user,ticker,helpers,txMonitor,$modalInstance){
 	
 	$scope.currencies = Object.keys(ticker.rates)
 	
@@ -17,6 +17,7 @@ angular.module('app').controller('SettingsModalController',function($scope,safem
 
 	$scope.submit = function(){
 		user.save()
+		$modalInstance.close()
 	}
 
 	$scope.addKeypair = function(){
@@ -53,6 +54,8 @@ angular.module('app').controller('SettingsModalController',function($scope,safem
 	$scope.reset = function(){
 		var doContinue = confirm('Are you sure? This will delete all the SafeMarket data on this computer.')
 		if(!doContinue) return
+
+		$modalInstance.close()
 
 		user.reset()
 		user.logout()

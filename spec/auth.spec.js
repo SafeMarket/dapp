@@ -64,7 +64,7 @@ describe('registration', function() {
         expect(browser.getCurrentUrl()).toEqual('http://localhost:8000/#/login');
     })
 
-    it('should fail to registerwhen no passwords dont match',function(){
+    it('should fail to register when no passwords dont match',function(){
         var passwordInputs = element.all(by.css('#registerForm [type="text"]'))
         passwordInputs.get(0).sendKeys('password')
         passwordInputs.get(1).sendKeys('pass')

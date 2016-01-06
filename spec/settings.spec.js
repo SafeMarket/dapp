@@ -40,8 +40,7 @@ describe('settings modal',function(){
             );
         });
         browser.switchTo().alert().accept();
-        browser.switchTo().alert().accept();
-        browser.waitForAngular()
+        element(by.css('[ng-click="approve()"]')).click()
         var keypairsCount = browser.executeScript("return angular.element(document.body).injector().get('user').keypairs.length")
         expect(keypairsCount).toBe(2);
         

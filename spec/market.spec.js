@@ -20,15 +20,7 @@ describe('market modal',function(){
         element(by.css('[ng-model="name"]')).sendKeys('The Drink Market')
         element(by.css('[ng-model="info"]')).sendKeys('The best drinks on the interweb')
         element(by.css('[ng-click="submit()"]')).click()
-        browser.switchTo().alert().accept();
-        browser.wait(function() {
-            var deferred = protractor.promise.defer();
-            element(by.css('.modal-body')).isPresent()
-                .then(function (isDisplayed) {
-                  deferred.fulfill(!isDisplayed);
-            });
-            return deferred.promise;
-        });
+        element(by.css('[ng-click="approve()"]')).click()
         element(by.css('[ng-href*="#/markets/"]')).click()
         element(by.css('h1')).getText().then(function(text){
             expect(text.indexOf('The Drink Market')).toNotEqual(-1)
