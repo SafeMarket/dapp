@@ -146,6 +146,19 @@ angular.module('app').service('modals',function($modal){
 			}
 	    });
 	}
+
+	this.openTxMonitor = function(){
+		return openModal({
+			size: 'md'
+			,templateUrl: 'txMonitorModal.html'
+			,controller: 'txMonitorModalController'
+			,resolve:{
+				args:function(){
+					return arguments
+				}
+			}
+	    });
+	}
 })
 
 

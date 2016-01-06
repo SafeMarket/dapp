@@ -1,6 +1,4 @@
-(function(){
-
-angular.module('app').controller('ProductsController',function($scope,$filter,safemarket,helpers,growl){
+angular.module('app').controller('ProductsController',function($scope,$filter,safemarket,helpers,growl,user){
 
 	$scope.$watch('marketAddr',function(marketAddr){
 			
@@ -22,7 +20,7 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 		var priceInUserCurrency = safemarket.utils.convertCurrency(transport.price,{from:$scope.store.meta.currency,to:user.data.currency})
 			,priceFormatted = $filter('currency')(priceInUserCurrency,user.data.currency)
 
-		return transport.type+' ('+priceFormatted+' '+user.data.currency+')'
+		return transport.type+' ('+priceFormatted+')'
 	}
 
 	$scope.createOrder = function(){
@@ -66,20 +64,11 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 			return
 		}
 
-		var estimatedGas = Order.estimateCreationGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds)
-		 	,doContinue = helpers.confirmGas(estimatedGas)
-
-		if(!doContinue) return
-
-		$scope.isCreatingOrder = true
-
-		console.log('meta sent to Order.create',meta)
 
 		Order.create(meta,storeAddr,marketAddr,feePercentage,disputeSeconds).then(function(order){
 			window.location.hash = "#/orders/"+order.addr
 			user.data.orderAddrs.push(order.addr)
 			user.save()
-		 	$scope.isCreatingOrder = false
 		})
 
 	}
@@ -113,6 +102,4 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 		$scope.total = $scope.productsTotal.plus(transportPrice).plus($scope.estimatedFee)
 	})
 
-})
-
-})();
+});

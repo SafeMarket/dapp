@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('Order',function(utils,ticker,$q,Store,Market,Key,KeyGroup,PgpMessageWrapper){
+angular.module('safemarket').factory('Order',function(utils,ticker,$q,Store,Market,Key,KeyGroup,PgpMessageWrapper,txMonitor){
 
 function Order(addr){
 	this.addr = addr
@@ -20,7 +20,7 @@ Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 		,order = this
 		,store = new Store(storeAddr)
 		,parties = [web3.eth.defaultAccount,store.owner]
-		,meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
+		,meta = utils.convertObjectToHex(meta)
 
 	if(marketAddr!==utils.nullAddr){
 		var market = new Market(marketAddr)
@@ -39,19 +39,10 @@ Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 		keyGroup.encrypt(meta).then(function(pgpMessage){
 			console.log('meta added', pgpMessage.packets.write())
 			var meta = pgpMessage.packets.write()
-				,txObject = {
-					data:Order.code
-					,gas:Order.estimateCreationGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds)
-				},txHex = Order.contractFactory.new(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,OrderBook.address,txObject).transactionHash
-		
-			utils.waitForTx(txHex).then(function(tx){
-				(new Order(tx.contractAddress)).updatePromise.then(function(order){
-					deferred.resolve(order)
-				})
-			},function(error){
-				deferred.reject(error)
-			}).catch(function(error){
-				console.error(error)
+
+			txMonitor.propose('Create a New Order',Order.contractFactory,[meta,storeAddr,marketAddr,feePercentage,disputeSeconds,OrderBook.address]).then(function(receipt){
+				var order = new Order(receipt.transactionHash)
+				deferred.resolve(order)
 			})
 		},function(error){
 			deferred.reject(error)

@@ -43,7 +43,6 @@ angular.module('app').directive('comment',function(user){
 				user.save()
 				$scope.$parent.showReplies = false
 				$scope.isHidden = !$scope.isHidden
-				console.log(user.data.hiddenCommentIds)
 			}
 		}
 	}
@@ -250,6 +249,13 @@ angular.module('app').directive('tabUrl',function(helpers){
 			
 		}}
 	}	
+})
+
+angular.module('app').directive('txPanel',function(){
+	return {
+		templateUrl:'txPanel.html'
+		,controller:'TxPanelController'
+	}
 })
 
 })();

@@ -1,22 +1,20 @@
-<div class="container">
-	<div alias-bar="{{store.alias}}"></div>
-	<h1>
-		{{store.meta.name}}
-		<button
-			ng-show="user.data.account === store.owner"
-			class="btn btn-default"
-			ng-click="openStoreModal(store)"
-		>
-			Edit
-		</button>
-	</h1>
-	<tabset>
-        <tab
-            ng-repeat="tab in tabs"
-            heading="{{tab.heading}}"
-            select="go(tab.route)"
-            active="tab.active">
-        </tab>
-    </tabset>
-	<div ui-view></div>
-</div>
+<div alias-bar="{{store.alias}}"></div>
+<h1>
+	{{store.meta.name}}
+	<button
+		ng-show="user.data.account === store.owner"
+		class="btn btn-default"
+		ng-click="openStoreModal(store)"
+	>
+		Edit
+	</button>
+</h1>
+<tabset>
+    <tab
+        ng-repeat="tab in tabs"
+        heading="{{tab.heading}}"
+        select="go(tab.route)"
+        active="tab.active">
+    </tab>
+</tabset>
+<div ui-view></div>

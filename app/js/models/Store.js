@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('Store',function($q,utils,ticker,Key){
+angular.module('safemarket').factory('Store',function($q,utils,ticker,Key,txMonitor){
 
 var currencies = Object.keys(ticker.rates)
 
@@ -20,24 +20,15 @@ Store.prototype.contractFactory = Store.contractFactory = web3.eth.contract(Stor
 
 Store.create = function(alias,meta){
 
-	var meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
-		,deferred = Q.defer()
-		,StoreContract = web3.eth.contract(Store.abi)
-		,txObject = {
-			data:Store.code
-			,gas:this.estimateCreationGas(alias,meta)
-			,gasPrice:web3.eth.gasPrice
-			,from:web3.eth.accounts[0]
-		},txHex = StoreContract.new(alias,meta,AliasReg.address,txObject).transactionHash
+	var meta = utils.convertObjectToHex(meta)
+		,deferred = $q.defer()
 
-	utils.waitForTx(txHex).then(function(tx){
-		(new Store(tx.contractAddress).updatePromise.then(function(store){
-			deferred.resolve(store)
-		}))
-	},function(error){
-		deferred.reject(error)
-	}).catch(function(){
-		console.error(error)
+	txMonitor.propose(
+		'Create a New Store'
+		,this.contractFactory
+		,[alias,meta,AliasReg.address,{data:this.code}]
+	).then(function(txReciept){
+		deferred.resolve(new Store(txReciept.contractAddress))
 	})
 
 	return deferred.promise
@@ -160,18 +151,18 @@ Store.estimateCreationGas = function(alias,meta){
 
 Store.prototype.setMeta = function(meta){
 
-	meta = utils.convertObjectToHex(meta)
-
-	var deferred = Q.defer()
+	var meta = utils.convertObjectToHex(meta)
+		,deferred = $q.defer()
 		,store = this
-		,txHex = this.contract.setMeta(meta,{gas:this.contract.setMeta.estimateGas(meta)})
 
-	utils.waitForTx(txHex).then(function(){
-		store.update().then(function(store){
+	txMonitor.propose(
+		'Update a Store'
+		,this.contract.setMeta
+		,[meta]
+	).then(function(txReciept){
+		store.update().then(function(){
 			deferred.resolve(store)
 		})
-	},function(error){
-		deferred.reject(error)
 	})
 
 	return deferred.promise

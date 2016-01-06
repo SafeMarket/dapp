@@ -93,21 +93,13 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 		}
 
 		if(store){
-			var estimatedGas = store.contract.setMeta.estimateGas(meta)
-				,doContinue = helpers.confirmGas(estimatedGas)
-
-			if(!doContinue) return;
-
-			$scope.isSyncing = true
 
 			store
 				.setMeta(meta)
 				.then(function(store){
-					$scope.isSyncing = false
 					$modalInstance.close(store)
 				},function(error){
 					$scope.error = error
-					$scope.isSyncing = false
 				}).catch(function(error){
 					console.error(error)
 				})
@@ -117,22 +109,14 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 				return growl.addErrorMessage('@'+alias+' is already taken')
 			}
 
-			var estimatedGas = Store.estimateCreationGas($scope.alias,meta)
-				,doContinue = helpers.confirmGas(estimatedGas)
-
-			if(!doContinue) return
-	
-			$scope.isSyncing = true
-
 			safemarket
 				Store.create($scope.alias,meta)
 				.then(function(store){
 					user.data.storeAddrs.push(store.addr)
 					user.save()
-					$modalInstance.dismiss()
+					$modalInstance.close()
 				},function(error){
 					$scope.error = error
-					$scope.isSyncing = false
 				}).catch(function(error){
 					console.error(error)
 				})

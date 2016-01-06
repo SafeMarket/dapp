@@ -2,6 +2,8 @@
 
 angular.module('app').service('user',function($q,$rootScope,words,safemarket,modals){
 
+	var user = this
+
 	this.getStorage = function(){
 		return localStorage.getItem('user')
 	}
@@ -10,9 +12,21 @@ angular.module('app').service('user',function($q,$rootScope,words,safemarket,mod
 		localStorage.setItem('user',string)
 	}
 
+	this.setBalance = function(){
+		this.balance = web3.eth.getBalance(this.data.account)
+	}
+
 	this.logout = function(){
 		this.password = null
 		$rootScope.isLoggedIn = false
+	}
+
+	this.setDisplayCurrencies = function(){
+		$rootScope.userCurrency = user.data.currency
+		$rootScope.displayCurrencies = [user.data.currency]
+
+		if(user.data.currency!=='ETH')
+			$rootScope.displayCurrencies.push('ETH')
 	}
 
 	this.checkPassword = function(password){
@@ -70,6 +84,7 @@ angular.module('app').service('user',function($q,$rootScope,words,safemarket,mod
 		if(!this.data.hiddenCommentIds)
 			this.data.hiddenCommentIds = []
 
+		this.setBalance()
 		this.loadKeypairs()
 		this.loadKeypair()
 	}
@@ -150,6 +165,11 @@ angular.module('app').service('user',function($q,$rootScope,words,safemarket,mod
 		this.private = openpgp.key.readArmored(keypairData.private).keys[0]
 		this.public = openpgp.key.readArmored(keypairData.public).keys[0]
 		this.id = this.public.primaryKey.keyid.bytes
+	}
+
+	this.init = function(){
+		this.loadData()
+		this.setDisplayCurrencies()
 	}
 
 })

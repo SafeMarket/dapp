@@ -92,8 +92,6 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout,$saniti
 
 	function convertCurrency(amount,currencies){
 
-		console.log()
-
 		var deferred = $q.defer()
 
 		if(typeof amount!=='string')
@@ -123,9 +121,9 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout,$saniti
 			amount = new BigNumber(amount)
 
 		if(currency === 'ETH')
-			return amount.toFixed(6)
+			return amount.toFixed(6)+' '+currency
 		else
-			return amount.toFixed(2)
+			return amount.toFixed(2)+' '+currency
 	}
 
 	function convertCurrencyAndFormat(amount,currencies){
@@ -152,22 +150,17 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout,$saniti
 
 	function waitForTx(txHex, duration, pause){
 
-		console.log('waitForTx',txHex)
-
 		var deferred = $q.defer()
 			,duration = duration ? duration : (1000*60)
 			,pause = pause ? pause : (1000*3)
 			,timeStart = Date.now()
 			,interval = setInterval(function(){
 
-				console.log('waiting...')
-
 				var tx = web3.eth.getTransactionReceipt(txHex)
 
 				if(tx){
 					clearInterval(interval)
 					deferred.resolve(tx)
-					console.log(tx)
 				}
 
 				if(Date.now() - timeStart > duration){

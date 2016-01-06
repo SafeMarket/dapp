@@ -1,6 +1,4 @@
-(function(){
-
-angular.module('app').controller('SettingsModalController',function($scope,safemarket,growl,$modal,$modalInstance,user,ticker,helpers,modals){
+angular.module('app').controller('SettingsController',function($scope,safemarket,growl,user,ticker,helpers,txMonitor){
 	
 	$scope.currencies = Object.keys(ticker.rates)
 	
@@ -9,18 +7,16 @@ angular.module('app').controller('SettingsModalController',function($scope,safem
 
 	$scope.$watch('user.data.account',function(){
 		$scope.balanceInEther = web3.fromWei(web3.eth.getBalance(user.data.account))
+		user.save()
 	})
 
 	$scope.$watch('user.data.currency',function(){
-		$scope.displayCurrencies = [user.data.currency]
-
-		if(user.data.currency!=='ETH')
-			$scope.displayCurrencies.push('ETH')
+		user.setDisplayCurrencies()
+		user.save()
 	})
 
 	$scope.submit = function(){
 		user.save()
-		$modalInstance.close()
 	}
 
 	$scope.addKeypair = function(){
@@ -31,27 +27,17 @@ angular.module('app').controller('SettingsModalController',function($scope,safem
 
 			if(doSet)
 				$scope.setPrimaryKeypair(user.keypairs.length-1)
-			else
-				$scope.isChangingKeys = false
+
+			$scope.isChangingKeys = false
 		})
 	}
 
 	$scope.setPrimaryKeypair = function(index){
-
-		$scope.isChangingKeys = true
 		
 		var keyData = user.keypairs[index].public.toPacketlist().write()
-			,estimatedGas = Keystore.setKey.estimateGas(keyData)
-			,doContinue = helpers.confirmGas(estimatedGas)
-
-		if(!doContinue){
-			$scope.isChangingKeys = false
-			return
-		}
-
-		safemarket.Key.set(keyData).then(function(){
+		
+		txMonitor.propose('Set Your Primary Keypair', Keystore.setKey,[keyData]).then(function(){
 			$scope.user.loadKeypair()
-			$scope.isChangingKeys = false
 		})
 	}
 
@@ -71,9 +57,6 @@ angular.module('app').controller('SettingsModalController',function($scope,safem
 		user.reset()
 		user.logout()
 		window.location.hash = 'login'
-		$modalInstance.dismiss('cancel')
 	}
 
-})
-
-})();
+});

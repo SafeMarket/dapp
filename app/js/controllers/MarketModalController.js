@@ -52,21 +52,13 @@ angular.module('app').controller('MarketModalController',function($scope,safemar
 		}
 
 		if(market){
-			var estimatedGas = market.contract.setMeta.estimateGas(meta)
-				,doContinue = helpers.confirmGas(estimatedGas)
-
-			if(!doContinue) return;
-
-			$scope.isSyncing = true
 
 			market
 				.set(meta)
 				.then(function(market){
-					$scope.isSyncing = false
 					$modalInstance.close(market)
 				},function(error){
 					$scope.error = error
-					$scope.isSyncing = false
 				}).catch(function(error){
 					console.error(error)
 				})
@@ -76,13 +68,6 @@ angular.module('app').controller('MarketModalController',function($scope,safemar
 				return growl.addErrorMessage('The alias"'+alias+'" is taken')
 			}
 
-			var estimatedGas = Market.estimateCreationGas($scope.alias,meta)
-				,doContinue = helpers.confirmGas(estimatedGas)
-	
-			if(!doContinue) return;
-
-			$scope.isSyncing = true
-
 			safemarket
 				.Market.create($scope.alias,meta)
 				.then(function(market){
@@ -91,7 +76,6 @@ angular.module('app').controller('MarketModalController',function($scope,safemar
 					$modalInstance.dismiss()
 				},function(error){
 					$scope.error = error
-					$scope.isSyncing = false
 				}).catch(function(error){
 					console.error(error)
 				})

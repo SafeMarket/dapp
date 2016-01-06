@@ -1,20 +1,18 @@
-<div class="container">
-	<div alias-bar="{{market.alias}}"></div>
-	<h1>
-		{{market.meta.name}} 
-		<button
-			ng-show="user.data.account === market.owner"
-			class="btn btn-default"
-			ng-click="openMarketModal(market)"
-		>Edit</button>
-	</h1>
-	<tabset>
-        <tab
-            ng-repeat="tab in tabs"
-            heading="{{tab.heading}}"
-            select="go(tab.route)"
-            active="tab.active">
-        </tab>
-    </tabset>
-	<div ui-view></div>
-</div>
+<div alias-bar="{{market.alias}}"></div>
+<h1>
+	{{market.meta.name}} 
+	<button
+		ng-show="user.data.account === market.owner"
+		class="btn btn-default"
+		ng-click="openMarketModal(market)"
+	>Edit</button>
+</h1>
+<tabset>
+    <tab
+        ng-repeat="tab in tabs"
+        heading="{{tab.heading}}"
+        select="go(tab.route)"
+        active="tab.active">
+    </tab>
+</tabset>
+<div ui-view></div>

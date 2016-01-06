@@ -1,10 +1,16 @@
 (function(){
 
 angular.module('app').filter('currency',function(safemarket){
-	return function(amount,currency){
+	return function(amount,currencyFrom,currencyTo){
+
 		if(amount===undefined) return undefined
 
-		return safemarket.utils.formatCurrency(amount,currency)
+		if(currencyTo)
+			amount = safemarket.utils.convertCurrency(amount,{from:currencyFrom,to:currencyTo})
+		else
+			currencyTo = currencyFrom
+
+		return safemarket.utils.formatCurrency(amount,currencyTo)
 	}
 })
 
@@ -67,7 +73,6 @@ angular.module('app').filter('orderObjectBy', function() {
 
 angular.module('app').filter('reverse', function() {
 	return function(items) {
-		console.log(items)
     	return items.slice().reverse();
   	};
 });

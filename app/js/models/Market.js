@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('Market',function(utils,ticker,$q,Store,Key,Forum){
+angular.module('safemarket').factory('Market',function(utils,ticker,$q,Store,Key,Forum,txMonitor){
 
 function Market(addr){
 	this.addr = addr
@@ -17,27 +17,19 @@ Market.prototype.abi = Market.abi = contractDB.Market.compiled.info.abiDefinitio
 Market.prototype.contractFactory = Market.contractFactory = web3.eth.contract(Market.abi)
 
 Market.create = function(alias,meta){
+var meta = utils.convertObjectToHex(meta)
+	,deferred = $q.defer()
 
-	var meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
-		,deferred = $q.defer()
-		,txObject = {
-			data:this.code
-			,gas:this.estimateCreationGas(alias,meta)
-			,gasPrice:web3.eth.gasPrice
-			,from:web3.eth.accounts[0]
-		},txHex = this.contractFactory.new(alias,meta,AliasReg.address,txObject).transactionHash
+txMonitor.propose(
+	'Create a New Submarket'
+	,this.contractFactory
+	,[alias,meta,AliasReg.address,{data:this.code}]
+).then(function(txReciept){
+	console.log(txReciept)
+	deferred.resolve(new Market(txReciept.contractAddress))
+})
 
-	utils.waitForTx(txHex).then(function(tx){
-		(new Market(tx.contractAddress)).updatePromise.then(function(market){
-			deferred.resolve(market)
-		})
-	},function(error){
-		deferred.reject(error)
-	}).catch(function(error){
-		console.error(error)
-	})
-
-	return deferred.promise
+return deferred.promise
 }
 
 Market.check = function(alias,meta){
@@ -86,32 +78,21 @@ Market.check = function(alias,meta){
 	})
 }
 
-Market.estimateCreationGas = function(alias,meta){
-	meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
-
-	return this.contractFactory.estimateGas(alias,meta,AliasReg.address,{
-		data:Market.code
-	})+ AliasReg.claimAlias.estimateGas(alias)
-}
-
 
 Market.prototype.set = function(meta){
-	meta = utils.convertObjectToHex(meta)
 
-	var deferred = $q.defer()
-		,txHex = this.contract.setMeta(meta,{
-			gas: this.contract.setMeta.estimateGas(meta)
-		})
+	var meta = utils.convertObjectToHex(meta)
+		,deferred = $q.defer()
 		,market = this
 
-	utils.waitForTx(txHex).then(function(){
+	txMonitor.propose(
+		'Update a Submarket'
+		,this.contract.setMeta
+		,[meta]
+	).then(function(txReciept){
 		market.update().then(function(){
 			deferred.resolve(market)
 		})
-	},function(error){
-		deferred.reject(error)
-	}).catch(function(error){
-		deferred.reject(error)
 	})
 
 	return deferred.promise

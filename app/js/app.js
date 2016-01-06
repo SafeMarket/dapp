@@ -16,6 +16,11 @@ app.config(function(growlProvider,$stateProvider, $urlRouterProvider) {
     		,templateUrl:'login.html'
     		,controller:'LoginController'
     	})
+        .state('settings',{
+            url:'/settings'
+            ,templateUrl:'settings.html'
+            ,controller:'SettingsController'
+        })
     	.state('store',{
             abstract:true
     		,url:'/stores/:storeAddr'
@@ -74,7 +79,7 @@ app.config(function(growlProvider,$stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise('/')
 });
 
-app.run(function(user,$rootScope,$interval,timeAgo){
+app.run(function(user,$rootScope,$interval,timeAgo,user){
 
     //if electron
     //TODO: find better way of determining if electron is available
@@ -86,7 +91,7 @@ app.run(function(user,$rootScope,$interval,timeAgo){
 	
     if(user.password){
 		$rootScope.isLoggedIn = true
-		user.loadData()
+		user.init()
 	}else{
 		$rootScope.isLoggedIn = false
 		window.location.hash='/login'
@@ -102,6 +107,8 @@ app.run(function(user,$rootScope,$interval,timeAgo){
 	$interval(checkConnection,1000)
 
 	timeAgo.settings.allowFuture = true
+
+    $rootScope.user = user
 })
 
 })();
