@@ -4,7 +4,7 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 	
 	$scope.currencies = Object.keys(ticker.rates)
 	$scope.user = user
-	$scope.markets = []
+	$scope.submarkets = []
 
 	$scope.disputeSecondsOptions = [
 		{value:'0'}
@@ -33,9 +33,9 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 		$scope.transports = store.meta.transports || []
 		$scope.minTotal = store.meta.minTotal
 		
-		if(store.meta.marketAddrs)
-			store.meta.marketAddrs.forEach(function(marketAddr){
-				$scope.markets.push({alias:utils.getAlias(marketAddr)})
+		if(store.meta.submarketAddrs)
+			store.meta.submarketAddrs.forEach(function(submarketAddr){
+				$scope.submarkets.push({alias:utils.getAlias(submarketAddr)})
 			})
 
 	}else{
@@ -74,13 +74,13 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 				,disputeSeconds:$scope.disputeSeconds
 				,isOpen:!!$scope.isOpen
 				,info:$scope.info
-				,marketAddrs:[]
+				,submarketAddrs:[]
 				,transports:$scope.transports
 				,minTotal:$scope.minTotal
 			}
 
-		$scope.markets.forEach(function(market){
-			meta.marketAddrs.push(AliasReg.getAddr(market.alias))
+		$scope.submarkets.forEach(function(submarket){
+			meta.submarketAddrs.push(AliasReg.getAddr(submarket.alias))
 		})
 
 

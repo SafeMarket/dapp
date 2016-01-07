@@ -17,8 +17,8 @@ angular.module('app').controller('OrderController',function($scope,Order,pgp,use
 			$scope.userRole = 'buyer'
 		else if(user.data.account === order.store.owner)
 			$scope.userRole = 'storeOwner'
-		else if(user.data.acccount === order.market.owner)
-			$scope.userRole = 'marketOwner'
+		else if(user.data.acccount === order.submarket.owner)
+			$scope.userRole = 'submarketOwner'
 
 		if($scope.userRole)
 			var keyId = order.keys[$scope.userRole].id

@@ -3,7 +3,7 @@ exports.config = {
 	,specs: [
 		'spec/auth.spec.js'
 		,'spec/settings.spec.js'
-		,'spec/market.spec.js'
+		,'spec/submarket.spec.js'
 		,'spec/store.spec.js'
 	]
 	,allScriptsTimeout: 20000

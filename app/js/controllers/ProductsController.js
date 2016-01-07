@@ -1,15 +1,15 @@
-angular.module('app').controller('ProductsController',function($scope,$filter,utils,Market,helpers,growl,user){
+angular.module('app').controller('ProductsController',function($scope,$filter,utils,Submarket,helpers,growl,user){
 
-	$scope.$watch('marketAddr',function(marketAddr){
+	$scope.$watch('submarketAddr',function(submarketAddr){
 			
-		if(!marketAddr || marketAddr === utils.nullAddr)
-			$scope.market = null
+		if(!submarketAddr || submarketAddr === utils.nullAddr)
+			$scope.submarket = null
 		else
-			$scope.market = new Market(marketAddr)
+			$scope.submarket = new Submarket(submarketAddr)
 
-		if($scope.market)
-			$scope.market.updatePromise.then(function(){
-				$scope.feePercent = $scope.market.feePercentage.div(100)
+		if($scope.submarket)
+			$scope.submarket.updatePromise.then(function(){
+				$scope.feePercent = $scope.submarket.feePercentage.div(100)
 				console.log('feePercent',$scope.feePercent.toString())
 			})
 		else
@@ -34,8 +34,8 @@ angular.module('app').controller('ProductsController',function($scope,$filter,ut
 				,price:$scope.transport.price.toString()
 			}
 		},storeAddr = $scope.store.addr
-		,marketAddr = $scope.marketAddr
-		,feePercentage = $scope.market ? $scope.market.meta.feePercentage : '0'
+		,submarketAddr = $scope.submarketAddr
+		,feePercentage = $scope.submarket ? $scope.submarket.meta.feePercentage : '0'
 		,disputeSeconds = parseInt($scope.store.meta.disputeSeconds)
 		,productsTotal = new BigNumber(0)
 
@@ -53,7 +53,7 @@ angular.module('app').controller('ProductsController',function($scope,$filter,ut
 		})
 
 		try{
-			Order.check(meta,storeAddr,marketAddr,feePercentage,disputeSeconds)
+			Order.check(meta,storeAddr,submarketAddr,feePercentage,disputeSeconds)
 		}catch(e){
 			growl.addErrorMessage(e)
 			return
@@ -65,7 +65,7 @@ angular.module('app').controller('ProductsController',function($scope,$filter,ut
 		}
 
 
-		Order.create(meta,storeAddr,marketAddr,feePercentage,disputeSeconds).then(function(order){
+		Order.create(meta,storeAddr,submarketAddr,feePercentage,disputeSeconds).then(function(order){
 			console.log(order)
 			window.location.hash = "#/orders/"+order.addr
 			user.data.orderAddrs.push(order.addr)
@@ -95,7 +95,7 @@ angular.module('app').controller('ProductsController',function($scope,$filter,ut
 
 		var transportPrice = utils.convertCurrency($scope.transport.price,{from:$scope.store.meta.currency,to:'WEI'})
 
-		if($scope.market)
+		if($scope.submarket)
 			$scope.estimatedFee = $scope.productsTotal.plus(transportPrice).times($scope.feePercent)
 		else
 			$scope.estimatedFee = new BigNumber(0)

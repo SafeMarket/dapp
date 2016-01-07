@@ -65,7 +65,7 @@ Store.check = function(alias,meta){
 			,type:'boolean'
 		},info:{
 			type:'string'
-		},marketAddrs:{
+		},submarketAddrs:{
 			exists:true
 			,type:'array'
 		},transports:{
@@ -81,14 +81,14 @@ Store.check = function(alias,meta){
 		}
 	})
 
-	meta.marketAddrs.forEach(function(marketAddr){
+	meta.submarketAddrs.forEach(function(submarketAddr){
 		var results = utils.check({
-			addr:marketAddr
+			addr:submarketAddr
 		},{
 			addr:{
 				presence:true
 				,type:'address'
-				,addrOfContract:'Market'
+				,addrOfContract:'Submarket'
 			}
 		})
 

@@ -1,38 +1,38 @@
 (function(){
 
-angular.module('app').factory('Market',function(utils,ticker,$q,Store,Key,Forum,txMonitor){
+angular.module('app').factory('Submarket',function(utils,ticker,$q,Store,Key,Forum,txMonitor){
 
-function Market(addr){
+function Submarket(addr){
 	this.addr = addr
 	this.alias = utils.getAlias(addr)
 	this.contract = this.contractFactory.at(addr)
 	this.updatePromise = this.update()
 }
 
-window.Market = Market
+window.Submarket = Submarket
 
-Market.prototype.code = Market.code = '0x'+contractDB.Market.compiled.code
-Market.prototype.runtimeBytecode = Market.runtimeBytecode = utils.runtimeBytecodes.Market
-Market.prototype.abi = Market.abi = contractDB.Market.compiled.info.abiDefinition
-Market.prototype.contractFactory = Market.contractFactory = web3.eth.contract(Market.abi)
+Submarket.prototype.code = Submarket.code = '0x'+contractDB.Submarket.compiled.code
+Submarket.prototype.runtimeBytecode = Submarket.runtimeBytecode = utils.runtimeBytecodes.Submarket
+Submarket.prototype.abi = Submarket.abi = contractDB.Submarket.compiled.info.abiDefinition
+Submarket.prototype.contractFactory = Submarket.contractFactory = web3.eth.contract(Submarket.abi)
 
-Market.create = function(alias,meta){
+Submarket.create = function(alias,meta){
 var meta = utils.convertObjectToHex(meta)
 	,deferred = $q.defer()
 
 txMonitor.propose(
-	'Create a New Submarket'
+	'Create a New Subsubmarket'
 	,this.contractFactory
 	,[alias,meta,AliasReg.address,{data:this.code}]
 ).then(function(txReciept){
 	console.log(txReciept)
-	deferred.resolve(new Market(txReciept.contractAddress))
+	deferred.resolve(new Submarket(txReciept.contractAddress))
 })
 
 return deferred.promise
 }
 
-Market.check = function(alias,meta){
+Submarket.check = function(alias,meta){
 
 	utils.check({alias:alias},{
 		alias:{
@@ -79,26 +79,26 @@ Market.check = function(alias,meta){
 }
 
 
-Market.prototype.set = function(meta){
+Submarket.prototype.set = function(meta){
 
 	var meta = utils.convertObjectToHex(meta)
 		,deferred = $q.defer()
-		,market = this
+		,submarket = this
 
 	txMonitor.propose(
-		'Update a Submarket'
+		'Update a Subsubmarket'
 		,this.contract.setMeta
 		,[meta]
 	).then(function(txReciept){
-		market.update().then(function(){
-			deferred.resolve(market)
+		submarket.update().then(function(){
+			deferred.resolve(submarket)
 		})
 	})
 
 	return deferred.promise
 }
 
-Market.prototype.getEvents = function(eventName){
+Submarket.prototype.getEvents = function(eventName){
 	var deferred = $q.defer()
 
 	this.contract[eventName]({},{fromBlock:0,toBlock:'latest'}).get(function(error,results){
@@ -112,9 +112,9 @@ Market.prototype.getEvents = function(eventName){
 }
 
 
-Market.prototype.update = function(){
+Submarket.prototype.update = function(){
 	var deferred = $q.defer()
-		,market = this
+		,submarket = this
 
 	this.owner = this.contract.owner()
 	this.forumAddr = this.contract.forumAddr()
@@ -124,23 +124,23 @@ Market.prototype.update = function(){
 
 	this.getEvents('Meta').then(function(results){
 
-		market.meta = utils.convertHexToObject(results[results.length-1].args.meta)
-		market.feePercentage = new BigNumber(market.meta.feePercentage)
+		submarket.meta = utils.convertHexToObject(results[results.length-1].args.meta)
+		submarket.feePercentage = new BigNumber(submarket.meta.feePercentage)
 
-		deferred.resolve(market)
+		deferred.resolve(submarket)
 	},function(error){
 		console.error(error)
 	})
 
 
 	Key.fetch(this.owner).then(function(key){
-		market.key = key
+		submarket.key = key
 	})
 
 	return deferred.promise
 }
 
-return Market
+return Submarket
 
 })
 

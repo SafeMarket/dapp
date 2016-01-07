@@ -129,23 +129,23 @@
         </table>
         <h3>Approved Submarkets</h3>
         <table class="table">   
-            <tbody ng-repeat="market in markets">
+            <tbody ng-repeat="submarket in submarkets">
                 <tr>
                     <td>Alias</td>
                     <td>
                         <div class="input-group">
                             <div class="input-group-addon">@</div>
-                            <input class="form-control" ng-model="market.alias" alias-input>
+                            <input class="form-control" ng-model="submarket.alias" alias-input>
                             <div class="input-group-btn">
-                                <button class="btn btn-danger" type="button" ng-click="markets.splice($index,1)">X</button>
+                                <button class="btn btn-danger" type="button" ng-click="submarkets.splice($index,1)">X</button>
                             </div>
                         </div>
-                        <div alias-validator="market.alias" alias-type="market"></div>
+                        <div alias-validator="submarket.alias" alias-type="submarket"></div>
                     </td>
                 </tr>
             </tbody>
             <tr>
-                <td colspan="2" class="text-right"><button class="btn btn-primary btn-xs" ng-click="markets.push({})">+</button></td>
+                <td colspan="2" class="text-right"><button class="btn btn-primary btn-xs" ng-click="submarkets.push({})">+</button></td>
             </tr>
         </table>
     </div>

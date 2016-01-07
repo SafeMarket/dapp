@@ -1,7 +1,7 @@
 development:
   Store:
     deploy: false
-  Market:
+  Submarket:
     deploy: false
   Order:
     deploy: false
@@ -26,7 +26,7 @@ development:
 testnet:
   Store:
     deploy: false
-  Market:
+  Submarket:
     deploy: false
   Order:
     deploy: false
@@ -51,7 +51,7 @@ testnet:
 production:
   Store:
     deploy: false
-  Market:
+  Submarket:
     deploy: false
   Order:
     deploy: false

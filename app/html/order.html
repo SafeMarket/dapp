@@ -38,15 +38,15 @@
 					>Finalize</button>
 					<button
 						class="btn btn-xs btn-default"
-						ng-show="order.status===4 && userRole === 'marketOwner' || true"
+						ng-show="order.status===4 && userRole === 'submarketOwner' || true"
 						ng-click="openResolutionModal()"
 					>Resolve Dispute</button>
 				</div>
 			</td>
 		</tr>
-		<tr ng-show="order.market">
+		<tr ng-show="order.submarket">
 			<td>Submarket</td>
-			<td colspan="2" alias="order.market.addr">
+			<td colspan="2" alias="order.submarket.addr">
 			</td>
 		</tr>
 		<tr ng-show="order.status<3">

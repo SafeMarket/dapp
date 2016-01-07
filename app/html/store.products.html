@@ -48,10 +48,10 @@
 		<tr>
 			<td>Submarket</td>
 			<td>
-				<select ng-model="marketAddr" ng-options="market.addr as market.label for market in marketOptions" class="form-control"></select>
+				<select ng-model="submarketAddr" ng-options="submarket.addr as submarket.label for submarket in submarketOptions" class="form-control"></select>
 			</td>
 			<td>
-				<span ng-show="market">
+				<span ng-show="submarket">
 					Fee of {{feePercent | percentage}}
 				</span>
 			</td>
@@ -75,6 +75,6 @@
 		</tr>
 	</table>
     <div class="text-right">
-		<button ng-click="createOrder(store,market)" class="btn btn-primary btn-lg">Create Your Order</button>
+		<button ng-click="createOrder(store,submarket)" class="btn btn-primary btn-lg">Create Your Order</button>
 	</div>
 </div>

@@ -6,8 +6,8 @@ angular.module('app').factory('OrderBookEntry',function($q,utils,Order){
 		this.result = result
 		this.orderAddr = result.args.orderAddr
 		this.storeAddr = result.args.storeAddr
-		this.marketAddr = result.args.marketAddr
-		this.usesMarket = this.marketAddr !== utils.nullAddr
+		this.submarketAddr = result.args.submarketAddr
+		this.usesSubmarket = this.submarketAddr !== utils.nullAddr
 		this.timestamp = web3.eth.getBlock(result.blockNumber).timestamp
 		this.status = Order.contractFactory.at(this.orderAddr).getStatus().toNumber()
 	}

@@ -1,21 +1,21 @@
 (function(){
 
 
-angular.module('app').controller('MarketModalController',function($scope,ticker,growl,$modal,$modalInstance,market,user,helpers,utils,Market){
+angular.module('app').controller('SubmarketModalController',function($scope,ticker,growl,$modal,$modalInstance,submarket,user,helpers,utils,Submarket){
 	
 	$scope.stores = []
 
-	if(market){
-		$scope.alias = market.alias
+	if(submarket){
+		$scope.alias = submarket.alias
 		$scope.isEditing = true
-		$scope.name = market.meta.name
-		$scope.info = market.meta.info
-		$scope.feePercentage = parseFloat(market.meta.feePercentage)
-		$scope.bondInEther = parseInt(web3.fromWei(market.bond,'ether'))
-		$scope.isOpen = market.meta.isOpen
+		$scope.name = submarket.meta.name
+		$scope.info = submarket.meta.info
+		$scope.feePercentage = parseFloat(submarket.meta.feePercentage)
+		$scope.bondInEther = parseInt(web3.fromWei(submarket.bond,'ether'))
+		$scope.isOpen = submarket.meta.isOpen
 
-		if(market.meta.storeAddrs)
-			market.meta.storeAddrs.forEach(function(storeAddr){
+		if(submarket.meta.storeAddrs)
+			submarket.meta.storeAddrs.forEach(function(storeAddr){
 				$scope.stores.push({alias:utils.getAlias(storeAddr)})
 			})
 	}else{
@@ -45,18 +45,18 @@ angular.module('app').controller('MarketModalController',function($scope,ticker,
 		})
 		
 		try{
-			Market.check(alias,meta)
+			Submarket.check(alias,meta)
 		}catch(e){
 			growl.addErrorMessage(e)
 			return
 		}
 
-		if(market){
+		if(submarket){
 
-			market
+			submarket
 				.set(meta)
-				.then(function(market){
-					$modalInstance.close(market)
+				.then(function(submarket){
+					$modalInstance.close(submarket)
 				},function(error){
 					$scope.error = error
 				}).catch(function(error){
@@ -68,9 +68,9 @@ angular.module('app').controller('MarketModalController',function($scope,ticker,
 				return growl.addErrorMessage('The alias"'+alias+'" is taken')
 			}
 
-			Market.create($scope.alias,meta)
-				.then(function(market){
-					user.data.marketAddrs.push(market.addr)
+			Submarket.create($scope.alias,meta)
+				.then(function(submarket){
+					user.data.submarketAddrs.push(submarket.addr)
 					user.save()
 					$modalInstance.dismiss()
 				},function(error){

@@ -41,14 +41,14 @@ angular.module('app').service('modals',function($modal){
 		});
 	}
 
-	this.openMarket = function(market){
+	this.openSubmarket = function(submarket){
 		return openModal({
 			size: 'md'
-			,templateUrl: 'marketModal.html'
-			,controller: 'MarketModalController'
+			,templateUrl: 'submarketModal.html'
+			,controller: 'SubmarketModalController'
 			,resolve: {
-				market:function(){
-					return market
+				submarket:function(){
+					return submarket
 				}
 			}
 		});
@@ -126,11 +126,11 @@ angular.module('app').service('modals',function($modal){
 	    });
 	}
 
-	this.openImportMarket = function(){
+	this.openImportSubmarket = function(){
 		return openModal({
 			size: 'md'
-			,templateUrl: 'importMarketModal.html'
-			,controller: 'ImportMarketModalController'
+			,templateUrl: 'importSubmarketModal.html'
+			,controller: 'ImportSubmarketModalController'
 	    });
 	}
 

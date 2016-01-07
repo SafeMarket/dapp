@@ -1,10 +1,10 @@
-<div alias-bar="{{market.alias}}"></div>
+<div alias-bar="{{submarket.alias}}"></div>
 <h1>
-	{{market.meta.name}} 
+	{{submarket.meta.name}} 
 	<button
-		ng-show="user.data.account === market.owner"
+		ng-show="user.data.account === submarket.owner"
 		class="btn btn-default"
-		ng-click="openMarketModal(market)"
+		ng-click="openSubmarketModal(submarket)"
 	>Edit</button>
 </h1>
 <tabset>

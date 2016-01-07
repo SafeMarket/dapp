@@ -1,0 +1,21 @@
+<table class="table">
+	<tr>
+		<td>Status</td>
+		<td>{{submarket.meta.isOpen ? 'Open' : 'Closed'}}</td>
+	</tr>
+	<tr>
+		<td>Fee Percentage</td>
+		<td>{{submarket.meta.feePercentage}}%</td>
+	</tr>
+	<tbody collapsable is-collapsed="true">
+		<tr>
+			<td>Address</td>
+			<td class="oneliner">{{submarket.addr}}</td>
+		</tr>
+		<tr>
+			<td>Owner</td>
+			<td class="oneliner">{{submarket.owner}}</td>
+		</tr>
+	</tbody>
+</table>
+<div marked="submarket.meta.info"></div>

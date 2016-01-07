@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').factory('Order',function(utils,ticker,$q,Store,Market,Key,KeyGroup,PgpMessageWrapper,txMonitor,user){
+angular.module('app').factory('Order',function(utils,ticker,$q,Store,Submarket,Key,KeyGroup,PgpMessageWrapper,txMonitor,user){
 
 function Order(addr){
 	this.addr = addr
@@ -14,7 +14,7 @@ Order.prototype.code = Order.code = '0x'+contractDB.Order.compiled.code
 Order.prototype.abi = Order.abi = contractDB.Order.compiled.info.abiDefinition
 Order.prototype.contractFactory = Order.contractFactory = web3.eth.contract(Order.abi)
 
-Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
+Order.create = function(meta,storeAddr,submarketAddr,feePercentage,disputeSeconds){
 
 	var deferred = $q.defer()
 		,order = this
@@ -22,11 +22,11 @@ Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 		,parties = [web3.eth.defaultAccount,store.owner]
 		,meta = utils.convertObjectToHex(meta)
 
-	if(marketAddr!==utils.nullAddr){
-		var market = new Market(marketAddr)
-			,marketOwner = market.owner
+	if(submarketAddr!==utils.nullAddr){
+		var submarket = new Submarket(submarketAddr)
+			,submarketOwner = submarket.owner
 
-		parties.push(marketOwner)
+		parties.push(submarketOwner)
 	}
 
 	var keyGroup = new KeyGroup(parties)
@@ -40,7 +40,7 @@ Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 			console.log('meta added', pgpMessage.packets.write())
 			var meta = pgpMessage.packets.write()
 
-			txMonitor.propose('Create a New Order',Order.contractFactory,[meta,storeAddr,marketAddr,feePercentage,disputeSeconds,OrderBook.address,{data:order.code}]).then(function(receipt){
+			txMonitor.propose('Create a New Order',Order.contractFactory,[meta,storeAddr,submarketAddr,feePercentage,disputeSeconds,OrderBook.address,{data:order.code}]).then(function(receipt){
 				console.log(receipt)
 				var order = new Order(receipt.contractAddress)
 				deferred.resolve(order)
@@ -57,7 +57,7 @@ Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 	return deferred.promise
 }
 
-Order.check = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
+Order.check = function(meta,storeAddr,submarketAddr,feePercentage,disputeSeconds){
 	utils.check(meta,{
 		currency:{
 			presence:true
@@ -122,14 +122,14 @@ Order.check = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds){
 
 	utils.check({
 		storeAddr:storeAddr
-		,marketAddr:marketAddr
+		,submarketAddr:submarketAddr
 		,feePercentage:feePercentage
 		,disputeSeconds:disputeSeconds
 	},{
 		storeAddr:{
 			presence:true
 			,type:'address'
-		},marketAddr:{
+		},submarketAddr:{
 			presence:true
 			,type:'address'
 		},feePercentage:{
@@ -176,11 +176,11 @@ Order.prototype.update = function(){
 	var deferred = $q.defer()
 		,order = this
 		,storeAddr = this.contract.storeAddr()
-		,marketAddr = this.contract.marketAddr()
+		,submarketAddr = this.contract.submarketAddr()
 
 	this.buyer = this.contract.buyer()
 	this.store = new Store(storeAddr)
-	this.market = marketAddr === utils.nullAddr ? null : new Market(marketAddr)
+	this.submarket = submarketAddr === utils.nullAddr ? null : new Submarket(submarketAddr)
 	this.feePercentage = this.contract.feePercentage()
 	this.received = this.contract.received()
 	this.status = this.contract.status().toNumber()
@@ -210,10 +210,10 @@ Order.prototype.update = function(){
 		order.keys.storeOwner = key
 	})
 
-	if(this.market)
-		order.market.updatePromise.then(function(market){
-			Key.fetch(market.owner).then(function(key){
-				order.keys.marketOwner = key
+	if(this.submarket)
+		order.submarket.updatePromise.then(function(submarket){
+			Key.fetch(submarket.owner).then(function(key){
+				order.keys.submarketOwner = key
 			})
 		})
 
@@ -334,8 +334,8 @@ function Message(sender,ciphertext,timestamp,order){
 		case order.store.owner:
 			this.from = 'storeOwner'
 			break;
-		case order.market.owner:
-			this.from = 'marketOwner'
+		case order.submarket.owner:
+			this.from = 'submarketOwner'
 			break;
 	}
 
@@ -354,8 +354,8 @@ function Update(sender,status,timestamp,order){
 		case order.store.owner:
 			this.from = 'storeOwner'
 			break;
-		case order.marketOwner:
-			this.from = 'marketOwner'
+		case order.submarketOwner:
+			this.from = 'submarketOwner'
 			break;
 	}
 }

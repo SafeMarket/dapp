@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').controller('ImportMarketModalController',function($scope,$modalInstance,growl,user,utils){
+angular.module('app').controller('ImportSubmarketModalController',function($scope,$modalInstance,growl,user,utils){
 
 
 	$scope.cancel = function(){
@@ -15,20 +15,20 @@ angular.module('app').controller('ImportMarketModalController',function($scope,$
 				alias:{
 					presence:true
 					,type:'alias'
-					,aliasOfContract:'Market'
+					,aliasOfContract:'Submarket'
 				}
 			})
 		}catch(e){
 			return growl.addErrorMessage(e)
 		}
 
-		var marketAddr = AliasReg.getAddr($scope.alias)
-			,market = new Market(marketAddr)
+		var submarketAddr = AliasReg.getAddr($scope.alias)
+			,submarket = new Submarket(submarketAddr)
 
-		if(market.owner !== user.data.account)
-			return growl.addErrorMessage('You are not the owner of that market')
+		if(submarket.owner !== user.data.account)
+			return growl.addErrorMessage('You are not the owner of that submarket')
 
-		user.data.marketAddrs.push(marketAddr)
+		user.data.submarketAddrs.push(submarketAddr)
 		user.save()
 
 		$modalInstance.close()

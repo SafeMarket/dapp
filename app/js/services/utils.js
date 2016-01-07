@@ -40,8 +40,8 @@ angular.module('app').service('utils',function(ticker,$q,$timeout){
 		if(runtimeBytecode === utils.runtimeBytecodes.Store)
 			return 'store'
 
-		if(runtimeBytecode === utils.runtimeBytecodes.Market)
-			return 'market'
+		if(runtimeBytecode === utils.runtimeBytecodes.Submarket)
+			return 'submarket'
 
 		return null
 	}
@@ -249,7 +249,7 @@ angular.module('app').service('utils',function(ticker,$q,$timeout){
 		,getTypeOfAddr:getTypeOfAddr
 		,runtimeBytecodes:{
 			Store: '0x'+contractDB.Store.compiled.runtimeBytecode
-			,Market: '0x'+contractDB.Market.compiled.runtimeBytecode
+			,Submarket: '0x'+contractDB.Submarket.compiled.runtimeBytecode
 		},validateAddr:validateAddr
 		,validateAlias:validateAlias
 		,getContract:getContract

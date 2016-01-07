@@ -13,11 +13,11 @@ contract OrderBook{
 	event Entry(
 		address indexed orderAddr
 		,address indexed storeAddr
-		,address indexed marketAddr
+		,address indexed submarketAddr
 	);
 
-	function addEntry(address orderAddr, address storeAddr, address marketAddr){
-		Entry(orderAddr, storeAddr, marketAddr);
+	function addEntry(address orderAddr, address storeAddr, address submarketAddr){
+		Entry(orderAddr, storeAddr, submarketAddr);
 	}
 }
 
@@ -96,12 +96,12 @@ contract audible is owned{
 
 }
 
-contract Market is forumable,audible{
+contract Submarket is forumable,audible{
 
 	event Meta(bytes meta);
-	bool constant public isMarket = true;
+	bool constant public isSubmarket = true;
 
-	function Market(bytes32 alias, bytes meta, address alasRegAddr){
+	function Submarket(bytes32 alias, bytes meta, address alasRegAddr){
 		AliasReg(alasRegAddr).claimAlias(alias);
 		Meta(meta);
 	}
@@ -117,8 +117,8 @@ contract Order{
 	address public buyer;
 	address public storeAddr;
 	address public storeOwner;
-	address public marketAddr;
-	address public marketOwner;
+	address public submarketAddr;
+	address public submarketOwner;
 	uint public feePercentage;
 	uint public disputeSeconds;
 	uint public status;
@@ -144,7 +144,7 @@ contract Order{
 	function Order(
 		bytes _meta
 		,address _storeAddr
-		,address _marketAddr
+		,address _submarketAddr
 		,uint _feePercentage
 		,uint _disputeSeconds
 		,address orderBookAddr
@@ -152,17 +152,17 @@ contract Order{
 		buyer = msg.sender;
 		storeAddr = _storeAddr;
 		storeOwner = Store(_storeAddr).owner();
-		marketAddr = _marketAddr;
-		marketOwner = Market(_marketAddr).owner();
+		submarketAddr = _submarketAddr;
+		submarketOwner = Submarket(_submarketAddr).owner();
 		feePercentage = _feePercentage;
 		disputeSeconds = _disputeSeconds;
 		timestamp = now;
 		Meta(_meta);
-		OrderBook(orderBookAddr).addEntry(address(this),_storeAddr,_marketAddr);
+		OrderBook(orderBookAddr).addEntry(address(this),_storeAddr,_submarketAddr);
 	}
 
 	function addMessage(bytes text){
-		if(msg.sender != buyer && msg.sender != storeOwner && msg.sender != marketOwner)
+		if(msg.sender != buyer && msg.sender != storeOwner && msg.sender != submarketOwner)
 			throw;
 
 		Message(msg.sender, text);
@@ -251,7 +251,7 @@ contract Order{
 		if(now - shippedAt > disputeSeconds)
 			throw;
 
-		if(marketOwner==address(0))
+		if(submarketOwner==address(0))
 			throw;
 
 		addUpdate(disputed);
@@ -282,14 +282,14 @@ contract Order{
 		if(status!=disputed)
 			throw;
 
-		if(msg.sender != marketOwner)
+		if(msg.sender != submarketOwner)
 			throw;
 
 		fee = calculateFee();
 		buyerAmount = ((received-fee)*buyerPercentage)/100;
 		var storeOwnerAmount = received - fee - buyerAmount;
 
-		marketOwner.send(fee);
+		submarketOwner.send(fee);
 
 		if(buyerAmount>0)
 			buyer.send(buyerAmount);

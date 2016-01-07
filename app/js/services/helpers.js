@@ -4,8 +4,8 @@ angular.module('app').service('helpers',function(utils,$filter,user){
 	this.getUrl = function(type,addr,tabSlug){
 
 		switch(type){
-			case 'market':
-				return '#/markets/'+addr+'/'+(tabSlug||'about')
+			case 'submarket':
+				return '#/submarkets/'+addr+'/'+(tabSlug||'about')
 			case 'store':
 				return '#/stores/'+addr+'/'+(tabSlug||'about')
 			case 'order':

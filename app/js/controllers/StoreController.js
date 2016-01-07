@@ -1,13 +1,13 @@
 (function(){
 
-angular.module('app').controller('StoreController',function($scope,$filter,$state,utils,Store,Market,user,$stateParams,modals,growl,helpers){
+angular.module('app').controller('StoreController',function($scope,$filter,$state,utils,Store,Submarket,user,$stateParams,modals,growl,helpers){
 
 	$scope.storeScope = $scope
 
-	$scope.marketOptions = [{addr:utils.nullAddr,label:'No escrow'}];
-	$scope.marketOption = $scope.marketOptions[0]
+	$scope.submarketOptions = [{addr:utils.nullAddr,label:'No escrow'}];
+	$scope.submarketOption = $scope.submarketOptions[0]
 	$scope.storeAddr = $stateParams.storeAddr
-	$scope.marketAddr = $stateParams.marketAddr || utils.nullAddr;
+	$scope.submarketAddr = $stateParams.submarketAddr || utils.nullAddr;
 	$scope.productsTotal = new BigNumber(0);
 
 	$scope.store = new Store($stateParams.storeAddr)
@@ -31,8 +31,8 @@ angular.module('app').controller('StoreController',function($scope,$filter,$stat
 
 	$scope.store.updatePromise.then(function(store){
 
-		$scope.store.meta.marketAddrs.forEach(function(marketAddr){
-			$scope.marketOptions.push({addr:marketAddr,label:'@'+utils.getAlias(marketAddr)})
+		$scope.store.meta.submarketAddrs.forEach(function(submarketAddr){
+			$scope.submarketOptions.push({addr:submarketAddr,label:'@'+utils.getAlias(submarketAddr)})
 		})
 
 		$scope.store.meta.transports.forEach(function(transport){
@@ -55,9 +55,9 @@ angular.module('app').controller('StoreController',function($scope,$filter,$stat
 
 	})
 
-	if($stateParams.marketAddr)
-		(new Market($stateParams.marketAddr)).updatePromise.then(function(market){
-			$scope.market = market
+	if($stateParams.submarketAddr)
+		(new Submarket($stateParams.submarketAddr)).updatePromise.then(function(submarket){
+			$scope.submarket = submarket
 		})
 
 	$scope.openStoreModal = function(){

@@ -69,8 +69,8 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		if(!this.data.storeAddrs)
 			this.data.storeAddrs = []
 
-		if(!this.data.marketAddrs)
-			this.data.marketAddrs = []
+		if(!this.data.submarketAddrs)
+			this.data.submarketAddrs = []
 
 		if(!this.data.account)
 			this.data.account = web3.eth.defaultAccount ? web3.eth.defaultAccount : web3.eth.accounts[0]
@@ -141,7 +141,7 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 	}
 
 	this.getAddrs = function(){
-		return [this.data.account].concat(this.data.marketAddrs.concat(this.data.storeAddrs))
+		return [this.data.account].concat(this.data.submarketAddrs.concat(this.data.storeAddrs))
 	}
 
 	this.decrypt = function(pgpMessageWrapper){

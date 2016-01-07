@@ -36,27 +36,27 @@ app.config(function(growlProvider,$stateProvider, $urlRouterProvider) {
                 url:'/reviews'
                 ,templateUrl:'store.reviews.html'
             })
-        .state('market',{
+        .state('submarket',{
             abstract:true
-            ,url:'/markets/:marketAddr'
-            ,templateUrl:'market.html'
-            ,controller:'MarketController'
+            ,url:'/submarkets/:submarketAddr'
+            ,templateUrl:'submarket.html'
+            ,controller:'SubmarketController'
         })
-            .state('market.about',{
+            .state('submarket.about',{
                 url:'/about'
-                ,templateUrl:'market.about.html'
+                ,templateUrl:'submarket.about.html'
             })
-            .state('market.stores',{
+            .state('submarket.stores',{
                 url:'/stores'
-                ,templateUrl:'market.stores.html'
+                ,templateUrl:'submarket.stores.html'
             })
-            .state('market.forum',{
+            .state('submarket.forum',{
                 url:'/forum'
-                ,templateUrl:'market.forum.html'
+                ,templateUrl:'submarket.forum.html'
             })
-            .state('market.orders',{
+            .state('submarket.orders',{
                 url:'/orders'
-                ,templateUrl:'market.orders.html'
+                ,templateUrl:'submarket.orders.html'
             })
         .state('order',{
             url:'/orders/:orderAddr'
