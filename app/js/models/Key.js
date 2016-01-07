@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('Key',function(utils,$q){
+angular.module('app').factory('Key',function(utils,$q){
 
 	function Key(dataHex,timestamp){
 		this.timestamp = timestamp

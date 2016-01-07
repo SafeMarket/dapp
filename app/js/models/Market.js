@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('Market',function(utils,ticker,$q,Store,Key,Forum,txMonitor){
+angular.module('app').factory('Market',function(utils,ticker,$q,Store,Key,Forum,txMonitor){
 
 function Market(addr){
 	this.addr = addr

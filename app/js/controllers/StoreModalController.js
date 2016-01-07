@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').controller('StoreModalController',function($scope,$filter,safemarket,ticker,growl,$modal,$modalInstance,store,user,helpers){
+angular.module('app').controller('StoreModalController',function($scope,$filter,utils,Store,ticker,growl,$modal,$modalInstance,store,user,helpers){
 	
 	$scope.currencies = Object.keys(ticker.rates)
 	$scope.user = user
@@ -35,7 +35,7 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 		
 		if(store.meta.marketAddrs)
 			store.meta.marketAddrs.forEach(function(marketAddr){
-				$scope.markets.push({alias:safemarket.utils.getAlias(marketAddr)})
+				$scope.markets.push({alias:utils.getAlias(marketAddr)})
 			})
 
 	}else{
@@ -85,7 +85,7 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 
 
 		try{
-			safemarket.Store.check(alias,meta)
+			Store.check(alias,meta)
 		}catch(e){
 			growl.addErrorMessage(e)
 			console.error(e)
@@ -105,12 +105,11 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 				})
 		}else{
 
-			if(!safemarket.utils.isAliasAvailable(alias)){
+			if(!utils.isAliasAvailable(alias)){
 				return growl.addErrorMessage('@'+alias+' is already taken')
 			}
 
-			safemarket
-				Store.create($scope.alias,meta)
+			Store.create($scope.alias,meta)
 				.then(function(store){
 					user.data.storeAddrs.push(store.addr)
 					user.save()

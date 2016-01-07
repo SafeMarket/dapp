@@ -1,7 +1,7 @@
 (function(){
 
 
-angular.module('app').controller('MarketModalController',function($scope,safemarket,ticker,growl,$modal,$modalInstance,market,user,helpers){
+angular.module('app').controller('MarketModalController',function($scope,ticker,growl,$modal,$modalInstance,market,user,helpers,utils,Market){
 	
 	$scope.stores = []
 
@@ -16,7 +16,7 @@ angular.module('app').controller('MarketModalController',function($scope,safemar
 
 		if(market.meta.storeAddrs)
 			market.meta.storeAddrs.forEach(function(storeAddr){
-				$scope.stores.push({alias:safemarket.utils.getAlias(storeAddr)})
+				$scope.stores.push({alias:utils.getAlias(storeAddr)})
 			})
 	}else{
 		$scope.feePercentage = 3
@@ -45,7 +45,7 @@ angular.module('app').controller('MarketModalController',function($scope,safemar
 		})
 		
 		try{
-			safemarket.Market.check(alias,meta)
+			Market.check(alias,meta)
 		}catch(e){
 			growl.addErrorMessage(e)
 			return
@@ -64,12 +64,11 @@ angular.module('app').controller('MarketModalController',function($scope,safemar
 				})
 		}else{
 
-			if(!safemarket.utils.isAliasAvailable(alias)){
+			if(!utils.isAliasAvailable(alias)){
 				return growl.addErrorMessage('The alias"'+alias+'" is taken')
 			}
 
-			safemarket
-				.Market.create($scope.alias,meta)
+			Market.create($scope.alias,meta)
 				.then(function(market){
 					user.data.marketAddrs.push(market.addr)
 					user.save()

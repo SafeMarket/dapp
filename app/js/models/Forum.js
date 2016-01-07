@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('Forum',function($q,utils,CommentsGroup){
+angular.module('app').factory('Forum',function($q,utils,CommentsGroup){
 
 	function Forum(addr){
 		this.addr = addr

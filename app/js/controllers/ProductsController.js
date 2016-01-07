@@ -1,11 +1,11 @@
-angular.module('app').controller('ProductsController',function($scope,$filter,safemarket,helpers,growl,user){
+angular.module('app').controller('ProductsController',function($scope,$filter,utils,Market,helpers,growl,user){
 
 	$scope.$watch('marketAddr',function(marketAddr){
 			
-		if(!marketAddr || marketAddr === safemarket.utils.nullAddr)
+		if(!marketAddr || marketAddr === utils.nullAddr)
 			$scope.market = null
 		else
-			$scope.market = new safemarket.Market(marketAddr)
+			$scope.market = new Market(marketAddr)
 
 		if($scope.market)
 			$scope.market.updatePromise.then(function(){
@@ -17,7 +17,7 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 	})
 
 	$scope.getTransportLabel = function(transport){
-		var priceInUserCurrency = safemarket.utils.convertCurrency(transport.price,{from:$scope.store.meta.currency,to:user.data.currency})
+		var priceInUserCurrency = utils.convertCurrency(transport.price,{from:$scope.store.meta.currency,to:user.data.currency})
 			,priceFormatted = $filter('currency')(priceInUserCurrency,user.data.currency)
 
 		return transport.type+' ('+priceFormatted+')'
@@ -86,14 +86,14 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 				total = total.plus(subtotal)
 			})
 
-		$scope.productsTotal = safemarket.utils.convertCurrency(total,{from:$scope.store.meta.currency,to:'WEI'})
+		$scope.productsTotal = utils.convertCurrency(total,{from:$scope.store.meta.currency,to:'WEI'})
 
 	},true)
 
 	$scope.$watchGroup(['productsTotal','feePercent','transport.id'],function(){
 		if(!$scope.transport) return
 
-		var transportPrice = safemarket.utils.convertCurrency($scope.transport.price,{from:$scope.store.meta.currency,to:'WEI'})
+		var transportPrice = utils.convertCurrency($scope.transport.price,{from:$scope.store.meta.currency,to:'WEI'})
 
 		if($scope.market)
 			$scope.estimatedFee = $scope.productsTotal.plus(transportPrice).times($scope.feePercent)

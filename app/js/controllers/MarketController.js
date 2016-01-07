@@ -1,8 +1,8 @@
 (function(){
 
-angular.module('app').controller('MarketController',function($scope,$state,safemarket,user,$stateParams,modals){
+angular.module('app').controller('MarketController',function($scope,$state,Market,user,$stateParams,modals){
 	
-	$scope.market = new safemarket.Market($stateParams.marketAddr,true)
+	$scope.market = new Market($stateParams.marketAddr,true)
 	$scope.addr = $stateParams.marketAddr
 	$scope.user = user
 

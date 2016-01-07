@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').service('helpers',function(safemarket,$filter,user){
+angular.module('app').service('helpers',function(utils,$filter,user){
 	this.getUrl = function(type,addr,tabSlug){
 
 		switch(type){
@@ -19,7 +19,7 @@ angular.module('app').service('helpers',function(safemarket,$filter,user){
 		var gasInWei = web3.eth.gasPrice.times(gas)
 			,gasInEther = web3.fromWei(gasInWei,'ether')
 			,gasInEtherPretty = $filter('currency')(gasInEther,'ETH')
-			,gasInUserCurrency = safemarket.utils.convertCurrency(gasInEther,{from:'ETH',to:user.data.currency})
+			,gasInUserCurrency = utils.convertCurrency(gasInEther,{from:'ETH',to:user.data.currency})
 			,gasInUserCurrencyPretty = $filter('currency')(gasInUserCurrency,user.data.currency)
 
 		if(web3.eth.syncing){

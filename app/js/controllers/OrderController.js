@@ -1,8 +1,8 @@
 (function(){
 
-angular.module('app').controller('OrderController',function($scope,safemarket,user,$stateParams,modals){
+angular.module('app').controller('OrderController',function($scope,Order,pgp,user,$stateParams,modals){
 	
-	(new safemarket.Order($stateParams.orderAddr)).updatePromise.then(function(order){
+	(new Order($stateParams.orderAddr)).updatePromise.then(function(order){
 
 		$scope.order = order
 		$scope.displayCurrencies = [order.meta.currency]
@@ -57,7 +57,7 @@ angular.module('app').controller('OrderController',function($scope,safemarket,us
 	$scope.addMessage = function(){
 		$scope.isAddingMessage = true
 		var keys = _.map($scope.order.keys,function(key){return key.key})
-		safemarket.pgp.encrypt(keys,$scope.messageText).then(function(pgpMessage){
+		pgp.encrypt(keys,$scope.messageText).then(function(pgpMessage){
 			$scope.order.addMessage(pgpMessage).then(function(){
 				$scope.messageText = ''
 				$scope.order.update()

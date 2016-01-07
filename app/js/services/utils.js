@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').service('utils',function(ticker,$q,$timeout,$sanitize){
+angular.module('app').service('utils',function(ticker,$q,$timeout){
 
 	var utils = this
 

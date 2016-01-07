@@ -234,6 +234,7 @@ module.exports = (grunt) ->
           "bower_components/angular-sanitize/angular-sanitize.min.js"
           "bower_components/angular-ui-router/release/angular-ui-router.min.js"
           "app/js/connection.js"
+          "app/js/validators.js"
           "app/js/app.js"
           "app/js/safemarket.js"
           "app/js/**/*.js"

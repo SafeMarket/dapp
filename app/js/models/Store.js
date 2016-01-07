@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('Store',function($q,utils,ticker,Key,txMonitor){
+angular.module('app').factory('Store',function($q,utils,ticker,Key,txMonitor){
 
 var currencies = Object.keys(ticker.rates)
 

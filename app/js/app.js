@@ -1,6 +1,4 @@
-(function(){
-
-var app = angular.module('app',['safemarket','ui.bootstrap','ui.router','angular-growl','ngRoute','yaru22.angular-timeago','hc.marked'])
+var app = angular.module('app',['ui.bootstrap','ui.router','angular-growl','ngRoute','yaru22.angular-timeago','hc.marked']);
 
 app.config(function(growlProvider,$stateProvider, $urlRouterProvider) {
     
@@ -104,6 +102,4 @@ app.run(function(user,$rootScope,$interval,timeAgo,user){
 	timeAgo.settings.allowFuture = true
 
     $rootScope.user = user
-})
-
-})();
+});

@@ -1,16 +1,16 @@
 (function(){
 
-angular.module('app').controller('StoreController',function($scope,$filter,$state,safemarket,user,$stateParams,modals,growl,helpers){
+angular.module('app').controller('StoreController',function($scope,$filter,$state,utils,Store,Market,user,$stateParams,modals,growl,helpers){
 
 	$scope.storeScope = $scope
 
-	$scope.marketOptions = [{addr:safemarket.utils.nullAddr,label:'No escrow'}];
+	$scope.marketOptions = [{addr:utils.nullAddr,label:'No escrow'}];
 	$scope.marketOption = $scope.marketOptions[0]
 	$scope.storeAddr = $stateParams.storeAddr
-	$scope.marketAddr = $stateParams.marketAddr || safemarket.utils.nullAddr;
+	$scope.marketAddr = $stateParams.marketAddr || utils.nullAddr;
 	$scope.productsTotal = new BigNumber(0);
 
-	$scope.store = new safemarket.Store($stateParams.storeAddr)
+	$scope.store = new Store($stateParams.storeAddr)
 
 	$scope.tabs = [
         { heading: "About", route:"store.about", active:false },
@@ -32,12 +32,12 @@ angular.module('app').controller('StoreController',function($scope,$filter,$stat
 	$scope.store.updatePromise.then(function(store){
 
 		$scope.store.meta.marketAddrs.forEach(function(marketAddr){
-			$scope.marketOptions.push({addr:marketAddr,label:'@'+safemarket.utils.getAlias(marketAddr)})
+			$scope.marketOptions.push({addr:marketAddr,label:'@'+utils.getAlias(marketAddr)})
 		})
 
 		$scope.store.meta.transports.forEach(function(transport){
 			var priceInStoreCurrency = new BigNumber(transport.price)
-				,priceInUserCurrency = safemarket.utils.convertCurrency(priceInStoreCurrency,{from:$scope.store.meta.currency,to:user.data.currency})
+				,priceInUserCurrency = utils.convertCurrency(priceInStoreCurrency,{from:$scope.store.meta.currency,to:user.data.currency})
 				,priceFormatted = $filter('currency')(priceInUserCurrency,user.data.currency)
 		})
 		$scope.transport = store.meta.transports[0]
@@ -56,7 +56,7 @@ angular.module('app').controller('StoreController',function($scope,$filter,$stat
 	})
 
 	if($stateParams.marketAddr)
-		(new safemarket.Market($stateParams.marketAddr)).updatePromise.then(function(market){
+		(new Market($stateParams.marketAddr)).updatePromise.then(function(market){
 			$scope.market = market
 		})
 

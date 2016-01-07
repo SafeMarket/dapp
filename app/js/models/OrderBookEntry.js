@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('OrderBookEntry',function($q,utils,Order){
+angular.module('app').factory('OrderBookEntry',function($q,utils,Order){
 
 	function OrderBookEntry(result){
 		this.result = result
