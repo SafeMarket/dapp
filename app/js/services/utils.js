@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').service('utils',function(ticker,$q,$timeout,$sanitize){
+angular.module('app').service('utils',function(ticker,$q,$timeout){
 
 	var utils = this
 
@@ -24,7 +24,7 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout,$saniti
 
 		var addr = AliasReg.getAddr(alias)
 		return getTypeOfAddr(addr)
-		
+
 	}
 
 	function getTypeOfAddr(addr){
@@ -40,8 +40,8 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout,$saniti
 		if(runtimeBytecode === utils.runtimeBytecodes.Store)
 			return 'store'
 
-		if(runtimeBytecode === utils.runtimeBytecodes.Market)
-			return 'market'
+		if(runtimeBytecode === utils.runtimeBytecodes.Submarket)
+			return 'submarket'
 
 		return null
 	}
@@ -65,7 +65,7 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout,$saniti
 	function validateAddr(addr,contractName){
 		return web3.eth.getCode(addr)===utils.runtimeBytecodes[contractName]
 	}
-	
+
 
 	function toAscii(string){
 		var zeroChar = String.fromCharCode(0)
@@ -92,14 +92,12 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout,$saniti
 
 	function convertCurrency(amount,currencies){
 
-		console.log()
-
 		var deferred = $q.defer()
-
+    console.log(amount);
 		if(typeof amount!=='string')
 			amount = amount.toString()
 
-		
+
 		check({
 			amount:amount
 			,from:currencies.from
@@ -110,7 +108,7 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout,$saniti
 			,to:{presence:true,inclusion:Object.keys(ticker.rates),type:'string'}
 		})
 
-		amount = 
+		amount =
 			(new BigNumber(amount))
 				.div(ticker.rates[currencies.from])
 				.times(ticker.rates[currencies.to])
@@ -123,9 +121,9 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout,$saniti
 			amount = new BigNumber(amount)
 
 		if(currency === 'ETH')
-			return amount.toFixed(6)
+			return amount.toFixed(6)+' '+currency
 		else
-			return amount.toFixed(2)
+			return amount.toFixed(2)+' '+currency
 	}
 
 	function convertCurrencyAndFormat(amount,currencies){
@@ -152,22 +150,17 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout,$saniti
 
 	function waitForTx(txHex, duration, pause){
 
-		console.log('waitForTx',txHex)
-
 		var deferred = $q.defer()
 			,duration = duration ? duration : (1000*60)
 			,pause = pause ? pause : (1000*3)
 			,timeStart = Date.now()
 			,interval = setInterval(function(){
 
-				console.log('waiting...')
-
 				var tx = web3.eth.getTransactionReceipt(txHex)
 
 				if(tx){
 					clearInterval(interval)
 					deferred.resolve(tx)
-					console.log(tx)
 				}
 
 				if(Date.now() - timeStart > duration){
@@ -210,7 +203,7 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout,$saniti
 
 		if(!data)
 			throw 'data is not an object'
-			
+
 		var dataKeys = Object.keys(data)
 		    ,constraintKeys = Object.keys(constraints)
 
@@ -222,7 +215,7 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout,$saniti
 		dataKeys.forEach(function(key){
 		    if(constraintKeys.indexOf(key)===-1)
 			    delete data[key]
-		})  
+		})
 
 		var errors = validate(data,constraints)
 
@@ -256,12 +249,12 @@ angular.module('safemarket').service('utils',function(ticker,$q,$timeout,$saniti
 		,getTypeOfAddr:getTypeOfAddr
 		,runtimeBytecodes:{
 			Store: '0x'+contractDB.Store.compiled.runtimeBytecode
-			,Market: '0x'+contractDB.Market.compiled.runtimeBytecode
+			,Submarket: '0x'+contractDB.Submarket.compiled.runtimeBytecode
 		},validateAddr:validateAddr
 		,validateAlias:validateAlias
 		,getContract:getContract
 	})
-	
+
 })
 
 })();

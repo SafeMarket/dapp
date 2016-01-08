@@ -7,7 +7,7 @@
       style-src 'self' 'unsafe-inline';
       font-src 'self';
       img-src 'self';
-      connect-src http://127.0.0.1:* http://localhost:* file://*;
+      connect-src http://127.0.0.1:* http://127.0.0.1:* file://*;
     ">
     <script>alert('XSS vulnerability detected. Close SafeMarket immediately.')</script>
     <link rel="stylesheet" href="css/app.min.css">
@@ -26,7 +26,7 @@
           <button class="navbar-btn btn btn-default btn-lg" id="refreshButton">
             <span class="glyphicon glyphicon-refresh" id="refreshIcon"></span>
           </button>
-          <button class="navbar-btn btn btn-default btn-lg" ng-click="openSettingsModal()"  ng-if="isLoggedIn">
+          <button class="navbar-btn btn btn-default btn-lg" ng-if="isLoggedIn" ng-click="openSettingsModal()">
             <span class="glyphicon glyphicon-cog"></span>
           </button>
           <button class="btn btn-default btn-lg" ng-click="logout()" ng-if="isLoggedIn">
@@ -36,14 +36,18 @@
       </div>
     </nav>
     <div class="container">
-      <div class="alert alert-danger text-center" ng-show="!isConnected">
-        Warning: Unable to connect. Make sure (1) your geth node is running (2) you entered your password when unlocking your account.
-      </div>
-      <div class="alert alert-danger text-center" ng-show="syncing"  ng-cloak>
-        Your node is still syncing. On block {{syncing.currentBlock}} of {{syncing.highestBlock}}.
+      <div>
+        <div>
+          <div class="alert alert-danger text-center" ng-show="!isConnected">
+            Warning: Unable to connect. Make sure (1) your geth node is running (2) you entered your password when unlocking your account.
+          </div>
+          <div class="alert alert-danger text-center" ng-show="syncing"  ng-cloak>
+            Your node is still syncing. On block {{syncing.currentBlock}} of {{syncing.highestBlock}}.
+          </div>
+        </div>
+        <div growl></div>
+        <div ui-view autoscroll="true" class="mainView"></div>
       </div>
     </div>
-    <div growl></div>
-    <div ui-view autoscroll="true"></div>
   </div></body>
 </html>

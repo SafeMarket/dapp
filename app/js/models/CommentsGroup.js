@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('CommentsGroup',function($q,utils){
+angular.module('app').factory('CommentsGroup',function($q,utils){
 	function CommentsGroup(id,forum){
 		var commentsGroup = this
 		this.id = id

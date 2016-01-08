@@ -1,10 +1,9 @@
-<div class="container">
-	<div alias-bar="{{store.alias}}"></div>
-	<div class="aligner">
-		<h1 class="pull-left aligner-bottom clear-margin-horizontal">
-			{{store.meta.name}}
-		</h1>
-		<button
+<div alias-bar="{{store.alias}}"></div>
+<div class="aligner">
+	<h1 class="pull-left aligner-bottom clear-margin-horizontal">
+		{{store.meta.name}}
+	</h1>
+	<button
 		ng-show="user.data.account === store.owner"
 		class="pull-left btn btn-default aligner-bottom clear-margin-horizontal"
 		ng-click="openStoreModal(store)"
@@ -22,7 +21,7 @@
 	</form>
 </div>
 <tabset>
-	<tab
+    <tab
 	ng-repeat="tab in tabs"
 	heading="{{tab.heading}}"
 	select="go(tab.route)"
@@ -30,4 +29,3 @@
 </tab>
 </tabset>
 <div ui-view></div>
-</div>

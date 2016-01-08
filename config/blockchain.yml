@@ -1,6 +1,6 @@
 development:
   port: 30304
-  rpc_host: localhost
+  rpc_host: 127.0.0.1
   rpc_port: 8101
   rpc_whitelist: http://127.0.0.1:8000
   minerthreads: 1
@@ -18,7 +18,7 @@ development:
     init: true
     password: config/password
 production:
-  rpc_host: localhost
+  rpc_host: 127.0.0.1
   rpc_port: 8545
   rpc_whitelist: http://127.0.0.1:8000
   datadir: default

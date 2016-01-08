@@ -1,6 +1,8 @@
 (function(){
 
-angular.module('app').service('user',function($q,$rootScope,words,safemarket,modals){
+angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals){
+
+	var user = this
 
 	this.getStorage = function(){
 		return localStorage.getItem('user')
@@ -10,9 +12,21 @@ angular.module('app').service('user',function($q,$rootScope,words,safemarket,mod
 		localStorage.setItem('user',string)
 	}
 
+	this.setBalance = function(){
+		this.balance = web3.eth.getBalance(this.data.account)
+	}
+
 	this.logout = function(){
 		this.password = null
 		$rootScope.isLoggedIn = false
+	}
+
+	this.setDisplayCurrencies = function(){
+		$rootScope.userCurrency = user.data.currency
+		$rootScope.displayCurrencies = [user.data.currency]
+
+		if(user.data.currency!=='ETH')
+			$rootScope.displayCurrencies.push('ETH')
 	}
 
 	this.checkPassword = function(password){
@@ -55,8 +69,8 @@ angular.module('app').service('user',function($q,$rootScope,words,safemarket,mod
 		if(!this.data.storeAddrs)
 			this.data.storeAddrs = []
 
-		if(!this.data.marketAddrs)
-			this.data.marketAddrs = []
+		if(!this.data.submarketAddrs)
+			this.data.submarketAddrs = []
 
 		if(!this.data.account)
 			this.data.account = web3.eth.defaultAccount ? web3.eth.defaultAccount : web3.eth.accounts[0]
@@ -70,6 +84,7 @@ angular.module('app').service('user',function($q,$rootScope,words,safemarket,mod
 		if(!this.data.hiddenCommentIds)
 			this.data.hiddenCommentIds = []
 
+		this.setBalance()
 		this.loadKeypairs()
 		this.loadKeypair()
 	}
@@ -83,7 +98,7 @@ angular.module('app').service('user',function($q,$rootScope,words,safemarket,mod
 		var user = this
 			,deferred = $q.defer()
 
-		safemarket.pgp.generateKeypair().then(function(keypair){
+		pgp.generateKeypair().then(function(keypair){
 
 			var publicKey = openpgp.key.readArmored(keypair.publicKeyArmored).keys[0]
 				,keyData = publicKey.toPacketlist().write()
@@ -106,7 +121,7 @@ angular.module('app').service('user',function($q,$rootScope,words,safemarket,mod
 		var user = this
 			,deferred = $q.defer()
 
-		safemarket.Key.fetch(user.data.account).then(function(key){
+		Key.fetch(user.data.account).then(function(key){
 			user.keypair = _.find(user.keypairs,{id:key.id})
 			deferred.resolve(user.keypair)
 		})
@@ -126,7 +141,7 @@ angular.module('app').service('user',function($q,$rootScope,words,safemarket,mod
 	}
 
 	this.getAddrs = function(){
-		return [this.data.account].concat(this.data.marketAddrs.concat(this.data.storeAddrs))
+		return [this.data.account].concat(this.data.submarketAddrs.concat(this.data.storeAddrs))
 	}
 
 	this.decrypt = function(pgpMessageWrapper){
@@ -150,6 +165,11 @@ angular.module('app').service('user',function($q,$rootScope,words,safemarket,mod
 		this.private = openpgp.key.readArmored(keypairData.private).keys[0]
 		this.public = openpgp.key.readArmored(keypairData.public).keys[0]
 		this.id = this.public.primaryKey.keyid.bytes
+	}
+
+	this.init = function(){
+		this.loadData()
+		this.setDisplayCurrencies()
 	}
 
 })

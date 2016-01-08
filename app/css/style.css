@@ -1,6 +1,7 @@
 body{
 	padding:0 0 80px 0;
 	overflow-y:scroll;
+    overflow-x:hidden;
 	background-image:none;
 }
 tbody{border-top: none !important}
@@ -25,11 +26,17 @@ input[type="range"]{
     margin-top: 7px;
 }
 
+.modal:not(:last-child) {
+    display: none !important;
+}
+
 .input-group select{
     -webkit-appearance: none;
 }
 
 h3 .btn{float: right}
+
+.mainView{padding:0 10px 10px;}
 
 .nav.nav-tabs{margin-bottom: 20px}
 
@@ -90,6 +97,7 @@ h3 .btn{float: right}
   outline: none !important;
 }
 
+.mainTable{width:100%;}
 .clear-margin {
 	margin: 0;
 }

@@ -13,11 +13,11 @@ contract OrderBook{
 	event Entry(
 		address indexed orderAddr
 		,address indexed storeAddr
-		,address indexed marketAddr
+		,address indexed submarketAddr
 	);
 
-	function addEntry(address orderAddr, address storeAddr, address marketAddr){
-		Entry(orderAddr, storeAddr, marketAddr);
+	function addEntry(address orderAddr, address storeAddr, address submarketAddr){
+		Entry(orderAddr, storeAddr, submarketAddr);
 	}
 }
 
@@ -115,7 +115,7 @@ contract forumable is owned{
 }
 
 contract Forum is owned{
-
+	
 	uint public fee;
 
 	event Comment(address indexed author, bytes32 indexed parentId, bytes data);
@@ -129,7 +129,7 @@ contract Forum is owned{
 		if(msg.sender != owner) throw;
 		fee = _fee;
 	}
-
+	
 }
 
 contract audible is owned{
@@ -141,16 +141,16 @@ contract audible is owned{
 
 }
 
-contract Market is forumable,audible{
+contract Submarket is forumable,audible{
 
 	event Meta(bytes meta);
-	bool constant public isMarket = true;
+	bool constant public isSubmarket = true;
 
-	function Market(bytes32 alias, bytes meta, address alasRegAddr){
+	function Submarket(bytes32 alias, bytes meta, address alasRegAddr){
 		AliasReg(alasRegAddr).claimAlias(alias);
 		Meta(meta);
 	}
-
+	
 	function setMeta(bytes meta){
 		if(msg.sender!=owner) throw;
 		Meta(meta);
@@ -163,8 +163,8 @@ contract Order{
 	address public affiliate;
 	address public storeAddr;
 	address public storeOwner;
-	address public marketAddr;
-	address public marketOwner;
+	address public submarketAddr;
+	address public submarketOwner;
 	uint public feePercentage;
 	uint public disputeSeconds;
 	uint public status;
@@ -192,30 +192,30 @@ contract Order{
 	function Order(
 		bytes _meta
 		,address _storeAddr
-		,address _marketAddr
+		,address _submarketAddr
 		,uint _feePercentage
 		,uint _disputeSeconds
 		,address _affiliate
 		,address orderBookAddr
-		){
-			buyer = msg.sender;
-			storeAddr = _storeAddr;
-			storeOwner = Store(_storeAddr).owner();
-			marketAddr = _marketAddr;
-			marketOwner = Market(_marketAddr).owner();
-			feePercentage = _feePercentage;
-			disputeSeconds = _disputeSeconds;
-			affiliate = _affiliate;
-			affiliatePercentage = Store(_storeAddr).affiliatePercentage();
+	){
+		buyer = msg.sender;
+		storeAddr = _storeAddr;
+		storeOwner = Store(_storeAddr).owner();
+		submarketAddr = _submarketAddr;
+		submarketOwner = Submarket(_submarketAddr).owner();
+		feePercentage = _feePercentage;
+		disputeSeconds = _disputeSeconds;
+		affiliate = _affiliate;
+		affiliatePercentage = Store(_storeAddr).affiliatePercentage();
 
-			timestamp = now;
-			Meta(_meta);
-			OrderBook(orderBookAddr).addEntry(address(this),_storeAddr,_marketAddr);
+		timestamp = now;
+		Meta(_meta);
+		OrderBook(orderBookAddr).addEntry(address(this),_storeAddr,_submarketAddr);
 	}
 
 	function addMessage(bytes text){
-		if(msg.sender != buyer && msg.sender != storeOwner && msg.sender != marketOwner)
-		throw;
+		if(msg.sender != buyer && msg.sender != storeOwner && msg.sender != submarketOwner)
+			throw;
 
 		Message(msg.sender, text);
 	}
@@ -226,15 +226,15 @@ contract Order{
 	}
 
 	function withdraw(uint amount){
-
+		
 		if(msg.sender != buyer)
-		throw;
-
+			throw;
+		
 		if(status != initialized)
-		throw;
-
+			throw;
+		
 		if(amount>received)
-		throw;
+			throw;
 
 		var isSent = buyer.send(amount);
 
@@ -252,10 +252,10 @@ contract Order{
 	function cancel(){
 
 		if(status != initialized)
-		throw;
+			throw;
 
 		if(msg.sender != buyer && msg.sender != storeOwner)
-		throw;
+			throw;
 
 		var isSent = buyer.send(this.balance);
 		if(!isSent) throw;
@@ -289,7 +289,7 @@ contract Order{
 
 		var isSent = storeOwner.send(this.balance);
 		if(!isSent) throw;
-
+		
 		addUpdate(finalized);
 	}
 
@@ -303,7 +303,7 @@ contract Order{
 		if(now - shippedAt > disputeSeconds)
 			throw;
 
-		if(marketOwner==address(0))
+		if(submarketOwner==address(0))
 			throw;
 
 		addUpdate(disputed);
@@ -312,7 +312,7 @@ contract Order{
 
 	function calculateFee() returns (uint){
 		// show your work:
-
+		
 		// 1. fee = products(feePercent)
 			// products = fee/feePercent
 			// products = fee/(feePercentage/100)
@@ -326,35 +326,33 @@ contract Order{
 			// fee = received/((100+feePercentage)/feePercentage)
 			// fee = (received * feePercentage)/(100 + feePercentage)
 
-
+		
 		return (received * feePercentage)/(100 + feePercentage);
 	}
 
 	function resolve(uint buyerPercentage){
 		if(status!=disputed)
-		throw;
+			throw;
 
-		if(msg.sender != marketOwner)
-		throw;
+		if(msg.sender != submarketOwner)
+			throw;
 
 		fee = calculateFee();
 		buyerAmount = ((received-fee)*buyerPercentage)/100;
 		affiliateAmount = ((received-fee-buyerAmount)*affiliatePercentage)/100;
 		var storeOwnerAmount = received - fee - buyerAmount - affiliateAmount;
 
-		marketOwner.send(fee);
+		submarketOwner.send(fee);
 
 		if(buyerAmount>0)
-		buyer.send(buyerAmount);
-
-		if(affiliateAmount>0)
-		affiliate.send(affiliateAmount);
+			buyer.send(buyerAmount);
 
 		if(storeOwnerAmount>0)
-		storeOwner.send(storeOwnerAmount);
+			storeOwner.send(storeOwnerAmount);
 
 		addUpdate(resolved);
 	}
+
 }
 
 contract Store is forumable,audible{
@@ -394,7 +392,7 @@ contract Store is forumable,audible{
 	}
 
 	function leaveReview(address orderAddr, uint score, bytes data){
-
+		
 		var order = Order(orderAddr);
 
 		if(order.status() < 3)
@@ -413,13 +411,13 @@ contract Store is forumable,audible{
 
 		if(review.timestamp != 0)
 			scoreCounts[review.score]--;
-
+		
 		review.timestamp = now;
 		review.score = score;
 		scoreCounts[score]++;
 
 		ReviewData(orderAddr, data);
-
+		
 	}
 
 }

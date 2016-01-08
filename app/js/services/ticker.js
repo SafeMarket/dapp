@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').service('ticker',function($interval,$http,$q){
+angular.module('app').service('ticker',function($interval,$http,$q){
 
 	if(blockchain.env==='production'){
 		var OpenStoreAbi = [{"constant":true,"inputs":[{"name":"addr","type":"address"},{"name":"key","type":"bytes32"}],"name":"getTimestamp","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"key","type":"bytes32"},{"name":"value","type":"bytes"}],"name":"setFromContract","outputs":[],"type":"function"},{"constant":true,"inputs":[{"name":"addr","type":"address"},{"name":"key","type":"bytes32"}],"name":"getValue","outputs":[{"name":"","type":"bytes"}],"type":"function"},{"constant":false,"inputs":[{"name":"key","type":"bytes32"},{"name":"value","type":"bytes"}],"name":"set","outputs":[],"type":"function"}]
@@ -16,7 +16,7 @@ angular.module('safemarket').service('ticker',function($interval,$http,$q){
 
 	symbols.forEach(function(symbol) {
 		var currency = _.last(symbol.split(':')), rateHex = OpenStore.getValue(tickerAddress, symbol)
-		
+
 		rates[currency] = rates[currency] = rateHex === '0x' ? new BigNumber(0) : web3.toBigNumber(rateHex).div('1000000000000')
 	})
 

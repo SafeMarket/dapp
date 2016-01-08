@@ -1,0 +1,18 @@
+<div alias-bar="{{submarket.alias}}"></div>
+<h1>
+	{{submarket.meta.name}} 
+	<button
+		ng-show="user.data.account === submarket.owner"
+		class="btn btn-default"
+		ng-click="openSubmarketModal(submarket)"
+	>Edit</button>
+</h1>
+<tabset>
+    <tab
+        ng-repeat="tab in tabs"
+        heading="{{tab.heading}}"
+        select="go(tab.route)"
+        active="tab.active">
+    </tab>
+</tabset>
+<div ui-view></div>

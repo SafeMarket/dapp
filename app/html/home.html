@@ -1,4 +1,4 @@
-<div class='container text-center'>
+<div class='text-center'>
 	<h1>Hello, Friend</h1>
 	<br>
 	<div alias-bar></div>
@@ -20,11 +20,11 @@
 		</div>
 		<div class="col-sm-4">
 			<h4 class="text-center">
-				My Submarkets
-				<a ng-click="openMarketModal()" class="glyphicon glyphicon-plus"></a>
-				<a ng-click="openImportMarketModal()" class="glyphicon glyphicon-import"></a>
+				My Submarket
+				<a ng-click="openSubmarketModal()" class="glyphicon glyphicon-plus"></a>
+				<a ng-click="openImportSubmarketModal()" class="glyphicon glyphicon-import"></a>
 			</h4>
-			<div ng-repeat="marketAddr in user.data.marketAddrs" alias="marketAddr">
+			<div ng-repeat="submarketAddr in user.data.submarketAddrs" alias="submarketAddr">
 			</div>
 		</div>
 	</div>

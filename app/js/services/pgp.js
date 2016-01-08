@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('pgp',function($q,$timeout){
+angular.module('app').factory('pgp',function($q,$timeout){
 	var pgp = {}
 
 	pgp.encrypt = function(publicKeys,text){
@@ -12,7 +12,7 @@ angular.module('safemarket').factory('pgp',function($q,$timeout){
 		}).catch(function(error) {
 		    deferred.reject(error)
 		});
-	
+
 		return deferred.promise
 	}
 

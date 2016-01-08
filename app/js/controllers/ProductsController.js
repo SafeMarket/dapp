@@ -1,17 +1,15 @@
-(function(){
+angular.module('app').controller('ProductsController',function($scope,$filter,utils,Submarket,helpers,growl,user){
 
-angular.module('app').controller('ProductsController',function($scope,$filter,safemarket,helpers,growl){
+	$scope.$watch('submarketAddr',function(submarketAddr){
 
-	$scope.$watch('marketAddr',function(marketAddr){
-
-		if(!marketAddr || marketAddr === safemarket.utils.nullAddr)
-			$scope.market = null
+		if(!submarketAddr || submarketAddr === utils.nullAddr)
+			$scope.submarket = null
 		else
-			$scope.market = new safemarket.Market(marketAddr)
+			$scope.submarket = new Submarket(submarketAddr)
 
-		if($scope.market)
-			$scope.market.updatePromise.then(function(){
-				$scope.feePercent = $scope.market.feePercentage.div(100)
+		if($scope.submarket)
+			$scope.submarket.updatePromise.then(function(){
+				$scope.feePercent = $scope.submarket.feePercentage.div(100)
 				console.log('feePercent',$scope.feePercent.toString())
 			})
 		else
@@ -19,13 +17,14 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 	})
 
 	$scope.getTransportLabel = function(transport){
-		var priceInUserCurrency = safemarket.utils.convertCurrency(transport.price,{from:$scope.store.meta.currency,to:user.data.currency})
+		var priceInUserCurrency = utils.convertCurrency(transport.price,{from:$scope.store.meta.currency,to:user.data.currency})
 			,priceFormatted = $filter('currency')(priceInUserCurrency,user.data.currency)
 
-		return transport.type+' ('+priceFormatted+' '+user.data.currency+')'
+		return transport.type+' ('+priceFormatted+')'
 	}
 
 	$scope.createOrder = function(){
+
 		var meta = {
 			currency:$scope.store.meta.currency
 			,products:[]
@@ -35,8 +34,8 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 				,price:$scope.transport.price.toString()
 			}
 		},storeAddr = $scope.store.addr
-		,marketAddr = $scope.marketAddr
-		,feePercentage = $scope.market ? $scope.market.meta.feePercentage : '0'
+		,submarketAddr = $scope.submarketAddr
+		,feePercentage = $scope.submarket ? $scope.submarket.meta.feePercentage : '0'
 		,disputeSeconds = parseInt($scope.store.meta.disputeSeconds)
 		,productsTotal = new BigNumber(0)
 		,affiliateAddr = ""
@@ -72,20 +71,12 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 			return
 		}
 
-		var estimatedGas = Order.estimateCreationGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,affiliateAddr)
-		 	,doContinue = helpers.confirmGas(estimatedGas)
 
-		if(!doContinue) return
-
-		$scope.isCreatingOrder = true
-
-		console.log('meta sent to Order.create',meta)
 
 		Order.create(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,affiliateAddr).then(function(order){
 			window.location.hash = "#/orders/"+order.addr
 			user.data.orderAddrs.push(order.addr)
 			user.save()
-		 	$scope.isCreatingOrder = false
 		})
 
 	}
@@ -102,16 +93,16 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 				total = total.plus(subtotal)
 			})
 
-		$scope.productsTotal = safemarket.utils.convertCurrency(total,{from:$scope.store.meta.currency,to:'WEI'})
+		$scope.productsTotal = utils.convertCurrency(total,{from:$scope.store.meta.currency,to:'WEI'})
 
 	},true)
 
 	$scope.$watchGroup(['productsTotal','feePercent','transport.id'],function(){
 		if(!$scope.transport) return
 
-		var transportPrice = safemarket.utils.convertCurrency($scope.transport.price,{from:$scope.store.meta.currency,to:'WEI'})
+		var transportPrice = utils.convertCurrency($scope.transport.price,{from:$scope.store.meta.currency,to:'WEI'})
 
-		if($scope.market)
+		if($scope.submarket)
 			$scope.estimatedFee = $scope.productsTotal.plus(transportPrice).times($scope.feePercent)
 		else
 			$scope.estimatedFee = new BigNumber(0)
@@ -119,6 +110,4 @@ angular.module('app').controller('ProductsController',function($scope,$filter,sa
 		$scope.total = $scope.productsTotal.plus(transportPrice).plus($scope.estimatedFee)
 	})
 
-})
-
-})();
+});

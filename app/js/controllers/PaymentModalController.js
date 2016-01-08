@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').controller('PaymentModalController',function($scope,addr,amount,currency,safemarket,user,growl,$modalInstance){
+angular.module('app').controller('PaymentModalController',function($scope,addr,amount,currency,utils,user,growl,$modalInstance){
 	$scope.addr = addr
 	$scope.userCurrency = user.data.currency
 
@@ -9,20 +9,20 @@ angular.module('app').controller('PaymentModalController',function($scope,addr,a
 		$scope.displayCurrencies.push('ETH')
 
 	if(amount.greaterThan(0))
-		$scope.amountInUserCurrency = safemarket.utils.convertCurrencyAndFormat(amount,{from:currency,to:user.data.currency})
+		$scope.amountInUserCurrency = utils.convertCurrencyAndFormat(amount,{from:currency,to:user.data.currency})
 	else
 		$scope.amountInUserCurrency = '0'
 
 	if(user.data.currency !=='ETH'){
 		$scope.$watch('amountInUserCurrency',function(amountInUserCurrency){
-			$scope.amountInEther = safemarket.utils.convertCurrencyAndFormat(amountInUserCurrency,{
+			$scope.amountInEther = utils.convertCurrencyAndFormat(amountInUserCurrency,{
 				from:user.data.currency
 				,to:'ETH'
 			})
 		})
 
 		$scope.$watch('amountInEther',function(amountInEther){
-			$scope.amountInUserCurrency = safemarket.utils.convertCurrencyAndFormat(amountInEther,{
+			$scope.amountInUserCurrency = utils.convertCurrencyAndFormat(amountInEther,{
 				from:'ETH'
 				,to:user.data.currency
 			})
@@ -35,7 +35,7 @@ angular.module('app').controller('PaymentModalController',function($scope,addr,a
 
 	$scope.submit = function(){
 		try{
-			safemarket.utils.check({
+			utils.check({
 				addr:$scope.addr
 				,amountInUserCurrency:$scope.amountInUserCurrency
 			},{
@@ -56,9 +56,9 @@ angular.module('app').controller('PaymentModalController',function($scope,addr,a
 
 		$scope.isSyncing = true
 
-		var amount = safemarket.utils.convertCurrency($scope.amountInUserCurrency,{from:user.data.currency,to:'WEI'})
+		var amount = utils.convertCurrency($scope.amountInUserCurrency,{from:user.data.currency,to:'WEI'})
 
-		safemarket.utils.send($scope.addr,amount).then(function(){
+		utils.send($scope.addr,amount).then(function(){
 			$modalInstance.close()
 		})
 	}

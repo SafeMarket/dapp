@@ -1,9 +1,11 @@
 (function(){
 
-	angular.module('safemarket').factory('AffiliateReg',function(utils,$q){
-		function AffiliateReg(){
-			this.addr = window.AffiliateReg.address
-			this.contract = window.AffiliateReg
+angular.module('app').factory('AffiliateReg',function($q,utils,CommentsGroup){
+
+    var oldAffiliateReg = window.AffiliateReg
+    function AffiliateReg(){
+			this.addr = oldAffiliateReg.address
+			this.contract = oldAffiliateReg
 		}
 
 		AffiliateReg.prototype.code = AffiliateReg.code = '0x'+contractDB.AffiliateReg.compiled.code
@@ -14,15 +16,13 @@
 		window.AffiliateReg = new AffiliateReg()
 
 		AffiliateReg.prototype.claimAlias = function(alias, coinbase){
-			console.log("hello");
-			console.log(alias,coinbase);
 			var deferred = $q.defer()
 			,txObject = {
 				gas:this.contract.claimAlias.estimateGas(alias,coinbase)
 				,gasPrice:web3.eth.gasPrice
 				,from:web3.eth.accounts[0]
 			},txHex = this.contract.claimAlias(alias,coinbase,txObject)
-			,affiliateReg = this
+			,affiliateReg = thisz
 
 			utils.waitForTx(txHex).then(function(tx){
 				affiliateReg.update().then(function(){
@@ -48,7 +48,7 @@
 			return deferred.promise
 		}
 
-		return AffiliateReg
+		return window.AffiliateReg
 
 	})
 

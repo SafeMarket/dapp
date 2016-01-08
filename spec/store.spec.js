@@ -32,16 +32,7 @@ describe('store modal',function(){
         element.all(by.css('[ng-model="transport.type"]')).get(0).sendKeys('Basic')
         element.all(by.css('[ng-model="transport.price"]')).get(0).sendKeys('1.00')
         element(by.css('[ng-click="submit()"]')).click()
-        browser.switchTo().alert().accept();
-        browser.waitForAngular()
-        browser.wait(function() {
-            var deferred = protractor.promise.defer();
-            element(by.css('.modal-body')).isPresent()
-                .then(function (isDisplayed) {
-                  deferred.fulfill(!isDisplayed);
-            });
-            return deferred.promise;
-        });
+        element(by.css('[ng-click="approve()"]')).click()
         element(by.css('[ng-href*="#/stores/"]')).click()
         element(by.css('h1')).getText().then(function(text){
             expect(text.indexOf('Satoshis Lemonade Stand')).toNotEqual(-1)
@@ -66,16 +57,7 @@ describe('store modal',function(){
 
         element(by.css('[ng-model="name"]')).sendKeys(' Edited')
         element(by.css('[ng-click="submit()"]')).click()
-        browser.switchTo().alert().accept();
-        browser.waitForAngular()
-        browser.wait(function() {
-            var deferred = protractor.promise.defer();
-            element(by.css('.modal-body')).isPresent()
-                .then(function (isPresent) {
-                  deferred.fulfill(!isPresent);
-            });
-            return deferred.promise;
-        });
+        element(by.css('[ng-click="approve()"]')).click()
         element(by.css('h1')).getText().then(function(text){
             expect(text.indexOf('Satoshis Lemonade Stand Edited')).toNotEqual(-1)
         })

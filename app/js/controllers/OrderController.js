@@ -1,9 +1,9 @@
 (function(){
 
-angular.module('app').controller('OrderController',function($scope,safemarket,user,$stateParams,modals){
+angular.module('app').controller('OrderController',function($scope,Order,pgp,user,$stateParams,modals){
 
-	(new safemarket.Order($stateParams.orderAddr)).updatePromise.then(function(order){
-		console.log(order);
+	(new Order($stateParams.orderAddr)).updatePromise.then(function(order){
+
 		$scope.order = order
 		$scope.displayCurrencies = [order.meta.currency]
 		$scope.affiliate = web3.toAscii(AffiliateReg.contract.getAlias.call(order.affiliate))
@@ -18,8 +18,8 @@ angular.module('app').controller('OrderController',function($scope,safemarket,us
 			$scope.userRole = 'buyer'
 		else if(user.data.account === order.store.owner)
 			$scope.userRole = 'storeOwner'
-		else if(user.data.acccount === order.market.owner)
-			$scope.userRole = 'marketOwner'
+		else if(user.data.acccount === order.submarket.owner)
+			$scope.userRole = 'submarketOwner'
 
 		if($scope.userRole)
 			var keyId = order.keys[$scope.userRole].id
@@ -58,7 +58,7 @@ angular.module('app').controller('OrderController',function($scope,safemarket,us
 	$scope.addMessage = function(){
 		$scope.isAddingMessage = true
 		var keys = _.map($scope.order.keys,function(key){return key.key})
-		safemarket.pgp.encrypt(keys,$scope.messageText).then(function(pgpMessage){
+		pgp.encrypt(keys,$scope.messageText).then(function(pgpMessage){
 			$scope.order.addMessage(pgpMessage).then(function(){
 				$scope.messageText = ''
 				$scope.order.update()
@@ -68,38 +68,26 @@ angular.module('app').controller('OrderController',function($scope,safemarket,us
 	}
 
 	$scope.cancel = function(){
-		$scope.isUpdatingStatus = true
 		$scope.order.cancel().then(function(){
-			$scope.order.update().then(function(){
-				$scope.isUpdatingStatus = false
-			})
+			$scope.order.update()
 		})
 	}
 
 	$scope.markAsShipped = function(){
-		$scope.isUpdatingStatus = true
 		$scope.order.markAsShipped().then(function(){
-			$scope.order.update().then(function(){
-				$scope.isUpdatingStatus = false
-			})
+			$scope.order.update()
 		})
 	}
 
 	$scope.dispute = function(){
-		$scope.isUpdatingStatus = true
 		$scope.order.dispute().then(function(){
-			$scope.order.update().then(function(){
-				$scope.isUpdatingStatus = false
-			})
+			$scope.order.update()
 		})
 	}
 
 	$scope.finalize = function(){
-		$scope.isUpdatingStatus = true
 		$scope.order.finalize().then(function(){
-			$scope.order.update().then(function(){
-				$scope.isUpdatingStatus = false
-			})
+			$scope.order.update()
 		})
 	}
 

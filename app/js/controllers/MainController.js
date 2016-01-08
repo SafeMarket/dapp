@@ -26,20 +26,20 @@
 			modals.openStore()
 		}
 
-		$scope.openMarketModal = function(){
+		$scope.openSubmarketModal = function(){
 			if(!user.keypair){
 				growl.addErrorMessage('You must set a primary keypair')
 				return
 			}
-			modals.openMarket()
+			modals.openSubmarket()
 		}
 
 		$scope.openImportStoreModal = function(){
 			modals.openImportStore()
 		}
 
-		$scope.openImportMarketModal = function(){
-			modals.openImportMarket()
+		$scope.openImportSubmarketModal = function(){
+			modals.openImportSubmarket()
 		}
 
 		$scope.logout = function(){

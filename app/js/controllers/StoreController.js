@@ -1,17 +1,19 @@
-(function(){
+( function() {
 
-angular.module('app').controller('StoreController',function($scope,$filter,$state,safemarket,user,$stateParams,modals,growl,helpers){
+angular.module('app')
+	.controller('StoreController',function($scope,$filter,$state,utils,Store,Submarket,user,$stateParams,modals,growl,helpers) {
 
 	$scope.storeScope = $scope
 
+	//TODO: is this line really necessary?
 	$scope.affiliateAlias = ""
-	$scope.marketOptions = [{addr:safemarket.utils.nullAddr,label:'No escrow'}];
-	$scope.marketOption = $scope.marketOptions[0]
+	$scope.submarketOptions = [{addr:utils.nullAddr,label:'No escrow'}];
+	$scope.submarketOption = $scope.submarketOptions[0]
 	$scope.storeAddr = $stateParams.storeAddr
-	$scope.marketAddr = $stateParams.marketAddr || safemarket.utils.nullAddr;
+	$scope.submarketAddr = $stateParams.submarketAddr || utils.nullAddr;
 	$scope.productsTotal = new BigNumber(0);
 
-	$scope.store = new safemarket.Store($stateParams.storeAddr)
+	$scope.store = new Store($stateParams.storeAddr)
 
 	$scope.tabs = [
         { heading: "About", route:"store.about", active:false },
@@ -32,13 +34,13 @@ angular.module('app').controller('StoreController',function($scope,$filter,$stat
 
 	$scope.store.updatePromise.then(function(store){
 
-		$scope.store.meta.marketAddrs.forEach(function(marketAddr){
-			$scope.marketOptions.push({addr:marketAddr,label:'@'+safemarket.utils.getAlias(marketAddr)})
+		$scope.store.meta.submarketAddrs.forEach(function(submarketAddr){
+			$scope.submarketOptions.push({addr:submarketAddr,label:'@'+utils.getAlias(submarketAddr)})
 		})
 
 		$scope.store.meta.transports.forEach(function(transport){
-			var priceInStoreCurrency = new BigNumber(transport.price)
-				,priceInUserCurrency = safemarket.utils.convertCurrency(priceInStoreCurrency,{from:$scope.store.meta.currency,to:user.data.currency})
+      var priceInStoreCurrency = new BigNumber(transport.price)
+				,priceInUserCurrency = utils.convertCurrency(priceInStoreCurrency,{from:$scope.store.meta.currency,to:user.data.currency})
 				,priceFormatted = $filter('currency')(priceInUserCurrency,user.data.currency)
 		})
 		$scope.transport = store.meta.transports[0]
@@ -56,9 +58,9 @@ angular.module('app').controller('StoreController',function($scope,$filter,$stat
 
 	})
 
-	if($stateParams.marketAddr)
-		(new safemarket.Market($stateParams.marketAddr)).updatePromise.then(function(market){
-			$scope.market = market
+	if($stateParams.submarketAddr)
+		(new Submarket($stateParams.submarketAddr)).updatePromise.then(function(submarket){
+			$scope.submarket = submarket
 		})
 
 	$scope.openStoreModal = function(){

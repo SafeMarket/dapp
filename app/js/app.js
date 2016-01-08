@@ -1,9 +1,7 @@
-(function(){
-
-var app = angular.module('app',['safemarket','ui.bootstrap','ui.router','angular-growl','ngRoute','yaru22.angular-timeago','hc.marked'])
+var app = angular.module('app',['ui.bootstrap','ui.router','angular-growl','ngRoute','yaru22.angular-timeago','hc.marked']);
 
 app.config(function(growlProvider,$stateProvider, $urlRouterProvider) {
-    
+
     growlProvider.globalTimeToLive(3000);
 
     $stateProvider
@@ -38,27 +36,27 @@ app.config(function(growlProvider,$stateProvider, $urlRouterProvider) {
                 url:'/reviews'
                 ,templateUrl:'store.reviews.html'
             })
-        .state('market',{
+        .state('submarket',{
             abstract:true
-            ,url:'/markets/:marketAddr'
-            ,templateUrl:'market.html'
-            ,controller:'MarketController'
+            ,url:'/submarkets/:submarketAddr'
+            ,templateUrl:'submarket.html'
+            ,controller:'SubmarketController'
         })
-            .state('market.about',{
+            .state('submarket.about',{
                 url:'/about'
-                ,templateUrl:'market.about.html'
+                ,templateUrl:'submarket.about.html'
             })
-            .state('market.stores',{
+            .state('submarket.stores',{
                 url:'/stores'
-                ,templateUrl:'market.stores.html'
+                ,templateUrl:'submarket.stores.html'
             })
-            .state('market.forum',{
+            .state('submarket.forum',{
                 url:'/forum'
-                ,templateUrl:'market.forum.html'
+                ,templateUrl:'submarket.forum.html'
             })
-            .state('market.orders',{
+            .state('submarket.orders',{
                 url:'/orders'
-                ,templateUrl:'market.orders.html'
+                ,templateUrl:'submarket.orders.html'
             })
         .state('order',{
             url:'/orders/:orderAddr'
@@ -74,7 +72,7 @@ app.config(function(growlProvider,$stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise('/')
 });
 
-app.run(function(user,$rootScope,$interval,timeAgo){
+app.run(function(user,$rootScope,$interval,timeAgo,user){
 
     //if electron
     //TODO: find better way of determining if electron is available
@@ -83,10 +81,10 @@ app.run(function(user,$rootScope,$interval,timeAgo){
         $rootScope.isLoggedIn = true
     }
 
-	
+
     if(user.password){
 		$rootScope.isLoggedIn = true
-		user.loadData()
+		user.init()
 	}else{
 		$rootScope.isLoggedIn = false
 		window.location.hash='/login'
@@ -102,6 +100,6 @@ app.run(function(user,$rootScope,$interval,timeAgo){
 	$interval(checkConnection,1000)
 
 	timeAgo.settings.allowFuture = true
-})
 
-})();
+    $rootScope.user = user
+});

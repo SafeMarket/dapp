@@ -5,7 +5,7 @@ angular.module('app').controller('LoginController',function($scope,$rootScope,us
 
 	$scope.login = function(){
 		var isPassword = user.checkPassword($scope.password)
-		
+
 		if(!isPassword){
 			growl.addErrorMessage('Sorry, thats not correct')
 			return
@@ -35,7 +35,7 @@ angular.module('app').controller('LoginController',function($scope,$rootScope,us
 			growl.addErrorMessage('You must choose a password')
 			return
 		}
-		
+
 		if($scope.password != $scope.password1){
 			growl.addErrorMessage('Passwords do not match')
 			return

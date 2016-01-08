@@ -43,7 +43,6 @@ angular.module('app').directive('comment',function(user){
 				user.save()
 				$scope.$parent.showReplies = false
 				$scope.isHidden = !$scope.isHidden
-				console.log(user.data.hiddenCommentIds)
 			}
 		}
 	}
@@ -60,7 +59,7 @@ angular.module('app').directive('addComment',function(){
 	}
 })
 
-angular.module('app').directive('gas',function(safemarket,user){
+angular.module('app').directive('gas',function(utils,user){
 	return {
 		templateUrl:'gas.html'
 		,scope:{
@@ -69,7 +68,7 @@ angular.module('app').directive('gas',function(safemarket,user){
 			scope.$watch('gas',function(){
 				scope.costInEther = web3.fromWei(web3.eth.gasPrice,'ether').times(scope.gas)
 				scope.userCurrency = user.data.currency
-				scope.costInUserCurrency = safemarket.utils.convertCurrency(scope.costInEther,{from:'ETH',to:user.data.currency})
+				scope.costInUserCurrency = utils.convertCurrency(scope.costInEther,{from:'ETH',to:user.data.currency})
 			})
 		}
 	}
@@ -189,7 +188,7 @@ angular.module('app').directive('numericInput', function(growl) {
     };
 });
 
-angular.module('app').directive('aliasValidator', function(safemarket) {
+angular.module('app').directive('aliasValidator', function(utils) {
   	return {
   		scope:{
   			alias:'=aliasValidator'
@@ -197,22 +196,22 @@ angular.module('app').directive('aliasValidator', function(safemarket) {
   		},link: function ($scope) {
       		$scope.$watch('alias',function(alias){
       			if($scope.type)
-      				$scope.isValid = safemarket.utils.getTypeOfAlias(alias) === $scope.type
+      				$scope.isValid = utils.getTypeOfAlias(alias) === $scope.type
       			else
-      				$scope.isValid = safemarket.utils.isAliasAvailable(alias)
+      				$scope.isValid = utils.isAliasAvailable(alias)
       		})
     	},templateUrl:'aliasValidator.html'
   	};
 });
 
-angular.module('app').directive('alias', function(safemarket,helpers) {
+angular.module('app').directive('alias', function(utils,helpers) {
   	return {
   		scope:{
   			addr:'=alias'
   		},link: function ($scope) {
   			$scope.$watch('addr',function(){
-	      		$scope.alias = safemarket.utils.getAlias($scope.addr)
-	      		$scope.type = safemarket.utils.getTypeOfAlias($scope.alias)
+	      		$scope.alias = utils.getAlias($scope.addr)
+	      		$scope.type = utils.getTypeOfAlias($scope.alias)
 	      		$scope.url = helpers.getUrl($scope.type,$scope.addr)
 
 	      		if(!$scope.type)
@@ -249,6 +248,13 @@ angular.module('app').directive('tabUrl',function(helpers){
 			}
 
 		}}
+	}
+})
+
+angular.module('app').directive('txPanel',function(){
+	return {
+		templateUrl:'txPanel.html'
+		,controller:'TxPanelController'
 	}
 })
 

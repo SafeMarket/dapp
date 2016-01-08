@@ -1,11 +1,11 @@
 (function(){
-	angular.module('app').controller('ForumController',function($scope,user,safemarket){
+	angular.module('app').controller('ForumController',function($scope,user,utils){
 		$scope.identities = []
 
 		user.getAddrs().forEach(function(addr){
 			var identity = {
 				addr:addr
-				,type:safemarket.utils.getTypeOfAddr(addr)
+				,type:utils.getTypeOfAddr(addr)
 			}
 
 			if(identity.type === null)
@@ -14,8 +14,8 @@
 			if(identity.type==='user')
 				identity.label = addr
 			else{
-				identity.label = '@'+safemarket.utils.getAlias(addr)
-				identity.contract = safemarket.utils.getContract(addr)
+				identity.label = '@'+utils.getAlias(addr)
+				identity.contract = utils.getContract(addr)
 			}
 
 			$scope.identities.push(identity)

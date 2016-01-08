@@ -5,11 +5,11 @@ angular.module('app').factory('KeyGroup',function(Key,$q){
 
 		var keyGroup = this
 			,deferred = $q.defer()
-		
+
 		this.promise = deferred.promise
 		this.keys = []
-	
-		var keyPromises = []	
+
+		var keyPromises = []
 		addrs.forEach(function(addr){
 			keyPromises.push(Key.fetch(addr))
 		})

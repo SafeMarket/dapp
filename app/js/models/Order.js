@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('safemarket').factory('Order',function(utils,ticker,$q,Store,Market,Key,KeyGroup,PgpMessageWrapper){
+angular.module('app').factory('Order',function(utils,ticker,$q,Store,Submarket,Key,KeyGroup,PgpMessageWrapper,txMonitor,user){
 
 function Order(addr){
 	this.addr = addr
@@ -14,19 +14,19 @@ Order.prototype.code = Order.code = '0x'+contractDB.Order.compiled.code
 Order.prototype.abi = Order.abi = contractDB.Order.compiled.info.abiDefinition
 Order.prototype.contractFactory = Order.contractFactory = web3.eth.contract(Order.abi)
 
-Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,affiliateAddr){
+Order.create = function(meta,storeAddr,submarketAddr,feePercentage,disputeSeconds,affiliateAddr){
 
 	var deferred = $q.defer()
 		,order = this
 		,store = new Store(storeAddr)
 		,parties = [web3.eth.defaultAccount,store.owner]
-		,meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
+		,meta = utils.convertObjectToHex(meta)
 
-	if(marketAddr!==utils.nullAddr){
-		var market = new Market(marketAddr)
-			,marketOwner = market.owner
+	if(submarketAddr!==utils.nullAddr){
+		var submarket = new Submarket(submarketAddr)
+			,submarketOwner = submarket.owner
 
-		parties.push(marketOwner)
+		parties.push(submarketOwner)
 	}
 
 	var keyGroup = new KeyGroup(parties)
@@ -39,19 +39,11 @@ Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,a
 		keyGroup.encrypt(meta).then(function(pgpMessage){
 			console.log('meta added', pgpMessage.packets.write())
 			var meta = pgpMessage.packets.write()
-				,txObject = {
-					data:Order.code
-					,gas:Order.estimateCreationGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,affiliateAddr)
-				},txHex = Order.contractFactory.new(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,affiliateAddr,OrderBook.address,txObject).transactionHash
 
-			utils.waitForTx(txHex).then(function(tx){
-				(new Order(tx.contractAddress)).updatePromise.then(function(order){
-					deferred.resolve(order)
-				})
-			},function(error){
-				deferred.reject(error)
-			}).catch(function(error){
-				console.error(error)
+			txMonitor.propose('Create a New Order',Order.contractFactory,[meta,storeAddr,submarketAddr,feePercentage,disputeSeconds,affiliateAddr,OrderBook.address,{data:order.code}]).then(function(receipt){
+				console.log(receipt)
+				var order = new Order(receipt.contractAddress)
+				deferred.resolve(order)
 			})
 		},function(error){
 			deferred.reject(error)
@@ -65,7 +57,7 @@ Order.create = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,a
 	return deferred.promise
 }
 
-Order.check = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,affiliateAddr){
+Order.check = function(meta,storeAddr,submarketAddr,feePercentage,disputeSeconds,affiliateAddr){
 	utils.check(meta,{
 		currency:{
 			presence:true
@@ -130,7 +122,7 @@ Order.check = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,af
 
 	utils.check({
 		storeAddr:storeAddr
-		,marketAddr:marketAddr
+		,submarketAddr:submarketAddr
 		,feePercentage:feePercentage
 		,disputeSeconds:disputeSeconds
 		,affiliateAddr:affiliateAddr
@@ -138,7 +130,7 @@ Order.check = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,af
 		storeAddr:{
 			presence:true
 			,type:'address'
-		},marketAddr:{
+		},submarketAddr:{
 			presence:true
 			,type:'address'
 		},feePercentage:{
@@ -163,68 +155,25 @@ Order.check = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,af
 	})
 }
 
-Order.estimateCreationGas = function(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,affiliateAddr){
-	meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
-
-	return this.contractFactory.estimateGas(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,affiliateAddr,OrderBook.address,{
-		data:Order.code
-	})
-}
-
 Order.prototype.cancel = function(){
-	var deferred = $q.defer()
-		,txHex = this.contract.cancel()
-
-	utils.waitForTx(txHex).then(function(){
-		deferred.resolve()
-	})
-
-	return deferred.promise
+	return txMonitor.propose('Cancel this Order',this.contract.cancel,[])
 }
 
 Order.prototype.dispute = function(){
-	var deferred = $q.defer()
-		,txHex = this.contract.dispute()
-
-	utils.waitForTx(txHex).then(function(){
-		deferred.resolve()
-	})
-
-	return deferred.promise
+	return txMonitor.propose('Dispute this Order',this.contract.dispute,[])
 }
 
 Order.prototype.finalize = function(){
-	var deferred = $q.defer()
-		,txHex = this.contract.finalize()
-
-	utils.waitForTx(txHex).then(function(){
-		deferred.resolve()
-	})
-
-	return deferred.promise
+	return txMonitor.propose('Finalize this Order',this.contract.finalize,[])
 }
 
 Order.prototype.resolve = function(buyerPercentage){
-	var deferred = $q.defer()
-		,txHex = this.contract.resolve(buyerPercentage)
-
-	utils.waitForTx(txHex).then(function(){
-		deferred.resolve()
-	})
-
-	return deferred.promise
+	return txMonitor.propose('Resolve this Order',this.contract.resolve,[buyerPercentage])
 }
 
 
 Order.prototype.markAsShipped = function(){
-	var deferred = $q.defer()
-		,txHex = this.contract.markAsShipped()
-
-	utils.waitForTx(txHex).then(function(){
-		deferred.resolve()
-	})
-
-	return deferred.promise
+	return txMonitor.propose('Mark the Order as Shipped',this.contract.markAsShipped,[])
 }
 
 Order.prototype.update = function(){
@@ -232,11 +181,11 @@ Order.prototype.update = function(){
 	var deferred = $q.defer()
 		,order = this
 		,storeAddr = this.contract.storeAddr()
-		,marketAddr = this.contract.marketAddr()
+		,submarketAddr = this.contract.submarketAddr()
 
 	this.buyer = this.contract.buyer()
 	this.store = new Store(storeAddr)
-	this.market = marketAddr === utils.nullAddr ? null : new Market(marketAddr)
+	this.submarket = submarketAddr === utils.nullAddr ? null : new Submarket(submarketAddr)
 	this.feePercentage = this.contract.feePercentage()
 	this.received = this.contract.received()
 	this.status = this.contract.status().toNumber()
@@ -269,10 +218,10 @@ Order.prototype.update = function(){
 		order.keys.storeOwner = key
 	})
 
-	if(this.market)
-		order.market.updatePromise.then(function(market){
-			Key.fetch(market.owner).then(function(key){
-				order.keys.marketOwner = key
+	if(this.submarket)
+		order.submarket.updatePromise.then(function(submarket){
+			Key.fetch(submarket.owner).then(function(key){
+				order.keys.submarketOwner = key
 			})
 		})
 
@@ -373,20 +322,11 @@ Order.prototype.decryptMessages = function(privateKey){
 }
 
 Order.prototype.leaveReview = function(score,text){
-	var deferred = $q.defer()
-		,dataHex = utils.convertObjectToHex({
-			text:text
-		})
-		,gas = this.store.contract.leaveReview.estimateGas(this.addr,score,dataHex)
-		,txHex = this.store.contract.leaveReview(this.addr,score,dataHex,{
-			gas:gas
-		})
-
-	utils.waitForTx(txHex).then(function(){
-		deferred.resolve()
+	var dataHex = utils.convertObjectToHex({
+		text:text
 	})
 
-	return deferred.promise
+	return txMonitor.propose('Leave a Review',this.store.contract.leaveReview,[this.addr,score,dataHex])
 }
 
 function Message(sender,ciphertext,timestamp,order){
@@ -402,8 +342,8 @@ function Message(sender,ciphertext,timestamp,order){
 		case order.store.owner:
 			this.from = 'storeOwner'
 			break;
-		case order.market.owner:
-			this.from = 'marketOwner'
+		case order.submarket.owner:
+			this.from = 'submarketOwner'
 			break;
 	}
 
@@ -422,8 +362,8 @@ function Update(sender,status,timestamp,order){
 		case order.store.owner:
 			this.from = 'storeOwner'
 			break;
-		case order.marketOwner:
-			this.from = 'marketOwner'
+		case order.submarketOwner:
+			this.from = 'submarketOwner'
 			break;
 	}
 }

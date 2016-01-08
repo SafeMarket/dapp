@@ -1,10 +1,10 @@
-(function(){
+(function ( ){
 
-	angular.module('app').controller('StoreModalController',function($scope,$filter,safemarket,ticker,growl,$modal,$modalInstance,store,user,helpers){
+  angular.module('app').controller('StoreModalController',function($scope, $filter, utils, Store, ticker, growl, $modal, $modalInstance, store, user, helpers) {
 
-		$scope.currencies = Object.keys(ticker.rates)
-		$scope.user = user
-		$scope.markets = []
+  	$scope.currencies = Object.keys(ticker.rates)
+  	$scope.user = user
+  	$scope.submarkets = []
 
 		$scope.disputeSecondsOptions = [
 			{value:'0'}
@@ -34,9 +34,9 @@
 			$scope.transports = store.meta.transports || []
 			$scope.minTotal = store.meta.minTotal
 
-			if(store.meta.marketAddrs)
-			store.meta.marketAddrs.forEach(function(marketAddr){
-				$scope.markets.push({alias:safemarket.utils.getAlias(marketAddr)})
+			if(store.meta.submarketAddrs)
+			store.meta.submarketAddrs.forEach(function(submarketAddr){
+				$scope.submarkets.push({alias:utils.getAlias(submarketAddr)})
 			})
 
 		}else{
@@ -84,18 +84,18 @@
 				,disputeSeconds:$scope.disputeSeconds
 				,isOpen:!!$scope.isOpen
 				,info:$scope.info
-				,marketAddrs:[]
+				,submarketAddrs:[]
 				,transports:$scope.transports
 				,minTotal:$scope.minTotal
 			}
 
-			$scope.markets.forEach(function(market){
-				meta.marketAddrs.push(AliasReg.getAddr(market.alias))
+			$scope.submarkets.forEach(function(submarket){
+				meta.submarketAddrs.push(AliasReg.getAddr(submarket.alias))
 			})
 
 
 			try{
-				safemarket.Store.check(alias,affiliatePercentage,meta)
+				Store.check(alias,affiliatePercentage,meta)
 			}catch(e){
 				growl.addErrorMessage(e)
 				console.error(e)
@@ -103,50 +103,37 @@
 			}
 
 			if(store){
-				var estimatedGas = store.contract.setMeta.estimateGas(meta)
-				,doContinue = helpers.confirmGas(estimatedGas)
-
-				if(!doContinue) return;
-
-				$scope.isSyncing = true
 
 				store
 				.setMeta(meta)
 				.then(function(store){
-					$scope.isSyncing = false
 					$modalInstance.close(store)
 				},function(error){
 					$scope.error = error
-					$scope.isSyncing = false
 				}).catch(function(error){
 					console.error(error)
 				})
 			}else{
 
-				if(!safemarket.utils.isAliasAvailable(alias)){
+				if(!utils.isAliasAvailable(alias)){
 					return growl.addErrorMessage('@'+alias+' is already taken')
 				}
 
-				var estimatedGas = Store.estimateCreationGas(alias,affiliatePercentage,meta)
-				,doContinue = helpers.confirmGas(estimatedGas)
-
-				if(!doContinue) return
-
-				$scope.isSyncing = true
-				console.log(affiliatePercentage);
-				Store.create(alias,affiliatePercentage,meta)
+				Store.create($scope.alias,affiliatePercentage,meta)
 				.then(function(store){
 					user.data.storeAddrs.push(store.addr)
 					user.save()
-					$modalInstance.dismiss()
+					$modalInstance.close()
 				},function(error){
 					$scope.error = error
-					$scope.isSyncing = false
 				}).catch(function(error){
 					console.error(error)
 				})
 
 			}
+
+
+
 		}
 	})
 

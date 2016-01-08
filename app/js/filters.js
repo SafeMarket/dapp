@@ -1,14 +1,20 @@
 (function(){
 
-angular.module('app').filter('currency',function(safemarket){
-	return function(amount,currency){
+angular.module('app').filter('currency',function(utils){
+	return function(amount,currencyFrom,currencyTo){
+
 		if(amount===undefined) return undefined
 
-		return safemarket.utils.formatCurrency(amount,currency)
+		if(currencyTo)
+			amount = utils.convertCurrency(amount,{from:currencyFrom,to:currencyTo})
+		else
+			currencyTo = currencyFrom
+
+		return utils.formatCurrency(amount,currencyTo)
 	}
 })
 
-angular.module('app').filter('percentage',function(safemarket){
+angular.module('app').filter('percentage',function(){
 	return function(percent){
 		if(!isNaN(percent))
 			percent = new BigNumber(percent)
@@ -67,10 +73,43 @@ angular.module('app').filter('orderObjectBy', function() {
 
 angular.module('app').filter('reverse', function() {
 	return function(items) {
-		console.log(items)
     	return items.slice().reverse();
   	};
 });
+
+angular.module('app').filter('status',function(){
+		return function(status){
+			return [
+				'Initialized'
+				,'Cancelled'
+				,'Shipped'
+				,'Finalized'
+				,'Disputed'
+				,'Resolved'
+			][status]
+		}
+	})
+
+angular.module('app').filter('disputeSeconds',function(){
+	return function(disputeTime){
+
+		if(disputeTime===undefined)
+			return ''
+
+		var disputeTime = new BigNumber(disputeTime)
+
+		if(disputeTime.equals(0))
+			return "No Disputes Allowed"
+
+		return disputeTime.div(86400).floor().toString()+' Days After Shipping'
+	}
+})
+
+angular.module('app').filter('alias',function(utils){
+	return function(addr){
+		return utils.getAlias(addr)
+	}
+})
 
 
 })();

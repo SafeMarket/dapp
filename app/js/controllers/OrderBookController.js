@@ -1,9 +1,9 @@
 (function(){
 
-angular.module('app').controller('OrderBookController',function($scope,safemarket){
+angular.module('app').controller('OrderBookController',function($scope,OrderBookEntry){
 	$scope.orderBookEntries = []
 
-	safemarket.OrderBookEntry.fetch($scope.filter).then(function(orderBookEntries){
+	OrderBookEntry.fetch($scope.filter).then(function(orderBookEntries){
 		$scope.orderBookEntries = orderBookEntries
 	});
 })

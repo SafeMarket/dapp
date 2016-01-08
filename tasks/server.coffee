@@ -7,7 +7,7 @@ module.exports = (grunt) ->
     serverConfig = readYaml.sync("config/server.yml")
 
     webPort = serverConfig.port || 8000
-    webHost = serverConfig.host || 'localhost'
+    webHost = serverConfig.host || '127.0.0.1'
     webRoot = "generated/dapp"
 
     app = express()

@@ -2,7 +2,7 @@
 
 angular.module('app').controller('LeaveReviewModalController',function($scope,$modalInstance,order,utils){
 
-	$scope.score = 3 
+	$scope.score = 3
 	$scope.scores = [0,1,2,3,4,5]
 
 	$scope.cancel = function(){
@@ -10,7 +10,6 @@ angular.module('app').controller('LeaveReviewModalController',function($scope,$m
 	}
 
 	$scope.submit = function(){
-		$scope.isSyncing = true
 		order.leaveReview($scope.score,$scope.text).then(function(){
 			$modalInstance.close()
 		})

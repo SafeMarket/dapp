@@ -1,21 +1,21 @@
 (function(){
 
-angular.module('app').controller('WithdrawlModalController',function($scope,order,safemarket,user,growl,$modalInstance){
+angular.module('app').controller('WithdrawlModalController',function($scope,order,utils,user,growl,$modalInstance){
 	$scope.addr = order.addr
 	$scope.userCurrency = user.data.currency
 
-	$scope.amountInUserCurrency = safemarket.utils.convertCurrencyAndFormat(order.received,{from:'WEI',to:user.data.currency})
+	$scope.amountInUserCurrency = utils.convertCurrencyAndFormat(order.received,{from:'WEI',to:user.data.currency})
 
 	if(user.data.currency !=='ETH'){
 		$scope.$watch('amountInUserCurrency',function(amountInUserCurrency){
-			$scope.amountInEther = safemarket.utils.convertCurrencyAndFormat(amountInUserCurrency,{
+			$scope.amountInEther = utils.convertCurrencyAndFormat(amountInUserCurrency,{
 				from:user.data.currency
 				,to:'ETH'
 			})
 		})
 
 		$scope.$watch('amountInEther',function(amountInEther){
-			$scope.amountInUserCurrency = safemarket.utils.convertCurrencyAndFormat(amountInEther,{
+			$scope.amountInUserCurrency = utils.convertCurrencyAndFormat(amountInEther,{
 				from:'ETH'
 				,to:user.data.currency
 			})
@@ -28,7 +28,7 @@ angular.module('app').controller('WithdrawlModalController',function($scope,orde
 
 	$scope.submit = function(){
 		try{
-			safemarket.utils.check({
+			utils.check({
 				addr:$scope.addr
 				,amountInUserCurrency:$scope.amountInUserCurrency
 			},{
@@ -49,7 +49,7 @@ angular.module('app').controller('WithdrawlModalController',function($scope,orde
 
 		$scope.isSyncing = true
 
-		var amount = safemarket.utils.convertCurrency($scope.amountInUserCurrency,{from:user.data.currency,to:'WEI'})
+		var amount = utils.convertCurrency($scope.amountInUserCurrency,{from:user.data.currency,to:'WEI'})
 
 		if(amount.greaterThan(order.received))
 			amount = new BigNumber(order.received.toString())

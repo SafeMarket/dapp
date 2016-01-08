@@ -8,10 +8,10 @@ angular.module('app').service('modals',function($modal){
 	this.currentModalInstance = null
 
 	function openModal(options){
-		
+
 		modals.currentController = options.controller
 		modals.currentModalInstance = $modal.open(options)
-		
+
 		modals.currentModalInstance.opened.then(function(){
 			window.scrollTo(0,1)
 		})
@@ -19,7 +19,7 @@ angular.module('app').service('modals',function($modal){
 			modals.currentController = null
 			modals.currentModalInstance = null
 		})
-		
+
 		return modals.currentModalInstance
 	}
 
@@ -41,14 +41,14 @@ angular.module('app').service('modals',function($modal){
 		});
 	}
 
-	this.openMarket = function(market){
+	this.openSubmarket = function(submarket){
 		return openModal({
 			size: 'md'
-			,templateUrl: 'marketModal.html'
-			,controller: 'MarketModalController'
+			,templateUrl: 'submarketModal.html'
+			,controller: 'SubmarketModalController'
 			,resolve: {
-				market:function(){
-					return market
+				submarket:function(){
+					return submarket
 				}
 			}
 		});
@@ -126,11 +126,11 @@ angular.module('app').service('modals',function($modal){
 	    });
 	}
 
-	this.openImportMarket = function(){
+	this.openImportSubmarket = function(){
 		return openModal({
 			size: 'md'
-			,templateUrl: 'importMarketModal.html'
-			,controller: 'ImportMarketModalController'
+			,templateUrl: 'importSubmarketModal.html'
+			,controller: 'ImportSubmarketModalController'
 	    });
 	}
 
@@ -142,6 +142,19 @@ angular.module('app').service('modals',function($modal){
 			,resolve:{
 				order:function(){
 					return order
+				}
+			}
+	    });
+	}
+
+	this.openTxMonitor = function(){
+		return openModal({
+			size: 'md'
+			,templateUrl: 'txMonitorModal.html'
+			,controller: 'txMonitorModalController'
+			,resolve:{
+				args:function(){
+					return arguments
 				}
 			}
 	    });

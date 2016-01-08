@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').controller('ImportStoreModalController',function($scope,$modalInstance,growl,user,safemarket){
+angular.module('app').controller('ImportStoreModalController',function($scope,$modalInstance,growl,user,utils){
 
 
 	$scope.cancel = function(){
@@ -9,7 +9,7 @@ angular.module('app').controller('ImportStoreModalController',function($scope,$m
 
 	$scope.submit = function(){
 		try{
-			safemarket.utils.check({
+			utils.check({
 				alias:$scope.alias
 			},{
 				alias:{
