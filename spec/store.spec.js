@@ -31,6 +31,8 @@ describe('store modal',function(){
         element(by.css('[ng-click="addTransport()"]')).click(0)
         element.all(by.css('[ng-model="transport.type"]')).get(0).sendKeys('Basic')
         element.all(by.css('[ng-model="transport.price"]')).get(0).sendKeys('1.00')
+        element.all(by.css('[ng-model="transport.shipsFrom"]')).get(0).sendKeys('Australia')
+        element.all(by.css('[ng-model="transport.shipsTo"]')).get(0).sendKeys('Bahrain')
         element(by.css('[ng-click="submit()"]')).click()
         element(by.css('[ng-click="approve()"]')).click()
         element(by.css('[ng-href*="#/stores/"]')).click()

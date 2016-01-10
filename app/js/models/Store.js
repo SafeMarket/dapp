@@ -132,21 +132,27 @@ Store.check = function(alias,affiliatePercentage,meta){
 	meta.transports.forEach(function(transport){
 		utils.check(transport,{
 			id:{
-				presence:true
-				,type:'string'
-				,numericality:{
-					integerOnly:true
-					,greaterThanOrEqualTo:0
-				}
+				presence:true,
+				type:'string',
+				numericality:{
+					integerOnly:true,
+					greaterThanOrEqualTo:0
+				},
 			},type:{
-				presence:true
-				,type:'string'
+				presence:true,
+				type:'string'
 			},price:{
-				presence:true
-				,type:'string'
-				,numericality:{
+				presence:true,
+				type:'string',
+				numericality:{
 					greaterThanOrEqualTo:0
 				}
+			},shipsFrom:{
+				presence:true,
+				type:'string'
+			},shipsTo:{
+				presence:true,
+				type:'string'
 			}
 		},'Transport')
 	})
@@ -167,9 +173,9 @@ Store.prototype.setMeta = function(meta){
 		,store = this
 
 	txMonitor.propose(
-		'Update a Store'
-		,this.contract.setMeta
-		,[meta]
+		'Update a Store',
+		this.contract.setMeta,
+		[meta]
 	).then(function(txReciept){
 		store.update().then(function(){
 			deferred.resolve(store)

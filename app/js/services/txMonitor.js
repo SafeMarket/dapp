@@ -11,13 +11,11 @@ angular.module('app').service('txMonitor',function($interval, $modal, $q, $modal
 	}
 
 	this.waitForTx = function(hex){
-    console.log("hello world");
 		var deferred = $q.defer()
 
 		waitInterval = $interval(function(){
 
 			var receipt = web3.eth.getTransactionReceipt(hex)
-      console.log("receipt",receipt);
 			if(receipt){
 				$interval.cancel(waitInterval)
 				deferred.resolve(receipt)

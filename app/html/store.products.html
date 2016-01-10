@@ -36,6 +36,7 @@
 				<select ng-model="transport" ng-options="getTransportLabel(transport) for transport in store.meta.transports" class="form-control"></select>
 			</td>
 			<td>
+        Ships: {{transport.shipsFrom}} -> {{transport.shipsTo}}
 			</td>
 			<td>
 				<amounts

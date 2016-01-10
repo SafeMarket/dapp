@@ -1,4 +1,4 @@
-angular.module('app').controller('ProductsController',function($scope,$filter,utils,Submarket,helpers,growl,user){
+angular.module('app').controller('ProductsController',function($scope,$filter,utils,AffiliateReg,Order,Submarket,helpers,growl,user){
 
 	$scope.$watch('submarketAddr',function(submarketAddr){
 
@@ -17,30 +17,32 @@ angular.module('app').controller('ProductsController',function($scope,$filter,ut
 	})
 
 	$scope.getTransportLabel = function(transport){
-		var priceInUserCurrency = utils.convertCurrency(transport.price,{from:$scope.store.meta.currency,to:user.data.currency})
-			,priceFormatted = $filter('currency')(priceInUserCurrency,user.data.currency)
+		var priceInUserCurrency = utils.convertCurrency(transport.price,{from:$scope.store.meta.currency,to:user.data.currency}),
+			priceFormatted = $filter('currency')(priceInUserCurrency,user.data.currency)
 
-		return transport.type+' ('+priceFormatted+')'
+		return transport.type+'->'+transport.shipsTo+' ('+priceFormatted+')'
 	}
 
 	$scope.createOrder = function(){
 
 		var meta = {
-			currency:$scope.store.meta.currency
-			,products:[]
-			,transport:{
-				id:$scope.transport.id
-				,type:$scope.transport.type
-				,price:$scope.transport.price.toString()
+			currency:$scope.store.meta.currency,
+			products:[],
+			transport:{
+				id:$scope.transport.id,
+				type:$scope.transport.type,
+				price:$scope.transport.price.toString(),
+        shipsFrom:$scope.transport.shipsFrom,
+        shipsTo:$scope.transport.shipsTo
 			}
-		},storeAddr = $scope.store.addr
-		,submarketAddr = $scope.submarketAddr
-		,feePercentage = $scope.submarket ? $scope.submarket.meta.feePercentage : '0'
-		,disputeSeconds = parseInt($scope.store.meta.disputeSeconds)
-		,productsTotal = new BigNumber(0)
-		,affiliateAddr = ""
-
-		if($scope.affiliateAlias.length == 0)
+		},storeAddr = $scope.store.addr,
+		submarketAddr = $scope.submarketAddr,
+		feePercentage = $scope.submarket ? $scope.submarket.meta.feePercentage : '0',
+		disputeSeconds = parseInt($scope.store.meta.disputeSeconds),
+		productsTotal = new BigNumber(0),
+		affiliateAddr = ''
+    console.log(meta);
+		if($scope.affiliateAlias.length === 0)
 			affiliateAddr = storeAddr
 		else
 			affiliateAddr = AffiliateReg.contract.getAddr.call($scope.affiliateAlias)
@@ -60,7 +62,7 @@ angular.module('app').controller('ProductsController',function($scope,$filter,ut
 		})
 
 		try{
-			Order.check(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,affiliateAddr)
+			Order.check(meta,storeAddr,submarketAddr,feePercentage,disputeSeconds,affiliateAddr)
 		}catch(e){
 			growl.addErrorMessage(e)
 			return
@@ -73,7 +75,7 @@ angular.module('app').controller('ProductsController',function($scope,$filter,ut
 
 
 
-		Order.create(meta,storeAddr,marketAddr,feePercentage,disputeSeconds,affiliateAddr).then(function(order){
+		Order.create(meta,storeAddr,submarketAddr,feePercentage,disputeSeconds,affiliateAddr).then(function(order){
 			window.location.hash = "#/orders/"+order.addr
 			user.data.orderAddrs.push(order.addr)
 			user.save()

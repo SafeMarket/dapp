@@ -117,7 +117,13 @@ Order.check = function(meta,storeAddr,submarketAddr,feePercentage,disputeSeconds
 			,numericality:{
 				greaterThanOrEqualTo:0
 			}
-		}
+		},shipsFrom:{
+			presence:true
+			,type:'string'
+    },shipsTo:{
+			presence:true
+			,type:'string'
+    }
 	},'Transport')
 
 	utils.check({

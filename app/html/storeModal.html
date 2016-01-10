@@ -138,6 +138,22 @@
           </td>
         </tr>
         <tr>
+          <td>Ships From</td>
+          <td>
+            <select class="form-control" ng-model="transport.shipsFrom">
+              <option value="{{country}}" ng-repeat="country in countries">{{country}}</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Ships To</td>
+          <td>
+            <select class="form-control" ng-model="transport.shipsTo">
+              <option value="{{country}}" ng-repeat="country in countries">{{country}}</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
           <td colspan="2" class="text-right">
             <button class="btn btn-danger btn-sm" ng-click="transports.splice($index,1)">Delete</button>
           </td>
