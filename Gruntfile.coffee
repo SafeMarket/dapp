@@ -210,6 +210,19 @@ module.exports = (grunt) ->
           "package.json"
         ]
 
+      modules: 
+        src: [
+          "node_modules/electron/**/*"
+          "node_modules/q/**/*"
+          "modules/**/*"
+        ]
+
+      bin: 
+        src: [
+          "bin/geth"
+          "bin/geth.exe"
+        ]
+
       web3:
         "app/js/web3.js"
 
@@ -334,6 +347,14 @@ module.exports = (grunt) ->
         files: [
           {expand: true, src: ["<%= files.electron.src %>"], dest: 'generated/dapp/', flatten: true}
         ]
+      bin:
+        files: [
+          {expand: true, src: ["<%= files.bin.src %>"], dest: 'generated/dapp/bin', flatten: true}
+        ]
+      modules:
+        files: [
+          {expand: true, src: ["<%= files.modules.src %>"], dest: 'generated/dapp/', flatten: false}
+        ]
       html:
         files: [
           {expand: true, src: ["<%= files.html.src %>"], dest: 'generated/dapp/', flatten: true}
@@ -382,7 +403,7 @@ module.exports = (grunt) ->
   # Loads all plugins that match "grunt-", in this case all of our current plugins
   require('matchdep').filterAll('grunt-*').forEach(grunt.loadNpmTasks);
 
-  env = if grunt.cli.tasks.indexOf('release')>-1 || grunt.cli.tasks.indexOf('quickrelease')>-1 || grunt.cli.tasks.indexOf('superquickrelease')>-1 then 'production' else grunt.option('env');
+  env = if grunt.cli.tasks.indexOf('release')>-1 || grunt.cli.tasks.indexOf('quickrelease')>-1 || grunt.cli.tasks.indexOf('superquickrelease')>-1 then 'production' else grunt.option('env') || 'development';
 
   grunt.registerTask "re", ["github-release"]
   

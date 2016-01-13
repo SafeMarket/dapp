@@ -1,6 +1,7 @@
-var app = require('app');  // Module to control application life.
-var BrowserWindow = require('browser-window');  // Module to create native browser window.
-var Menu = require('menu');
+var app = require('app')
+  ,BrowserWindow = require('browser-window')
+  ,Menu = require('menu')
+  ,Geth = require('./modules/Geth.js')
 
 // Report crashes to our server.
 require('crash-reporter').start();
@@ -104,6 +105,18 @@ if (process.platform == 'darwin') {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
+
+  var Geth = require('./modules/geth.js')
+
+  geth = new Geth('geth','--datadir /Users/aakilfernandes/SafeMarket/')
+
+  geth.quickstart('password').then(function(){
+    console.log('yeah!!!')
+  })
+
+  app.on('before-quit',function(){
+    geth.kill()
+  })
 
   menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);

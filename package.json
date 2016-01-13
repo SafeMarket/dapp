@@ -49,8 +49,11 @@
     "tcp-port-used": "^0.1.2"
   },
   "dependencies": {
+    "express": "^4.13.3",
+    "geth": "^0.2.2",
     "jasmine-fail-fast": "^2.0.0",
     "protractor": "^2.5.1",
+    "q": "^1.4.1",
     "solc": "^0.1.6"
   }
 }
