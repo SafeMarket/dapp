@@ -2,6 +2,8 @@
 
 angular.module('app').factory('Key',function(utils,$q){
 
+	var Keystore = web3.eth.contract(contracts.Keystore.abi).at(contracts.Keystore.address)
+
 	function Key(dataHex,timestamp){
 		this.timestamp = timestamp
 		this.data = web3.toAscii(dataHex)

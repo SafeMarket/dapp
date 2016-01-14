@@ -17,6 +17,7 @@ development:
     deploy: false
   OpenStore:
     onDeploy:
+      - OpenStore = web3.eth.contract(contracts.OpenStore.abi).at(contracts.OpenStore.address);
       - OpenStore.set('CMC:TETH:USD', new BigNumber('830075000000'));
       - OpenStore.set('CMC:TETH:EUR', new BigNumber('782024448475'));
       - OpenStore.set('CMC:TETH:CNY', new BigNumber('5311462328050'));

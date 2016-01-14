@@ -1,6 +1,8 @@
 var app = angular.module('app',['ui.bootstrap','ui.router','angular-growl','ngRoute','yaru22.angular-timeago','hc.marked']);
 
 app.config(function(growlProvider,$stateProvider, $urlRouterProvider) {
+
+    web3.setProvider(new web3.providers.HttpProvider('http://'+blockchain.rpcHost+':'+blockchain.rpcPort));
     
     growlProvider.globalTimeToLive(3000);
 

@@ -3,6 +3,7 @@
 angular.module('app').service('utils',function(ticker,$q,$timeout){
 
 	var utils = this
+		,AliasReg = web3.eth.contract(contracts.AliasReg.abi).at(contracts.AliasReg.address)
 
 	function sanitize(string){
 		return string.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;');
@@ -248,8 +249,8 @@ angular.module('app').service('utils',function(ticker,$q,$timeout){
 		,getTypeOfAlias:getTypeOfAlias
 		,getTypeOfAddr:getTypeOfAddr
 		,runtimeBytecodes:{
-			Store: '0x'+contractDB.Store.compiled.runtimeBytecode
-			,Submarket: '0x'+contractDB.Submarket.compiled.runtimeBytecode
+			Store: contracts.Store.runtimeBytecode
+			,Submarket: contracts.Submarket.runtimeBytecode
 		},validateAddr:validateAddr
 		,validateAlias:validateAlias
 		,getContract:getContract
