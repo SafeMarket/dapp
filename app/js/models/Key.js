@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').factory('Key',function(utils,$q){
+angular.module('app').factory('Key',function(utils,$q,Keystore){
 
 	function Key(dataHex,timestamp){
 		this.timestamp = timestamp

@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').service('utils',function(ticker,$q,$timeout){
+angular.module('app').service('utils',function(ticker,$q,$timeout,AliasReg){
 
 	var utils = this
 
@@ -248,8 +248,8 @@ angular.module('app').service('utils',function(ticker,$q,$timeout){
 		,getTypeOfAlias:getTypeOfAlias
 		,getTypeOfAddr:getTypeOfAddr
 		,runtimeBytecodes:{
-			Store: '0x'+contractDB.Store.compiled.runtimeBytecode
-			,Submarket: '0x'+contractDB.Submarket.compiled.runtimeBytecode
+			Store: contracts.Store.runtimeBytecode
+			,Submarket: contracts.Submarket.runtimeBytecode
 		},validateAddr:validateAddr
 		,validateAlias:validateAlias
 		,getContract:getContract

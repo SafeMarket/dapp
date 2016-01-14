@@ -301,7 +301,7 @@ module.exports = (grunt) ->
 
     concat:
       app:
-        src: ["app/js/refresh.js","<%= files.web3 %>", 'generated/tmp/abi.js', "<%= files.js.src %>", "<%= files.coffee.compiled %>"]
+        src: ["app/js/refresh.js","<%= files.web3 %>", 'generated/tmp/info.js', "<%= files.js.src %>", "<%= files.coffee.compiled %>"]
         dest: "generated/dapp/js/app.min.js"
       css:
         src: "<%= files.css.src %>"
@@ -396,7 +396,7 @@ module.exports = (grunt) ->
 
     deploy:
       contracts: '<%= files.contracts.src %>'
-      dest: 'generated/tmp/abi.js'
+      dest: 'generated/tmp/info.js'
   )
 
   # loading external tasks (aka: plugins)

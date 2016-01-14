@@ -10,8 +10,8 @@ function Order(addr){
 
 window.Order = Order
 
-Order.prototype.code = Order.code = '0x'+contractDB.Order.compiled.code
-Order.prototype.abi = Order.abi = contractDB.Order.compiled.info.abiDefinition
+Order.prototype.code = Order.code = contracts.Order.code
+Order.prototype.abi = Order.abi = contracts.Order.abi
 Order.prototype.contractFactory = Order.contractFactory = web3.eth.contract(Order.abi)
 
 Order.create = function(meta,storeAddr,submarketAddr,feePercentage,disputeSeconds){

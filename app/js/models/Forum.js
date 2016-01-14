@@ -8,8 +8,8 @@ angular.module('app').factory('Forum',function($q,utils,CommentsGroup){
 		this.updatePromise = this.update()
 	}
 
-	Forum.prototype.code = Forum.code = '0x'+contractDB.Forum.compiled.code
-	Forum.prototype.abi = Forum.abi = contractDB.Forum.compiled.info.abiDefinition
+	Forum.prototype.code = Forum.code = contracts.Forum.code
+	Forum.prototype.abi = Forum.abi = contracts.Forum.abi
 
 	Forum.prototype.update = function(){
 		var deferred = $q.defer()

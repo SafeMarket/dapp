@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').factory('Submarket',function(utils,ticker,$q,Store,Key,Forum,txMonitor){
+angular.module('app').factory('Submarket',function(utils,ticker,$q,Store,Key,Forum,txMonitor,AliasReg){
 
 function Submarket(addr){
 	this.addr = addr
@@ -11,9 +11,9 @@ function Submarket(addr){
 
 window.Submarket = Submarket
 
-Submarket.prototype.code = Submarket.code = '0x'+contractDB.Submarket.compiled.code
+Submarket.prototype.code = Submarket.code = contracts.Submarket.code
 Submarket.prototype.runtimeBytecode = Submarket.runtimeBytecode = utils.runtimeBytecodes.Submarket
-Submarket.prototype.abi = Submarket.abi = contractDB.Submarket.compiled.info.abiDefinition
+Submarket.prototype.abi = Submarket.abi = contracts.Submarket.abi
 Submarket.prototype.contractFactory = Submarket.contractFactory = web3.eth.contract(Submarket.abi)
 
 Submarket.create = function(alias,meta){
