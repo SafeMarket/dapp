@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').factory('Submarket',function(utils,ticker,$q,Store,Key,Forum,txMonitor){
+angular.module('app').factory('Submarket',function(utils,ticker,$q,Store,Key,Forum,txMonitor,AliasReg){
 
 function Submarket(addr){
 	this.addr = addr

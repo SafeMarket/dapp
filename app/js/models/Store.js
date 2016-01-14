@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').factory('Store',function($q,utils,ticker,Key,txMonitor){
+angular.module('app').factory('Store',function($q,utils,ticker,Key,txMonitor,AliasReg){
 
 var currencies = Object.keys(ticker.rates)
 

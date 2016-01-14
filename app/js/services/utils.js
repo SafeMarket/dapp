@@ -1,9 +1,8 @@
 (function(){
 
-angular.module('app').service('utils',function(ticker,$q,$timeout){
+angular.module('app').service('utils',function(ticker,$q,$timeout,AliasReg){
 
 	var utils = this
-		,AliasReg = web3.eth.contract(contracts.AliasReg.abi).at(contracts.AliasReg.address)
 
 	function sanitize(string){
 		return string.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;');

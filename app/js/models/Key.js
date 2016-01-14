@@ -1,8 +1,6 @@
 (function(){
 
-angular.module('app').factory('Key',function(utils,$q){
-
-	var Keystore = web3.eth.contract(contracts.Keystore.abi).at(contracts.Keystore.address)
+angular.module('app').factory('Key',function(utils,$q,Keystore){
 
 	function Key(dataHex,timestamp){
 		this.timestamp = timestamp
