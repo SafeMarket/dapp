@@ -107,12 +107,7 @@ if (process.platform == 'darwin') {
 app.on('ready', function() {
 
   var Geth = require('./modules/geth.js')
-
-  geth = new Geth('geth','--datadir /Users/aakilfernandes/SafeMarket/')
-
-  geth.quickstart('password').then(function(){
-    console.log('yeah!!!')
-  })
+    ,geth = new Geth('./bin/geth','--datadir /Users/aakilfernandes/SafeMarket/')
 
   app.on('before-quit',function(){
     geth.kill()
@@ -121,20 +116,18 @@ app.on('ready', function() {
   menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
 
-  // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600});
+  var mainWindow = new BrowserWindow({width: 800, height: 600});
 
-  // and load the index.html of the app.
   mainWindow.loadUrl('file://' + __dirname + '/index.html');
 
-  // Open the DevTools.
-  //mainWindow.webContents.openDevTools();
-
-  // Emitted when the window is closed.
   mainWindow.on('closed', function() {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
     mainWindow = null;
   });
+
+  geth.quickstart('password').then(function(){
+    console.log('================================== geth ready ==================================')
+  },function(message){
+    console.log(message)
+    mainWindow.webContents.executeJavaScript("alert('"+message.trim()+"');window.close();");
+  })
 });

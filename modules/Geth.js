@@ -92,7 +92,7 @@ Geth.prototype.startRpc = function(account,password){
 		geth.deletePasswordFile()
 
 		if(data.indexOf('Fatal')>-1)
-			deferred.reject()
+			deferred.reject(data)
 	},function(data){
 		if(data.indexOf('imported')>-1)
 			deferred.resolve()
