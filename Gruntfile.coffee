@@ -21,6 +21,7 @@ module.exports = (grunt) ->
     ,"grunt-wait"
     ,"grunt-prompt"
     ,"grunt-rename"
+    ,"grunt-file-exists"
   )
 
   grunt.loadTasks "tasks"
@@ -397,6 +398,8 @@ module.exports = (grunt) ->
     deploy:
       contracts: '<%= files.contracts.src %>'
       dest: 'generated/tmp/info.js'
+    fileExists:
+      bin: ["<%= files.bin.src %>"]
   )
 
   # loading external tasks (aka: plugins)
@@ -411,6 +414,7 @@ module.exports = (grunt) ->
   grunt.registerTask "build", ["copy", "clean:workspaces", "deploy_contracts:"+env, "coffee", "concat", "copy"]
   grunt.registerTask "release", [
     "node_version"
+    "fileExists:bin"
     "checkport"
     "gitcheckout:master"
     "gitadd:all"
@@ -424,39 +428,6 @@ module.exports = (grunt) ->
     "electron"
     "compress"
     "readme"
-    "gitadd:all"
-    "gitcommit:release"
-    "tagrelease"
-    "gitpush:master"
-    "wait:ten"
-    "githubAsset"
-  ]
-
-  grunt.registerTask "quickrelease", [
-    "gitcheckout:master"
-    "gitadd:all"
-    "gitstatuscheck"
-    "prompt:release"
-    "version::patch"
-    "build"
-    "clean:packages"
-    "electron"
-    "compress"
-    "readme"
-    "gitadd:all"
-    "gitcommit:release"
-    "tagrelease"
-    "gitpush:master"
-    "wait:ten"
-    "githubAsset"
-  ]
-
-  grunt.registerTask "superquickrelease", [
-    "gitcheckout:master"
-    "gitadd:all"
-    "gitstatuscheck"
-    "prompt:release"
-    "version::patch"
     "gitadd:all"
     "gitcommit:release"
     "tagrelease"

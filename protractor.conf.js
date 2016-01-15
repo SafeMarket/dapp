@@ -19,6 +19,6 @@ exports.config = {
 	    jasmine.getEnv().addReporter(
 	    	new jasmine.JUnitXmlReporter(reportsDir, true, true, 'report.')
 	    );
-	}
+	},rootElement:'#app'
 
 }

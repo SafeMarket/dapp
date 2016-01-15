@@ -2,16 +2,18 @@ describe('submarket',function(){
 
 var submarketAlias = 'drinksubmarket'+Math.floor(Math.random()*999999)
 
-describe('safesubmarket',function(){
-    it('should exist on port 8000',function(){
-        browser.get('http://localhost:8000');
-    })
+it('should bootstrap',function(){
+    browser.get('http://localhost:8000');
+
+    browser.wait(function() {
+       return element(by.css('h1')).isDisplayed()
+    }, 1000);
 })
 
 describe('submarket modal',function(){
     it('should open when the submarket modal button is clicked',function(){
         element(by.css('[ng-click="openSubmarketModal()"]')).click()
-        var currentController = browser.executeScript("return angular.element(document.body).injector().get('modals').currentController")
+        var currentController = browser.executeScript("return angular.element(document.getElementById('app')).injector().get('modals').currentController")
         expect(currentController).toBe('SubmarketModalController')
     })
 

@@ -1,9 +1,16 @@
 describe('auth',function(){
 
+it('should bootstrap',function(){
+    browser.get('http://localhost:8000');
+
+    browser.wait(function() {
+       return element(by.css('h1')).isDisplayed()
+    }, 1000);
+})
+
 describe('account reset', function() {
 
     it('should have a button in the settigns menu', function() {
-        browser.get('http://localhost:8000');
         element(by.css('[ng-click="openSettingsModal()"]')).click();
         var resetButtonPresence = element(by.css('[ng-click="reset()"]')).isPresent();
         expect(resetButtonPresence).toBe(true);
@@ -22,7 +29,7 @@ describe('account reset', function() {
     })
 
     it('should reset the password',function(){
-        var password = browser.executeScript("return angular.element(document.body).injector().get('user').password")
+        var password = browser.executeScript("return angular.element(document.getElementById('app')).injector().get('user').password")
         expect(password).toBeFalsy()
     })
 
@@ -75,7 +82,7 @@ describe('registration', function() {
     it('should create a user with a password of "password"',function(){
         element.all(by.css('#registerForm [type="text"]')).get(1).sendKeys('word')
         element(by.css('#registerForm')).submit()
-        var password = browser.executeScript("return angular.element(document.body).injector().get('user').password")
+        var password = browser.executeScript("return angular.element(document.getElementById('app')).injector().get('user').password")
         expect(password).toBe('password')
     })
 
@@ -84,17 +91,17 @@ describe('registration', function() {
     })
 
     it('should open the settings modal',function(){
-        var currentController = browser.executeScript("return angular.element(document.body).injector().get('modals').currentController")
+        var currentController = browser.executeScript("return angular.element(document.getElementById('app')).injector().get('modals').currentController")
         expect(currentController).toBe('SettingsModalController');
     })
 
     it('should set the default account to web3.eth.defaultAccount',function(){
-        var accountMatches = browser.executeScript("return angular.element(document.body).injector().get('user').data.account === web3.eth.defaultAccount")
+        var accountMatches = browser.executeScript("return angular.element(document.getElementById('app')).injector().get('user').data.account === web3.eth.defaultAccount")
         expect(accountMatches).toEqual(true)
     })
 
     it('should set the default currency to usd',function(){
-        var currency = browser.executeScript("return angular.element(document.body).injector().get('user').data.currency")
+        var currency = browser.executeScript("return angular.element(document.getElementById('app')).injector().get('user').data.currency")
         expect(currency).toEqual('USD')
     })
 })
@@ -102,7 +109,7 @@ describe('registration', function() {
 describe('logout/login',function(){
 
     it('should work when clicking the logout button',function(){
-        browser.executeScript("angular.element(document.body).injector().get('modals').closeInstance()")
+        browser.executeScript("angular.element(document.getElementById('app')).injector().get('modals').closeInstance()")
         browser.waitForAngular()
         element(by.css('[ng-click="logout()"]')).click()
     })
