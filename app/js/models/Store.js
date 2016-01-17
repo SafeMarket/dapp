@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').factory('Store',function($q,utils,ticker,Key,txMonitor){
+angular.module('app').factory('Store',function($q,utils,ticker,Key,txMonitor,AliasReg){
 
 var currencies = Object.keys(ticker.rates)
 
@@ -13,9 +13,9 @@ function Store(addrOrAlias){
 
 window.Store = Store
 
-Store.prototype.code = Store.code = '0x'+contractDB.Store.compiled.code
+Store.prototype.code = Store.code = contracts.Store.code
 Store.prototype.runtimeBytecode = Store.runtimeBytecode = utils.runtimeBytecodes.Store
-Store.prototype.abi = Store.abi = contractDB.Store.compiled.info.abiDefinition
+Store.prototype.abi = Store.abi = contracts.Store.abi
 Store.prototype.contractFactory = Store.contractFactory = web3.eth.contract(Store.abi)
 
 Store.create = function(alias,affiliatePercentage,meta){

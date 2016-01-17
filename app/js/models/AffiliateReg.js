@@ -2,15 +2,13 @@
 
 angular.module('app').factory('AffiliateReg',function($q,utils,txMonitor){
 
-    var oldAffiliateReg = window.AffiliateReg
     function AffiliateReg(){
-			this.addr = oldAffiliateReg.address
-			this.contract = oldAffiliateReg
+			this.addr = AffiliateReg.address
+			this.contract = web3.eth.contract(contracts.AffiliateReg.abi).at(contracts.AffiliateReg.address)
 		}
 
-		AffiliateReg.prototype.code = AffiliateReg.code = '0x'+contractDB.AffiliateReg.compiled.code
-		AffiliateReg.prototype.runtimeBytecode = AffiliateReg.runtimeBytecode = utils.runtimeBytecodes.AffiliateReg
-		AffiliateReg.prototype.abi = AffiliateReg.abi = contractDB.AffiliateReg.compiled.info.abiDefinition
+		AffiliateReg.prototype.code = AffiliateReg.code = contracts.AffiliateReg.code
+	  AffiliateReg.prototype.abi = AffiliateReg.abi = contracts.AffiliateReg.abi
 		AffiliateReg.prototype.contractFactory = AffiliateReg.contractFactory = web3.eth.contract(AffiliateReg.abi)
 
 		window.AffiliateReg = new AffiliateReg()

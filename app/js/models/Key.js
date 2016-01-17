@@ -1,11 +1,12 @@
 (function(){
 
-angular.module('app').factory('Key',function(utils,$q){
+angular.module('app').factory('Key',function(utils,$q,Keystore){
+
 	function Key(dataHex,timestamp){
 		this.timestamp = timestamp
 		this.data = web3.toAscii(dataHex)
-
-		var packetlist = new openpgp.packet.List
+			
+		var packetlist = new openpgp.packet.List		
 		packetlist.read(this.data)
 
 		this.key = new openpgp.key.Key(packetlist)

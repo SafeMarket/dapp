@@ -10,8 +10,8 @@ function Order(addr){
 
 window.Order = Order
 
-Order.prototype.code = Order.code = '0x'+contractDB.Order.compiled.code
-Order.prototype.abi = Order.abi = contractDB.Order.compiled.info.abiDefinition
+Order.prototype.code = Order.code = contracts.Order.code
+Order.prototype.abi = Order.abi = contracts.Order.abi
 Order.prototype.contractFactory = Order.contractFactory = web3.eth.contract(Order.abi)
 
 Order.create = function(meta,storeAddr,submarketAddr,feePercentage,disputeSeconds,affiliateAddr){
@@ -40,7 +40,7 @@ Order.create = function(meta,storeAddr,submarketAddr,feePercentage,disputeSecond
 			console.log('meta added', pgpMessage.packets.write())
 			var meta = pgpMessage.packets.write()
 
-			txMonitor.propose('Create a New Order',Order.contractFactory,[meta,storeAddr,submarketAddr,feePercentage,disputeSeconds,affiliateAddr,OrderBook.address,{data:order.code}]).then(function(receipt){
+			txMonitor.propose('Create a New Order',Order.contractFactory,[meta,storeAddr,submarketAddr,feePercentage,disputeSeconds,affiliateAddr,contracts.OrderBook.address,{data:order.code}]).then(function(receipt){
 				console.log(receipt)
 				var order = new Order(receipt.contractAddress)
 				deferred.resolve(order)

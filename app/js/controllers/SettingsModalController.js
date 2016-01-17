@@ -1,4 +1,4 @@
-angular.module('app').controller('SettingsModalController',function($scope,AffiliateReg,growl,user,ticker,helpers,txMonitor,$modalInstance){
+angular.module('app').controller('SettingsModalController',function($scope,AffiliateReg,growl,user,ticker,helpers,txMonitor,Keystore,$modalInstance){
 
   $scope.currencies = Object.keys(ticker.rates)
   $scope.user = user

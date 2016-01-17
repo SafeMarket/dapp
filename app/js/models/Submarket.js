@@ -1,146 +1,147 @@
 (function(){
 
-  angular.module('app').factory('Submarket',function(utils,ticker,$q,Store,Key,Forum,txMonitor){
-    function Submarket(addr){
-      this.addr = addr
-      this.alias = utils.getAlias(addr)
-      this.contract = this.contractFactory.at(addr)
-      this.updatePromise = this.update()
-    }
+angular.module('app').factory('Submarket',function(utils,ticker,$q,Store,Key,Forum,txMonitor,AliasReg){
 
-    window.Submarket = Submarket
+function Submarket(addr){
+	this.addr = addr
+	this.alias = utils.getAlias(addr)
+	this.contract = this.contractFactory.at(addr)
+	this.updatePromise = this.update()
+}
 
-    Submarket.prototype.code = Submarket.code = '0x'+contractDB.Submarket.compiled.code
-    Submarket.prototype.runtimeBytecode = Submarket.runtimeBytecode = utils.runtimeBytecodes.Submarket
-    Submarket.prototype.abi = Submarket.abi = contractDB.Submarket.compiled.info.abiDefinition
-    Submarket.prototype.contractFactory = Submarket.contractFactory = web3.eth.contract(Submarket.abi)
+window.Submarket = Submarket
 
-    Submarket.create = function(alias,meta){
-      var meta = utils.convertObjectToHex(meta)
-      ,deferred = $q.defer()
+Submarket.prototype.code = Submarket.code = contracts.Submarket.code
+Submarket.prototype.runtimeBytecode = Submarket.runtimeBytecode = utils.runtimeBytecodes.Submarket
+Submarket.prototype.abi = Submarket.abi = contracts.Submarket.abi
+Submarket.prototype.contractFactory = Submarket.contractFactory = web3.eth.contract(Submarket.abi)
 
-      txMonitor.propose(
-        'Create a New Subsubmarket'
-        ,this.contractFactory
-        ,[alias,meta,AliasReg.address,{data:this.code}]
-      ).then(function(txReciept){
-        console.log(txReciept)
-        deferred.resolve(new Submarket(txReciept.contractAddress))
-      })
+Submarket.create = function(alias,meta){
+var meta = utils.convertObjectToHex(meta)
+	,deferred = $q.defer()
 
-      return deferred.promise
-    }
+txMonitor.propose(
+	'Create a New Subsubmarket'
+	,this.contractFactory
+	,[alias,meta,AliasReg.address,{data:this.code}]
+).then(function(txReciept){
+	console.log(txReciept)
+	deferred.resolve(new Submarket(txReciept.contractAddress))
+})
 
-    Submarket.check = function(alias,meta){
+return deferred.promise
+}
 
-      utils.check({alias:alias},{
-        alias:{
-          presence:true
-          ,type:'alias'
-        }
-      })
+Submarket.check = function(alias,meta){
 
-      utils.check(meta,{
-        name:{
-          presence:true
-          ,type:'string'
-        },info:{
-          type:'string'
-        },feePercentage:{
-          presence:true
-          ,type:'string'
-          ,numericality:{
-            integersOnly:true
-            ,greaterThanOrEqualTo:0
-          }
-        },isOpen:{
-          presence:true
-          ,type:'boolean'
-        },storeAddrs:{
-          exists:true
-          ,type:'array'
-          ,unique:true
-        }
-      })
+	utils.check({alias:alias},{
+		alias:{
+			presence:true
+			,type:'alias'
+		}
+	})
 
-      meta.storeAddrs.forEach(function(storeAddr){
-        utils.check({
-          addr:storeAddr
-        },{
-          addr:{
-            presence:true
-            ,type:'address'
-            ,addrOfContract:'Store'
-          }
-        })
+	utils.check(meta,{
+		name:{
+			presence:true
+			,type:'string'
+		},info:{
+			type:'string'
+		},feePercentage:{
+			presence:true
+			,type:'string'
+			,numericality:{
+				integersOnly:true
+				,greaterThanOrEqualTo:0
+			}
+		},isOpen:{
+			presence:true
+			,type:'boolean'
+		},storeAddrs:{
+			exists:true
+			,type:'array'
+			,unique:true
+		}
+	})
 
-      })
-    }
+	meta.storeAddrs.forEach(function(storeAddr){
+		utils.check({
+			addr:storeAddr
+		},{
+			addr:{
+				presence:true
+				,type:'address'
+				,addrOfContract:'Store'
+			}
+		})
 
-
-    Submarket.prototype.set = function(meta){
-
-      var meta = utils.convertObjectToHex(meta)
-      ,deferred = $q.defer()
-      ,submarket = this
-
-      txMonitor.propose(
-        'Update a Subsubmarket'
-        ,this.contract.setMeta
-        ,[meta]
-      ).then(function(txReciept){
-        submarket.update().then(function(){
-          deferred.resolve(submarket)
-        })
-      })
-
-      return deferred.promise
-    }
-
-    Submarket.prototype.getEvents = function(eventName){
-      var deferred = $q.defer()
-
-      this.contract[eventName]({},{fromBlock:0,toBlock:'latest'}).get(function(error,results){
-        if(error)
-        deferred.reject(error)
-        else
-        deferred.resolve(results)
-      })
-
-      return deferred.promise
-    }
+	})
+}
 
 
-    Submarket.prototype.update = function(){
-      var deferred = $q.defer()
-      ,submarket = this
+Submarket.prototype.set = function(meta){
 
-      this.owner = this.contract.owner()
-      this.forumAddr = this.contract.forumAddr()
+	var meta = utils.convertObjectToHex(meta)
+		,deferred = $q.defer()
+		,submarket = this
 
-      this.stores = []
-      this.forum = new Forum(this.forumAddr)
+	txMonitor.propose(
+		'Update a Subsubmarket'
+		,this.contract.setMeta
+		,[meta]
+	).then(function(txReciept){
+		submarket.update().then(function(){
+			deferred.resolve(submarket)
+		})
+	})
 
-      this.getEvents('Meta').then(function(results){
+	return deferred.promise
+}
 
-        submarket.meta = utils.convertHexToObject(results[results.length-1].args.meta)
-        submarket.feePercentage = new BigNumber(submarket.meta.feePercentage)
+Submarket.prototype.getEvents = function(eventName){
+	var deferred = $q.defer()
 
-        deferred.resolve(submarket)
-      },function(error){
-        console.error(error)
-      })
+	this.contract[eventName]({},{fromBlock:0,toBlock:'latest'}).get(function(error,results){
+		if(error)
+			deferred.reject(error)
+		else
+			deferred.resolve(results)
+	})
+
+	return deferred.promise
+}
 
 
-      Key.fetch(this.owner).then(function(key){
-        submarket.key = key
-      })
+Submarket.prototype.update = function(){
+	var deferred = $q.defer()
+		,submarket = this
 
-      return deferred.promise
-    }
+	this.owner = this.contract.owner()
+	this.forumAddr = this.contract.forumAddr()
 
-    return Submarket
+	this.stores = []
+	this.forum = new Forum(this.forumAddr)
 
-  })
+	this.getEvents('Meta').then(function(results){
+
+		submarket.meta = utils.convertHexToObject(results[results.length-1].args.meta)
+		submarket.feePercentage = new BigNumber(submarket.meta.feePercentage)
+
+		deferred.resolve(submarket)
+	},function(error){
+		console.error(error)
+	})
+
+
+	Key.fetch(this.owner).then(function(key){
+		submarket.key = key
+	})
+
+	return deferred.promise
+}
+
+return Submarket
+
+})
 
 })();

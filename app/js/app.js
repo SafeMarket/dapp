@@ -2,6 +2,9 @@ var app = angular.module('app',['ui.bootstrap','ui.router','angular-growl','ngRo
 
 app.config(function(growlProvider,$stateProvider, $urlRouterProvider) {
 
+    web3.setProvider(new web3.providers.HttpProvider('http://'+blockchain.rpcHost+':'+blockchain.rpcPort));
+    web3.eth.defaultAccount = web3.eth.accounts[0]
+    
     growlProvider.globalTimeToLive(3000);
 
     $stateProvider
