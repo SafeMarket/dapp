@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').factory('AffiliateReg',function($q,utils,CommentsGroup){
+angular.module('app').factory('AffiliateReg',function($q,utils,txMonitor){
 
     var oldAffiliateReg = window.AffiliateReg
     function AffiliateReg(){
@@ -15,34 +15,31 @@ angular.module('app').factory('AffiliateReg',function($q,utils,CommentsGroup){
 
 		window.AffiliateReg = new AffiliateReg()
 
-		AffiliateReg.prototype.claimAlias = function(alias, coinbase){
+		AffiliateReg.prototype.claimCode = function(code, coinbase){
 			var deferred = $q.defer()
-			,txObject = {
-				gas:this.contract.claimAlias.estimateGas(alias,coinbase)
-				,gasPrice:web3.eth.gasPrice
-				,from:web3.eth.accounts[0]
-			},txHex = this.contract.claimAlias(alias,coinbase,txObject)
-			,affiliateReg = thisz
+      ,txObject = {
+        gas:this.contract.claimCode.estimateGas(code,coinbase)
+        ,gasPrice:web3.eth.gasPrice
+        ,from:web3.eth.accounts[0]
+      }
 
-			utils.waitForTx(txHex).then(function(tx){
-				affiliateReg.update().then(function(){
-					deferred.resolve(affiliateReg)
-				})
-			},function(error){
-				deferred.reject(error)
-			}).catch(function(error){
-				console.error(error)
-				deferred.reject(error)
-			})
+      txMonitor.propose(
+    		'claim a new Affiliate Code',
+    		this.contract.claimCode,
+    		[code,coinbase,txObject]
+    	).then(function(txReciept){
+    		deferred.resolve(txReciept.contractAddress)
+    	})
 
-			return deferred.promise
+    	return deferred.promise
 		}
 
 		AffiliateReg.prototype.update = function(){
 			var deferred = $q.defer()
 
-			this.addrToAliasMap = this.contract.addrToAliasMap()
-			this.aliasToAddrMap = this.contract.aliasToAddrMap()
+      this.addrToOwnerMap = this.contract.addrToOwnerMap()
+			this.addrToCodeMap = this.contract.addrToCodeMap()
+			this.codeToAddrMap = this.contract.codeToAddrMap()
 			deferred.resolve(this)
 
 			return deferred.promise

@@ -6,7 +6,7 @@ angular.module('app').controller('OrderController',function($scope,Order,pgp,use
 
 		$scope.order = order
 		$scope.displayCurrencies = [order.meta.currency]
-		$scope.affiliate = web3.toAscii(AffiliateReg.contract.getAlias.call(order.affiliate))
+		$scope.affiliate = web3.toAscii(AffiliateReg.contract.getCode.call(order.affiliate))
 
 		if($scope.displayCurrencies.indexOf('ETH') === -1)
 			$scope.displayCurrencies.push('ETH')

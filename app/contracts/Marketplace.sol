@@ -23,24 +23,24 @@ contract OrderBook{
 
 contract AffiliateReg {
 	mapping(address=>address) public addrToOwnerMap;
-	mapping(address=>bytes32) public addrToAliasMap;
-	mapping(bytes32=>address) public aliasToAddrMap;
+	mapping(address=>bytes32) public addrToCodeMap;
+	mapping(bytes32=>address) public codeToAddrMap;
 
-	function claimAlias(bytes32 alias, address addr){
-		if(aliasToAddrMap[alias] != address(0)) throw;
+	function claimCode(bytes32 code, address addr){
+		if(codeToAddrMap[code] != address(0)) throw;
 		//if(addrToAffiliateMap[coinbase].owner != address(0)) throw;
 
-		aliasToAddrMap[alias]=addr;
-		addrToAliasMap[addr]=alias;
+		codeToAddrMap[code]=addr;
+		addrToCodeMap[addr]=code;
 		addrToOwnerMap[addr]=msg.sender;
 	}
 
-	function getAlias(address addr) returns(bytes32){
-		return addrToAliasMap[addr];
+	function getCode(address addr) returns(bytes32){
+		return addrToCodeMap[addr];
 	}
 
-	function getAddr(bytes32 alias) returns(address){
-		return aliasToAddrMap[alias];
+	function getAddr(bytes32 code) returns(address){
+		return codeToAddrMap[code];
 	}
 
 	/*No frontend for these methods has been created
@@ -115,7 +115,7 @@ contract forumable is owned{
 }
 
 contract Forum is owned{
-	
+
 	uint public fee;
 
 	event Comment(address indexed author, bytes32 indexed parentId, bytes data);
@@ -129,7 +129,7 @@ contract Forum is owned{
 		if(msg.sender != owner) throw;
 		fee = _fee;
 	}
-	
+
 }
 
 contract audible is owned{
@@ -150,7 +150,7 @@ contract Submarket is forumable,audible{
 		AliasReg(alasRegAddr).claimAlias(alias);
 		Meta(meta);
 	}
-	
+
 	function setMeta(bytes meta){
 		if(msg.sender!=owner) throw;
 		Meta(meta);
@@ -226,13 +226,13 @@ contract Order{
 	}
 
 	function withdraw(uint amount){
-		
+
 		if(msg.sender != buyer)
 			throw;
-		
+
 		if(status != initialized)
 			throw;
-		
+
 		if(amount>received)
 			throw;
 
@@ -289,7 +289,7 @@ contract Order{
 
 		var isSent = storeOwner.send(this.balance);
 		if(!isSent) throw;
-		
+
 		addUpdate(finalized);
 	}
 
@@ -312,7 +312,7 @@ contract Order{
 
 	function calculateFee() returns (uint){
 		// show your work:
-		
+
 		// 1. fee = products(feePercent)
 			// products = fee/feePercent
 			// products = fee/(feePercentage/100)
@@ -326,7 +326,7 @@ contract Order{
 			// fee = received/((100+feePercentage)/feePercentage)
 			// fee = (received * feePercentage)/(100 + feePercentage)
 
-		
+
 		return (received * feePercentage)/(100 + feePercentage);
 	}
 
@@ -392,7 +392,7 @@ contract Store is forumable,audible{
 	}
 
 	function leaveReview(address orderAddr, uint score, bytes data){
-		
+
 		var order = Order(orderAddr);
 
 		if(order.status() < 3)
@@ -411,13 +411,13 @@ contract Store is forumable,audible{
 
 		if(review.timestamp != 0)
 			scoreCounts[review.score]--;
-		
+
 		review.timestamp = now;
 		review.score = score;
 		scoreCounts[score]++;
 
 		ReviewData(orderAddr, data);
-		
+
 	}
 
 }

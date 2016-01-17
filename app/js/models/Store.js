@@ -20,8 +20,8 @@ Store.prototype.contractFactory = Store.contractFactory = web3.eth.contract(Stor
 
 Store.create = function(alias,affiliatePercentage,meta){
 
-	var meta = utils.convertObjectToHex(meta)
-		,deferred = $q.defer()
+	var meta = utils.convertObjectToHex(meta),
+		deferred = $q.defer()
 
 	txMonitor.propose(
 		'Create a New Store'
@@ -37,8 +37,8 @@ Store.create = function(alias,affiliatePercentage,meta){
 Store.check = function(alias,affiliatePercentage,meta){
 	utils.check({alias:alias},{
 		alias:{
-			presence:true
-			,type:'alias'
+			presence:true,
+			type:'alias'
 		}
 	})
 

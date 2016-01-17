@@ -122,3 +122,8 @@ h3 .btn{float: right}
 	align-self: flex-end;
 	padding: 5px;
 }
+
+.vertical-space {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}

@@ -42,12 +42,12 @@ angular.module('app').controller('ProductsController',function($scope,$filter,ut
 		productsTotal = new BigNumber(0),
 		affiliateAddr = ''
     console.log(meta);
-		if($scope.affiliateAlias.length === 0)
+		if($scope.affiliateCode.length === 0)
 			affiliateAddr = storeAddr
 		else
-			affiliateAddr = AffiliateReg.contract.getAddr.call($scope.affiliateAlias)
+			affiliateAddr = AffiliateReg.contract.getAddr.call($scope.affiliateCode)
 
-		console.log($scope.affiliateAlias, affiliateAddr);
+		console.log($scope.affiliateCode, affiliateAddr);
 		$scope.store.products.forEach(function(product){
 			if(product.quantity===0) return true
 

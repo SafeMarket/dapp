@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <h3 class="modal-title">Settings</h3>
+  <h3 class="modal-title">Settings</h3>
 </div>
 <div class="modal-body">
 
@@ -13,56 +13,56 @@
     <tr>
       <td>Affiliate Accounts</td>
       <td>
-        <select name="affiliateAccount" ng-model="affiliateAccount" ng-options="affiliate for affiliate in accounts" class="form-control"></select>
+        <input ng-model="affiliateAccount" class="form-control vertical-space" placeholder="ethereum adddress" />
+        <select name="affiliateAccount" ng-model="affiliateAccount" ng-options="affiliate for affiliate in allAccounts" class="form-control vertical-space"></select>
       </td>
       <td>
-        <input name="affiliateAlias" ng-model="affiliateAlias"  class="form-control"></select>
+        <input name="affiliateCode" ng-model="affiliateCode"  class="form-control vertical-space" placeholder="affiliate code" />
         <button
-        class="btn"
-        ng-class="btn-default"
-        ng-click="registerAffiliateAlias()"
+        class="btn btn-primary pull-right vertical-space"
+        ng-click="registerAffiliateCode()"
         >
         Save
       </button>
-      </td>
-    </tr>
-    <tr>
-      <td>Balance</td>
-      <td><amounts value="balanceInEther" from="'ETH'" to="displayCurrencies"></amounts>
-      </td>
-    </tr>
-    <tr>
-      <td>Currency</td>
-      <td>
-        <select type="text" ng-model="user.data.currency" class="form-control" ng-options="currency for currency in currencies"></select>
-      </td>
-    </tr>
-  </table>
-  <h3>Keypairs <a ng-click="addKeypair()" class="btn btn-primary btn-xs" ng-show="!isChangingKeys">+</a></h3>
-  <div class="alert alert-danger text-center" ng-show="user.keypairs.length === 0">
-    You should create some keypairs
-  </div>
-  <div class="alert alert-info text-center" ng-show="isChangingKeys">
-    <img src="images/balls.gif"> Updating
-  </div>
-  <table class="table">
-    <tr ng-repeat="keypair in user.keypairs">
-      <td>{{keypair.data.label}}</td>
-      <td timestamp="keypair.data.timestamp/1000"></td>
-      <td style="text-align:right" ng-show="!isChangingKeys">
-        <button
-        class="btn"
-        ng-class=
-        "{'btn-success':keypair.id===user.keypair.id,'btn-default':keypair.id!==user.keypair.id}"
-        ng-click="setPrimaryKeypair($index)"
-        >
-        Primary
-      </button>
-      <button class="btn btn-danger" ng-click="deleteKeypair($index)">
-        Delete
-      </button>
     </td>
   </tr>
+  <tr>
+    <td>Balance</td>
+    <td><amounts value="balanceInEther" from="'ETH'" to="displayCurrencies"></amounts>
+    </td>
+  </tr>
+  <tr>
+    <td>Currency</td>
+    <td>
+      <select type="text" ng-model="user.data.currency" class="form-control" ng-options="currency for currency in currencies"></select>
+    </td>
+  </tr>
+</table>
+<h3>Keypairs <a ng-click="addKeypair()" class="btn btn-primary btn-xs" ng-show="!isChangingKeys">+</a></h3>
+<div class="alert alert-danger text-center" ng-show="user.keypairs.length === 0">
+  You should create some keypairs
+</div>
+<div class="alert alert-info text-center" ng-show="isChangingKeys">
+  <img src="images/balls.gif"> Updating
+</div>
+<table class="table">
+  <tr ng-repeat="keypair in user.keypairs">
+    <td>{{keypair.data.label}}</td>
+    <td timestamp="keypair.data.timestamp/1000"></td>
+    <td class="pull-right" ng-show="!isChangingKeys">
+      <button
+      class="btn"
+      ng-class=
+      "{'btn-success':keypair.id===user.keypair.id,'btn-default':keypair.id!==user.keypair.id}"
+      ng-click="setPrimaryKeypair($index)"
+      >
+      Primary
+    </button>
+    <button class="btn btn-danger" ng-click="deleteKeypair($index)">
+      Delete
+    </button>
+  </td>
+</tr>
 </table>
 <h3>Reset Account</h3>
 <button class="btn btn-danger" ng-click="reset()">Reset Account</button>

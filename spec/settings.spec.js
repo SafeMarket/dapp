@@ -14,11 +14,11 @@ describe('settings modal',function(){
     })
     /*
         it('should save an affiliate alias', function(){
-          element(by.css('[name="affiliateAlias"]')).clear()
-          element(by.css('[name="affiliateAlias"]')).sendKeys('cheese')
-          element(by.css('[name="affiliateAlias"]')).getAttribute('value').then(function(text){
+          element(by.css('[name="affiliateCode"]')).clear()
+          element(by.css('[name="affiliateCode"]')).sendKeys('cheese')
+          element(by.css('[name="affiliateCode"]')).getAttribute('value').then(function(text){
           })
-          element(by.css('[ng-click="registerAffiliateAlias()"]')).click()
+          element(by.css('[ng-click="registerAffiliateCode()"]')).click()
           browser.wait(function() {
             return browser.switchTo().alert().then(
               function() { return true; },
@@ -35,7 +35,7 @@ describe('settings modal',function(){
           var currentController = browser.executeScript("return angular.element(document.body).injector().get('modals').currentController")
           expect(currentController).toBe('SettingsModalController');
 
-          element(by.css('[name="affiliateAlias"]')).getAttribute('value').then(function(text){
+          element(by.css('[name="affiliateCode"]')).getAttribute('value').then(function(text){
             expect(text).toBe("cheese");
           })
         })

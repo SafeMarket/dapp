@@ -6,7 +6,7 @@ angular.module('app')
 	$scope.storeScope = $scope
 
 	//TODO: is this line really necessary?
-	$scope.affiliateAlias = ""
+	$scope.affiliateCode = ""
 	$scope.submarketOptions = [{addr:utils.nullAddr,label:'No escrow'}];
 	$scope.submarketOption = $scope.submarketOptions[0]
 	$scope.storeAddr = $stateParams.storeAddr
