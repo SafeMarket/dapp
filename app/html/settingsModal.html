@@ -13,11 +13,11 @@
     <tr>
       <td>Affiliate Accounts</td>
       <td>
-        <input ng-model="affiliateAccount" class="form-control vertical-space" placeholder="ethereum adddress" />
-        <select name="affiliateAccount" ng-model="affiliateAccount" ng-options="affiliate for affiliate in allAccounts" class="form-control vertical-space"></select>
+        <input ng-model="affiliateCode"  class="form-control vertical-space" placeholder="affiliate code" />
+        <select ng-model="affiliateCode" ng-options="code for code in user.data.affiliateCodes" class="form-control vertical-space"></select>
       </td>
       <td>
-        <input name="affiliateCode" ng-model="affiliateCode"  class="form-control vertical-space" placeholder="affiliate code" />
+        <input ng-model="affiliateAccount" class="form-control vertical-space" placeholder="ethereum adddress" />
         <button
         class="btn btn-primary pull-right vertical-space"
         ng-click="registerAffiliateCode()"

@@ -3,7 +3,6 @@ angular.module('app').controller('SettingsModalController',function($scope,Affil
   $scope.currencies = Object.keys(ticker.rates)
   $scope.user = user
   $scope.accounts = web3.eth.accounts
-  $scope.allAccounts = $scope.accounts.concat(user.data.affiliateAccounts)
   $scope.affiliateAccount = ""
   $scope.affiliateCode = ""
 
@@ -12,12 +11,12 @@ angular.module('app').controller('SettingsModalController',function($scope,Affil
     user.save()
   })
 
-  $scope.$watch('affiliateAccount',function(){
-    var rawCode = AffiliateReg.contract.getCode.call($scope.affiliateAccount)
-    if(rawCode != 0x0)
-      $scope.affiliateCode = web3.toAscii(rawCode)
+  $scope.$watch('affiliateCode',function(){
+    var rawAcc = AffiliateReg.contract.getAddr.call($scope.affiliateCode)
+    if(parseInt(rawAcc,16) === 0)
+      $scope.affiliateAccount = ''
     else {
-        $scope.affiliateCode = ''
+      $scope.affiliateAccount = rawAcc
     }
   })
 
@@ -59,8 +58,7 @@ angular.module('app').controller('SettingsModalController',function($scope,Affil
 
     AffiliateReg.claimCode(code, account).then(function(err, res){
       $scope.isChangingKeys = false
-      user.addAffiliateAccount(account)
-      $scope.allAccounts = $scope.accounts.concat(user.data.affiliateAccounts)
+      user.addAffiliateCode(code)
     })
   }
 

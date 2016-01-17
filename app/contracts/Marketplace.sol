@@ -22,17 +22,24 @@ contract OrderBook{
 }
 
 contract AffiliateReg {
-	mapping(address=>address) public addrToOwnerMap;
+	mapping(bytes32=>address) public codeToOwnerMap;
 	mapping(address=>bytes32) public addrToCodeMap;
 	mapping(bytes32=>address) public codeToAddrMap;
 
 	function claimCode(bytes32 code, address addr){
-		if(codeToAddrMap[code] != address(0)) throw;
-		//if(addrToAffiliateMap[coinbase].owner != address(0)) throw;
+    if(codeToOwnerMap[code] == msg.sender) {
+        var oldAddr = codeToAddrMap[code];
+      	if(addrToCodeMap[oldAddr] == code) addrToCodeMap[oldAddr]= "";
 
+        codeToAddrMap[code]=addr;
+        addrToCodeMap[addr]=code;
+        return;
+    }
+		if(codeToAddrMap[code] != address(0)) throw;
+
+    if(addrToCodeMap[addr] == "") addrToCodeMap[addr]=code;
 		codeToAddrMap[code]=addr;
-		addrToCodeMap[addr]=code;
-		addrToOwnerMap[addr]=msg.sender;
+		codeToOwnerMap[code]=msg.sender;
 	}
 
 	function getCode(address addr) returns(bytes32){

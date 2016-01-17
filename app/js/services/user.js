@@ -75,8 +75,8 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		if(!this.data.account)
 			this.data.account = web3.eth.defaultAccount ? web3.eth.defaultAccount : web3.eth.accounts[0]
 
-    if(!this.data.affiliateAccounts)
-        this.data.affiliateAccounts = []
+    if(!this.data.affiliateCodes)
+        this.data.affiliateCodes = []
 
 		if(!this.data.currency)
 			this.data.currency = 'USD'
@@ -97,8 +97,9 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		this.setStorage(dataEncrypted)
 	}
 
-  this.addAffiliateAccount = function(account){
-      this.data.affiliateAccounts.push(account)
+  this.addAffiliateCode = function(code){
+      if(this.data.affiliateCodes.indexOf(code) == -1)
+        this.data.affiliateCodes.push(code)
       this.save()
   }
 
