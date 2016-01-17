@@ -106,8 +106,15 @@ if (process.platform == 'darwin') {
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
 
+  var binPath = './bin/'+ process.platform +'-'+ process.arch + '/geth'
+
+  if(process.platform === 'win32')
+      binPath += '.exe';
+
+  console.log('binPath',binPath)
+
   var Geth = require('./modules/geth.js')
-    ,geth = new Geth('./bin/geth','--datadir /Users/aakilfernandes/SafeMarket/')
+    ,geth = new Geth(binPath)
 
   app.on('before-quit',function(){
     geth.kill()
@@ -124,10 +131,10 @@ app.on('ready', function() {
     mainWindow = null;
   });
 
-  geth.quickstart('password').then(function(){
+  geth.startRpc().then(function(){
     console.log('================================== geth ready ==================================')
   },function(message){
-    console.log(message)
-    mainWindow.webContents.executeJavaScript("alert('"+message.trim()+"');window.close();");
+    console.log('================================== geth failed ==================================')
+    mainWindow.webContents.executeJavaScript("alert('"+message.trim().split("'").join('"')+"');window.close();");
   })
 });

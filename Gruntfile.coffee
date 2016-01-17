@@ -220,8 +220,7 @@ module.exports = (grunt) ->
 
       bin: 
         src: [
-          "bin/geth"
-          "bin/geth.exe"
+          "bin/**/*"
         ]
 
       web3:
@@ -350,7 +349,7 @@ module.exports = (grunt) ->
         ]
       bin:
         files: [
-          {expand: true, src: ["<%= files.bin.src %>"], dest: 'generated/dapp/bin', flatten: true}
+          {expand: true, src: ["<%= files.bin.src %>"], dest: 'generated/dapp/', flatten: false}
         ]
       modules:
         files: [

@@ -6,7 +6,7 @@ var cp = require('child_process')
 
 function Geth(bin,flags,passwordFilePath){
 	this.bin = bin
-	this.flags = Array.isArray(flags) ? flags : flags.split(' ')
+	this.flags = !flags ? [] : Array.isArray(flags) ? flags : flags.split(' ')
 	this.passwordFilePath = passwordFilePath || '.geth-password'
 }
 
