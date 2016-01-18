@@ -114,7 +114,8 @@ app.on('ready', function() {
   console.log('binPath',binPath)
 
   var Geth = require('./modules/geth.js')
-    ,geth = new Geth(binPath)
+    ,datadir = app.getPath('userData')+'/node'
+    ,geth = new Geth(binPath,['--datadir','"'+datadir+'"'])
 
   app.on('before-quit',function(){
     geth.kill()
