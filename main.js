@@ -115,7 +115,7 @@ app.on('ready', function() {
 
   var Geth = require('./modules/geth.js')
     ,datadir = app.getPath('userData')+'/node'
-    ,geth = new Geth(binPath,['--datadir','"'+datadir+'"'])
+    ,geth = new Geth(binPath,['--datadir',datadir])
 
   app.on('before-quit',function(){
     geth.kill()
@@ -132,7 +132,7 @@ app.on('ready', function() {
     mainWindow = null;
   });
 
-  geth.startRpc().then(function(){
+  geth.quickstart('password').then(function(){
     console.log('================================== geth ready ==================================')
   },function(message){
     console.log('================================== geth failed ==================================')

@@ -5,34 +5,41 @@ var cp = require('child_process')
 	,fs = require('fs')
 
 function Geth(bin,flags,passwordFilePath){
+
+	if(flags && !Array.isArray(flags))
+		throw 'Flags must be an array'
+
+
 	this.bin = bin || 'geth'
 	this.flags = flags || []
 	this.passwordFilePath = passwordFilePath || '.geth-password'
-	console.log(this.flags)
 }
 
-Geth.prototype.run = function(cmd,onStdout,onStderr){ 
-	var cmd = Array.isArray(cmd) ? cmd.join(' ') : cmd
-		,cmd = cmd ? cmd.split(' ') : []
-		,args = this.flags.concat(cmd)
+Geth.prototype.run = function(cmd,onStdout,onStderr){
+
+	if(cmd && !Array.isArray(cmd))
+		throw 'cmd must be an array'
+
+	var args = this.flags.concat(cmd)
 
 	this.proc = cp.spawn(this.bin,args)
-	
-	this.proc.stderr.on("data", function(data){
+
+	this.proc.stdout.on("data", function(data){
+
 		process.stdout.write(data.toString())
+		if(!onStdout) return
+
+		var args = [data.toString()].concat(Array.prototype.slice(arguments))
+		onStdout.apply(this,args)
 	});
 
-	if(onStdout)
-		this.proc.stdout.on("data", function(data){
-			var args = [data.toString()].concat(Array.prototype.slice(arguments))
-			onStdout.apply(this,args)
-		});
+	this.proc.stderr.on("data", function(data){
+		process.stdout.write(data.toString())
+		if(!onStderr) return
 
-	if(onStderr)
-		this.proc.stderr.on("data", function(data){
-			var args = [data.toString()].concat(Array.prototype.slice(arguments))
-			onStderr.apply(this,args)
-		});
+		var args = [data.toString()].concat(Array.prototype.slice(arguments))
+		onStderr.apply(this,args)
+	});
 }
 
 Geth.prototype.getAccounts = function(){
@@ -40,14 +47,14 @@ Geth.prototype.getAccounts = function(){
 		,geth = this
 		,accounts = []
 
-	this.run('account list',function(data){
-		if(data === 'Fatal: Could not list accounts: no keys in store')
+	this.run(['account','list'],function(data){
+		if(data.indexOf('Fatal')>-1)
 			return deferred.resolve(accounts)
 		
 		var lines = data.match(/[^\r\n]+/g)
 
 		lines.forEach(function(line){
-			accounts.push(parseAccountString(line))
+			if(line) accounts.push(parseAccountString(line))
 		})
 	})
 
@@ -75,7 +82,7 @@ Geth.prototype.createAccount = function(password){
 
 	this.createPasswordFile(password)
 
-	this.run(['--password',this.passwordFilePath,'account new'],function(data){
+	this.run(['--password',this.passwordFilePath,'account','new'],function(data){
 		geth.deletePasswordFile()
 		deferred.resolve(parseAccountString(data))
 	})
