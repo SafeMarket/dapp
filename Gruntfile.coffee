@@ -21,6 +21,7 @@ module.exports = (grunt) ->
     ,"grunt-wait"
     ,"grunt-prompt"
     ,"grunt-rename"
+    ,"grunt-file-exists"
   )
 
   grunt.loadTasks "tasks"
@@ -210,6 +211,18 @@ module.exports = (grunt) ->
           "package.json"
         ]
 
+      modules: 
+        src: [
+          "node_modules/electron/**/*"
+          "node_modules/q/**/*"
+          "modules/**/*"
+        ]
+
+      bin: 
+        src: [
+          "bin/**/*"
+        ]
+
       web3:
         "app/js/web3.js"
 
@@ -334,6 +347,16 @@ module.exports = (grunt) ->
         files: [
           {expand: true, src: ["<%= files.electron.src %>"], dest: 'generated/dapp/', flatten: true}
         ]
+      bin:
+        files: [
+          {expand: true, src: ["<%= files.bin.src %>"], dest: 'generated/dapp/', flatten: false}
+        ]
+        options:
+          mode: true
+      modules:
+        files: [
+          {expand: true, src: ["<%= files.modules.src %>"], dest: 'generated/dapp/', flatten: false}
+        ]
       html:
         files: [
           {expand: true, src: ["<%= files.html.src %>"], dest: 'generated/dapp/', flatten: true}
@@ -376,13 +399,15 @@ module.exports = (grunt) ->
     deploy:
       contracts: '<%= files.contracts.src %>'
       dest: 'generated/tmp/info.js'
+    fileExists:
+      bin: ["<%= files.bin.src %>"]
   )
 
   # loading external tasks (aka: plugins)
   # Loads all plugins that match "grunt-", in this case all of our current plugins
   require('matchdep').filterAll('grunt-*').forEach(grunt.loadNpmTasks);
 
-  env = if grunt.cli.tasks.indexOf('release')>-1 || grunt.cli.tasks.indexOf('quickrelease')>-1 || grunt.cli.tasks.indexOf('superquickrelease')>-1 then 'production' else grunt.option('env');
+  env = if grunt.cli.tasks.indexOf('release')>-1 || grunt.cli.tasks.indexOf('quickrelease')>-1 || grunt.cli.tasks.indexOf('superquickrelease')>-1 then 'production' else grunt.option('env') || 'development';
 
   grunt.registerTask "re", ["github-release"]
   
@@ -390,6 +415,7 @@ module.exports = (grunt) ->
   grunt.registerTask "build", ["copy", "clean:workspaces", "deploy_contracts:"+env, "coffee", "concat", "copy"]
   grunt.registerTask "release", [
     "node_version"
+    "fileExists:bin"
     "checkport"
     "gitcheckout:master"
     "gitadd:all"
@@ -403,39 +429,6 @@ module.exports = (grunt) ->
     "electron"
     "compress"
     "readme"
-    "gitadd:all"
-    "gitcommit:release"
-    "tagrelease"
-    "gitpush:master"
-    "wait:ten"
-    "githubAsset"
-  ]
-
-  grunt.registerTask "quickrelease", [
-    "gitcheckout:master"
-    "gitadd:all"
-    "gitstatuscheck"
-    "prompt:release"
-    "version::patch"
-    "build"
-    "clean:packages"
-    "electron"
-    "compress"
-    "readme"
-    "gitadd:all"
-    "gitcommit:release"
-    "tagrelease"
-    "gitpush:master"
-    "wait:ten"
-    "githubAsset"
-  ]
-
-  grunt.registerTask "superquickrelease", [
-    "gitcheckout:master"
-    "gitadd:all"
-    "gitstatuscheck"
-    "prompt:release"
-    "version::patch"
     "gitadd:all"
     "gitcommit:release"
     "tagrelease"

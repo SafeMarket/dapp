@@ -98,6 +98,7 @@ h3 .btn{float: right}
 }
 
 .mainTable{width:100%;}
+<<<<<<< HEAD
 .clear-margin {
 	margin: 0;
 }
@@ -127,3 +128,5 @@ h3 .btn{float: right}
   margin-top: 5px;
   margin-bottom: 5px;
 }
+
+.push-down{margin-top: 20px}

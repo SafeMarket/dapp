@@ -1,6 +1,7 @@
-var app = require('app');  // Module to control application life.
-var BrowserWindow = require('browser-window');  // Module to create native browser window.
-var Menu = require('menu');
+var app = require('app')
+  ,BrowserWindow = require('browser-window')
+  ,Menu = require('menu')
+  ,Geth = require(__dirname+'/modules/Geth.js')
 
 // Report crashes to our server.
 require('crash-reporter').start();
@@ -105,23 +106,36 @@ if (process.platform == 'darwin') {
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
 
+  var binPath = __dirname+'/bin/'+ process.platform +'-'+ process.arch + '/geth'
+
+  if(process.platform === 'win32')
+      binPath += '.exe';
+
+  console.log('binPath',binPath)
+
+  var userdir =  app.getPath('userData')
+    ,datadir = userdir+'/node'
+    ,geth = new Geth(binPath,['--datadir',datadir],userdir+'/.geth-password')
+
+  app.on('before-quit',function(){
+    geth.kill()
+  })
+
   menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
 
-  // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600});
+  var mainWindow = new BrowserWindow({width: 800, height: 600});
 
-  // and load the index.html of the app.
   mainWindow.loadUrl('file://' + __dirname + '/index.html');
 
-  // Open the DevTools.
-  //mainWindow.webContents.openDevTools();
-
-  // Emitted when the window is closed.
   mainWindow.on('closed', function() {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
     mainWindow = null;
   });
+
+  geth.quickstart('password').then(function(){
+    console.log('================================== geth ready ==================================')
+  },function(message){
+    console.log('================================== geth failed ==================================')
+    mainWindow.webContents.executeJavaScript("alert('"+message.trim().split("'").join('"')+"');window.close();");
+  })
 });

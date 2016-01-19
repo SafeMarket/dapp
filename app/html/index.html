@@ -13,40 +13,41 @@
     <link rel="stylesheet" href="css/app.min.css">
     <script src="js/app.min.js"></script>
   </head>
-  <body ng-app="app"><div ng-controller="MainController">
-    <nav class="navbar navbar-default navbar-top navbar-static-top" id="navbar">
+  <body>
+  <div ng-app="splash" class="container">
+    <div class="alert alert-danger text-center push-down" ng-show="!isConnected || !syncing">
+      <img src="images/balls.gif"> Waiting for node to start
+    </div>
+    <div class="alert alert-danger text-center push-down" ng-show="isConnected && syncing.currentBlock < syncing.highestBlock"  ng-cloak>
+      <img src="images/balls.gif"> Your node is still syncing. On block {{syncing.currentBlock}} of {{syncing.highestBlock}}.
+    </div>
+  </div>
+  <div id="app">
+    <div ng-controller="MainController">
+      <nav class="navbar navbar-default navbar-top navbar-static-top" id="navbar" ng-cloak ng-show="isConnected && syncing.currentBlock === syncing.highestBlock">
+        <div class="container">
+          <div class="navbar-header pull-left">
+            <a class="navbar-brand" ng-href="{{isLoggedIn?'#/':'.'}}">SafeMarket</a>
+          </div>
+          <div class="navbar-header pull-right">
+            <button class="navbar-btn btn btn-default btn-lg" ng-click="goBack()" ng-if="isLoggedIn">
+              <span class="glyphicon glyphicon-menu-left"></span>
+            </button>
+            <button class="navbar-btn btn btn-default btn-lg" id="refreshButton">
+              <span class="glyphicon glyphicon-refresh" id="refreshIcon"></span>
+            </button>
+            <button class="navbar-btn btn btn-default btn-lg" ng-if="isLoggedIn" ng-click="openSettingsModal()">
+              <span class="glyphicon glyphicon-cog"></span>
+            </button>
+            <button class="btn btn-default btn-lg" ng-click="logout()" ng-if="isLoggedIn">
+              <span class="glyphicon glyphicon-log-out"></span>
+            </button>
+          </div>
+        </div>
+      </nav>
       <div class="container">
-        <div class="navbar-header pull-left">
-          <a class="navbar-brand" ng-href="{{isLoggedIn?'#/':'.'}}">SafeMarket</a>
-        </div>
-        <div class="navbar-header pull-right">
-          <button class="navbar-btn btn btn-default btn-lg" ng-click="goBack()" ng-if="isLoggedIn">
-            <span class="glyphicon glyphicon-menu-left"></span>
-          </button>
-          <button class="navbar-btn btn btn-default btn-lg" id="refreshButton">
-            <span class="glyphicon glyphicon-refresh" id="refreshIcon"></span>
-          </button>
-          <button class="navbar-btn btn btn-default btn-lg" ng-if="isLoggedIn" ng-click="openSettingsModal()">
-            <span class="glyphicon glyphicon-cog"></span>
-          </button>
-          <button class="btn btn-default btn-lg" ng-click="logout()" ng-if="isLoggedIn">
-            <span class="glyphicon glyphicon-log-out"></span>
-          </button>
-        </div>
-      </div>
-    </nav>
-    <div class="container">
-      <div>
-        <div>
-          <div class="alert alert-danger text-center" ng-show="!isConnected">
-            Warning: Unable to connect. Make sure (1) your geth node is running (2) you entered your password when unlocking your account.
-          </div>
-          <div class="alert alert-danger text-center" ng-show="syncing"  ng-cloak>
-            Your node is still syncing. On block {{syncing.currentBlock}} of {{syncing.highestBlock}}.
-          </div>
-        </div>
-        <div growl></div>
-        <div ui-view autoscroll="true" class="mainView"></div>
+          <div growl></div>
+          <div ui-view autoscroll="true" class="mainView" ng-show="isConnected && syncing.currentBlock === syncing.highestBlock"></div>
       </div>
     </div>
   </div></body>

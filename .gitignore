@@ -9,3 +9,8 @@ packages/
 reports/
 .env.json
 .*% 
+.*
+**/.*
+!/.gitignore
+npm-debug.log
+.DS_Store

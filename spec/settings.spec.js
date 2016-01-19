@@ -1,15 +1,17 @@
 describe('settings',function(){
 
-describe('safemarket',function(){
-    it('should exist on port 8000',function(){
-        browser.get('http://127.0.0.1:8000');
-    })
+it('should bootstrap',function(){
+    browser.get('http://127.0.0.1:8000');
+
+    browser.wait(function() {
+       return element(by.css('h1')).isDisplayed()
+    }, 1000);
 })
 
 describe('settings modal',function(){
     it('should open when the settings button is clicked',function(){
         element(by.css('[ng-click="openSettingsModal()"]')).click()
-        var currentController = browser.executeScript("return angular.element(document.body).injector().get('modals').currentController")
+        var currentController = browser.executeScript("return angular.element(document.getElementById('app')).injector().get('modals').currentController")
         expect(currentController).toBe('SettingsModalController');
     })
     /*
@@ -54,7 +56,7 @@ describe('settings modal',function(){
             );
         });
         browser.switchTo().alert().dismiss();
-        var keypairsCount = browser.executeScript("return angular.element(document.body).injector().get('user').keypairs.length")
+        var keypairsCount = browser.executeScript("return angular.element(document.getElementById('app')).injector().get('user').keypairs.length")
         expect(keypairsCount).toBe(1);
     })
 
@@ -68,7 +70,7 @@ describe('settings modal',function(){
         });
         browser.switchTo().alert().accept();
         element(by.css('[ng-click="approve()"]')).click()
-        var keypairsCount = browser.executeScript("return angular.element(document.body).injector().get('user').keypairs.length")
+        var keypairsCount = browser.executeScript("return angular.element(document.getElementById('app')).injector().get('user').keypairs.length")
         expect(keypairsCount).toBe(2);
 
         browser.wait(function() {
@@ -80,7 +82,7 @@ describe('settings modal',function(){
             return deferred.promise;
         });
         browser.waitForAngular()
-        var keypairMatches = browser.executeScript("var user = angular.element(document.body).injector().get('user'); return user.keypairs[1].id === user.keypair.id")
+        var keypairMatches = browser.executeScript("var user = angular.element(document.getElementById('app')).injector().get('user'); return user.keypairs[1].id === user.keypair.id")
         expect(keypairMatches).toBe(true);
     })
 
@@ -88,7 +90,7 @@ describe('settings modal',function(){
     //     browser.waitForAngular()
     //     element(by.css('[ng-click="deleteKeypair($index)"]')).click()
     //     browser.switchTo().alert().accept();
-    //     var keypairsCount = browser.executeScript("return angular.element(document.body).injector().get('user').keypairs.length")
+    //     var keypairsCount = browser.executeScript("return angular.element(document.getElementById('app')).injector().get('user').keypairs.length")
     //     expect(keypairsCount).toBe(1);
     // })
 })

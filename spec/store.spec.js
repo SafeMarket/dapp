@@ -2,16 +2,18 @@ describe('store',function(){
 
 var storeAlias = 'satoshis'+Math.floor(Math.random()*999999)
 
-describe('safemarket',function(){
-    it('should exist on port 8000',function(){
-        browser.get('http://127.0.0.1:8000');
-    })
+it('should bootstrap',function(){
+    browser.get('http://127.0.0.1:8000');
+
+    browser.wait(function() {
+       return element(by.css('h1')).isDisplayed()
+    }, 1000);
 })
 
 describe('store modal',function(){
     it('should open when the store modal button is clicked',function(){
         element(by.css('[ng-click="openStoreModal()"]')).click()
-        var currentController = browser.executeScript("return angular.element(document.body).injector().get('modals').currentController")
+        var currentController = browser.executeScript("return angular.element(document.getElementById('app')).injector().get('modals').currentController")
         expect(currentController).toBe('StoreModalController')
     })
 
@@ -45,7 +47,7 @@ describe('store modal',function(){
     it('should update to Satoshis Awesome Lemonade Stand Edited',function(){
         browser.waitForAngular()
         element(by.css('[ng-click="openStoreModal(store)"]')).click()
-        var currentController = browser.executeScript("return angular.element(document.body).injector().get('modals').currentController")
+        var currentController = browser.executeScript("return angular.element(document.getElementById('app')).injector().get('modals').currentController")
         expect(currentController).toBe('StoreModalController')
         browser.waitForAngular()
         browser.wait(function() {
@@ -67,10 +69,10 @@ describe('store modal',function(){
 
     // it('should add Satoshis Lemonade Stand',function(){
     //     element(by.css('[ng-click="openMarketModal(market)"]')).click()
-    //     var currentController = browser.executeScript("return angular.element(document.body).injector().get('modals').currentController")
+    //     var currentController = browser.executeScript("return angular.element(document.getElementById('app')).injector().get('modals').currentController")
     //     expect(currentController).toBe('MarketModalController')
     //     element(by.css('[ng-click="addStore()"]')).click()
-    //     var storeAddr = browser.executeScript("return angular.element(document.body).injector().get('user').data.stores[0]")
+    //     var storeAddr = browser.executeScript("return angular.element(document.getElementById('app')).injector().get('user').data.stores[0]")
     //     browser.waitForAngular()
     //     browser.pause()
     //     element(by.css('[ng-model="store.addr"]')).sendKeys(storeAddr)
