@@ -351,6 +351,8 @@ module.exports = (grunt) ->
         files: [
           {expand: true, src: ["<%= files.bin.src %>"], dest: 'generated/dapp/', flatten: false}
         ]
+        options:
+          mode: true
       modules:
         files: [
           {expand: true, src: ["<%= files.modules.src %>"], dest: 'generated/dapp/', flatten: false}

@@ -1,7 +1,7 @@
 var app = require('app')
   ,BrowserWindow = require('browser-window')
   ,Menu = require('menu')
-  ,Geth = require('./modules/Geth.js')
+  ,Geth = require(__dirname+'/modules/Geth.js')
 
 // Report crashes to our server.
 require('crash-reporter').start();
@@ -106,16 +106,16 @@ if (process.platform == 'darwin') {
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
 
-  var binPath = './bin/'+ process.platform +'-'+ process.arch + '/geth'
+  var binPath = __dirname+'/bin/'+ process.platform +'-'+ process.arch + '/geth'
 
   if(process.platform === 'win32')
       binPath += '.exe';
 
   console.log('binPath',binPath)
 
-  var Geth = require('./modules/geth.js')
-    ,datadir = app.getPath('userData')+'/node'
-    ,geth = new Geth(binPath,['--datadir',datadir])
+  var userdir =  app.getPath('userData')
+    ,datadir = userdir+'/node'
+    ,geth = new Geth(binPath,['--datadir',datadir],userdir+'/.geth-password')
 
   app.on('before-quit',function(){
     geth.kill()
