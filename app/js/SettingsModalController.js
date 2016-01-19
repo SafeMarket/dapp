@@ -5,6 +5,7 @@ angular.module('app').controller('SettingsModalController',function($scope,growl
 	$scope.user = user
 
 	$scope.$watch('user.data.account',function(){
+		web3.eth.defaultAccount = user.data.account
 		$scope.balanceInEther = web3.fromWei(web3.eth.getBalance(user.data.account))
 		user.save()
 	})
