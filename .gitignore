@@ -11,3 +11,5 @@ reports/
 .*
 **/.*
 !/.gitignore
+npm-debug.log
+.DS_Store
