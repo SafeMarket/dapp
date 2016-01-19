@@ -76,8 +76,9 @@ app.run(function(user,$rootScope,$interval,$timeout,timeAgo,user){
 
     //if electron
     //TODO: find better way of determining if electron is available
-    if(!window.module){
+    if(!window.isElectron){
         user.password = 'password'
+        user.seed = 'gasp quote useless purity isolate truly scout baby rule nest bridge february'
         $rootScope.isLoggedIn = true
     }
 
@@ -92,7 +93,6 @@ app.run(function(user,$rootScope,$interval,$timeout,timeAgo,user){
 
     function checkConnection(){
         $rootScope.isConnected = web3.isConnected()
-        $rootScope.syncing = web3.eth.syncing
     }
 
     checkConnection()

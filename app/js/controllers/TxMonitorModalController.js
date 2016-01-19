@@ -9,6 +9,8 @@ angular.module('app').controller('TxMonitorModalController',function($scope,$int
 		,isFactory = typeof proposal.contractFactoryOrFunction === 'object'
 
 	console.log(proposal.contractFactoryOrFunction)
+
+	txOptions.gasPrice = web3.eth.gasPrice
 	
 	proposal.value = txOptions.value = txOptions.value || 0
 	proposal.gas = txOptions.gas = txOptions.gas || (proposal.contractFactoryOrFunction.estimateGas.apply(proposal.contractFactoryOrFunction, proposal.args)*2)

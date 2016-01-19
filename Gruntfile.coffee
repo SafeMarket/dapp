@@ -246,16 +246,18 @@ module.exports = (grunt) ->
           "bower_components/angular-marked/angular-marked.js"
           "bower_components/angular-sanitize/angular-sanitize.min.js"
           "bower_components/angular-ui-router/release/angular-ui-router.min.js"
-          "app/js/connection.js"
+          "node_modules/hooked-web3-provider/node_modules/web3/dist/web3.js"
+          "node_modules/hooked-web3-provider/build/hooked-web3-provider.js"
+          "node_modules/eth-lightwallet/dist/lightwallet.min.js"
           "app/js/validators.js"
           "app/js/app.js"
-          "app/js/safemarket.js"
+          "app/js/splash.js"
           "app/js/**/*.js"
         ]
 
       css:
         src: [
-          "bobower_components/angular/angular-csp.css"
+          "bower_components/angular/angular-csp.css"
           "bower_components/bootstrap/dist/css/bootstrap.min.css"
           "assets/slim/dist/styles/main.css"
           "bower_components/angular-growl/build/angular-growl.min.css"

@@ -3,7 +3,7 @@ describe('store',function(){
 var storeAlias = 'satoshis'+Math.floor(Math.random()*999999)
 
 it('should bootstrap',function(){
-    browser.get('http://localhost:8000');
+    browser.get('http://127.0.0.1:8000');
 
     browser.wait(function() {
        return element(by.css('h1')).isDisplayed()
@@ -39,7 +39,7 @@ describe('store modal',function(){
         element(by.css('h1')).getText().then(function(text){
             expect(text.indexOf('Satoshis Lemonade Stand')).toNotEqual(-1)
         })
-        
+
     })
 
     it('should update to Satoshis Awesome Lemonade Stand Edited',function(){
@@ -77,7 +77,7 @@ describe('store modal',function(){
     //     element(by.css('[ng-click="submit()"]')).click()
     //     browser.wait(function() {
     //         return browser.switchTo().alert().then(
-    //             function() { return true; }, 
+    //             function() { return true; },
     //             function() { return false; }
     //         );
     //     });

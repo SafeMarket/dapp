@@ -63,6 +63,25 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 			this.data = {}
 		}
 
+		if(!this.data.seed)
+			this.data.seed = this.seed || lightwallet.keystore.generateRandomSeed();
+
+		var ks = new lightwallet.keystore(this.data.seed, this.password);
+		ks.generateNewAddress(this.password, 20);
+		this.accounts = ks.getAddresses().map(function(addr){
+			return '0x'+addr
+		});
+
+		ks.passwordProvider = function (callback) {
+	  		callback(null, user.password);
+		};
+
+		web3.setProvider(new HookedWeb3Provider({
+		  host: 'http://'+blockchain.rpcHost+':'+blockchain.rpcPort,
+		  transaction_signer: ks
+		}));
+
+
 		if(!this.data.orderAddrs)
 			this.data.orderAddrs = []
 
@@ -73,7 +92,9 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 			this.data.submarketAddrs = []
 
 		if(!this.data.account)
-			this.data.account = web3.eth.defaultAccount ? web3.eth.defaultAccount : web3.eth.accounts[0]
+			this.data.account = this.accounts[0]
+
+		web3.eth.defaultAccount = this.data.account
 
 		if(!this.data.currency)
 			this.data.currency = 'USD'

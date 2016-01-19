@@ -4,10 +4,16 @@
 <div class="modal-body">
     
     <table class="table">
+      <tr>
+            <td>Seed</td>
+            <td>
+                 {{user.data.seed}}
+            </td>
+        </tr>
         <tr>
             <td>Account</td>
             <td>
-                 <select name="account" ng-model="user.data.account" ng-options="account for account in accounts" class="form-control"></select>
+                 <select name="account" ng-model="user.data.account" ng-options="account for account in user.accounts" class="form-control"></select>
             </td>
         </tr>
         <tr>

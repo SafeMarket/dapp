@@ -115,7 +115,7 @@ app.on('ready', function() {
 
   var userdir =  app.getPath('userData')
     ,datadir = userdir+'/node'
-    ,geth = new Geth(binPath,['--datadir',datadir],userdir+'/.geth-password')
+    ,geth = new Geth(binPath,[])
 
   app.on('before-quit',function(){
     geth.kill()
@@ -124,18 +124,19 @@ app.on('ready', function() {
   menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
 
-  var mainWindow = new BrowserWindow({width: 800, height: 600});
+  var mainWindow = new BrowserWindow({width: 800, height: 600, "node-integration": false});
 
   mainWindow.loadUrl('file://' + __dirname + '/index.html');
+  mainWindow.webContents.executeJavaScript("isElectron=true;");
 
   mainWindow.on('closed', function() {
     mainWindow = null;
   });
 
-  geth.quickstart('password').then(function(){
+  geth.startRpc().then(function(){
     console.log('================================== geth ready ==================================')
   },function(message){
     console.log('================================== geth failed ==================================')
-    mainWindow.webContents.executeJavaScript("alert('"+message.trim().split("'").join('"')+"');window.close();");
+    mainWindow.webContents.executeJavaScript("alert('"+message.trim().split("'").join('"')+"');");
   })
 });

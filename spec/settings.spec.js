@@ -1,7 +1,7 @@
 describe('settings',function(){
 
 it('should bootstrap',function(){
-    browser.get('http://localhost:8000');
+    browser.get('http://127.0.0.1:8000');
 
     browser.wait(function() {
        return element(by.css('h1')).isDisplayed()

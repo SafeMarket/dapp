@@ -3,7 +3,6 @@ angular.module('app').controller('SettingsModalController',function($scope,growl
 	$scope.currencies = Object.keys(ticker.rates)
 	
 	$scope.user = user
-	$scope.accounts = web3.eth.accounts
 
 	$scope.$watch('user.data.account',function(){
 		$scope.balanceInEther = web3.fromWei(web3.eth.getBalance(user.data.account))

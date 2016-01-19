@@ -7,7 +7,7 @@
       style-src 'self' 'unsafe-inline';
       font-src 'self';
       img-src 'self';
-      connect-src http://localhost:* file://*;
+      connect-src http://127.0.0.1:* file://*;
     "> 
     <script>alert('XSS vulnerability detected. Close SafeMarket immediately.')</script>
     <link rel="stylesheet" href="css/app.min.css">
@@ -15,16 +15,16 @@
   </head>
   <body>
   <div ng-app="splash" class="container">
-    <div class="alert alert-danger text-center push-down" ng-show="!isConnected || !syncing">
+    <div class="alert alert-danger text-center push-down" ng-show="!isSynced && !syncing">
       <img src="images/balls.gif"> Waiting for node to start
     </div>
-    <div class="alert alert-danger text-center push-down" ng-show="isConnected && syncing.currentBlock < syncing.highestBlock"  ng-cloak>
+    <div class="alert alert-danger text-center push-down" ng-show="!isSynced && syncing.currentBlock < syncing.highestBlock"  ng-cloak>
       <img src="images/balls.gif"> Your node is still syncing. On block {{syncing.currentBlock}} of {{syncing.highestBlock}}.
     </div>
   </div>
   <div id="app">
     <div ng-controller="MainController">
-      <nav class="navbar navbar-default navbar-top navbar-static-top" id="navbar" ng-cloak ng-show="isConnected && syncing.currentBlock === syncing.highestBlock">
+      <nav class="navbar navbar-default navbar-top navbar-static-top" id="navbar" ng-cloak ng-show="isConnected">
         <div class="container">
           <div class="navbar-header pull-left">
             <a class="navbar-brand" ng-href="{{isLoggedIn?'#/':'.'}}">SafeMarket</a>
@@ -47,7 +47,7 @@
       </nav>
       <div class="container">
           <div growl></div>
-          <div ui-view autoscroll="true" class="mainView" ng-show="isConnected && syncing.currentBlock === syncing.highestBlock"></div>
+          <div ui-view autoscroll="true" class="mainView" ng-show="isConnected"></div>
       </div>
     </div>
   </div></body>
