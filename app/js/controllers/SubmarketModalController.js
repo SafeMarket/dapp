@@ -1,7 +1,7 @@
 (function(){
 
 
-angular.module('app').controller('SubmarketModalController',function($scope,ticker,growl,$modal,$modalInstance,submarket,user,helpers,utils,Submarket){
+angular.module('app').controller('SubmarketModalController',function($scope,ticker,growl,$modal,$modalInstance,submarket,user,helpers,utils,Submarket,AliasReg){
 	
 	$scope.stores = []
 

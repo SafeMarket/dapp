@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').controller('ImportSubmarketModalController',function($scope,$modalInstance,growl,user,utils){
+angular.module('app').controller('ImportSubmarketModalController',function($scope,$modalInstance,growl,user,utils,AliasReg){
 
 
 	$scope.cancel = function(){

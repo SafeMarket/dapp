@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').controller('StoreModalController',function($scope,$filter,utils,Store,ticker,growl,$modal,$modalInstance,store,user,helpers){
+angular.module('app').controller('StoreModalController',function($scope,$filter,utils,Store,AliasReg,ticker,growl,$modal,$modalInstance,store,user,helpers){
 	
 	$scope.currencies = Object.keys(ticker.rates)
 	$scope.user = user
