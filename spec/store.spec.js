@@ -29,6 +29,7 @@ it('should create Satoshis Lemonade Stand',function(){
     element.all(by.css('[ng-model="product.name"]')).get(1).sendKeys('Sugar Cookies')
     element.all(by.css('[ng-model="product.price"]')).get(1).sendKeys('1.50')
     element.all(by.css('[ng-model="product.info"]')).get(1).sendKeys('A tasty snack!')
+    element.all(by.css('[ng-model="product.imageUrl"]')).get(1).sendKeys('http://i.imgur.com/CAck7Ox.jpg')
     element(by.css('[ng-click="addTransport()"]')).click(0)
     element.all(by.css('[ng-model="transport.type"]')).get(0).sendKeys('Basic')
     element.all(by.css('[ng-model="transport.price"]')).get(0).sendKeys('1.00')
@@ -70,6 +71,15 @@ it('should update to Satoshis Awesome Lemonade Stand Edited',function(){
     element(by.css('[ng-click="approve()"]')).click()
     element(by.css('h1')).getText().then(function(text){
         expect(text.indexOf('Satoshis Lemonade Stand Edited')).toNotEqual(-1)
+    })
+})
+
+it('should not show any images',function(){
+    element(by.css('li[heading|="Products"] a')).click()
+
+    element(by.css('.product-image')).getSize(function(size){
+        expect(size.height).toBe(0)
+        expect(size.width).toBe(0)
     })
 })
 

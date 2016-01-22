@@ -8,7 +8,9 @@ require('crash-reporter').start();
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-var mainWindow = null;
+var mainWindow = null
+  ,areImagesEnabled = false
+  ,isGethStarted = false
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
@@ -84,6 +86,19 @@ var template = [
           if (focusedWindow)
             focusedWindow.toggleDevTools();
         }
+      },
+      {
+        label: 'Toggle Remote Images (Unsafe)',
+        type: 'checkbox',
+        checked: areImagesEnabled,
+        click: function(item, focusedWindow) {
+          console.log('enable images ? ', !areImagesEnabled)
+          if (focusedWindow){
+            var htmlFile = areImagesEnabled ? '/index.html' : '/index.unsafe.html'
+            focusedWindow.loadUrl('file://' + __dirname + htmlFile);
+            areImagesEnabled = !areImagesEnabled
+          }
+        }
       }
     ]
   }
@@ -127,16 +142,28 @@ app.on('ready', function() {
   var mainWindow = new BrowserWindow({width: 800, height: 600, "node-integration": false});
 
   mainWindow.loadUrl('file://' + __dirname + '/index.html');
-  mainWindow.webContents.executeJavaScript("isElectron=true;");
 
   mainWindow.on('closed', function() {
     mainWindow = null;
   });
 
-  geth.startRpc().then(function(){
-    console.log('================================== geth ready ==================================')
-  },function(message){
-    console.log('================================== geth failed ==================================')
-    mainWindow.webContents.executeJavaScript("alert('"+message.trim().split("'").join('"')+"');");
-  })
+  mainWindow.webContents.on('did-finish-load', function() {
+    mainWindow.webContents.executeJavaScript("isElectron=true;");
+
+    if(areImagesEnabled)
+      mainWindow.webContents.executeJavaScript("areImagesEnabled=true;alert('Remote images are now enabled. These remote images can be used to track your browsing.');");
+
+    if(isGethStarted)
+      return
+    else
+      isGethStarted = true
+
+    geth.startRpc().then(function(){
+      console.log('================================== geth ready ==================================')
+    },function(message){
+      console.log('================================== geth failed ==================================')
+      mainWindow.webContents.executeJavaScript("alert('"+message.trim().split("'").join('"')+"');");
+    })
+  });
+
 });

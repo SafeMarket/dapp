@@ -2,6 +2,9 @@
 	<table class="table">
 		<tr ng-repeat="product in store.products">
 			<td>
+				<img ng-src="{{product.imageUrl}}" ng-if="product.imageUrl" class="product-image">
+			</td>
+			<td>
 				{{product.name}}
 			</td>
 			<td>
@@ -19,9 +22,7 @@
 			</td>
 		</tr>
 		<tr>
-			<td></td>
-			<td></td>
-			<td></td>
+			<td colspan="4"></td>
 			<td>
 				<amounts
 					value="productsTotal"
@@ -32,11 +33,10 @@
 		</tr>
 		<tr>
 			<td>Transport</td>
-			<td>
+			<td colspan="2">
 				<select ng-model="transport" ng-options="getTransportLabel(transport) for transport in store.meta.transports" class="form-control"></select>
 			</td>
-			<td>
-			</td>
+			<td></td>
 			<td>
 				<amounts
 					value="transport.price"
@@ -47,7 +47,7 @@
 		</tr>
 		<tr>
 			<td>Submarket</td>
-			<td>
+			<td colspan="2">
 				<select ng-model="submarketAddr" ng-options="submarket.addr as submarket.label for submarket in submarketOptions" class="form-control"></select>
 			</td>
 			<td>
@@ -64,7 +64,7 @@
 			</td>
 		</tr>
 		<tr>
-			<td colspan="3"></td>
+			<td colspan="4"></td>
 			<td>
 				<amounts
 					value="total"

@@ -363,6 +363,12 @@ module.exports = (grunt) ->
         files: [
           {expand: true, src: ["<%= files.html.src %>"], dest: 'generated/dapp/', flatten: true}
         ]
+      index:
+        files: [
+          {
+          expand: true, src: "app/html/index.html", dest: 'generated/dapp/', flatten:true
+          }
+        ]
       images:
         files: [
           {expand: true, src: ["<%= files.images.src %>"], dest: 'generated/dapp/images', flatten: true}
@@ -413,8 +419,8 @@ module.exports = (grunt) ->
 
   grunt.registerTask "re", ["github-release"]
   
-  grunt.registerTask "deploy", ["copy", "coffee", "deploy_contracts:"+env, "concat", "copy", "server", "watch"]
-  grunt.registerTask "build", ["copy", "clean:workspaces", "deploy_contracts:"+env, "coffee", "concat", "copy"]
+  grunt.registerTask "deploy", ["copy", "indexUnsafe", "coffee", "deploy_contracts:"+env, "concat", "copy", "server", "watch"]
+  grunt.registerTask "build", ["clean:workspaces", "copy", "indexUnsafe", "deploy_contracts:"+env, "coffee", "concat", "copy", "indexUnsafe"]
   grunt.registerTask "release", [
     "node_version"
     "fileExists:bin"
@@ -467,6 +473,13 @@ module.exports = (grunt) ->
       else
         grunt.log.success('No uncommitted changes');
         done()
+
+  grunt.registerTask "indexUnsafe", ()->
+    fs = require('fs')
+    indexHtml = fs.readFileSync('app/html/index.html','utf8')
+    indexHtml = indexHtml.replace("img-src 'self';","img-src *;")
+    fs.writeFileSync('generated/dapp/index.unsafe.html',indexHtml)
+
 
   grunt.registerMultiTask "checkport", ()->
     

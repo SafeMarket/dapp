@@ -66,7 +66,7 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 	$scope.addTransport = addTransport
 
 	$scope.submit = function(){
-		var alias = $scope.alias.trim().replace(/(\r\n|\n|\r)/gm,"")
+		var alias = $scope.alias ? $scope.alias.trim().replace(/(\r\n|\n|\r)/gm,"") : ''
 			,meta = {
 				name:$scope.name
 				,currency:$scope.currency

@@ -6,23 +6,20 @@
       script-src 'self';
       style-src 'self' 'unsafe-inline';
       font-src 'self';
-      img-src 'self';
       connect-src http://127.0.0.1:* file://*;
+      img-src 'self';
     "> 
     <script>alert('XSS vulnerability detected. Close SafeMarket immediately.')</script>
     <link rel="stylesheet" href="css/app.min.css">
     <script src="js/app.min.js"></script>
   </head>
   <body>
-  <div ng-app="splash" class="container">
-    <div class="alert alert-danger text-center push-down" ng-show="!isSynced && !syncing">
-      <img src="images/balls.gif"> Waiting for node to start
-    </div>
-    <div class="alert alert-danger text-center push-down" ng-show="!isSynced && syncing.currentBlock < syncing.highestBlock"  ng-cloak>
-      <img src="images/balls.gif"> Your node is still syncing. On block {{syncing.currentBlock}} of {{syncing.highestBlock}}.
-    </div>
-  </div>
   <div id="app">
+    <div class="container" ng-show="!isConnected">
+      <div class="alert alert-danger text-center push-down" ng-show="!isConnected">
+        <img src="images/balls.gif"> Bootstrapping
+      </div>
+    </div>
     <div ng-controller="MainController">
       <nav class="navbar navbar-default navbar-top navbar-static-top" id="navbar" ng-cloak ng-show="isConnected">
         <div class="container">
@@ -50,5 +47,14 @@
           <div ui-view autoscroll="true" class="mainView" ng-show="isConnected"></div>
       </div>
     </div>
-  </div></body>
+  </div>
+  <div ng-app="splash" class="container">
+    <div class="alert alert-danger text-center push-down" ng-show="!isSynced && !syncing">
+      <img src="images/balls.gif"> Waiting for node to start
+    </div>
+    <div class="alert alert-danger text-center push-down" ng-show="!isSynced && syncing.currentBlock < syncing.highestBlock"  ng-cloak>
+      <img src="images/balls.gif"> Your node is still syncing. On block {{syncing.currentBlock}} of {{syncing.highestBlock}}.
+    </div>
+  </div>
+  </body>
 </html>

@@ -114,6 +114,8 @@ Store.check = function(alias,meta){
 				}
 			},info:{
 				type:'string'
+			},imageUrl:{
+				type:'url'
 			}
 		},'Product')
 	})
@@ -248,10 +250,12 @@ function Review(result,store){
 }
 
 function Product(data){
+	console.log('product',data)
 	this.id = data.id
 	this.name = data.name
 	this.price = new BigNumber(data.price)
 	this.info = data.info
+	this.imageUrl = data.imageUrl
 
 	this.quantity = 0
 }
