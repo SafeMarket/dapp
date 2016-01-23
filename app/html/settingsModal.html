@@ -14,7 +14,12 @@
       <td>Affiliate Accounts</td>
       <td>
         <input ng-model="affiliateCode"  class="form-control vertical-space" placeholder="affiliate code" />
-        <select ng-model="affiliateCode" ng-options="code for code in user.data.affiliateCodes" class="form-control vertical-space"></select>
+        <select
+        ng-model="affiliateCode"
+        ng-options="code for code in user.data.affiliateCodes"
+        class="form-control vertical-space"
+        ng-show="user.data.affiliateCodes.length > 0"
+        ></select>
       </td>
       <td>
         <input ng-model="affiliateAccount" class="form-control vertical-space" placeholder="ethereum adddress" />
@@ -22,7 +27,7 @@
         class="btn btn-primary pull-right vertical-space"
         ng-click="registerAffiliateCode()"
         >
-        Save
+        <span ng-if="newAffiliateCode">Create</span><span ng-if="!newAffiliateCode">Update</span>
       </button>
     </td>
   </tr>

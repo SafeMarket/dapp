@@ -3,8 +3,9 @@ angular.module('app').controller('SettingsModalController',function($scope,Affil
   $scope.currencies = Object.keys(ticker.rates)
   $scope.user = user
   $scope.accounts = web3.eth.accounts
-  $scope.affiliateAccount = ""
-  $scope.affiliateCode = ""
+  $scope.affiliateAccount = ''
+  $scope.affiliateCode = ''
+  $scope.newAffiliateCode = true;
 
   $scope.$watch('user.data.account',function(){
     $scope.balanceInEther = web3.fromWei(web3.eth.getBalance(user.data.account))
@@ -18,6 +19,7 @@ angular.module('app').controller('SettingsModalController',function($scope,Affil
     else {
       $scope.affiliateAccount = rawAcc
     }
+    $scope.newAffiliateCode = user.data.affiliateCodes.indexOf($scope.affiliateCode) == -1
   })
 
   $scope.$watch('user.data.currency',function(){
@@ -56,7 +58,14 @@ angular.module('app').controller('SettingsModalController',function($scope,Affil
       return
     }
 
-    AffiliateReg.claimCode(code, account).then(function(err, res){
+    try{
+			AffiliateReg.claimCode.check(code,account)
+		}catch(e){
+			growl.addErrorMessage(e)
+			return
+		}
+
+    AffiliateReg.claimCode(code, account,$scope.newAffiliateCode).then(function(err, res){
       $scope.isChangingKeys = false
       user.addAffiliateCode(code)
     })

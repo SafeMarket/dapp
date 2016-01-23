@@ -8,9 +8,6 @@ dist/
 packages/
 reports/
 .env.json
-.*% 
-.*
-**/.*
-!/.gitignore
+.gitignore
 npm-debug.log
 .DS_Store

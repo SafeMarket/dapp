@@ -1,6 +1,6 @@
 (function(){
 
-  angular.module('app').factory('AffiliateReg',function($q,utils,txMonitor){
+  angular.module('app').factory('AffiliateReg',function($q,user,utils,txMonitor){
 
     function AffiliateReg(){
       this.addr = AffiliateReg.address
@@ -13,32 +13,39 @@
 
     window.AffiliateReg = new AffiliateReg()
 
-    AffiliateReg.prototype.claimCode = function(code, coinbase){
-      var deferred = $q.defer(),
-      affiliateReg = this
+    AffiliateReg.prototype.claimCode = function(code, account, newAffiliateCode){
+      var deferred = $q.defer()
 
+      var message = newAffiliateCode?'Create a New Affiliate Code':'Update an Affiliate Code'
       txMonitor.propose(
-        'claim a new Affiliate Code',
+        message,
         this.contract.claimCode,
-        [code,coinbase]
+        [code,account]
       ).then(function(txReciept){
-        affiliateReg.update().then( function() {
-          deferred.resolve(txReciept.contractAddress)
-        })
+        deferred.resolve(txReciept.contractAddress)
       })
 
       return deferred.promise
     }
+    AffiliateReg.prototype.claimCode.check = function(code, account) {
+      var affiliateReg=window.AffiliateReg
+      utils.check({
+        code:code,
+        account:account
+      },{
+        code:{
+          presence:true,
+          type:'string'
+        },
+        account: {
+          presence:true,
+          type:'address'
+        }
+      })
 
-    AffiliateReg.prototype.update = function(){
-      var deferred = $q.defer()
-
-      this.codeToOwnerMap = this.contract.codeToOwnerMap()
-      this.addrToCodeMap = this.contract.addrToCodeMap()
-      this.codeToAddrMap = this.contract.codeToAddrMap()
-      deferred.resolve(this)
-
-      return deferred.promise
+      if(parseInt(affiliateReg.contract.codeToOwnerMap(code)) !== 0 && parseInt(affiliateReg.contract.codeToOwnerMap(code)) != user.data.account) {
+        throw 'this code is taken by another account'
+      }
     }
 
     return window.AffiliateReg
