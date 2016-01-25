@@ -12,8 +12,8 @@ module.exports = function(grunt){
 		}
 
 		for(var i = 8; i<=256; i=i+8){
-			types.push('uint'+i)
-			types.push('int'+i)
+//			types.push('uint'+i)
+//			types.push('int'+i)
 		}
 
 		types.forEach(function(type){
