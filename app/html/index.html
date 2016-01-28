@@ -7,7 +7,7 @@
       style-src 'self' 'unsafe-inline';
       font-src 'self';
       connect-src http://127.0.0.1:* file://*;
-      img-src 'self';
+      img-src 'self' data:;
     "> 
     <script>alert('XSS vulnerability detected. Close SafeMarket immediately.')</script>
     <link rel="stylesheet" href="css/app.min.css">
@@ -27,6 +27,7 @@
             <a class="navbar-brand" ng-href="{{isLoggedIn?'#/':'.'}}">SafeMarket</a>
           </div>
           <div class="navbar-header pull-right">
+            <blockie seed="account" ng-click="openSettingsModal()" ng-if="isLoggedIn"></blockie>
             <button class="navbar-btn btn btn-default btn-lg" ng-click="goBack()" ng-if="isLoggedIn">
               <span class="glyphicon glyphicon-menu-left"></span>
             </button>

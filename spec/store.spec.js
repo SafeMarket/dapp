@@ -10,13 +10,11 @@ it('should bootstrap',function(){
     }, 1000);
 })
 
-it('should open when the store modal button is clicked',function(){
-    element(by.css('[ng-click="openStoreModal()"]')).click()
-    var currentController = browser.executeScript("return angular.element(document.getElementById('app')).injector().get('modals').currentController")
-    expect(currentController).toBe('StoreModalController')
-})
-
 it('should create Satoshis Lemonade Stand',function(){
+    element(by.css('[ng-click="openStoreModal()"]')).click()
+    browser.wait(function(){
+        return element(by.css('#store-modal-body')).isPresent()
+    })
     browser.waitForAngular()
     element(by.css('.modal-body [ng-model="alias"]')).sendKeys(storeAlias)
     element(by.css('[ng-model="name"]')).sendKeys('Satoshis Lemonade Stand')
@@ -38,6 +36,9 @@ it('should create Satoshis Lemonade Stand',function(){
 })
 
 it('add the store to my stores',function(){
+    browser.wait(function(){
+        return element(by.css('[ng-href*="#/stores/"]')).isPresent()
+    })
     element(by.css('[ng-href*="#/stores/"]')).getText().then(function(text){
         expect(text).toBe('@'+storeAlias)
     })
@@ -69,15 +70,23 @@ it('should update to Satoshis Awesome Lemonade Stand Edited',function(){
     element(by.css('[ng-model="name"]')).sendKeys(' Edited')
     element(by.css('[ng-click="submit()"]')).click()
     element(by.css('[ng-click="approve()"]')).click()
-    element(by.css('h1')).getText().then(function(text){
-        expect(text.indexOf('Satoshis Lemonade Stand Edited')).toNotEqual(-1)
+    browser.waitForAngular()
+    browser.wait(function(){
+        var deferred = protractor.promise.defer();
+        element(by.css('#name'))
+            .getText()
+            .then(function (text) {
+              deferred.fulfill(text=='Satoshis Lemonade Stand Edited');
+            });
+        return deferred.promise;
     })
+    expect(element(by.css('#name')).getText()).toEqual('Satoshis Lemonade Stand Edited')
 })
 
 it('should not show any images',function(){
     element(by.css('li[heading|="Products"] a')).click()
 
-    element(by.css('.product-image')).getSize(function(size){
+    element(by.css('.product-image')).getSize().then(function(size){
         expect(size.height).toBe(0)
         expect(size.width).toBe(0)
     })

@@ -111,7 +111,7 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 
 			Store.create($scope.alias,meta)
 				.then(function(store){
-					user.data.storeAddrs.push(store.addr)
+					user.addStore(store.addr)
 					user.save()
 					$modalInstance.close()
 				},function(error){

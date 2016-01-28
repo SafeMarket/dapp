@@ -92,6 +92,8 @@ angular.module('app').service('utils',function(ticker,$q,$timeout,AliasReg){
 
 	function convertCurrency(amount,currencies){
 
+		console.log('convertCurrency',amount)
+
 		var deferred = $q.defer()
 
 		if(typeof amount!=='string')
@@ -116,14 +118,22 @@ angular.module('app').service('utils',function(ticker,$q,$timeout,AliasReg){
 		return amount
 	}
 
-	function formatCurrency(amount,currency){
+	function formatCurrency(amount,currency,doPrefix){
+
+		if(doPrefix)
+			var prefix = ' '+currency
+		else
+			var prefix = ''
+
+		amount = amount || 0
+
 		if(!amount instanceof BigNumber)
 			amount = new BigNumber(amount)
 
 		if(currency === 'ETH')
-			return amount.toFixed(6)+' '+currency
+			return amount.toFixed(6)+prefix
 		else
-			return amount.toFixed(2)+' '+currency
+			return amount.toFixed(2)+prefix
 	}
 
 	function convertCurrencyAndFormat(amount,currencies){

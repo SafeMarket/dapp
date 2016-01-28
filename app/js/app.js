@@ -100,6 +100,4 @@ app.run(function(user,$rootScope,$interval,$timeout,timeAgo,user){
 	$interval(checkConnection,1000)
 
 	timeAgo.settings.allowFuture = true
-
-    $rootScope.user = user
 });

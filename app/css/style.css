@@ -98,6 +98,31 @@ h3 .btn{float: right}
 }
 
 .mainTable{width:100%;}
-.push-down{margin-top: 20px}
+.push-down{margin-top: 10px}
 
 .product-image{max-height: 100px;max-width: 100%}
+
+blockie{
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-size: cover;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+}
+
+.settings-blockie{
+    font-size: 18px;
+    margin-bottom: -2px;
+}
+
+.navbar blockie{
+    font-size: 36px;
+    margin-bottom: -14px;
+    margin-right: 2px;
+}
+
+.ellipsis{
+    overflow: hidden;
+    text-overflow:ellipsis;
+}

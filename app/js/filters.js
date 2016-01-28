@@ -10,7 +10,7 @@ angular.module('app').filter('currency',function(utils){
 		else
 			currencyTo = currencyFrom
 
-		return utils.formatCurrency(amount,currencyTo)
+		return utils.formatCurrency(amount,currencyTo,true)
 	}
 })
 
