@@ -22,11 +22,18 @@ module.exports = (grunt) ->
     ,"grunt-prompt"
     ,"grunt-rename"
     ,"grunt-file-exists"
+    ,"grunt-solc"
   )
 
   grunt.loadTasks "tasks"
 
   grunt.initConfig(
+
+    solc:
+      contracts:
+        options:
+          files:["app/contracts/*"]
+
 
     node_version:
       options:
