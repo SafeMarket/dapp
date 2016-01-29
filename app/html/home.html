@@ -5,7 +5,7 @@
 	<div class="row">
 		<div class="col-sm-4">
 			<h4 class="text-center">My Orders</h4>
-			<div ng-repeat="orderAddr in user.data.orderAddrs" class="oneliner">
+			<div ng-repeat="orderAddr in orderAddrs" class="oneliner">
 				<a ng-href="#/orders/{{orderAddr}}">{{orderAddr}}</a>
 			</div>
 		</div>
@@ -15,7 +15,7 @@
 				<a ng-click="openStoreModal()" class="glyphicon glyphicon-plus"></a>
 				<a ng-click="openImportStoreModal()" class="glyphicon glyphicon-import"></a>
 			</h4>
-			<div ng-repeat="storeAddr in user.data.storeAddrs" alias="storeAddr">
+			<div ng-repeat="storeAddr in storeAddrs" alias="storeAddr">
 			</div>
 		</div>
 		<div class="col-sm-4">
@@ -24,7 +24,7 @@
 				<a ng-click="openSubmarketModal()" class="glyphicon glyphicon-plus"></a>
 				<a ng-click="openImportSubmarketModal()" class="glyphicon glyphicon-import"></a>
 			</h4>
-			<div ng-repeat="submarketAddr in user.data.submarketAddrs" alias="submarketAddr">
+			<div ng-repeat="submarketAddr in submarketAddrs" alias="submarketAddr">
 			</div>
 		</div>
 	</div>

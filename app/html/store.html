@@ -1,8 +1,8 @@
 <div alias-bar="{{store.alias}}"></div>
 <h1>
-	{{store.meta.name}}
+	<span id="name">{{store.meta.name}}</span>
 	<button
-		ng-show="user.data.account === store.owner"
+		ng-show="account === store.owner"
 		class="btn btn-default"
 		ng-click="openStoreModal(store)"
 	>

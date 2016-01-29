@@ -1,50 +1,98 @@
 <div class="modal-header">
     <h3 class="modal-title">Settings</h3>
 </div>
-<div class="modal-body">
+<div class="modal-body" id="settings-modal-body">
     
     <table class="table">
       <tr>
-            <td>Seed</td>
             <td>
-                 {{user.data.seed}}
+                Seed
+            </td>
+            <td>
+                <button ng-click="isSeedShown=!isSeedShown" class="btn btn-primary" id="seed-toggle-button">
+                    {{isSeedShown?'Hide':'Show'}}
+                </button>
+                <div ng-show="isSeedShown" class="push-down" id="seed">
+                    <span ng-repeat="seedWord in seed.split(' ')">
+                     <code >{{seedWord}}</code>&nbsp;
+                    </span> 
+                </div>
             </td>
         </tr>
         <tr>
-            <td>Account</td>
             <td>
-                 <select name="account" ng-model="user.data.account" ng-options="account for account in user.accounts" class="form-control"></select>
+                Account
+                <blockie seed="account" class="settings-blockie"></blockie>
+                <div class="text-small text-muted ellipsis" id="account">{{account}}</div>
+            </td>
+            <td>
+                 <select name="account" ng-model="account" ng-options="account for account in accounts" class="form-control" id="account-select"></select>
             </td>
         </tr>
         <tr>
             <td>Balance</td>
-            <td><amounts value="balanceInEther" from="'ETH'" to="displayCurrencies"></amounts>
+            <td><amounts value="balance" from="'WEI'" to="displayCurrencies" id="balance"></amounts>
                 
             </td>
         </tr>
         <tr>
             <td>Currency</td>
             <td>
-                <select type="text" ng-model="user.data.currency" class="form-control" ng-options="currency for currency in currencies"></select>
+                <select type="text" ng-model="currency" class="form-control" ng-options="currency for currency in currencies" id="currency-select"></select>
             </td>
         </tr>
     </table>
-    <h3>Keypairs <a ng-click="addKeypair()" class="btn btn-primary btn-xs" ng-show="!isChangingKeys">+</a></h3>
-    <div class="alert alert-danger text-center" ng-show="user.keypairs.length === 0">
+    <h3>Transfer</h3>
+    <table class="table">
+        <tr>
+            <td>Recipient <blockie seed="recipientType === 'internal' ? internalRecipient : externalRecipient" class="settings-blockie"></blockie></td>
+            <td>
+                 <select ng-model="recipientType" ng-options="recipientType as recipientLabel for (recipientType,recipientLabel) in recipientTypes" class="form-control"></select>
+                 <select ng-show="recipientType=='internal'" ng-model="internalRecipient" ng-options="account for account in accounts" class="form-control push-down" id="internalRecipient-select"></select>
+                 <div ng-show="recipientType=='external'" class="input-group push-down">
+                    <div class="input-group-addon">0x</div>
+                    <input ng-model="externalRecipient" type="text" class="form-control">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>Amount</td>
+            <td>
+                <select ng-model="amountType" ng-options="amountType as amountLabel for (amountType,amountLabel) in amountTypes" class="form-control" id="amountType-select"></select>
+                <div ng-show="amountType=='fixed'">
+                    <div class="input-group push-down">
+                        <input type="text" ng-model="transferAmountInUserCurrency" class="form-control" numeric-input ng-model-options="{debounce:500}">
+                        <div class="input-group-addon">{{userCurrency}}</div>
+                    </div>
+                    <div class="input-group push-down" ng-show="userCurrency!=='ETH'">
+                        <input type="text" ng-model="transferAmountInEther" class="form-control" numeric-input ng-model-options="{debounce:500}">
+                        <div class="input-group-addon">ETH</div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <button class="btn btn-primary pull-right" ng-click="transfer()" id="transfer-button">Transfer</button>
+            </td>
+        </tr>
+    </table> 
+    <h3>Keypairs <button ng-click="addKeypair()" class="btn btn-primary btn-xs" ng-show="!isChangingKeys" id="add-keypair-button">+</button></h3>
+    <div class="alert alert-danger text-center" ng-show="keypairs.length === 0" id="no-keypairs-alert">
         You should create some keypairs
     </div>
-    <div class="alert alert-info text-center" ng-show="isChangingKeys">
+    <div class="alert alert-info text-center" ng-show="isChangingKeys" id="keypairs-changing-alert">
         <img src="images/balls.gif"> Updating
     </div>
-    <table class="table">
-        <tr ng-repeat="keypair in user.keypairs">
-            <td>{{keypair.data.label}}</td>
-            <td timestamp="keypair.data.timestamp/1000"></td>
+    <table class="table" id="keypairs-table">
+        <tr ng-repeat="thisKeypair in keypairs">
+            <td>{{thisKeypair.data.label}}</td>
+            <td timestamp="thisKeypair.data.timestamp/1000"></td>
             <td style="text-align:right" ng-show="!isChangingKeys">
                 <button
                     class="btn"
                     ng-class=
-                        "{'btn-success':keypair.id===user.keypair.id,'btn-default':keypair.id!==user.keypair.id}"
+                        "{'btn-success':thisKeypair.id===keypair.id,'btn-default':thisKeypair.id!==keypair.id}"
                     ng-click="setPrimaryKeypair($index)"
                 >
                     Primary
@@ -55,8 +103,8 @@
             </td>
         </tr>
     </table>
-    <h3>Reset Account</h3>
-    <button class="btn btn-danger" ng-click="reset()">Reset Account</button>
+    <h3>Reset Accounts</h3>
+    <button class="btn btn-danger" ng-click="reset()">Reset Accounts</button>
 </div>
 <div class="modal-footer">
     <button class="btn btn-primary" type="button" ng-click="submit()">OK</button>

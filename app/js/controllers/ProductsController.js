@@ -68,7 +68,7 @@ angular.module('app').controller('ProductsController',function($scope,$filter,ut
 		Order.create(meta,storeAddr,submarketAddr,feePercentage,disputeSeconds).then(function(order){
 			console.log(order)
 			window.location.hash = "#/orders/"+order.addr
-			user.data.orderAddrs.push(order.addr)
+			user.addOrder(order.addr)
 			user.save()
 		})
 

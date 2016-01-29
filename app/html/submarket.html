@@ -2,7 +2,7 @@
 <h1>
 	{{submarket.meta.name}} 
 	<button
-		ng-show="user.data.account === submarket.owner"
+		ng-show="account === submarket.owner"
 		class="btn btn-default"
 		ng-click="openSubmarketModal(submarket)"
 	>Edit</button>

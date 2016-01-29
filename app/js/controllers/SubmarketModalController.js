@@ -65,12 +65,12 @@ angular.module('app').controller('SubmarketModalController',function($scope,tick
 		}else{
 
 			if(!utils.isAliasAvailable(alias)){
-				return growl.addErrorMessage('The alias"'+alias+'" is taken')
+				return growl.addErrorMessage('The alias "'+alias+'" is taken')
 			}
 
 			Submarket.create($scope.alias,meta)
 				.then(function(submarket){
-					user.data.submarketAddrs.push(submarket.addr)
+					user.addSubmarket(submarket.addr)
 					user.save()
 					$modalInstance.dismiss()
 				},function(error){

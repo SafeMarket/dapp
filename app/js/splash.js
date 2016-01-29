@@ -10,6 +10,9 @@ splash.run(function($timeout,$rootScope,$interval){
 	function checkConnection(){
 		console.log('Check Connection')
         $rootScope.isConnected = web3.isConnected()
+
+        if(!$rootScope.isConnected) return
+
         $rootScope.syncing = web3.eth.syncing || blockchain.env == 'development'
 
         $rootScope.isSynced = 

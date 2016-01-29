@@ -1,7 +1,11 @@
 (function(){
 	angular.module('app').controller('MainController',function($scope,$timeout,$rootScope,modals,user,growl){
 
-		$scope.user = user
+		$scope.$watch('account',function(){
+			$rootScope.storeAddrs = user.getOrderAddrs()
+			$rootScope.storeAddrs = user.getStoreAddrs()
+			$rootScope.submarketAddrs = user.getSubmarketAddrs()
+		})
 
 		$scope.goBack = function(){
 			window.history.back()
@@ -19,19 +23,15 @@
 		}
 
 		$scope.openStoreModal = function(){
-			if(!user.keypair){
-				growl.addErrorMessage('You must set a primary keypair')
-				return
-			}
-			modals.openStore()
+			user.verifyKeypair().then(function(){
+				modals.openStore()
+			})
 		}
 
 		$scope.openSubmarketModal = function(){
-			if(!user.keypair){
-				growl.addErrorMessage('You must set a primary keypair')
-				return
-			}
-			modals.openSubmarket()
+			user.verifyKeypair().then(function(){
+				modals.openSubmarket()
+			})
 		}
 
 		$scope.openImportStoreModal = function(){

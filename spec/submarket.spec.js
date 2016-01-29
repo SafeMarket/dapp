@@ -10,13 +10,12 @@ it('should bootstrap',function(){
     }, 1000);
 })
 
-it('should open when the submarket modal button is clicked',function(){
-    element(by.css('[ng-click="openSubmarketModal()"]')).click()
-    var currentController = browser.executeScript("return angular.element(document.getElementById('app')).injector().get('modals').currentController")
-    expect(currentController).toBe('SubmarketModalController')
-})
 
 it('should create The Drink Submarket',function(){
+    element(by.css('[ng-click="openSubmarketModal()"]')).click()
+    browser.wait(function(){
+        return element(by.css('#submarket-modal-body')).isPresent()
+    })
     element(by.css('.modal-content [ng-model="alias"]')).sendKeys(submarketAlias)
     element(by.css('[ng-model="name"]')).sendKeys('The Drink Submarket')
     element(by.css('[ng-model="info"]')).sendKeys('The best drinks on the interweb')
@@ -24,7 +23,10 @@ it('should create The Drink Submarket',function(){
     element(by.css('[ng-click="approve()"]')).click()    
 })
 
-it('add the submarket to my submarket',function(){
+it('should be added to my submarkets',function(){
+    browser.wait(function(){
+        return element(by.css('[ng-href*="#/submarkets/"]')).isPresent()
+    })
     element(by.css('[ng-href*="#/submarkets/"]')).getText().then(function(text){
         expect(text).toBe('@'+submarketAlias)
     })

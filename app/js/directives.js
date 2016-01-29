@@ -258,4 +258,17 @@ angular.module('app').directive('txPanel',function(){
 	}
 })
 
+angular.module('app').directive('blockie',function(){
+	return {
+		scope:{
+			seed:'='
+		},link:function($scope,$element){
+			$scope.$watch('seed',function(seed){
+				var dataUrl = blockies.create({ seed:seed ,size: 8,scale: 16}).toDataURL()
+				$element[0].style.backgroundImage = 'url('+dataUrl+')'
+			})
+		}
+	}
+})
+
 })();
