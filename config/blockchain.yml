@@ -10,7 +10,7 @@ development:
   mine_when_needed: true
   mine_periodically: false
   max_peers: 0
-  gas_limit: 314159
+  gas_limit: 3141592
   gas_price: 50000000000
   console: false
   whisper: true
@@ -27,7 +27,7 @@ production:
   console: true
   deploy_synchronously: true
   chains: config/chains/production.json
-  gas_limit: 314159
+  gas_limit: 3141592
   gas_price: 50000000000
   account:
     init: false
