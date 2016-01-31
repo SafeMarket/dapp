@@ -315,6 +315,9 @@ module.exports = (grunt) ->
       css:
         src: "<%= files.css.src %>"
         dest: "generated/dapp/css/app.min.css"
+      contracts:
+        src: "<%= files.contracts.src %>"
+        dest: "generated/tmp/contracts.sol"
 
     watch:
       options:
@@ -412,7 +415,7 @@ module.exports = (grunt) ->
       reports: ["reports/**/*"]
 
     deploy:
-      contracts: '<%= files.contracts.src %>'
+      contracts: 'generated/tmp/contracts.sol'
       dest: 'generated/tmp/info.js'
     fileExists:
       bin: ["<%= files.bin.src %>"]
@@ -426,7 +429,7 @@ module.exports = (grunt) ->
 
   grunt.registerTask "re", ["github-release"]
   
-  grunt.registerTask "deploy", ["copy", "indexUnsafe", "coffee", "deploy_contracts:"+env, "concat", "copy", "server", "watch"]
+  grunt.registerTask "deploy", ["copy", "indexUnsafe", "coffee", "concat:contracts", "deploy_contracts:"+env, "concat", "copy", "server", "watch"]
   grunt.registerTask "build", ["clean:workspaces", "copy", "indexUnsafe", "deploy_contracts:"+env, "coffee", "concat", "copy", "indexUnsafe"]
   grunt.registerTask "release", [
     "node_version"
