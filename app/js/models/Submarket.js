@@ -23,7 +23,7 @@ var meta = utils.convertObjectToHex(meta)
 txMonitor.propose(
 	'Create a New Subsubmarket'
 	,this.contractFactory
-	,[alias,meta,AliasReg.address,{data:this.code}]
+	,[alias,meta,AliasReg.address,contracts.Infosphere.address,{data:this.code}]
 ).then(function(txReciept){
 	console.log(txReciept)
 	deferred.resolve(new Submarket(txReciept.contractAddress))

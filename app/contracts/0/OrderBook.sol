@@ -6,7 +6,7 @@ contract OrderBook{
 		,address indexed submarketAddr
 	);
 
-	function addEntry(address orderAddr, address storeAddr, address submarketAddr){
-		Entry(orderAddr, storeAddr, submarketAddr);
+	function addEntry(address storeAddr, address submarketAddr){
+		Entry(msg.sender, storeAddr, submarketAddr);
 	}
 }

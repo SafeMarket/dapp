@@ -1,12 +1,17 @@
 contract owned{
+
 	address public owner;
 
 	function owned(){
 		owner = msg.sender;
 	}
 
-	function setOwner(address _owner){
+	function requireOwnership(){
 		if(msg.sender!=owner) throw;
-		owner=_owner;
+	}
+
+	function setOwner(address _owner){
+		this.requireOwnership();
+		owner = _owner;
 	}
 }

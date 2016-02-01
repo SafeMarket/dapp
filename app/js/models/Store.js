@@ -26,7 +26,7 @@ Store.create = function(alias,meta){
 	txMonitor.propose(
 		'Create a New Store'
 		,this.contractFactory
-		,[alias,meta,AliasReg.address,{data:this.code}]
+		,[alias,meta,AliasReg.address,contracts.Infosphere.address,{data:this.code}]
 	).then(function(txReciept){
 		deferred.resolve(new Store(txReciept.contractAddress))
 	})

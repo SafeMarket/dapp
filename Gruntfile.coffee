@@ -32,7 +32,7 @@ module.exports = (grunt) ->
     solc:
       contracts:
         options:
-          files:["app/contracts/*"]
+          files:["generated/tmp/contracts.sol"]
 
 
     node_version:
@@ -429,7 +429,7 @@ module.exports = (grunt) ->
 
   grunt.registerTask "re", ["github-release"]
   
-  grunt.registerTask "deploy", ["copy", "indexUnsafe", "coffee", "concat:contracts", "deploy_contracts:"+env, "concat", "copy", "server", "watch"]
+  grunt.registerTask "deploy", ["copy", "indexUnsafe", "coffee", "concat:contracts", "solc","deploy_contracts:"+env, "concat", "copy", "server", "watch"]
   grunt.registerTask "build", ["clean:workspaces", "copy", "indexUnsafe", "deploy_contracts:"+env, "coffee", "concat", "copy", "indexUnsafe"]
   grunt.registerTask "release", [
     "node_version"

@@ -1,8 +1,8 @@
-contract Store is forumable,audible{
+contract Store is forumable,audible,infosphered{
     event Meta(bytes meta);
-    bool constant public isStore = true;
 
-    function Store(bytes32 alias, bytes meta, address alasRegAddr){
+    function Store(bytes32 alias, bytes meta, address alasRegAddr,address infosphereAddr){
+    	infosphere = Infosphere(infosphereAddr);
         Meta(meta);
         AliasReg(alasRegAddr).claimAlias(alias);
     }
@@ -34,15 +34,13 @@ contract Store is forumable,audible{
 
 	function leaveReview(address orderAddr, uint score, bytes data){
 		
-		var order = Order(orderAddr);
-
-		if(order.status() < 3)
+		if(infosphere.getUint(orderAddr,'status') < 3)
 			throw;
 
-		if(order.storeAddr() != address(this))
+		if(infosphere.getAddress(orderAddr,'storeAddr') != address(this))
 			throw;
 
-		if(order.buyer() != msg.sender)
+		if(infosphere.getAddress(orderAddr,'buyer') != msg.sender)
 			throw;
 
 		if(score>5)

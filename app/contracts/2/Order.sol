@@ -43,7 +43,7 @@ contract Order{
 		disputeSeconds = _disputeSeconds;
 		timestamp = now;
 		Meta(_meta);
-		OrderBook(orderBookAddr).addEntry(address(this),_storeAddr,_submarketAddr);
+		OrderBook(orderBookAddr).addEntry(_storeAddr,_submarketAddr);
 	}
 
 	function addMessage(bytes text){

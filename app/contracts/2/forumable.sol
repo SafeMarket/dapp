@@ -1,4 +1,5 @@
 contract forumable is owned{
+
 	address public forumAddr;
 
 	function forumable(){
@@ -7,7 +8,7 @@ contract forumable is owned{
 	}
 
 	function setForumAddr(address _forumAddr){
-		if(msg.sender != owner) throw;
+		requireOwnership();
 		forumAddr = _forumAddr;
 	}
 }
