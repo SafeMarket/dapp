@@ -4,8 +4,9 @@ angular.module('app').controller('SettingsModalController',function($scope,Affil
   $scope.user = user
   $scope.accounts = web3.eth.accounts
   $scope.affiliateAccount = ''
+  $scope.newAffiliateAccount = ''
   $scope.affiliateCode = ''
-  $scope.newAffiliateCode = true;
+  $scope.newAffiliateCode = ''
 
   $scope.$watch('user.data.account',function(){
     $scope.balanceInEther = web3.fromWei(web3.eth.getBalance(user.data.account))
@@ -15,11 +16,16 @@ angular.module('app').controller('SettingsModalController',function($scope,Affil
   $scope.$watch('affiliateCode',function(){
     var rawAcc = AffiliateReg.contract.getAddr.call($scope.affiliateCode)
     if(parseInt(rawAcc,16) === 0)
-      $scope.affiliateAccount = ''
+    $scope.affiliateAccount = ''
     else {
       $scope.affiliateAccount = rawAcc
     }
-    $scope.newAffiliateCode = user.data.affiliateCodes.indexOf($scope.affiliateCode) == -1
+  })
+
+  $scope.$watch('newAffiliateCode',function(){
+    var rawAcc = AffiliateReg.contract.getAddr.call($scope.newAffiliateCode)
+    if(parseInt(rawAcc,16) !== 0)
+    $scope.newAffiliateAccount = rawAcc
   })
 
   $scope.$watch('user.data.currency',function(){
@@ -45,29 +51,48 @@ angular.module('app').controller('SettingsModalController',function($scope,Affil
     })
   }
 
-  $scope.registerAffiliateCode = function() {
-    $scope.isChangingKeys = true
+  $scope.claimAffiliateCode = function() {
+    var code = $scope.newAffiliateCode,
+    account = $scope.newAffiliateAccount
 
-    var code = $scope.affiliateCode,
-    account = $scope.affiliateAccount,
-    estimatedGas = AffiliateReg.contract.claimCode.estimateGas(code,account),
-    doContinue = helpers.confirmGas(estimatedGas)
-
-    if(!doContinue){
-      $scope.isChangingKeys = false
+    try{
+      AffiliateReg.claimCode.check(code,account)
+    }catch(e){
+      growl.addErrorMessage(e)
       return
     }
 
-    try{
-			AffiliateReg.claimCode.check(code,account)
-		}catch(e){
-			growl.addErrorMessage(e)
-			return
-		}
-
-    AffiliateReg.claimCode(code, account,$scope.newAffiliateCode).then(function(err, res){
-      $scope.isChangingKeys = false
+    AffiliateReg.claimCode(code, account).then(function(err, res){
       user.addAffiliateCode(code)
+    })
+  }
+
+  $scope.updateAffiliateCode = function() {
+    var code = $scope.affiliateCode,
+    account = $scope.affiliateAccount
+
+    try{
+      AffiliateReg.changeAffiliate.check(code,account)
+    }catch(e){
+      growl.addErrorMessage(e)
+      return
+    }
+
+    AffiliateReg.changeAffiliate(code, account)
+  }
+
+  $scope.releaseAffiliateCode = function() {
+    var code = $scope.affiliateCode
+
+    try{
+      AffiliateReg.releaseCode.check(code)
+    }catch(e){
+      growl.addErrorMessage(e)
+      return
+    }
+
+    AffiliateReg.releaseCode(code).then(function(err, res){
+      user.deleteAffiliateCode(code)
     })
   }
 

@@ -102,6 +102,12 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
         this.data.affiliateCodes.push(code)
       this.save()
   }
+  this.deleteAffiliateCode = function(code){
+      var loc = this.data.affiliateCodes.indexOf(code)
+      if(loc !== -1)
+        this.data.affiliateCodes.splice(loc,1)
+      this.save()
+  }
 
 	this.addKeypair = function(){
 		var user = this,

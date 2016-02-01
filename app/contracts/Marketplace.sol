@@ -1,430 +1,422 @@
 contract Keystore{
 
-	event Key(address indexed addr, bytes data);
+  event Key(address indexed addr, bytes data);
 
-	function setKey(bytes data){
-		Key(msg.sender, data);
-	}
+  function setKey(bytes data){
+    Key(msg.sender, data);
+  }
 
 }
 
 contract OrderBook{
 
-	event Entry(
-		address indexed orderAddr
-		,address indexed storeAddr
-		,address indexed submarketAddr
-	);
+  event Entry(
+    address indexed orderAddr
+    ,address indexed storeAddr
+    ,address indexed submarketAddr
+    );
 
-	function addEntry(address orderAddr, address storeAddr, address submarketAddr){
-		Entry(orderAddr, storeAddr, submarketAddr);
-	}
-}
-
-contract AffiliateReg {
-	mapping(bytes32=>address) public codeToOwnerMap;
-	mapping(address=>bytes32) public addrToCodeMap;
-	mapping(bytes32=>address) public codeToAddrMap;
-
-	function claimCode(bytes32 code, address addr){
-    if(codeToOwnerMap[code] == msg.sender) {
-        var oldAddr = codeToAddrMap[code];
-      	if(addrToCodeMap[oldAddr] == code) addrToCodeMap[oldAddr]= "";
-
-        codeToAddrMap[code]=addr;
-        addrToCodeMap[addr]=code;
-        return;
+    function addEntry(address orderAddr, address storeAddr, address submarketAddr){
+      Entry(orderAddr, storeAddr, submarketAddr);
     }
-		if(codeToAddrMap[code] != address(0)) throw;
-
-    if(addrToCodeMap[addr] == "") addrToCodeMap[addr]=code;
-		codeToAddrMap[code]=addr;
-		codeToOwnerMap[code]=msg.sender;
-	}
+  }
+
+  contract AffiliateReg {
+    mapping(bytes32=>address) public codeToOwnerMap;
+    mapping(bytes32=>address) public codeToAddrMap;
+    mapping(address=>bytes32) public addrToCodeMap;
+
+    function getCode(address addr) returns(bytes32){
+      return addrToCodeMap[addr];
+    }
+
+    function getAddr(bytes32 code) returns(address){
+      return codeToAddrMap[code];
+    }
 
-	function getCode(address addr) returns(bytes32){
-		return addrToCodeMap[addr];
-	}
-
-	function getAddr(bytes32 code) returns(address){
-		return codeToAddrMap[code];
-	}
+    function claimCode(bytes32 code, address addr){
+      if(codeToAddrMap[code] != address(0)) throw;
+      if(addrToCodeMap[addr] != '') throw;
+
+      addrToCodeMap[addr]=code;
+      codeToAddrMap[code]=addr;
+      codeToOwnerMap[code]=msg.sender;
+    }
 
-	/*No frontend for these methods has been created
-	function changeAlias(bytes32 alias, address coinbase){
-		Affiliate affiliate = addrToAffiliateMap[coinbase];
-		if(affiliate == address(0)) throw;
-		if(affiliate.owner != msg.sender) throw;
+    function changeAffiliate(bytes32 code, address addr){
+      var oldAddr = codeToAddrMap[code];
+      if(addrToCodeMap[oldAddr] != code) throw;
+      if(codeToOwnerMap[code] != msg.sender) throw;
+      if(addrToCodeMap[addr] != '') throw;
 
-		addrToAffiliateMap[coinbase].alias = alias;
-		delete aliasToAddrMap[alias];
-		aliasToAddrMap[alias]=coinbase;
-	}
+      addrToCodeMap[oldAddr]= '';
+      codeToAddrMap[code]=addr;
+      addrToCodeMap[addr]=code;
+    }
 
-	function changeAffiliate(bytes32 alias, address coinbase){
-		Affiliate memory affiliate = addrToAffiliateMap[aliasToAddressMap[alias]];
-		if(affiliate == address(0)) throw;
-		if(affiliate.owner != msg.sender) throw;
+    function releaseCode(bytes32 code){
+      var addr = codeToAddrMap[code];
+      if(codeToOwnerMap[code] != msg.sender) throw;
+      if(addrToCodeMap[addr] != code) throw;
 
-		delete addrToAffiliateMap[aliasToAddrMap[alias]];
-		newAffiliate = Affiliate({owner:msg.sender,coinbase:coinbase,alias:alias});
-		addrToAffiliateMap[coinbase]=newAffiliate;
-		aliasToAddrMap[alias]=coinbase;
-		}*/
-}
-
-contract AliasReg {
-	mapping(address=>bytes32) addrToAliasMap;
-	mapping(bytes32=>address) aliasToAddrMap;
-
-	function claimAlias(bytes32 alias){
-		if(aliasToAddrMap[alias] != address(0)) throw;
-
-		addrToAliasMap[msg.sender]=alias;
-		aliasToAddrMap[alias]=msg.sender;
-	}
-
-	function getAlias(address addr) constant returns(bytes32){
-		return addrToAliasMap[addr];
-	}
-
-	function getAddr(bytes32 alias) constant returns(address){
-		return aliasToAddrMap[alias];
-	}
-
-}
-
-contract owned{
-	address public owner;
-
-	function owned(){
-		owner = msg.sender;
-	}
-
-	function setOwner(address _owner){
-		if(msg.sender!=owner) throw;
-		owner=_owner;
-	}
-}
-
-contract forumable is owned{
-	address public forumAddr;
-
-	function forumable(){
-		var forum = new Forum();
-		forumAddr = address(forum);
-	}
-
-	function setForumAddr(address _forumAddr){
-		if(msg.sender != owner) throw;
-		forumAddr = _forumAddr;
-	}
-}
-
-contract Forum is owned{
-
-	uint public fee;
-
-	event Comment(address indexed author, bytes32 indexed parentId, bytes data);
-	event Moderation(bytes indexed comment, uint8 direction);
-
-	function addComment(bytes32 parentId, bytes data){
-		Comment(msg.sender, parentId, data);
-	}
-
-	function setFee(uint _fee){
-		if(msg.sender != owner) throw;
-		fee = _fee;
-	}
-
-}
-
-contract audible is owned{
-
-	function addComment(address forumAddr, bytes32 parentId, bytes data){
-		if(msg.sender!=owner) throw;
-		Forum(forumAddr).addComment(parentId,data);
-	}
-
-}
-
-contract Submarket is forumable,audible{
-
-	event Meta(bytes meta);
-	bool constant public isSubmarket = true;
-
-	function Submarket(bytes32 alias, bytes meta, address alasRegAddr){
-		AliasReg(alasRegAddr).claimAlias(alias);
-		Meta(meta);
-	}
-
-	function setMeta(bytes meta){
-		if(msg.sender!=owner) throw;
-		Meta(meta);
-	}
-
-}
-
-contract Order{
-	address public buyer;
-	address public affiliate;
-	address public storeAddr;
-	address public storeOwner;
-	address public submarketAddr;
-	address public submarketOwner;
-	uint public feePercentage;
-	uint public disputeSeconds;
-	uint public status;
-	uint public received;
-	uint public timestamp;
-	uint public shippedAt;
-	uint public disputedAt;
-	uint public fee;
-	uint public buyerAmount;
-	uint public affiliateAmount;
-	uint public affiliatePercentage;
-	uint public receivedAtBlockNumber;
-
-	event Meta(bytes meta);
-	event Message(address indexed sender, bytes text);
-	event Update(address indexed sender, uint indexed status);
-
-	uint public constant initialized = 0;
-	uint public constant cancelled = 1;
-	uint public constant shipped = 2;
-	uint public constant finalized = 3;
-	uint public constant disputed = 4;
-	uint public constant resolved = 5;
-
-	function Order(
-		bytes _meta
-		,address _storeAddr
-		,address _submarketAddr
-		,uint _feePercentage
-		,uint _disputeSeconds
-		,address _affiliate
-		,address orderBookAddr
-	){
-		buyer = msg.sender;
-		storeAddr = _storeAddr;
-		storeOwner = Store(_storeAddr).owner();
-		submarketAddr = _submarketAddr;
-		submarketOwner = Submarket(_submarketAddr).owner();
-		feePercentage = _feePercentage;
-		disputeSeconds = _disputeSeconds;
-		affiliate = _affiliate;
-		affiliatePercentage = Store(_storeAddr).affiliatePercentage();
-
-		timestamp = now;
-		Meta(_meta);
-		OrderBook(orderBookAddr).addEntry(address(this),_storeAddr,_submarketAddr);
-	}
-
-	function addMessage(bytes text){
-		if(msg.sender != buyer && msg.sender != storeOwner && msg.sender != submarketOwner)
-			throw;
-
-		Message(msg.sender, text);
-	}
-
-	function(){
-		received += msg.value;
-		receivedAtBlockNumber = block.number;
-	}
-
-	function withdraw(uint amount){
-
-		if(msg.sender != buyer)
-			throw;
-
-		if(status != initialized)
-			throw;
-
-		if(amount>received)
-			throw;
-
-		var isSent = buyer.send(amount);
-
-		if(isSent){
-			receivedAtBlockNumber = block.number;
-			received -= amount;
-		}
-	}
-
-	function addUpdate(uint _status) private{
-		status = _status;
-		Update(msg.sender,_status);
-	}
+      addrToCodeMap[addr]= '';
+      codeToAddrMap[code]=address(0);
+      codeToOwnerMap[code]=address(0);
+    }
+  }
+
+  contract AliasReg {
+    mapping(address=>bytes32) addrToAliasMap;
+    mapping(bytes32=>address) aliasToAddrMap;
+
+    function claimAlias(bytes32 alias){
+      if(aliasToAddrMap[alias] != address(0)) throw;
+
+      addrToAliasMap[msg.sender]=alias;
+      aliasToAddrMap[alias]=msg.sender;
+    }
+
+    function getAlias(address addr) constant returns(bytes32){
+      return addrToAliasMap[addr];
+    }
+
+    function getAddr(bytes32 alias) constant returns(address){
+      return aliasToAddrMap[alias];
+    }
+
+  }
+
+  contract owned{
+    address public owner;
+
+    function owned(){
+      owner = msg.sender;
+    }
+
+    function setOwner(address _owner){
+      if(msg.sender!=owner) throw;
+      owner=_owner;
+    }
+  }
+
+  contract forumable is owned{
+    address public forumAddr;
+
+    function forumable(){
+      var forum = new Forum();
+      forumAddr = address(forum);
+    }
+
+    function setForumAddr(address _forumAddr){
+      if(msg.sender != owner) throw;
+      forumAddr = _forumAddr;
+    }
+  }
+
+  contract Forum is owned{
+
+    uint public fee;
+
+    event Comment(address indexed author, bytes32 indexed parentId, bytes data);
+    event Moderation(bytes indexed comment, uint8 direction);
+
+    function addComment(bytes32 parentId, bytes data){
+      Comment(msg.sender, parentId, data);
+    }
+
+    function setFee(uint _fee){
+      if(msg.sender != owner) throw;
+      fee = _fee;
+    }
+
+  }
+
+  contract audible is owned{
+
+    function addComment(address forumAddr, bytes32 parentId, bytes data){
+      if(msg.sender!=owner) throw;
+      Forum(forumAddr).addComment(parentId,data);
+    }
+
+  }
+
+  contract Submarket is forumable,audible{
+
+    event Meta(bytes meta);
+    bool constant public isSubmarket = true;
+
+    function Submarket(bytes32 alias, bytes meta, address alasRegAddr){
+      AliasReg(alasRegAddr).claimAlias(alias);
+      Meta(meta);
+    }
+
+    function setMeta(bytes meta){
+      if(msg.sender!=owner) throw;
+      Meta(meta);
+    }
+
+  }
+
+  contract Order{
+    address public buyer;
+    address public affiliate;
+    address public storeAddr;
+    address public storeOwner;
+    address public submarketAddr;
+    address public submarketOwner;
+    uint public feePercentage;
+    uint public disputeSeconds;
+    uint public status;
+    uint public received;
+    uint public timestamp;
+    uint public shippedAt;
+    uint public disputedAt;
+    uint public fee;
+    uint public buyerAmount;
+    uint public affiliateAmount;
+    uint public affiliatePercentage;
+    uint public receivedAtBlockNumber;
+
+    event Meta(bytes meta);
+    event Message(address indexed sender, bytes text);
+    event Update(address indexed sender, uint indexed status);
+
+    uint public constant initialized = 0;
+    uint public constant cancelled = 1;
+    uint public constant shipped = 2;
+    uint public constant finalized = 3;
+    uint public constant disputed = 4;
+    uint public constant resolved = 5;
+
+    function Order(
+      bytes _meta
+      ,address _storeAddr
+      ,address _submarketAddr
+      ,uint _feePercentage
+      ,uint _disputeSeconds
+      ,address _affiliate
+      ,address orderBookAddr
+      ){
+        buyer = msg.sender;
+        storeAddr = _storeAddr;
+        storeOwner = Store(_storeAddr).owner();
+        submarketAddr = _submarketAddr;
+        submarketOwner = Submarket(_submarketAddr).owner();
+        feePercentage = _feePercentage;
+        disputeSeconds = _disputeSeconds;
+        affiliate = _affiliate;
+        affiliatePercentage = Store(_storeAddr).affiliatePercentage();
+
+        timestamp = now;
+        Meta(_meta);
+        OrderBook(orderBookAddr).addEntry(address(this),_storeAddr,_submarketAddr);
+      }
+
+      function addMessage(bytes text){
+        if(msg.sender != buyer && msg.sender != storeOwner && msg.sender != submarketOwner)
+        throw;
+
+        Message(msg.sender, text);
+      }
+
+      function(){
+        received += msg.value;
+        receivedAtBlockNumber = block.number;
+      }
+
+      function withdraw(uint amount){
+
+        if(msg.sender != buyer)
+        throw;
+
+        if(status != initialized)
+        throw;
+
+        if(amount>received)
+        throw;
+
+        var isSent = buyer.send(amount);
+
+        if(isSent){
+          receivedAtBlockNumber = block.number;
+          received -= amount;
+        }
+      }
+
+      function addUpdate(uint _status) private{
+        status = _status;
+        Update(msg.sender,_status);
+      }
 
-	function cancel(){
+      function cancel(){
 
-		if(status != initialized)
-			throw;
+        if(status != initialized)
+        throw;
 
-		if(msg.sender != buyer && msg.sender != storeOwner)
-			throw;
+        if(msg.sender != buyer && msg.sender != storeOwner)
+        throw;
 
-		var isSent = buyer.send(this.balance);
-		if(!isSent) throw;
+        var isSent = buyer.send(this.balance);
+        if(!isSent) throw;
 
-		addUpdate(cancelled);
-	}
+        addUpdate(cancelled);
+      }
 
-	function markAsShipped(){
+      function markAsShipped(){
 
-		if(status !=  initialized)
-			throw;
+        if(status !=  initialized)
+        throw;
 
-		if(msg.sender != storeOwner)
-			throw;
-
-		//don't allow to mark as shipped on same block that a withdrawl is made
-		if(receivedAtBlockNumber == block.number)
-			throw;
+        if(msg.sender != storeOwner)
+        throw;
+
+        //don't allow to mark as shipped on same block that a withdrawl is made
+        if(receivedAtBlockNumber == block.number)
+        throw;
 
-		shippedAt = now;
-		addUpdate(shipped);
-	}
+        shippedAt = now;
+        addUpdate(shipped);
+      }
 
-	function finalize(){
+      function finalize(){
 
-		if(status !=  shipped)
-			throw;
+        if(status !=  shipped)
+        throw;
 
-		if(msg.sender != buyer)
-			throw;
+        if(msg.sender != buyer)
+        throw;
 
-		var isSent = storeOwner.send(this.balance);
-		if(!isSent) throw;
+        var isSent = storeOwner.send(this.balance);
+        if(!isSent) throw;
 
-		addUpdate(finalized);
-	}
+        addUpdate(finalized);
+      }
 
-	function dispute(){
-		if(msg.sender != buyer)
-			throw;
+      function dispute(){
+        if(msg.sender != buyer)
+        throw;
 
-		if(status != shipped)
-			throw;
+        if(status != shipped)
+        throw;
 
-		if(now - shippedAt > disputeSeconds)
-			throw;
+        if(now - shippedAt > disputeSeconds)
+        throw;
 
-		if(submarketOwner==address(0))
-			throw;
+        if(submarketOwner==address(0))
+        throw;
 
-		addUpdate(disputed);
-		disputedAt=now;
-	}
+        addUpdate(disputed);
+        disputedAt=now;
+      }
 
-	function calculateFee() returns (uint){
-		// show your work:
+      function calculateFee() returns (uint){
+        // show your work:
 
-		// 1. fee = products(feePercent)
-			// products = fee/feePercent
-			// products = fee/(feePercentage/100)
-			// products = (100*fee)/feePercentage
+        // 1. fee = products(feePercent)
+        // products = fee/feePercent
+        // products = fee/(feePercentage/100)
+        // products = (100*fee)/feePercentage
 
-		// 2. products + fee = received
-			// (100*fee)/feePercentage + fee = received
-			// fee(100/feePercentage + 1) = received
-			// fee(100/feePercentage + feePercentage/feePercentage) = received
-			// fee(100+feePercentage)/feePercentage = received
-			// fee = received/((100+feePercentage)/feePercentage)
-			// fee = (received * feePercentage)/(100 + feePercentage)
+        // 2. products + fee = received
+        // (100*fee)/feePercentage + fee = received
+        // fee(100/feePercentage + 1) = received
+        // fee(100/feePercentage + feePercentage/feePercentage) = received
+        // fee(100+feePercentage)/feePercentage = received
+        // fee = received/((100+feePercentage)/feePercentage)
+        // fee = (received * feePercentage)/(100 + feePercentage)
 
 
-		return (received * feePercentage)/(100 + feePercentage);
-	}
+        return (received * feePercentage)/(100 + feePercentage);
+      }
 
-	function resolve(uint buyerPercentage){
-		if(status!=disputed)
-			throw;
+      function resolve(uint buyerPercentage){
+        if(status!=disputed)
+        throw;
 
-		if(msg.sender != submarketOwner)
-			throw;
+        if(msg.sender != submarketOwner)
+        throw;
 
-		fee = calculateFee();
-		buyerAmount = ((received-fee)*buyerPercentage)/100;
-		affiliateAmount = ((received-fee-buyerAmount)*affiliatePercentage)/100;
-		var storeOwnerAmount = received - fee - buyerAmount - affiliateAmount;
+        fee = calculateFee();
+        buyerAmount = ((received-fee)*buyerPercentage)/100;
+        affiliateAmount = ((received-fee-buyerAmount)*affiliatePercentage)/100;
+        var storeOwnerAmount = received - fee - buyerAmount - affiliateAmount;
 
-		submarketOwner.send(fee);
+        submarketOwner.send(fee);
 
-		if(buyerAmount>0)
-			buyer.send(buyerAmount);
+        if(buyerAmount>0)
+        buyer.send(buyerAmount);
 
-		if(storeOwnerAmount>0)
-			storeOwner.send(storeOwnerAmount);
+        if(storeOwnerAmount>0)
+        storeOwner.send(storeOwnerAmount);
 
-		addUpdate(resolved);
-	}
+        addUpdate(resolved);
+      }
 
-}
+    }
 
-contract Store is forumable,audible{
-	event Meta(bytes meta);
-	bool constant public isStore = true;
-	uint public affiliatePercentage;
+    contract Store is forumable,audible{
+      event Meta(bytes meta);
+      bool constant public isStore = true;
+      uint public affiliatePercentage;
 
-	function Store(bytes32 alias, uint _affiliatePercentage,bytes meta,address alasRegAddr){
-		Meta(meta);
-		AliasReg(alasRegAddr).claimAlias(alias);
-		affiliatePercentage = _affiliatePercentage;
-	}
+      function Store(bytes32 alias, uint _affiliatePercentage,bytes meta,address alasRegAddr){
+        Meta(meta);
+        AliasReg(alasRegAddr).claimAlias(alias);
+        affiliatePercentage = _affiliatePercentage;
+      }
 
-	function setMeta(bytes meta){
-		if(msg.sender!=owner) throw;
-		Meta(meta);
-	}
+      function setMeta(bytes meta){
+        if(msg.sender!=owner) throw;
+        Meta(meta);
+      }
 
-	mapping(address=>Review) reviews;
+      mapping(address=>Review) reviews;
 
-	struct Review{
-		uint score;
-		uint timestamp;
-	}
+      struct Review{
+        uint score;
+        uint timestamp;
+      }
 
-	uint[6] scoreCounts;
+      uint[6] scoreCounts;
 
-	event ReviewData(address indexed orderAddr, bytes data);
+      event ReviewData(address indexed orderAddr, bytes data);
 
-	function getReview(address orderAddr) constant returns (uint, uint){
-		var review = reviews[orderAddr];
-		return (review.score,review.timestamp);
-	}
+      function getReview(address orderAddr) constant returns (uint, uint){
+        var review = reviews[orderAddr];
+        return (review.score,review.timestamp);
+      }
 
-	function getScoreCounts() constant returns (uint, uint, uint, uint, uint, uint){
-		return (scoreCounts[0],scoreCounts[1],scoreCounts[2],scoreCounts[3],scoreCounts[4],scoreCounts[5]);
-	}
+      function getScoreCounts() constant returns (uint, uint, uint, uint, uint, uint){
+        return (scoreCounts[0],scoreCounts[1],scoreCounts[2],scoreCounts[3],scoreCounts[4],scoreCounts[5]);
+      }
 
-	function leaveReview(address orderAddr, uint score, bytes data){
+      function leaveReview(address orderAddr, uint score, bytes data){
 
-		var order = Order(orderAddr);
+        var order = Order(orderAddr);
 
-		if(order.status() < 3)
-			throw;
+        if(order.status() < 3)
+        throw;
 
-		if(order.storeAddr() != address(this))
-			throw;
+        if(order.storeAddr() != address(this))
+        throw;
 
-		if(order.buyer() != msg.sender)
-			throw;
+        if(order.buyer() != msg.sender)
+        throw;
 
-		if(score>5)
-			throw;
+        if(score>5)
+        throw;
 
-		var review = reviews[orderAddr];
+        var review = reviews[orderAddr];
 
-		if(review.timestamp != 0)
-			scoreCounts[review.score]--;
+        if(review.timestamp != 0)
+        scoreCounts[review.score]--;
 
-		review.timestamp = now;
-		review.score = score;
-		scoreCounts[score]++;
+        review.timestamp = now;
+        review.score = score;
+        scoreCounts[score]++;
 
-		ReviewData(orderAddr, data);
+        ReviewData(orderAddr, data);
 
-	}
+      }
 
-}
+    }
