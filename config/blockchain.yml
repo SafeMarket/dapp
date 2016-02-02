@@ -7,8 +7,9 @@ development:
   genesis_block: config/genesis/dev_genesis.json
   datadir: /tmp/embark
   chains: config/chains/development.json
-  mine_when_needed: true
-  mine_periodically: false
+  mine_when_needed: false
+  mine_periodically: true
+  interval_ms: 5000
   max_peers: 0
   gas_limit: 3141592
   gas_price: 50000000000

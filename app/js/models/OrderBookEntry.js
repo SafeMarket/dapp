@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').factory('OrderBookEntry',function($q,utils,Order){
+angular.module('app').factory('OrderBookEntry',function($q,utils,Order,OrderBook){
 
 	function OrderBookEntry(result){
 		this.result = result
@@ -9,7 +9,7 @@ angular.module('app').factory('OrderBookEntry',function($q,utils,Order){
 		this.submarketAddr = result.args.submarketAddr
 		this.usesSubmarket = this.submarketAddr !== utils.nullAddr
 		this.timestamp = web3.eth.getBlock(result.blockNumber).timestamp
-		this.status = Order.contractFactory.at(this.orderAddr).getStatus().toNumber()
+		this.status = Order.contractFactory.at(this.orderAddr).status().toNumber()
 	}
 
 	OrderBookEntry.fetch = function(filters){

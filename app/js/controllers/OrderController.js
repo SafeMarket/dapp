@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').controller('OrderController',function($scope,Order,pgp,user,$stateParams,modals){
+angular.module('app').controller('OrderController',function($scope,Order,pgp,user,$stateParams,modals,growl){
 	
 	(new Order($stateParams.orderAddr)).updatePromise.then(function(order){
 
