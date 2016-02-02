@@ -7,7 +7,11 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		,keystore
 
 	this.getSeed = function(){
-		return this.seed || this.data.seed
+		if(this.seed || this.data.seed)
+			return this.seed || this.data.seed
+
+		this.data.seed = lightwallet.keystore.generateRandomSeed()
+		return this.data.seed
 	}
 
 	this.getKeystore = function(){
@@ -16,6 +20,8 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		var seed = this.getSeed()
 			,password = this.password
 			,keystore = new lightwallet.keystore(seed, password)
+
+		console.log('seed',seed)
 
 		keystore.passwordProvider = function (callback) {
 	  		callback(null, password);

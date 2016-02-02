@@ -40,7 +40,7 @@ angular.module('app').controller('LoginController',function($scope,$rootScope,us
 			return
 		}
 
-		user.password = $scope.password
+		user.register($scope.password)
 		user.loadData()
 		user.save()
 
