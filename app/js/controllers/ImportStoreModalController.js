@@ -25,10 +25,10 @@ angular.module('app').controller('ImportStoreModalController',function($scope,$m
 		var storeAddr = AliasReg.getAddr($scope.alias)
 			,store = new Store(storeAddr)
 
-		if(store.owner !== user.data.account)
+		if(store.owner !== user.getAccount())
 			return growl.addErrorMessage('You are not the owner of that store')
 
-		user.data.storeAddrs.push(storeAddr)
+		user.addStore(storeAddr)
 		user.save()
 
 		$modalInstance.close()

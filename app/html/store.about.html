@@ -11,7 +11,7 @@
 		<td>Minimum Total Order Size</td>
 		<td>{{store.meta.minTotal}} {{store.meta.currency}}</td>
 	</tr>
-	<tr>
+	<tr ng-show="store.reviews.length>0">
 		<td>Reviews ({{store.averageScore.toFixed(1).toString()}})</td>
 		<td><table class="table">
 			<tr ng-repeat="scoreCount in store.scoreCountsReversed track by $index">

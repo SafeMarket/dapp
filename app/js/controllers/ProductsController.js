@@ -1,4 +1,4 @@
-angular.module('app').controller('ProductsController',function($scope,$filter,utils,Submarket,helpers,growl,user){
+angular.module('app').controller('ProductsController',function($scope,$filter,utils,Submarket,helpers,growl,user,Order){
 
 	$scope.$watch('submarketAddr',function(submarketAddr){
 			

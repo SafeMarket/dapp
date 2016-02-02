@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').factory('Order',function(utils,ticker,$q,Store,Submarket,Key,KeyGroup,PgpMessageWrapper,txMonitor,user){
+angular.module('app').factory('Order',function(utils,ticker,$q,Store,Submarket,Key,KeyGroup,PgpMessageWrapper,txMonitor,user,OrderBook){
 
 function Order(addr){
 	this.addr = addr
@@ -253,15 +253,17 @@ Order.prototype.update = function(){
 				var timestamp = web3.eth.getBlock(result.blockNumber).timestamp
 				order.messages.push(new Message(result.args.sender,web3.toAscii(result.args.text),timestamp,order))
 			})
-		})
+		
+			order.contract.Update({},{fromBlock:0,toBlock:'latest'}).get(function(error,results){
+				results.forEach(function(result){
+					var timestamp = web3.eth.getBlock(result.blockNumber).timestamp
+					order.updates.push(new Update(result.args.sender,result.args.status.toNumber(),timestamp,order))
+				})
 
-		order.contract.Update({},{fromBlock:0,toBlock:'latest'}).get(function(error,results){
-			results.forEach(function(result){
-				var timestamp = web3.eth.getBlock(result.blockNumber).timestamp
-				order.updates.push(new Update(result.args.sender,result.args.status.toNumber(),timestamp,order))
+				console.log('order',order,order.messages.length)
+				deferred.resolve(order)
 			})
 
-			deferred.resolve(order)
 		})
 
 	})
@@ -273,21 +275,7 @@ Order.prototype.update = function(){
 
 Order.prototype.addMessage = function(pgpMessage){
 	var ciphertext = pgpMessage.packets.write()
-		,deferred = $q.defer()
-		,txHex = this.contract.addMessage(ciphertext,{
-			gas: this.contract.addMessage.estimateGas(ciphertext)
-		})
-		,order = this
-
-	utils.waitForTx(txHex).then(function(){
-		order.update().then(function(){
-			deferred.resolve(order)
-		})
-	},function(error){
-		deferred.reject(error)
-	})
-
-	return deferred.promise
+	return txMonitor.propose('Add a Message',this.contract.addMessage,[ciphertext])
 }
 
 Order.prototype.withdraw = function(amount){
@@ -307,12 +295,6 @@ Order.prototype.withdraw = function(amount){
 	return deferred.promise
 }
 
-Order.prototype.decryptMessages = function(privateKey){
-	this.messages.forEach(function(message){
-		message.decrypt(privateKey)
-	})
-}
-
 Order.prototype.leaveReview = function(score,text){
 	var dataHex = utils.convertObjectToHex({
 		text:text
@@ -321,47 +303,37 @@ Order.prototype.leaveReview = function(score,text){
 	return txMonitor.propose('Leave a Review',this.store.contract.leaveReview,[this.addr,score,dataHex])
 }
 
+Order.prototype.getRoleForAddr = function(addr){
+	switch(addr){
+		case this.buyer: return 'buyer'; break;
+		case this.store.owner: return 'storeOwner'; break;
+		case this.submarket.owner: return 'submarketOwner'; break;
+	}
+	return null;
+}
+
 function Message(sender,ciphertext,timestamp,order){
 
 	this.sender = sender
+	this.from = order.getRoleForAddr(sender)
 	this.ciphertext = ciphertext
+	this.pgpMessageWrapper = new PgpMessageWrapper(ciphertext)
 	this.timestamp = timestamp
 
-	switch(this.sender){
-		case order.buyer:
-			this.from = 'buyer'
-			break;
-		case order.store.owner:
-			this.from = 'storeOwner'
-			break;
-		case order.submarket.owner:
-			this.from = 'submarketOwner'
-			break;
-	}
-
+	if(!user.decrypt(this.pgpMessageWrapper))
+		console.error('Failed to decrypt message')
+	
+	console.log('text',this.pgpMessageWrapper.text)
+	this.text = this.pgpMessageWrapper.text
 }
 
 function Update(sender,status,timestamp,order){
 
 	this.sender = sender
+	this.from = order.getRoleForAddr(sender)
 	this.status = status
 	this.timestamp = timestamp
 
-	switch(this.sender){
-		case order.buyer:
-			this.from = 'buyer'
-			break;
-		case order.store.owner:
-			this.from = 'storeOwner'
-			break;
-		case order.submarketOwner:
-			this.from = 'submarketOwner'
-			break;
-	}
-}
-
-Message.prototype.decrypt = function(privateKey){
-	this.text = this.pgpMessage.decrypt(privateKey).packets[0].data
 }
 
 Update.prototype.isUpdate = true

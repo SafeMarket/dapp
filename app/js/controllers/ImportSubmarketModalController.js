@@ -25,10 +25,10 @@ angular.module('app').controller('ImportSubmarketModalController',function($scop
 		var submarketAddr = AliasReg.getAddr($scope.alias)
 			,submarket = new Submarket(submarketAddr)
 
-		if(submarket.owner !== user.data.account)
+		if(submarket.owner !== user.getAccount())
 			return growl.addErrorMessage('You are not the owner of that submarket')
 
-		user.data.submarketAddrs.push(submarketAddr)
+		user.addSubmarket(submarketAddr)
 		user.save()
 
 		$modalInstance.close()

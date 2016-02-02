@@ -14,6 +14,11 @@ angular.module('app').controller('TxMonitorModalController',function($scope,$int
 	txOptions.gasPrice = web3.eth.gasPrice.toNumber()
 	
 	proposal.value = txOptions.value = txOptions.value ? txOptions.value : 0
+
+	if(typeof proposal.value === 'string')
+		proposal.value = web3.toDecimal(proposal.value)
+
+
 	proposal.gas = txOptions.gas = txOptions.gas || (proposal.contractFactoryOrFunction.estimateGas.apply(proposal.contractFactoryOrFunction, proposal.args)*2)
 	proposal.gasCost = txOptions.gasPrice * txOptions.gas
 	proposal.cost = proposal.gasCost + proposal.value

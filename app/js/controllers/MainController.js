@@ -2,7 +2,7 @@
 	angular.module('app').controller('MainController',function($scope,$timeout,$rootScope,modals,user,growl){
 
 		$scope.$watch('account',function(){
-			$rootScope.storeAddrs = user.getOrderAddrs()
+			$rootScope.orderAddrs = user.getOrderAddrs()
 			$rootScope.storeAddrs = user.getStoreAddrs()
 			$rootScope.submarketAddrs = user.getSubmarketAddrs()
 		})

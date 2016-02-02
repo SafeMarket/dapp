@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').controller('PaymentModalController',function($scope,addr,amount,currency,utils,user,growl,$modalInstance){
+angular.module('app').controller('PaymentModalController',function($scope,addr,amount,currency,utils,user,growl,$modalInstance,txMonitor){
 	$scope.addr = addr
 	$scope.userCurrency = user.data.currency
 
@@ -54,11 +54,20 @@ angular.module('app').controller('PaymentModalController',function($scope,addr,a
 			return growl.addErrorMessage(e)
 		}
 
-		$scope.isSyncing = true
+		var amount = utils.convertCurrency($scope.amountInUserCurrency,{from:user.getCurrency(),to:'WEI'})
+			,txObject = {
+				value:amount.toNumber()
+				,to:addr
+			}
 
-		var amount = utils.convertCurrency($scope.amountInUserCurrency,{from:user.data.currency,to:'WEI'})
+		txObject.gas = web3.eth.estimateGas(txObject)
 
-		utils.send($scope.addr,amount).then(function(){
+		console.log('txObject',txObject)
+
+		txMonitor.propose('Make a Payment',web3.eth.sendTransaction,[txObject]).then(function(){
+			$scope.balance = user.getBalance()
+			$scope.transferAmountInUserCurrency = 0
+		}).then(function(){
 			$modalInstance.close()
 		})
 	}

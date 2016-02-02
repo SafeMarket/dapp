@@ -115,6 +115,10 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		return deferred.promise
 	}
 
+	this.findKeypair = function(keyId){
+		return _.find(this.getKeypairs(),{id:keyId})
+	}
+
 	this.getStorage = function(){
 		return localStorage.getItem('user')
 	}
@@ -248,7 +252,7 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 	this.decrypt = function(pgpMessageWrapper){
 		var keypair
 
-		this.keypairs.forEach(function(_keypair){
+		this.getKeypairs().forEach(function(_keypair){
 			if(pgpMessageWrapper.keyIds.indexOf(_keypair.id)){
 				keypair = _keypair
 				return false
@@ -259,6 +263,7 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 			return false
 
 		pgpMessageWrapper.decrypt(keypair.private)
+		return true
 	}
 
 	function Keypair(keypairData){
