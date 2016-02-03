@@ -4,14 +4,12 @@ angular.module('app').controller('LoginController',function($scope,$rootScope,us
 	$scope.userExists = !! user.getStorage()
 
 	$scope.login = function(){
-		var isPassword = user.checkPassword($scope.password)
 		
-		if(!isPassword){
+		if(!user.login($scope.password)){
 			growl.addErrorMessage('Sorry, thats not correct')
 			return
 		}
 
-		user.register($scope.password)
 
 		growl.addSuccessMessage('Login successful!')
 		$rootScope.isLoggedIn = true
@@ -42,7 +40,6 @@ angular.module('app').controller('LoginController',function($scope,$rootScope,us
 
 		user.register($scope.password)
 		user.loadData()
-		user.save()
 
 		growl.addSuccessMessage('Account created')
 		$rootScope.isLoggedIn = true

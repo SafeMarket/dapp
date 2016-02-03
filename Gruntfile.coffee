@@ -34,6 +34,7 @@ module.exports = (grunt) ->
       contracts:
         options:
           files:["generated/tmp/contracts.sol"]
+          doOptimize: false
 
     infosphere: 
         default:

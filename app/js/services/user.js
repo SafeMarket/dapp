@@ -7,11 +7,7 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		,keystore
 
 	this.getSeed = function(){
-		if(this.seed || this.data.seed)
-			return this.seed || this.data.seed
-
-		this.data.seed = lightwallet.keystore.generateRandomSeed()
-		return this.data.seed
+		return this.seed || this.data.seed
 	}
 
 	this.getKeystore = function(){
@@ -140,7 +136,10 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 
 	this.register = function(password){
 		this.password = password
-		this.data.seed = lightwallet.keystore.generateRandomSeed();
+		this.data = {
+			seed: lightwallet.keystore.generateRandomSeed()
+		}
+		this.save()
 	}
 
 	this.setDisplayCurrencies = function(){
@@ -151,10 +150,10 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 			$rootScope.displayCurrencies.push('ETH')
 	}
 
-	this.checkPassword = function(password){
+	this.login = function(password){
 		try{
 			userJson = CryptoJS.AES.decrypt(this.getStorage(),password).toString(CryptoJS.enc.Utf8)
-			userData = JSON.parse(userJson)
+			this.data = JSON.parse(userJson)
 			return true;
 		}catch(e){
 			return false
