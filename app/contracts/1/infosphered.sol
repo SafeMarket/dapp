@@ -5,7 +5,7 @@ contract infosphered is owned{
     // ================ bool ================
 
     function setBool(bytes key, bool value) external{
-        this.requireOwnership();
+        if(msg.sender!=owner) throw;
         infosphere.setBool(key,value);
     }
 
@@ -16,7 +16,7 @@ contract infosphered is owned{
     // ================ address ================
 
     function setAddress(bytes key, address value) external{
-        this.requireOwnership();
+        if(msg.sender!=owner) throw;
         infosphere.setAddress(key,value);
     }
 
@@ -27,7 +27,7 @@ contract infosphered is owned{
     // ================ bytes ================
 
     function setBytes(bytes key, bytes value) external{
-        this.requireOwnership();
+        if(msg.sender!=owner) throw;
         infosphere.setBytes(key,value);
     }
 
@@ -38,7 +38,7 @@ contract infosphered is owned{
     // ================ string ================
 
     function setString(bytes key, string value) external{
-        this.requireOwnership();
+        if(msg.sender!=owner) throw;
         infosphere.setString(key,value);
     }
 
@@ -49,7 +49,7 @@ contract infosphered is owned{
     // ================ int ================
 
     function setInt(bytes key, int value) external{
-        this.requireOwnership();
+        if(msg.sender!=owner) throw;
         infosphere.setInt(key,value);
     }
 
@@ -60,7 +60,7 @@ contract infosphered is owned{
     // ================ uint ================
 
     function setUint(bytes key, uint value) external{
-        this.requireOwnership();
+        if(msg.sender!=owner) throw;
         infosphere.setUint(key,value);
     }
 

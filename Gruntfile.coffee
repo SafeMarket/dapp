@@ -23,6 +23,7 @@ module.exports = (grunt) ->
     ,"grunt-rename"
     ,"grunt-file-exists"
     ,"grunt-solc"
+    ,"grunt-infosphere"
   )
 
   grunt.loadTasks "tasks"
@@ -34,6 +35,12 @@ module.exports = (grunt) ->
         options:
           files:["generated/tmp/contracts.sol"]
 
+    infosphere: 
+        default:
+            options:
+                files:
+                    infosphere: 'app/contracts/0/Infosphere.sol'
+                    infosphered: 'app/contracts/1/infosphered.sol'
 
     node_version:
       options:

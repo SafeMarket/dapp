@@ -17,6 +17,12 @@ development:
     deploy: false
   infosphered:
     deploy: false
+  AliasReg:
+    deploy: true
+  Keystore:
+    deploy: true
+  OrderBook:
+    deploy: true
   OpenStore:
     onDeploy:
       - OpenStore = web3.eth.contract(contracts.OpenStore.abi).at(contracts.OpenStore.address);
@@ -27,31 +33,6 @@ development:
       - OpenStore.set('CMC:TETH:RUB', new BigNumber('55780151819800'));
       - OpenStore.set('CMC:TETH:BTC', new BigNumber('2306400000'));
       - web3.eth.sendTransaction({to:'0x1049a6c61c46a7c1e12d919189701bf26a1a2011',value:web3.toWei(10,'ether')})
-testnet:
-  Store:
-    deploy: false
-  Submarket:
-    deploy: false
-  Order:
-    deploy: false
-  Forum:
-    deploy: false
-  aliasable:
-    deploy: false
-  owned:
-    deploy: false
-  forumable:
-    deploy: false
-  audible:
-    deploy: false
-  OpenStore:
-    onDeploy:
-      - OpenStore.set('CMC:TETH:USD', new BigNumber('830075000000'));
-      - OpenStore.set('CMC:TETH:EUR', new BigNumber('782024448475'));
-      - OpenStore.set('CMC:TETH:CNY', new BigNumber('5311462328050'));
-      - OpenStore.set('CMC:TETH:CAD', new BigNumber('1107984940080'));
-      - OpenStore.set('CMC:TETH:RUB', new BigNumber('55780151819800'));
-      - OpenStore.set('CMC:TETH:BTC', new BigNumber('2306400000'));
 production:
   Store:
     deploy: false
@@ -70,4 +51,12 @@ production:
   audible:
     deploy: false
   infosphered:
+    deploy: false 
+  AliasReg:
+    deploy: true
+  Keystore:
+    deploy: true
+  OrderBook:
+    deploy: true
+  OpenStore:
     deploy: false

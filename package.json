@@ -34,6 +34,7 @@
     "grunt-file-exists": "^0.1.3",
     "grunt-git": "^0.3.5",
     "grunt-github-release-asset": "git+https://github.com/SafeMarket/grunt-github-release-asset.git#develop",
+    "grunt-infosphere": "^0.1.0",
     "grunt-node-version": "^1.0.1",
     "grunt-port-checker": "^0.1.0",
     "grunt-prompt": "^1.3.3",
