@@ -162,7 +162,7 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 
 	this.reset = function(){
 		this.setStorage('')
-		window.location.reload()
+		this.password = null
 	}
 
 	this.loadData = function(){

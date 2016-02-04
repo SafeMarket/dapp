@@ -104,7 +104,6 @@ angular.module('app').controller('SettingsModalController',function($scope,growl
 		user.reset()
 		user.logout()
 		window.location.hash = 'login'
-		window.location.reload()
 	}
 
 	$scope.transfer = function(){
