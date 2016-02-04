@@ -131,6 +131,8 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 
 	this.logout = function(){
 		this.password = null
+		acounts = null
+		keystore = null
 		$rootScope.isLoggedIn = false
 	}
 
@@ -162,7 +164,7 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 
 	this.reset = function(){
 		this.setStorage('')
-		this.password = null
+		this.logout()
 	}
 
 	this.loadData = function(){
