@@ -155,6 +155,7 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 	this.login = function(password){
 		try{
 			userJson = CryptoJS.AES.decrypt(this.getStorage(),password).toString(CryptoJS.enc.Utf8)
+			this.password = password
 			this.data = JSON.parse(userJson)
 			return true;
 		}catch(e){
