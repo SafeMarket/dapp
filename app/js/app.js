@@ -76,7 +76,7 @@ app.run(function(user,$rootScope,$interval,$timeout,timeAgo,user){
 
     //if electron
     //TODO: find better way of determining if electron is available
-    if(!window.isElectron){
+    if(blockchain.env=='development'){
         user.password = 'password'
         user.seed = 'gasp quote useless purity isolate truly scout baby rule nest bridge february'
         $rootScope.isLoggedIn = true

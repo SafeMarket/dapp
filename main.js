@@ -148,7 +148,6 @@ app.on('ready', function() {
   });
 
   mainWindow.webContents.on('did-finish-load', function() {
-    mainWindow.webContents.executeJavaScript("isElectron=true;");
 
     if(areImagesEnabled)
       mainWindow.webContents.executeJavaScript("areImagesEnabled=true;alert('Remote images are now enabled. These remote images can be used to track your browsing.');");
