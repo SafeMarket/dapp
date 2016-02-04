@@ -6,7 +6,7 @@ exports.config = {
 		,'spec/submarket.spec.js'
 		,'spec/store.spec.js'
 	]
-	,allScriptsTimeout: 20000
+	,allScriptsTimeout: 60000
 	,onPrepare: function() {
 			
 		require('jasmine-reporters');
