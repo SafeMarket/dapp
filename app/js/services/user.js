@@ -6,14 +6,10 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		,accounts
 		,keystore
 
-	this.getSeed = function(){
-		return this.seed || this.data.seed
-	}
-
 	this.getKeystore = function(){
 		if(keystore) return keystore
 
-		var seed = this.getSeed()
+		var seed = this.getData().seed
 			,password = this.password
 			,keystore = new lightwallet.keystore(seed, password)
 
@@ -39,32 +35,45 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		return accounts
 	}
 
+	this.getData = function(){
+		if(!this.data)
+			this.data = {}
+
+		return this.data
+	}
+
 	this.getAccount = function(){
-		return this.data.account || this.getAccounts()[0]
+		if(!this.getData().account)
+			this.getData().account = this.getAccounts()[0]
+
+		return this.getData().account
 	}
 
 	this.setAccount = function(account){
-		web3.eth.defaultAccount = $rootScope.account = this.data.account = account
+		web3.eth.defaultAccount = $rootScope.account = this.getData().account = account
 	}
 
 	this.getCurrency = function(){
-		return this.data.currency || 'USD'
+		if(!this.getData().currency)
+			this.getData().currency = 'USD'
+
+		return this.getData().currency
 	}
 
 	this.setCurrency = function(currency){
-		this.data.currency = currency
+		this.getData().currency = currency
 		this.setDisplayCurrencies()
 	}
 
 	this.getHiddenCommentIds = function(){
-		if(!this.data.hiddenCommentIds)
-			this.data.hiddenCommentIds = []
+		if(!this.getData().hiddenCommentIds)
+			this.getData().hiddenCommentIds = []
 
-		return this.data.hiddenCommentIds
+		return this.getData().hiddenCommentIds
 	}
 
 	this.setHiddenCommentIds = function(hiddenCommentIds){
-		this.data.hiddenCommentIds = hiddenCommentIds
+		this.getData().hiddenCommentIds = hiddenCommentIds
 	}
 
 	this.getBalance = function(){
@@ -72,11 +81,20 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		return web3.eth.getBalance(account)
 	}
 
-	this.getAccountData = function(){
-		if(!this.data.accountsData[this.getAccount()])
-			this.data.accountsData[this.getAccount()] = {}
+	this.getAccountsData = function(){
+		if(!this.getData().accounts)
+			this.getData().accounts = {}
 
-		return this.data.accountsData[this.getAccount()]
+		return this.getData().accounts
+	}
+
+	this.getAccountData = function(){
+		var account = this.getAccount()
+
+		if(!this.getAccountsData()[account])
+			this.getAccountsData()[account] = {}
+
+		return this.getAccountsData()[account]
 	}
 
 	this.getOrderAddrs = function(){
@@ -155,10 +173,9 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		$rootScope.isLoggedIn = false
 	}
 
-	this.register = function(password){
+	this.register = function(password,seed){
 		this.password = password
-		this.loadData()
-		this.data.seed = lightwallet.keystore.generateRandomSeed()
+		this.getData().seed = seed || lightwallet.keystore.generateRandomSeed()
 		this.save()
 		this.init()
 	}
@@ -175,12 +192,11 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		try{
 			userJson = CryptoJS.AES.decrypt(this.getStorage(),password).toString(CryptoJS.enc.Utf8)
 		}catch(e){
+			console.error(e)
 			return false
 		}
 
-		$rootScope.isLoggedIn = true
 		this.password = password
-		this.loadData()
 		this.init()
 		return true;
 	}
@@ -189,28 +205,6 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		this.setStorage('')
 		this.logout()
 	}
-
-	this.loadData = function(){
-		var userJsonEncrypted = this.getStorage()
-			,userJson = null
-			,userData = null
-
-		try{
-			userJson = CryptoJS.AES.decrypt(this.getStorage(),this.password).toString(CryptoJS.enc.Utf8)
-			userData = JSON.parse(userJson)
-		}catch(e){
-			console.error(e)
-		}
-
-		this.data = userData || {}
-		
-		this.data.accountsData = this.data.accountsData || {}
-
-		this.getAccounts().forEach(function(account){
-			user.data.accountsData[account] = user.data.accountsData[account] || {}
-		})
-	}
-
 
 	this.save = function(){
 		var dataEncrypted = CryptoJS.AES.encrypt(JSON.stringify(this.data), this.password)
@@ -318,7 +312,8 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 	}
 
 	this.init = function(){
-		$rootScope.account = web3.eth.defaultAccount = this.getAccount()
+		$rootScope.isLoggedIn = true
+		this.setAccount(this.getAccount())
 		this.setDisplayCurrencies()
 		this.setProvider()
 	}

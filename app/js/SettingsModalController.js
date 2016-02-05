@@ -1,6 +1,6 @@
 angular.module('app').controller('SettingsModalController',function($scope,growl,user,ticker,helpers,txMonitor,utils,$modalInstance,Keystore){
 	
-	$scope.seed = user.getSeed()
+	$scope.seed = user.getData().seed
 	$scope.accounts = user.getAccounts()
 	$scope.account = user.getAccount()
 	$scope.currencies = Object.keys(ticker.rates)
