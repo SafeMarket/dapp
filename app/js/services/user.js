@@ -5,10 +5,17 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 	var user = this
 		,keystore
 
+	this.getSeed = function(){
+		if(blockchain.env=='development')
+			this.data.seed = 'gasp quote useless purity isolate truly scout baby rule nest bridge february'
+
+		return this.data.seed
+	}
+
 	this.getKeystore = function(){
 		if(keystore) return keystore
 
-		var seed = this.getData().seed
+		var seed = this.getSeed()
 			,password = this.password
 
 		console.log('seed',seed)
@@ -178,13 +185,15 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		this.password = null
 		keystore = null
 		$rootScope.isLoggedIn = false
+		window.location.hash = '/login'
 	}
 
-	this.register = function(password,seed){
+	this.register = function(password){
 		this.password = password
-		this.getData().seed = seed || lightwallet.keystore.generateRandomSeed()
+		this.getData().seed = lightwallet.keystore.generateRandomSeed()
 		this.save()
 		this.init()
+		window.location.hash = '/'
 	}
 
 	this.setDisplayCurrencies = function(){
@@ -195,7 +204,7 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 			$rootScope.displayCurrencies.push('ETH')
 	}
 
-	this.login = function(password,seed){
+	this.login = function(password){
 		try{
 			this.data = JSON.parse(CryptoJS.AES.decrypt(this.getStorage(),password).toString(CryptoJS.enc.Utf8))
 		}catch(e){
@@ -204,8 +213,8 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		}
 
 		this.password = password
-		this.getData().seed = seed || this.getData().seed
 		this.init()
+		window.location.hash = '/'
 		return true;
 	}
 
@@ -214,10 +223,10 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 	}
 
 	this.reset = function(){
+		this.data = null
 		this.setStorage('')
 		$rootScope.userExists = false
 		this.logout()
-		window.location.reload()
 	}
 
 	this.save = function(){

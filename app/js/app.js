@@ -78,9 +78,9 @@ app.run(function(user,$rootScope,$interval,$timeout,timeAgo,user){
     //TODO: find better way of determining if electron is available
     if(blockchain.env=='development'){
         if(user.verifyExistence())
-            user.login('password','gasp quote useless purity isolate truly scout baby rule nest bridge february')
+            user.login('password')
         else
-            user.register('password','gasp quote useless purity isolate truly scout baby rule nest bridge february')
+            user.register('password')
     }else{
 		window.location.hash='/login'
 	}

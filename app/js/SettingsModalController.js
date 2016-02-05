@@ -1,6 +1,6 @@
 angular.module('app').controller('SettingsModalController',function($scope,growl,user,ticker,helpers,txMonitor,utils,$modalInstance,Keystore){
 	
-	$scope.seed = user.getData().seed
+	$scope.seed = user.getSeed()
 	$scope.accounts = user.getAccounts()
 	$scope.account = user.getAccount()
 	$scope.currencies = Object.keys(ticker.rates)
@@ -57,7 +57,7 @@ angular.module('app').controller('SettingsModalController',function($scope,growl
 
 	$scope.submit = function(){
 		user.save()
-		$modalInstance.close()
+		$modalInstance.dismiss()
 	}
 
 	$scope.addKeypair = function(){

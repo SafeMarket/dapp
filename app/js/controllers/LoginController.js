@@ -9,12 +9,7 @@ angular.module('app').controller('LoginController',function($scope,$rootScope,us
 			growl.addErrorMessage('Sorry, thats not correct')
 			return
 		}
-
-
 		growl.addSuccessMessage('Login successful!')
-		$rootScope.isLoggedIn = true
-
-		window.location.hash="/"
 	}
 
 	$scope.reset = function(){
@@ -41,7 +36,6 @@ angular.module('app').controller('LoginController',function($scope,$rootScope,us
 
 		growl.addSuccessMessage('Account created')
 
-		window.location.hash = '/'
 		modals.openSettings()
 	}
 
