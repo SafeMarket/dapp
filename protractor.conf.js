@@ -20,5 +20,8 @@ exports.config = {
 	    	new jasmine.JUnitXmlReporter(reportsDir, true, true, 'report.')
 	    );
 	},rootElement:'#app'
+	,jasmineNodeOpts: {
+		defaultTimeoutInterval:60000
+	}
 
 }
