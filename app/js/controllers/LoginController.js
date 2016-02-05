@@ -1,7 +1,7 @@
 (function(){
 
 angular.module('app').controller('LoginController',function($scope,$rootScope,user,growl,modals){
-	$scope.userExists = !! user.getStorage()
+	$rootScope.userExists = user.verifyExistence()
 
 	$scope.login = function(){
 		
@@ -22,7 +22,6 @@ angular.module('app').controller('LoginController',function($scope,$rootScope,us
 			return
 
 		user.reset()
-		$scope.userExists = false
 		growl.addSuccessMessage('Account reset')
 	}
 
@@ -39,10 +38,8 @@ angular.module('app').controller('LoginController',function($scope,$rootScope,us
 		}
 
 		user.register($scope.password)
-		user.loadData()
 
 		growl.addSuccessMessage('Account created')
-		$rootScope.isLoggedIn = true
 
 		window.location.hash = '/'
 		modals.openSettings()

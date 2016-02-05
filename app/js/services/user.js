@@ -118,14 +118,18 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		return this.getAccountData().submarketAddrs
 	}
 
+	this.getKeypairsData = function(){
+		if(!this.getAccountData().keypairsData)
+			this.getAccountData().keypairsData = []
+
+		return this.getAccountData().keypairsData
+	}
+
 	this.getKeypairs = function(){
-		if(!this.getAccountData().keypairs)
-			this.getAccountData().keypairs = []
 
-		var keypairsData = this.getAccountData().keypairs
-			,keypairs = []
+		var keypairs = []
 
-		keypairsData.forEach(function(keypairData){
+		this.getKeypairsData().forEach(function(keypairData){
 			keypairs.push(new Keypair(keypairData))
 		})
 		
@@ -170,6 +174,7 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		this.password = null
 		acounts = null
 		keystore = null
+		keypairs = null
 		$rootScope.isLoggedIn = false
 	}
 
@@ -188,26 +193,32 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 			$rootScope.displayCurrencies.push('ETH')
 	}
 
-	this.login = function(password){
+	this.login = function(password,seed){
 		try{
-			userJson = CryptoJS.AES.decrypt(this.getStorage(),password).toString(CryptoJS.enc.Utf8)
+			this.data = JSON.parse(CryptoJS.AES.decrypt(this.getStorage(),password).toString(CryptoJS.enc.Utf8))
 		}catch(e){
 			console.error(e)
 			return false
 		}
 
 		this.password = password
+		this.getData().seed = seed || this.getData().seed
 		this.init()
 		return true;
 	}
 
+	this.verifyExistence = function(){
+		return !! this.getStorage()
+	}
+
 	this.reset = function(){
 		this.setStorage('')
+		$rootScope.userExists = false
 		this.logout()
 	}
 
 	this.save = function(){
-		var dataEncrypted = CryptoJS.AES.encrypt(JSON.stringify(this.data), this.password)
+		var dataEncrypted = CryptoJS.AES.encrypt(JSON.stringify(this.getData()), this.password)
 		this.setStorage(dataEncrypted)
 	}
 
@@ -216,7 +227,7 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 			,deferred = $q.defer()
 
 		pgp.generateKeypair().then(function(keypair){
-			user.getAccountData().keypairspush({
+			user.getKeypairsData().push({
 				private: keypair.privateKeyArmored
 				,public: keypair.publicKeyArmored
 				,timestamp: (new Date).getTime()
