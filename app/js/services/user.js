@@ -18,6 +18,7 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 			,keystore = new lightwallet.keystore(seed, password)
 
 		console.log('seed',seed)
+		console.log('password',password)
 
 		keystore.passwordProvider = function (callback) {
 	  		callback(null, password);
@@ -156,10 +157,10 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 
 	this.register = function(password){
 		this.password = password
-		this.data = {
-			seed: lightwallet.keystore.generateRandomSeed()
-		}
+		this.loadData()
+		this.data.seed = lightwallet.keystore.generateRandomSeed()
 		this.save()
+		this.init()
 	}
 
 	this.setDisplayCurrencies = function(){
@@ -173,12 +174,15 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 	this.login = function(password){
 		try{
 			userJson = CryptoJS.AES.decrypt(this.getStorage(),password).toString(CryptoJS.enc.Utf8)
-			this.password = password
-			this.data = JSON.parse(userJson)
-			return true;
 		}catch(e){
 			return false
 		}
+
+		$rootScope.isLoggedIn = true
+		this.password = password
+		this.loadData()
+		this.init()
+		return true;
 	}
 
 	this.reset = function(){
@@ -205,8 +209,6 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		this.getAccounts().forEach(function(account){
 			user.data.accountsData[account] = user.data.accountsData[account] || {}
 		})
-
-		web3.eth.defaultAccount = this.getAccount()
 	}
 
 
@@ -220,8 +222,7 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 			,deferred = $q.defer()
 
 		pgp.generateKeypair().then(function(keypair){
-			user.getAccountData().keypairs = user.getAccountData().keypairs || []
-			user.getAccountData().keypairs.push({
+			user.getAccountData().keypairspush({
 				private: keypair.privateKeyArmored
 				,public: keypair.publicKeyArmored
 				,timestamp: (new Date).getTime()
@@ -237,20 +238,17 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 	}
 
 	this.addOrder = function(addr){
-		this.getAccountData().orderAddrs = this.getAccountData().orderAddrs || []
 		this.getAccountData().orderAddrs.push(addr)
 		$rootScope.orderAddrs = this.getOrderAddrs()
 	}
 
 
 	this.addStore = function(addr){
-		this.getAccountData().storeAddrs = this.getAccountData().storeAddrs || []
 		this.getAccountData().storeAddrs.push(addr)
 		$rootScope.storeAddrs = this.getStoreAddrs()
 	}
 
 	this.addSubmarket = function(addr){
-		this.getAccountData().submarketAddrs = this.getAccountData().submarketAddrs || []
 		this.getAccountData().submarketAddrs.push(addr)
 		$rootScope.submarketAddrs = this.getSubmarketAddrs()
 	}
@@ -312,15 +310,17 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		this.id = this.public.primaryKey.keyid.bytes
 	}
 
-	this.init = function(){
-		this.loadData()
-		$rootScope.account = user.getAccount()
-		this.setDisplayCurrencies()
-
+	this.setProvider = function(){
 		web3.setProvider(new HookedWeb3Provider({
 		  host: 'http://'+blockchain.rpcHost+':'+blockchain.rpcPort,
 		  transaction_signer: this.getKeystore()
 		}));
+	}
+
+	this.init = function(){
+		$rootScope.account = web3.eth.defaultAccount = this.getAccount()
+		this.setDisplayCurrencies()
+		this.setProvider()
 	}
 
 })
