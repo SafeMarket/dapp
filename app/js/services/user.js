@@ -3,7 +3,6 @@
 angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals,growl){
 
 	var user = this
-		,accounts
 		,keystore
 
 	this.getKeystore = function(){
@@ -11,10 +10,17 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 
 		var seed = this.getData().seed
 			,password = this.password
-			,keystore = new lightwallet.keystore(seed, password)
 
 		console.log('seed',seed)
 		console.log('password',password)
+
+		if(!seed)
+			throw 'Seed not set'
+
+		if(!password)
+			throw 'Password not set'
+		
+		keystore = new lightwallet.keystore(seed, password)
 
 		keystore.passwordProvider = function (callback) {
 	  		callback(null, password);
@@ -26,13 +32,11 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 	}
 
 	this.getAccounts = function(){
-		if(accounts) return accounts
 
-		accounts = this.getKeystore().getAddresses().map(function(addr){
+		return this.getKeystore().getAddresses().map(function(addr){
 			return '0x'+addr
 		});
 
-		return accounts
 	}
 
 	this.getData = function(){
@@ -172,9 +176,7 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 
 	this.logout = function(){
 		this.password = null
-		acounts = null
 		keystore = null
-		keypairs = null
 		$rootScope.isLoggedIn = false
 	}
 
@@ -215,6 +217,7 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		this.setStorage('')
 		$rootScope.userExists = false
 		this.logout()
+		window.location.reload()
 	}
 
 	this.save = function(){
