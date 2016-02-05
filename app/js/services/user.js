@@ -56,7 +56,10 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 	}
 
 	this.getHiddenCommentIds = function(){
-		return this.data.hiddenCommentIds || []
+		if(!this.data.hiddenCommentIds)
+			this.data.hiddenCommentIds = []
+
+		return this.data.hiddenCommentIds
 	}
 
 	this.setHiddenCommentIds = function(hiddenCommentIds){
@@ -69,23 +72,38 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 	}
 
 	this.getAccountData = function(){
-		return this.data.accountsData[this.getAccount()] || {}
+		if(!this.data.accountsData[this.getAccount()])
+			this.data.accountsData[this.getAccount()] = {}
+
+		return this.data.accountsData[this.getAccount()]
 	}
 
 	this.getOrderAddrs = function(){
-		return this.getAccountData().orderAddrs || []
+		if(!this.getAccountData().orderAddrs)
+			this.getAccountData().orderAddrs = []
+
+		return this.getAccountData().orderAddrs
 	}
 
 	this.getStoreAddrs = function(){
-		return this.getAccountData().storeAddrs || []
+		if(!this.getAccountData().storeAddrs)
+			this.getAccountData().storeAddrs = []
+
+		return this.getAccountData().storeAddrs
 	}
 
 	this.getSubmarketAddrs = function(){
-		return this.getAccountData().submarketAddrs || []
+		if(!this.getAccountData().submarketAddrs)
+			this.getAccountData().submarketAddrs = []
+
+		return this.getAccountData().submarketAddrs
 	}
 
 	this.getKeypairs = function(){
-		var keypairsData = this.getAccountData().keypairs || []
+		if(!this.getAccountData().keypairs)
+			this.getAccountData().keypairs = []
+
+		var keypairsData = this.getAccountData().keypairs
 			,keypairs = []
 
 		keypairsData.forEach(function(keypairData){
