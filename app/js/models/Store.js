@@ -195,7 +195,10 @@ Store.prototype.update = function(){
 
 	this.scoreCountsReversed = this.scoreCounts.slice().reverse()
 
-	this.contract.Meta({},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
+	var metaUpdatedAt = this.contract.metaUpdatedAt()
+	console.log('metaUpdatedAt',metaUpdatedAt)
+
+	this.contract.Meta({},{fromBlock: metaUpdatedAt, toBlock: metaUpdatedAt}).get(function(error,results){
 
 		if(error)
 			return deferred.reject(error)

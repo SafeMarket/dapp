@@ -15,8 +15,9 @@ angular.module('app').factory('Key',function(utils,$q,Keystore){
 
 	Key.fetch = function(addr){
 		var deferred = $q.defer()
+			,blockNumber = Keystore.getUpdatedAt(addr)
 
-		Keystore.Key({addr:addr},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
+		Keystore.Key({addr:addr},{fromBlock: blockNumber, toBlock: blockNumber}).get(function(error,results){
 
 			if(error)
 				return deferred.reject(error)

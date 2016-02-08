@@ -98,10 +98,12 @@ Submarket.prototype.set = function(meta){
 	return deferred.promise
 }
 
-Submarket.prototype.getEvents = function(eventName){
+Submarket.prototype.getEvents = function(eventName,fromBlock,toBlock){
 	var deferred = $q.defer()
+		,fromBlock = fromBlock || 0
+		,toBlock = toBlock || 'lastest'
 
-	this.contract[eventName]({},{fromBlock:0,toBlock:'latest'}).get(function(error,results){
+	this.contract[eventName]({},{fromBlock:fromBlock,toBlock:toBlock}).get(function(error,results){
 		if(error)
 			deferred.reject(error)
 		else
@@ -122,7 +124,9 @@ Submarket.prototype.update = function(){
 	this.stores = []
 	this.forum = new Forum(this.forumAddr)
 
-	this.getEvents('Meta').then(function(results){
+	var metaUpdatedAt = this.contract.metaUpdatedAt()
+
+	this.getEvents('Meta',metaUpdatedAt,metaUpdatedAt).then(function(results){
 
 		submarket.meta = utils.convertHexToObject(results[results.length-1].args.meta)
 		submarket.feePercentage = new BigNumber(submarket.meta.feePercentage)

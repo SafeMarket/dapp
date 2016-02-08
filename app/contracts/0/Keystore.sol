@@ -9,7 +9,7 @@ contract Keystore{
 		Key(msg.sender, data);
 	}
 
-	function getUpdatedAt(address addr) constant returns uint{
+	function getUpdatedAt(address addr) constant returns (uint){
 		return updatedAts[addr];
 	}
 

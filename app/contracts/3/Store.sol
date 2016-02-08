@@ -1,17 +1,11 @@
-contract Store is forumable,audible,infosphered{
-    event Meta(bytes meta);
+contract Store is forumable,audible,infosphered,meta{
 
     function Store(bytes32 alias, bytes meta, address alasRegAddr,address infosphereAddr){
     	infosphere = Infosphere(infosphereAddr);
-        Meta(meta);
+        setMeta(meta);
         AliasReg(alasRegAddr).claimAlias(alias);
     }
     
-    function setMeta(bytes meta){
-		if(msg.sender!=owner) throw;
-		Meta(meta);
-	}
-
 	mapping(address=>Review) reviews;
 
 	struct Review{

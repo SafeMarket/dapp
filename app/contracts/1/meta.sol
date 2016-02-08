@@ -2,15 +2,12 @@ contract meta is owned{
 
 	event Meta(bytes meta);
 
-	mapping(address=>uint) metaUpdatedAts;
+	uint public metaUpdatedAt;
 
 	function setMeta(bytes meta){
-		requireOwnership()
-		metaUpdatedAts[msg.sender] = block.number;
+		requireOwnership();
+		metaUpdatedAt = block.number;
 		Meta(meta);
 	}
 
-	function getMetaUpdatedAt(address addr) constant returns uint{
-		return metaUpdatedAts[addr];
-	}
 }
