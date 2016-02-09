@@ -8,6 +8,7 @@ angular.module('app').controller('TxMonitorModalController',function($scope,$int
 
 	var txOptions = proposal.args[proposal.args.length-1]
 		,isFactory = typeof proposal.contractFactoryOrFunction === 'object'
+		,waitInterval
 
 	console.log(proposal.contractFactoryOrFunction)
 
@@ -41,7 +42,7 @@ angular.module('app').controller('TxMonitorModalController',function($scope,$int
 		$scope.isApproved = true
 
 		$scope.secondsWaited  = 0
-		var waitInterval = $interval(function(){
+		waitInterval = $interval(function(){
 			console.log('wait')
 			$scope.secondsWaited = new BigNumber(Date.now()).minus(startTimestamp).div(1000).floor().toNumber()
 		},1000)
@@ -89,6 +90,7 @@ angular.module('app').controller('TxMonitorModalController',function($scope,$int
 
 	$scope.stopWaiting = function(){
 		txMonitor.stopWaiting()
+		$interval.cancel(waitInterval)
 		$modalInstance.dismiss()
 	}
 

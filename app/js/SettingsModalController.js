@@ -144,4 +144,9 @@ angular.module('app').controller('SettingsModalController',function($scope,growl
 		})
 	}
 
+	$scope.refreshBalance = function(){
+		$scope.balance = web3.eth.getBalance($scope.account)
+		growl.addSuccessMessage('Balance refreshed')
+	}
+
 });

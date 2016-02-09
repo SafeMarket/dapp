@@ -30,7 +30,12 @@
             </td>
         </tr>
         <tr>
-            <td>Balance</td>
+            <td>
+                Balance
+                <button class="navbar-btn btn btn-default btn-sm" ng-click="refreshBalance()">
+                  <span class="glyphicon glyphicon-refresh"></span>
+                </button>
+            </td>
             <td><amounts value="balance" from="'WEI'" to="displayCurrencies" id="balance"></amounts>
                 
             </td>

@@ -3,6 +3,7 @@ var app = angular.module('app',['ui.bootstrap','ui.router','angular-growl','ngRo
 app.config(function(growlProvider,$stateProvider, $urlRouterProvider) {
     
     growlProvider.globalTimeToLive(3000);
+    growlProvider.onlyUniqueMessages(false);
 
     $stateProvider
     	.state('home',{
