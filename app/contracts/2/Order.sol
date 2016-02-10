@@ -1,10 +1,8 @@
 contract Order{
 	address public buyer;
 	address public storeAddr;
-	address public storeOwner;
 	address public submarketAddr;
-	address public submarketOwner;
-	uint public feePercentage;
+	uint public feeCentiperun; //https://aakilfernandes.github.io/perun-a-useful-unit-for-dimensionless-programming
 	uint public disputeSeconds;
 	uint public status;
 	uint public received;
@@ -13,6 +11,7 @@ contract Order{
 	uint public disputedAt;
 	uint public fee;
 	uint public buyerAmount;
+	uint public storeAmount;
 	uint public receivedAtBlockNumber;
 
 	event Meta(bytes meta);
@@ -30,24 +29,30 @@ contract Order{
 		bytes _meta
 		,address _storeAddr
 		,address _submarketAddr
-		,uint _feePercentage
+		,uint _feeCentiperun
 		,uint _disputeSeconds
 		,address orderBookAddr
 	){
 		buyer = msg.sender;
 		storeAddr = _storeAddr;
-		storeOwner = Store(_storeAddr).owner();
 		submarketAddr = _submarketAddr;
-		submarketOwner = Submarket(_submarketAddr).owner();
-		feePercentage = _feePercentage;
+		feeCentiperun = _feeCentiperun;
 		disputeSeconds = _disputeSeconds;
 		timestamp = now;
 		Meta(_meta);
 		OrderBook(orderBookAddr).addEntry(_storeAddr,_submarketAddr);
 	}
 
+	function getSenderPermission(address contractAddr, bytes32 action) private returns(bool){
+		return permissioned(contractAddr).getPermission(msg.sender,action);
+	}
+
 	function addMessage(bytes text){
-		if(msg.sender != buyer && msg.sender != storeOwner && msg.sender != submarketOwner)
+		if(
+			msg.sender != buyer
+			&& !getSenderPermission(storeAddr,'order.addMessage')
+			&& !getSenderPermission(submarketAddr,'order.addMessage')
+		)
 			throw;
 
 		Message(msg.sender, text);
@@ -87,7 +92,7 @@ contract Order{
 		if(status != initialized)
 			throw;
 
-		if(msg.sender != buyer && msg.sender != storeOwner)
+		if(msg.sender != buyer && !getSenderPermission(storeAddr,'order.cancel'))
 			throw;
 
 		var isSent = buyer.send(this.balance);
@@ -101,7 +106,7 @@ contract Order{
 		if(status !=  initialized)
 			throw;
 
-		if(msg.sender != storeOwner)
+		if(!getSenderPermission(storeAddr,'order.cancel'))
 			throw;
 
 		//don't allow to mark as shipped on same block that a withdrawl is made
@@ -120,7 +125,7 @@ contract Order{
 		if(msg.sender != buyer)
 			throw;
 
-		var isSent = storeOwner.send(this.balance);
+		var isSent = storeAddr.send(this.balance);
 		if(!isSent) throw;
 		
 		addUpdate(finalized);
@@ -136,7 +141,7 @@ contract Order{
 		if(now - shippedAt > disputeSeconds)
 			throw;
 
-		if(submarketOwner==address(0))
+		if(submarketAddr==address(0))
 			throw;
 
 		addUpdate(disputed);
@@ -144,43 +149,44 @@ contract Order{
 	}
 
 	function calculateFee() returns (uint){
-		// show your work:
 		
-		// 1. fee = products(feePercent)
-			// products = fee/feePercent
-			// products = fee/(feePercentage/100)
-			// products = (100*fee)/feePercentage
+		// 1. fee = products * feePerun
+			// fee = products * feeCentiperun/100
+			// products = fee * 100/feeCentiperun
 
 		// 2. products + fee = received
-			// (100*fee)/feePercentage + fee = received
-			// fee(100/feePercentage + 1) = received
-			// fee(100/feePercentage + feePercentage/feePercentage) = received
-			// fee(100+feePercentage)/feePercentage = received
-			// fee = received/((100+feePercentage)/feePercentage)
-			// fee = (received * feePercentage)/(100 + feePercentage)
+			// (fee * 100/feeCentiperun) + fee = receieved
+			// fee(100/feeCentiperun + 1) = received
+			// fee(100/feeCentiperun + feeCentiperun/feeCentiperun) = received
+			// fee(100+feeCentiperun)/feeCentiperun = received
+			// fee = received/((100+feeCentiperun)/feeCentiperun)
+			// fee = (received * feeCentiperun)/(100 + feeCentiperun)
 
 		
-		return (received * feePercentage)/(100 + feePercentage);
+		return (received * feeCentiperun)/(100 + feeCentiperun);
 	}
 
-	function resolve(uint buyerPercentage){
+	function resolve(uint buyerAmountCentiperun){
 		if(status!=disputed)
 			throw;
 
-		if(msg.sender != submarketOwner)
+		if(!getSenderPermission(submarketAddr,'order.resolve'))
 			throw;
 
 		fee = calculateFee();
-		buyerAmount = ((received-fee)*buyerPercentage)/100;
-		var storeOwnerAmount = received - fee - buyerAmount;
 
-		submarketOwner.send(fee);
+		var amountRemaining = received-fee;
+
+		buyerAmount = (amountRemaining*buyerAmountCentiperun)/100;
+		storeAmount = amountRemaining - buyerAmount;
+
+		submarketAddr.send(fee);
 
 		if(buyerAmount>0)
 			buyer.send(buyerAmount);
 
-		if(storeOwnerAmount>0)
-			storeOwner.send(storeOwnerAmount);
+		if(storeAmount>0)
+			storeAddr.send(storeAmount);
 
 		addUpdate(resolved);
 	}
