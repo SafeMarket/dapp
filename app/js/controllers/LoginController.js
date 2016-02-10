@@ -10,6 +10,7 @@ angular.module('app').controller('LoginController',function($scope,$rootScope,us
 			return
 		}
 		growl.addSuccessMessage('Login successful!')
+		window.location.hash = '/'
 	}
 
 	$scope.reset = function(){

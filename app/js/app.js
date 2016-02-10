@@ -69,6 +69,11 @@ app.config(function(growlProvider,$stateProvider, $urlRouterProvider) {
             ,templateUrl:'404.html'
             ,controller:'404Controller'
         })
+        .state('affiliate',{
+            url:'/affiliate'
+            ,templateUrl:'affiliate.html'
+            ,controller:'AffiliateController'
+        })
 
     $urlRouterProvider.otherwise('/')
 });

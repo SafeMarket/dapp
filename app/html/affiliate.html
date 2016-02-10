@@ -1,0 +1,19 @@
+<h1>Affiliate Dashboard <button class="btn btn-primary" ng-click="openAffiliateModal()">+</h1>
+<div class="alert alert-danger text-center" ng-show="affiliates.length==0" ng-cloak>
+	You haven't created any affilate codes yet
+</div>
+<table class="table" ng-show="affiliates.length>0" ng-cloak>
+	<tr>
+		<th>Code</th>
+		<th>Coinbase</th>
+		<th></th>
+	</tr>
+	<tr ng-repeat="affiliate in affiliates">
+		<td>{{affiliate.code}}</td>
+		<td class="oneliner">{{affiliate.coinbase}}</td>
+		<td>
+			<button class="btn btn-danger" ng-click="deleteAffiliate(affiliate)">Delete</button>
+			<button class="btn btn-default" ng-click="openAffiliateModal(affiliate)">Edit</button>
+		</td>
+	</tr>
+</table>

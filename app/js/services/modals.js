@@ -159,6 +159,19 @@ angular.module('app').service('modals',function($modal){
 			}
 	    });
 	}
+
+	this.openAffiliate = function(affiliate){
+		return openModal({
+			size: 'md'
+			,templateUrl: 'affiliateModal.html'
+			,controller: 'AffiliateModalController'
+			,resolve:{
+				affiliate:function(){
+					return affiliate
+				}
+			}
+	    });
+	}
 })
 
 

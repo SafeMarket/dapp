@@ -1,6 +1,6 @@
 (function(){
 
-angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals,growl){
+angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals,growl,Affiliate){
 
 	var user = this
 		,keystore
@@ -106,6 +106,22 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 			this.getAccountsData()[account] = {}
 
 		return this.getAccountsData()[account]
+	}
+
+	this.getAffiliateCodes = function(){
+		if(!this.getAccountData().affiliateCodes)
+			this.getAccountData().affiliateCodes = []
+
+		return this.getAccountData().affiliateCodes
+	}
+
+	this.getAffiliates = function(){
+
+		console.log('affiliates',this.getAffiliateCodes())
+
+		return _.unique(this.getAffiliateCodes()).map(function(code){return new Affiliate(code)}).filter(function(affiliate){
+			return !affiliate.isDeleted && user.getAccount() == affiliate.owner
+		})
 	}
 
 	this.getOrderAddrs = function(){
@@ -214,7 +230,6 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 
 		this.password = password
 		this.init()
-		window.location.hash = '/'
 		return true;
 	}
 
@@ -254,20 +269,28 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		return deferred.promise
 	}
 
+	this.addAffiliate = function(code){
+		this.getAffiliateCodes().push(code)
+		this.save()
+	}
+
 	this.addOrder = function(addr){
-		this.getAccountData().orderAddrs.push(addr)
+		this.getOrderAddrs().push(addr)
 		$rootScope.orderAddrs = this.getOrderAddrs()
+		this.save()
 	}
 
 
 	this.addStore = function(addr){
-		this.getAccountData().storeAddrs.push(addr)
+		this.getStoreAddrs().push(addr)
 		$rootScope.storeAddrs = this.getStoreAddrs()
+		this.save()
 	}
 
 	this.addSubmarket = function(addr){
-		this.getAccountData().submarketAddrs.push(addr)
+		this.getSubmarketAddrs().push(addr)
 		$rootScope.submarketAddrs = this.getSubmarketAddrs()
+		this.save()
 	}
 
 	this.deleteKeypair = function(index){

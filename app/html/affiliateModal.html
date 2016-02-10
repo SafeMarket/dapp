@@ -1,0 +1,35 @@
+<div class="modal-header">
+    <h3 class="modal-title" ng-cloak>{{isEditing?'Edit':'Create a'}} Affiliate</h3>
+</div>
+<div class="modal-body" id="submarket-modal-body">
+    <table class="table">
+        <tr>
+            <td>Code</td>
+            <td>
+                <input class="form-control" ng-model="code" ng-disabled="isEditing" affiliate-code-input>
+            </td>
+        </tr>
+        <tr>
+            <td>Owner</td>
+            <td>
+                <div class="input-group">
+                    <div class="input-group-addon">0x</div>
+                    <input class="form-control" ng-model="owner" ng-disabled="!isEditing">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>Coinbase</td>
+            <td>
+                <div class="input-group">
+                    <div class="input-group-addon">0x</div>
+                    <input class="form-control" ng-model="coinbase">
+                </div>
+            </td>
+        </tr>       
+    </table>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" type="button" ng-click="submit()">OK</button>
+    <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+</div>

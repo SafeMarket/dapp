@@ -28,14 +28,14 @@
           </div>
           <div class="navbar-header pull-right">
             <blockie seed="account" ng-click="openSettingsModal()" ng-if="isLoggedIn"></blockie>
-            <button class="navbar-btn btn btn-default btn-lg" ng-click="goBack()" ng-if="isLoggedIn">
-              <span class="glyphicon glyphicon-menu-left"></span>
-            </button>
-            <button class="navbar-btn btn btn-default btn-lg" id="refreshButton">
-              <span class="glyphicon glyphicon-refresh" id="refreshIcon"></span>
-            </button>
+            <a class="navbar-btn btn btn-default btn-lg" href="#/affiliate" ng-if="isLoggedIn">
+              <span class="glyphicon glyphicon-tags"></span>
+            </a>
             <button class="navbar-btn btn btn-default btn-lg" ng-if="isLoggedIn" ng-click="openSettingsModal()">
               <span class="glyphicon glyphicon-cog"></span>
+            </button>
+            <button class="navbar-btn btn btn-default btn-lg" ng-click="goBack()" ng-if="isLoggedIn">
+              <span class="glyphicon glyphicon-menu-left"></span>
             </button>
             <button class="btn btn-default btn-lg" ng-click="logout()" ng-if="isLoggedIn">
               <span class="glyphicon glyphicon-log-out"></span>

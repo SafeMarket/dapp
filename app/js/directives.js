@@ -163,13 +163,31 @@ angular.module('app').directive('aliasInput', function(growl) {
         		if(transformedInput !== text) {
            			ngModelCtrl.$setViewValue(transformedInput);
             		ngModelCtrl.$render();
-            		growl.addErrorMessage('Aliases consist entirely of lower case letters')
+            		growl.addErrorMessage('Aliases consist entirely of lower case letters and numbers')
         		}
         		return transformedInput;  // or return Number(transformedInput)
       		});
     	}
   	}; 
 });
+
+angular.module('app').directive('affiliateCodeInput', function(growl) {
+  	return {
+    	require: 'ngModel',
+    	link: function (scope, element, attr, ngModelCtrl) {
+      		ngModelCtrl.$parsers.push(function(text) {
+        		var transformedInput = text.toLowerCase().replace(/[^a-z0-9]/g, '');
+        		if(transformedInput !== text) {
+           			ngModelCtrl.$setViewValue(transformedInput);
+            		ngModelCtrl.$render();
+            		growl.addErrorMessage('Affiliate codes consist entirely of lower case letters and numbers')
+        		}
+        		return transformedInput;  // or return Number(transformedInput)
+      		});
+    	}
+  	}; 
+});
+
 
 angular.module('app').directive('numericInput', function(growl) {
 	return {
