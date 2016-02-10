@@ -46,7 +46,7 @@
 			</td>
 		</tr>
 		<tr>
-			<td>Submarket</td>
+			<td>Escrow</td>
 			<td colspan="2">
 				<select ng-model="submarketAddr" ng-options="submarket.addr as submarket.label for submarket in submarketOptions" class="form-control"></select>
 			</td>
@@ -72,6 +72,13 @@
 					to="displayCurrencies">
 				</amounts>
 			</td>
+		</tr>
+		<tr>
+			<td>Affiliate Code or Alias</td>
+			<td colspan="2">
+				<input class="form-control" ng-model="affiliateCodeOrAlias" placeholder="Optional">
+			</td>
+			<td colspan="2"></td>
 		</tr>
 	</table>
     <div class="text-right">
