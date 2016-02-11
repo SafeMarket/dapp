@@ -10,7 +10,10 @@ contract permissioned is owned{
 	mapping(address=>User) userMap;
 
 	function getPermission(address addr, bytes32 action) constant returns(bool){
-		return userMap[addr].actionToPermissionMap[action];
+		if(addr==owner)
+			return true;
+		else
+			return userMap[addr].actionToPermissionMap[action];
 	}
 
 	function getSenderPermission(bytes32 action) constant returns(bool){
@@ -18,7 +21,7 @@ contract permissioned is owned{
 	}
 
 	function requireAddrPermission(address addr, bytes32 action){
-		if(msg.sender!=owner && !getPermission(addr, action))
+		if(!getPermission(addr, action))
 			throw;
 	}
 
@@ -27,7 +30,7 @@ contract permissioned is owned{
 	}
 
 
-	function addUser(address userAddr, bytes32 userName){
+	function addUser(address userAddr, bytes userData){
 
 		requireSenderPermission('admin.adduser');
 
@@ -35,17 +38,13 @@ contract permissioned is owned{
 			throw;
 
 		userAddrs[userAddrs.length++] = userAddr;
-		userMap[userAddr] = User(true, userName);
+		userMap[userAddr] = User(true, userData);
 	}
 
 	function removeUser(address userAddr){
 		requireSenderPermission('admin.removeuser');
+		userMap[userAddr].isRegistered = false;
 	}
-
-	function removeUser(address userAddr){
-		requireSenderPermission('admin.removeuser');
-	}
-
 
 
 	function setPermission(address userAddr, bytes32 action, bool perMission){
