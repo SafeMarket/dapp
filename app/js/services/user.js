@@ -224,6 +224,7 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 
 	this.reset = function(){
 		this.data = null
+		this.setRootScopeVars()
 		this.setStorage('')
 		$rootScope.userExists = false
 		this.logout()
@@ -256,17 +257,23 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 
 	this.addOrder = function(addr){
 		this.getAccountData().orderAddrs.push(addr)
-		$rootScope.orderAddrs = this.getOrderAddrs()
+		this.setRootScopeVars()
 	}
 
 
 	this.addStore = function(addr){
 		this.getAccountData().storeAddrs.push(addr)
-		$rootScope.storeAddrs = this.getStoreAddrs()
+		this.setRootScopeVars()
 	}
 
 	this.addSubmarket = function(addr){
 		this.getAccountData().submarketAddrs.push(addr)
+		this.setRootScopeVars()
+	}
+
+	this.setRootScopeVars = function(){
+		$rootScope.orderAddrs = this.getOrderAddrs()
+		$rootScope.storeAddrs = this.getStoreAddrs()
 		$rootScope.submarketAddrs = this.getSubmarketAddrs()
 	}
 

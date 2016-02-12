@@ -12,6 +12,7 @@ angular.module('app').controller('TxMonitorModalController',function($scope,$int
 
 	console.log(proposal.contractFactoryOrFunction)
 
+	txOptions.from = user.getAccount()
 	txOptions.gasPrice = web3.eth.gasPrice.toNumber()
 	
 	proposal.value = txOptions.value = txOptions.value ? txOptions.value : 0
@@ -24,9 +25,14 @@ angular.module('app').controller('TxMonitorModalController',function($scope,$int
 	proposal.gasCost = txOptions.gasPrice * txOptions.gas
 	proposal.cost = proposal.gasCost + proposal.value
 
+	console.log('gas',txOptions.gas)
+	console.log('gasCost',proposal.gasCost)
+	console.log('value',proposal.value)
 	console.log('cost',proposal.cost)
 	console.log('balance',user.getBalance().toNumber())
 
+	console.log(txOptions)
+	console.log(JSON.stringify(txOptions))
 
 	$scope.isThrown = proposal.gas > web3.eth.getBlock(web3.eth.blockNumber).gasLimit
 	$scope.isProposalAffordable = user.getBalance().toNumber() > proposal.cost

@@ -9,11 +9,10 @@ angular.module('app').controller('ProductsController',function($scope,$filter,ut
 
 		if($scope.submarket)
 			$scope.submarket.updatePromise.then(function(){
-				$scope.feePercent = $scope.submarket.feePercentage.div(100)
-				console.log('feePercent',$scope.feePercent.toString())
+				$scope.feePerun = $scope.submarket.feeCentiperun.div(100)
 			})
 		else
-			$scope.feePercent = new BigNumber(0)
+			$scope.feePerun = new BigNumber(0)
 	})
 
 	$scope.getTransportLabel = function(transport){
@@ -35,7 +34,7 @@ angular.module('app').controller('ProductsController',function($scope,$filter,ut
 			}
 		},storeAddr = $scope.store.addr
 		,submarketAddr = $scope.submarketAddr
-		,feePercentage = $scope.submarket ? $scope.submarket.meta.feePercentage : '0'
+		,feeCentiperun = $scope.submarket ? $scope.submarket.meta.feeCentiperun : '0'
 		,disputeSeconds = parseInt($scope.store.meta.disputeSeconds)
 		,productsTotal = new BigNumber(0)
 
