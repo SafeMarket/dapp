@@ -7,28 +7,27 @@ module.exports = (grunt) ->
   else
     githubToken = ''
 
-  grunt.loadNpmTasks(
-    "grunt-embark"
-    ,"grunt-version"
-    ,"grunt-protractor-runner"
-    ,"grunt-tagrelease"
-    ,"grunt-git"
-    ,"grunt-contrib-connect"
-    ,"grunt-compress"
-    ,"grunt-port-checker"
-    ,"grunt-node-version"
-    ,"grunt-github-release-asset"
-    ,"grunt-wait"
-    ,"grunt-prompt"
-    ,"grunt-rename"
-    ,"grunt-file-exists"
-    ,"grunt-solc"
-    ,"grunt-infosphere"
-  )
+  require('load-grunt-tasks')(grunt);
 
   grunt.loadTasks "tasks"
 
   grunt.initConfig(
+
+    'http-server':
+      development:
+        root: 'generated/dapp/development'
+        port: 8000
+      production:
+        root: 'generated/dapp/production'
+        port: 8001
+
+    geth:
+      development:
+        options:
+          flags: grunt.file.readYAML('config/geth.yml').development
+      production:
+        options:
+          flags: grunt.file.readYAML('config/geth.yml').development
 
     solc:
       contracts:
@@ -220,27 +219,7 @@ module.exports = (grunt) ->
       prefix: 'v'
 
     files:
-      electron: 
-        src: [
-          "main.js"
-          "package.json"
-        ]
-
-      modules: 
-        src: [
-          "node_modules/electron/**/*"
-          "node_modules/q/**/*"
-          "modules/**/*"
-        ]
-
-      bin: 
-        src: [
-          "bin/**/*"
-        ]
-
-      web3:
-        "app/js/web3.js"
-
+      
       js:
         src: [
           "node_modules/solc/bin/soljson-latest.js"
@@ -280,14 +259,10 @@ module.exports = (grunt) ->
         ]
 
       html:
-        src: [
-          "app/html/**/*.html"
-        ]
+        src: ["app/html/**/*.html"]
 
       images:
-        src: [
-          "app/images/*"
-        ]
+        src: ["app/images/*"]
 
       fonts:
         src: [
@@ -296,17 +271,24 @@ module.exports = (grunt) ->
           "assets/slim/dist/fonts/glyphicons-halflings-regular.ttf"
         ]
 
-      coffee:
-        dest: "generated/dapp/compiled-coffee"
-        compiled: [
-          "generated/dapp/compiled-coffee/app.coffee"
-          "generated/dapp/compiled-coffee/**/*.js"
+      contracts:
+        src: ["app/contracts/**/*.sol"]
+
+      electron: 
+        src: [
+          "main.js"
+          "package.json"
         ]
 
-      contracts:
+      modules: 
         src: [
-          "app/contracts/**/*.sol"
+          "node_modules/electron/**/*"
+          "node_modules/q/**/*"
+          "modules/**/*"
         ]
+
+      bin: 
+        src: ["bin/**/*"]
 
     coffee:
       compile:
@@ -317,12 +299,12 @@ module.exports = (grunt) ->
         ext: '.js'
 
     concat:
-      app:
-        src: ["app/js/refresh.js","<%= files.web3 %>", 'generated/tmp/info.js', "<%= files.js.src %>", "<%= files.coffee.compiled %>"]
-        dest: "generated/dapp/js/app.min.js"
+      js:
+        src: ["<%= files.js.src %>"]
+        dest: "generated/app.js"
       css:
         src: "<%= files.css.src %>"
-        dest: "generated/dapp/css/app.min.css"
+        dest: "generated/app.css"
       contracts:
         src: "<%= files.contracts.src %>"
         dest: "generated/tmp/contracts.sol"
@@ -331,20 +313,17 @@ module.exports = (grunt) ->
       options:
         livereload: true
 
-      env:
-        files:[".env.json"]
-
       html:
         files: ["<%= files.html.src %>"]
-        tasks: ["copy"]
+        tasks: ["copy:html"]
 
       images:
         files: ["<%= files.images.src %>"]
-        tasks: ["copy"]
+        tasks: ["copy:images"]
 
       js:
         files: ["<%= files.js.src %>","<%= files.web3 %>"]
-        tasks: ["concat"]
+        tasks: ["concat","copy:js"]
 
       css:
         files: ["<%= files.css.src %>"]
@@ -363,54 +342,45 @@ module.exports = (grunt) ->
         tasks: ["deploy", "concat", "copy"]
 
     copy:
-      electron:
-        files: [
-          {expand: true, src: ["<%= files.electron.src %>"], dest: 'generated/dapp/', flatten: true}
-        ]
-      bin:
-        files: [
-          {expand: true, src: ["<%= files.bin.src %>"], dest: 'generated/dapp/', flatten: false}
-        ]
-        options:
-          mode: true
-      modules:
-        files: [
-          {expand: true, src: ["<%= files.modules.src %>"], dest: 'generated/dapp/', flatten: false}
-        ]
       html:
         files: [
-          {expand: true, src: ["<%= files.html.src %>"], dest: 'generated/dapp/', flatten: true}
-        ]
-      index:
-        files: [
-          {
-          expand: true, src: "app/html/index.html", dest: 'generated/dapp/', flatten:true
-          }
+          {src: ["<%= files.html.src %>"], dest: 'generated/dapp/development/', expand:true, flatten: true}
+          {src: ["<%= files.html.src %>"], dest: 'generated/dapp/production/', expand:true, flatten: true}
         ]
       images:
         files: [
-          {expand: true, src: ["<%= files.images.src %>"], dest: 'generated/dapp/images', flatten: true}
+          {src: ["<%= files.images.src %>"], dest: 'generated/dapp/development/images', expand:true, flatten: true}
+          {src: ["<%= files.images.src %>"], dest: 'generated/dapp/production/images', expand:true, flatten: true}
         ]
       fonts:
         files: [
-          {expand: true, src: ["<%= files.fonts.src %>"], dest: 'generated/dapp/fonts', flatten: true}
+          {src: ["<%= files.fonts.src %>"], dest: 'generated/dapp/development/fonts', expand:true, flatten: true}
+          {src: ["<%= files.fonts.src %>"], dest: 'generated/dapp/production/fonts', expand:true, flatten: true}
         ]
       css:
-        files:
-          "dist/dapp/css/app.min.css" : "<%= files.css.src %>"
-
-      contracts:
-        files:
-          "dist/contracts/": '<%= files.contracts.src %>'
-      icns:
         files: [
-          {
-            expand: true,
-            cwd: "assets/"
-            src: ['SafeMarket.icns'],
-            dest: 'generated/tmp'
-          }
+          {src: "generated/app.css", dest: 'generated/dapp/development/app.css'}
+          {src: "generated/app.css", dest: 'generated/dapp/production/app.css'}
         ]
+      js:
+        files: [
+          {src: "generated/app.js", dest: 'generated/dapp/development/app.js'}
+          {src: "generated/app.js", dest: 'generated/dapp/production/app.js'}
+        ]
+      electron:
+        src: ["<%= files.electron.src %>"]
+        dest: 'generated/dapp/production/'
+      bin:
+        src: ["<%= files.bin.src %>"]
+        dest: 'generated/dapp/production/'
+        options:
+          mode: true
+      modules:
+        src: ["<%= files.modules.src %>"]
+        dest: 'generated/dapp/production/'
+      icns:
+        src: "assets/SafeMarket.icns"
+        dest: "generated/SafeMarket.icns"
 
     uglify:
       dist:
@@ -418,7 +388,7 @@ module.exports = (grunt) ->
         dest: "dist/dapp/js/app.min.js"
 
     clean:
-      workspaces: ["dist", "generated"]
+      workspaces: ["generated/**/*"]
       packages: ["packages/**/*"]
       reports: ["reports/**/*"]
 
@@ -429,16 +399,10 @@ module.exports = (grunt) ->
       bin: ["<%= files.bin.src %>"]
   )
 
-  # loading external tasks (aka: plugins)
-  # Loads all plugins that match "grunt-", in this case all of our current plugins
-  require('matchdep').filterAll('grunt-*').forEach(grunt.loadNpmTasks);
 
-  env = if grunt.cli.tasks.indexOf('release')>-1 || grunt.cli.tasks.indexOf('quickrelease')>-1 || grunt.cli.tasks.indexOf('superquickrelease')>-1 then 'production' else grunt.option('env') || 'development';
-
-  grunt.registerTask "re", ["github-release"]
   
-  grunt.registerTask "deploy", ["copy", "indexUnsafe", "coffee", "concat:contracts", "deploy_contracts:"+env, "concat", "copy", "server", "watch"]
-  grunt.registerTask "build", ["clean:workspaces", "copy", "indexUnsafe", "concat:contracts", "deploy_contracts:"+env, "coffee", "concat", "copy", "indexUnsafe"]
+  grunt.registerTask "deploy", ["copy", "indexUnsafe", "coffee", "concat:contracts", "deploy_contracts", "concat", "copy", "server", "watch"]
+  grunt.registerTask "build", ["clean:workspaces", "concat", "copy"]
   grunt.registerTask "release", [
     "node_version"
     "fileExists:bin"
