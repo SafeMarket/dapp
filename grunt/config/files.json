@@ -1,0 +1,64 @@
+{
+    "js": {
+        "src": [
+            "node_modules/solc/bin/soljson-latest.js"
+            ,"bower_components/crypto-js/build/rollups/aes.js"
+            ,"bower_components/msgpack-javascript/msgpack.js"
+            ,"bower_components/cryptocoin/dist/cryptocoin.js"
+            ,"bower_components/validate/validate.min.js"
+            ,"bower_components/lodash/lodash.min.js"
+            ,"bower_components/q/q.js"
+            ,"bower_components/openpgp/dist/openpgp.js"
+            ,"bower_components/bignumber.js/bignumber.js"
+            ,"bower_components/marked/lib/marked.js"
+            ,"bower_components/angular/angular.js"
+            ,"bower_components/angular-route/angular-route.min.js"
+            ,"bower_components/angular-growl/build/angular-growl.min.js"
+            ,"bower_components/angular-timeago/dist/angular-timeago.js"
+            ,"bower_components/angular-bootstrap/ui-bootstrap-tpls.js"
+            ,"bower_components/angular-marked/angular-marked.js"
+            ,"bower_components/angular-sanitize/angular-sanitize.min.js"
+            ,"bower_components/angular-ui-router/release/angular-ui-router.min.js"
+            ,"node_modules/web3/dist/web3.js"
+            ,"node_modules/hooked-web3-provider/build/hooked-web3-provider.js"
+            ,"node_modules/eth-lightwallet/dist/lightwallet.min.js"
+            ,"app/js/validators.js"
+            ,"app/js/app.js"
+            ,"app/js/splash.js"
+            ,"app/js/**/*.js"]
+    },
+    "css": {
+        "src": [
+            "bower_components/angular/angular-csp.css"
+            ,"bower_components/bootstrap/dist/css/bootstrap.min.css"
+            ,"assets/slim/dist/styles/main.css"
+            ,"bower_components/angular-growl/build/angular-growl.min.css"
+            ,"app/css/**/*.css"
+        ]
+    },
+    "html": {
+        "src": ["app/html/**/*.html"]
+    },
+    "images": {
+        "src": ["app/images/*"]
+    },
+    "fonts": {
+        "src": [
+            "bower_components/bootstrap/fonts/glyphicons-halflings-regular.woff2"
+            ,"assets/slim/dist/fonts/glyphicons-halflings-regular.woff"
+            ,"assets/slim/dist/fonts/glyphicons-halflings-regular.ttf"
+        ]
+    },
+    "contracts": {
+        "src": ["app/contracts/**/*.sol"]
+    },
+    "electron": {
+        "src": ["main.js","package.json"]
+    },
+    "modules": {
+        "src": ["node_modules/electron/**/*","node_modules/q/**/*","modules/**/*"]
+    },
+    "bin": {
+        "src": ["bin/**/*"]
+    }
+}

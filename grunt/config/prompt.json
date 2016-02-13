@@ -1,0 +1,9 @@
+{
+	"options":{
+	  	"questions":[{
+	    	"config": "githubAsset.options.description"
+	    	,"type": "input"
+	    	,"message": "Release description:"
+	  	}]
+	}
+}

@@ -1,0 +1,39 @@
+{
+    "darwin":{
+        "options":{
+            "archive": "packages/SafeMarket-mac-x64.zip"
+            ,"mode": "zip"
+        },"files":[{
+            "src": "**/**"
+            ,"cwd": "packages/SafeMarket-darwin-x64/"
+            ,"expand": true
+        }]
+    },"win32":{
+        "options":{
+            "archive": "packages/SafeMarket-win32-x64.zip"
+            ,"mode": "zip"
+        },"files":[{
+            "src": "**/**"
+            ,"cwd": "packages/SafeMarket-win32-x64/"
+            ,"expand": true
+        }]
+    },"linux":{
+        "options":{
+            "archive": "packages/SafeMarket-linux-x64.zip"
+            ,"mode": "zip"
+        },"files":[{
+            "src": "**/**"
+            ,"cwd": "packages/SafeMarket-linux-x64/"
+            ,"expand": true
+        }]
+    },"reports":{
+        "options":{
+          "archive": "reports/reports.zip"
+          ,"mode": "zip"
+        },"files":[{
+            "src": "**/**"
+            ,"cwd": "reports/"
+            ,"expand": true
+        }]
+    }
+}

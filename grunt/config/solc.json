@@ -1,0 +1,9 @@
+{
+	"contracts":
+		{
+			"options":{
+				"files":["generated/contracts.sol"]
+				,"doOptimize":true
+			}
+		}
+}

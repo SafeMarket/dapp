@@ -1,0 +1,10 @@
+{
+	"options":{
+        "keepAlive": false
+    },"all":{
+        "configFile": "protractor.conf.js"
+        ,"args":{
+          "--save":""
+        }
+    }
+}

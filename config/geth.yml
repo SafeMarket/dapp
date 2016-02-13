@@ -1,10 +1,12 @@
 development:
   port: 30304
+  rpcaddr: 127.0.0.1
   rpcport: 8101
   rpccorsdomain: http://127.0.0.1:8000
   genesis: config/genesis.json
   datadir: /tmp/safemarket
   maxpeers: 0
 production:
+  rpcaddr: 127.0.0.1
   rpcport: 8545
-  rpccorsdomain: http://127.0.0.1:8000
+  rpccorsdomain: http://127.0.0.1:8001
