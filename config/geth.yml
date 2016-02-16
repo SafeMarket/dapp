@@ -7,7 +7,7 @@ development:
   genesis: config/development/genesis.json
   datadir: datadir/development/
   networkid: 5473
-  bootnodes: enode://7575f5edc6a47ec40b8568d07d1a12f22d9ab7978ed51fb26d6674d7e191616bee750226e9f24065c18048fae4a032cfad6fae4560be4ee351b6d9c7bb775955@40.117.36.75:30303
+  bootnodes: enode://05a87dcaf7a5014b38d4eec48119fa2afd942a2b4a69c0e7fdcebeac00de7827e7da64a17dbce2238ec1b84870163ccde76d730a90334762c2da9c0c9c920567@40.117.36.75:30303
   unlock: 42c35b6c220d570bd8898a540406e0b026479f7b
   password: config/development/password
 production:
