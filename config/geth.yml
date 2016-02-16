@@ -4,10 +4,12 @@ development:
   rpcaddr: 127.0.0.1
   rpcport: 8101
   rpccorsdomain: http://127.0.0.1:8000
-  genesis: config/genesis.json
-  datadir: /tmp/safemarket-development
+  genesis: config/development/genesis.json
+  datadir: datadir/development/
   networkid: 5473
   bootnodes: enode://7575f5edc6a47ec40b8568d07d1a12f22d9ab7978ed51fb26d6674d7e191616bee750226e9f24065c18048fae4a032cfad6fae4560be4ee351b6d9c7bb775955@40.117.36.75:30303
+  unlock: 42c35b6c220d570bd8898a540406e0b026479f7b
+  password: config/development/password
 production:
   rpcaddr: 127.0.0.1
   rpcport: 8545

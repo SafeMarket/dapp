@@ -3,9 +3,7 @@
         "options":{
             "rpcport":8101
             ,"contracts":"generated/contracts.json"
-            ,"key":"config/keys/development.json"
-            ,"password":"dev_password"
-            ,"chain":"config/chains/development.json"
+            ,"chain":"config/development/chain.json"
             ,"deploy":[
                 "AliasReg"
                 ,"Infosphere"
