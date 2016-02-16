@@ -7,7 +7,7 @@ angular.module('app').service('ticker',function($interval,$http,$q){
 			,tickerAddress = '0xdc99b79555385ab2fe0ff28c3c954a07b28aac5e'
 	}else{
 		var OpenStore = web3.eth.contract(contracts.OpenStore.abi).at(contracts.OpenStore.address)
-			,tickerAddress = web3.eth.accounts[0] || ((OpenStoreNamespace.address != '0' && OpenStoreNamespace.address) || web3.eth.accounts[0]);
+			,tickerAddress = deployer
 	}
 
 	var symbols = ['CMC:TETH:USD','CMC:TETH:EUR','CMC:TETH:CNY','CMC:TETH:CAD','CMC:TETH:RUB','CMC:TETH:BTC'];

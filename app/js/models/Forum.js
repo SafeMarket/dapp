@@ -8,7 +8,7 @@ angular.module('app').factory('Forum',function($q,utils,CommentsGroup){
 		this.updatePromise = this.update()
 	}
 
-	Forum.prototype.code = Forum.code = contracts.Forum.code
+	Forum.prototype.bytecode = Forum.bytecode = contracts.Forum.bytecode
 	Forum.prototype.abi = Forum.abi = contracts.Forum.abi
 
 	Forum.prototype.update = function(){

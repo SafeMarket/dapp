@@ -8,7 +8,7 @@
     "tasks": ["copy:images"]
   },
   "js": {
-    "files": ["<%= files.js.src %>", "<%= files.web3 %>"],
+    "files": ["<%= files.js.src %>"],
     "tasks": ["concat:js", "copy:js"]
   },
   "css": {
@@ -17,10 +17,13 @@
   },
   "contracts": {
     "files": ["<%= files.contracts.src %>"],
-    "tasks": ["concat:contracts"]
+    "tasks": ["contracts"]
   },
   "config": {
-    "files": ["config/geth.yml", "config/contracts.yml", "Gruntfile.js"],
+    "files": ["config/geth.yml", "config/contracts.yml", "Gruntfile.js", "grunt/**/*"],
     "tasks": ["build"]
+  },"index":{
+    "files": ["index.template.html"],
+    "tasks": ["index"]
   }
 }

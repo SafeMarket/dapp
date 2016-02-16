@@ -1,9 +1,3 @@
-fs = require('fs')
-    indexHtml = fs.readFileSync('app/html/index.html','utf8')
-    indexHtml = indexHtml.replace('img-src "self";','img-src *;')
-    fs.writeFileSync('generated/dapp/index.unsafe.html',indexHtml)
-
-
 module.exports = function(grunt){
 	grunt.registerTask('index',function(){
 		var indexTemplate = grunt.file.read('index.template.html')

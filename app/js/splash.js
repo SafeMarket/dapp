@@ -32,7 +32,7 @@ splash.run(function($timeout,$rootScope,$interval){
 	function startup(){
 	    console.log('Starting Web3...')
 	    try{
-	        web3.setProvider(new web3.providers.HttpProvider('http://'+blockchain.rpcHost+':'+blockchain.rpcPort));
+	        web3.setProvider(new web3.providers.HttpProvider('http://127.0.0.1:'+blockchain.rpcport));
 	        console.log('Web3 started.')
 	    }catch(e){
 	        setTimeout(startup,1000)

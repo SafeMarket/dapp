@@ -13,7 +13,7 @@ function Store(addrOrAlias){
 
 window.Store = Store
 
-Store.prototype.code = Store.code = contracts.Store.code
+Store.prototype.bytecode = Store.bytecode = contracts.Store.bytecode
 Store.prototype.runtimeBytecode = Store.runtimeBytecode = utils.runtimeBytecodes.Store
 Store.prototype.abi = Store.abi = contracts.Store.abi
 Store.prototype.contractFactory = Store.contractFactory = web3.eth.contract(Store.abi)
@@ -26,7 +26,7 @@ Store.create = function(alias,meta){
 	txMonitor.propose(
 		'Create a New Store'
 		,this.contractFactory
-		,[alias,meta,AliasReg.address,contracts.Infosphere.address,{data:this.code}]
+		,[alias,meta,AliasReg.address,contracts.Infosphere.address,{data:this.bytecode}]
 	).then(function(txReciept){
 		deferred.resolve(new Store(txReciept.contractAddress))
 	})
@@ -147,7 +147,7 @@ Store.estimateCreationGas = function(alias,meta){
 	meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 
 	return this.contractFactory.estimateGas(alias,meta,AliasReg.address,{
-		data:Store.code
+		data:Store.bytecode
 	})+AliasReg.claimAlias.estimateGas(alias)
 }
 

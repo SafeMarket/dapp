@@ -3,7 +3,9 @@
 		{
 			"options":{
 				"files":["generated/contracts.sol"]
-				,"doOptimize":true
+				,"doOptimize":false
+				,"output":"generated/contracts.json"
+				,"compilerPath":"node_modules/solc/bin/soljson-latest.js"
 			}
 		}
 }

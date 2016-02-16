@@ -26,6 +26,10 @@ module.exports = function(grunt){
     ,"githubAsset"
   ])
 
-  grunt.registerTask('build',["clean:workspaces", "concat", "copy", "index"])
+  grunt.registerTask('contracts',["concat:contracts","solc","solc-output-deploy","create-info-js"])
+
+  grunt.registerTask('build',["clean:workspaces", "concat", "contracts", "index", "copy"])
+
+  grunt.registerTask('run',["build", "watch"])
 
 }

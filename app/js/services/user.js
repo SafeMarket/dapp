@@ -329,7 +329,7 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 
 	this.setProvider = function(){
 		web3.setProvider(new HookedWeb3Provider({
-		  host: 'http://'+blockchain.rpcHost+':'+blockchain.rpcPort,
+		  host: 'http://127.0.0.1:'+blockchain.rpcport,
 		  transaction_signer: this.getKeystore()
 		}));
 	}

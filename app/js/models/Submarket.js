@@ -11,7 +11,7 @@ function Submarket(addr){
 
 window.Submarket = Submarket
 
-Submarket.prototype.code = Submarket.code = contracts.Submarket.code
+Submarket.prototype.bytecode = Submarket.bytecode = contracts.Submarket.bytecode
 Submarket.prototype.runtimeBytecode = Submarket.runtimeBytecode = utils.runtimeBytecodes.Submarket
 Submarket.prototype.abi = Submarket.abi = contracts.Submarket.abi
 Submarket.prototype.contractFactory = Submarket.contractFactory = web3.eth.contract(Submarket.abi)
@@ -23,7 +23,7 @@ var meta = utils.convertObjectToHex(meta)
 txMonitor.propose(
 	'Create a New Subsubmarket'
 	,this.contractFactory
-	,[alias,meta,AliasReg.address,contracts.Infosphere.address,{data:this.code}]
+	,[alias,meta,AliasReg.address,contracts.Infosphere.address,{data:this.bytecode}]
 ).then(function(txReciept){
 	console.log(txReciept)
 	deferred.resolve(new Submarket(txReciept.contractAddress))

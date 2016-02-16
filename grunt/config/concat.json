@@ -7,6 +7,6 @@
     	,"dest": "generated/app.css"
   	},"contracts": {
     	"src": "<%= files.contracts.src %>"
-    	,"dest": "generated/tmp/contracts.sol"
+    	,"dest": "generated/contracts.sol"
   	}
 }
