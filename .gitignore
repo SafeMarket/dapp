@@ -13,5 +13,6 @@ reports/
 !/.gitignore
 npm-debug.log
 .DS_Store
-datadir/
+datadir/**/*
+!datadir/development/
 !datadir/development/keystore/*
