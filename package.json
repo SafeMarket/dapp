@@ -46,7 +46,7 @@
     "grunt-protractor-runner": "^2.1.0",
     "grunt-rename": "^0.1.4",
     "grunt-solc": "^0.3.0",
-    "grunt-solc-output-deploy": "^1.0.0",
+    "grunt-solc-output-deploy": "^1.0.2",
     "grunt-tagrelease": "^0.3.3",
     "grunt-version": "^1.0.0",
     "grunt-wait": "^0.1.0",
