@@ -22,6 +22,7 @@
             ,"node_modules/web3/dist/web3.js"
             ,"node_modules/hooked-web3-provider/build/hooked-web3-provider.js"
             ,"node_modules/eth-lightwallet/dist/lightwallet.min.js"
+            ,"app/js/web3.js"
             ,"app/js/validators.js"
             ,"app/js/app.js"
             ,"app/js/splash.js"

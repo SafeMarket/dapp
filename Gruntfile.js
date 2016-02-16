@@ -31,6 +31,6 @@ module.exports = function(grunt){
 
   grunt.registerTask('build',["clean:workspaces", "concat", "contracts", "index", "copy"])
 
-  grunt.registerTask('run',["build", "watch"])
+  grunt.registerTask('run',["build", "refill:development", "watch"])
 
 }

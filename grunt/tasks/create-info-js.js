@@ -5,10 +5,9 @@ module.exports = function(grunt){
 
         Object.keys(gethConfig).forEach(function(env){
             var blockchain = gethConfig[env]
-                ,chainPath = 'config/chains/'+env+'.json'
+                ,chainPath = 'config/'+env+'/chain.json'
                 ,chain = grunt.file.exists(chainPath) ? grunt.file.readJSON(chainPath) : {}
-                ,keyPath = 'config/keys/'+env+'.json'
-                ,deployer = grunt.file.exists(keyPath) ? grunt.file.readJSON(keyPath).address : ''
+                ,deployer = gethConfig[env].unlock
                 ,_contracts = {}
                 ,infoPath = 'generated/dapp/'+env+'/info.js'
 
