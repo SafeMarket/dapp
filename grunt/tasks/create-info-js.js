@@ -7,7 +7,8 @@ module.exports = function(grunt){
             var blockchain = gethConfig[env]
                 ,chainPath = 'config/chains/'+env+'.json'
                 ,chain = grunt.file.exists(chainPath) ? grunt.file.readJSON(chainPath) : {}
-                ,deployer = grunt.file.readJSON('config/keys/'+env+'.json').address
+                ,keyPath = 'config/keys/'+env+'.json'
+                ,deployer = grunt.file.exists(keyPath) ? grunt.file.readJSON(keyPath).address : ''
                 ,_contracts = {}
                 ,infoPath = 'generated/dapp/'+env+'/info.js'
 

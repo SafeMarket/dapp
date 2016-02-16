@@ -1,6 +1,7 @@
 module.exports = function(grunt){
   
   require("load-grunt-tasks")(grunt)
+
   grunt.option('stack',true)
 
   grunt.registerTask('release',[
