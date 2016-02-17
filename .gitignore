@@ -1,6 +1,5 @@
 node_modules/
 bower_components
-config/chains/development.json
 generated/
 dist/
 .node-xmlhttprequest-sync-*
