@@ -1,5 +1,13 @@
 {
   "workspaces": ["generated/**/*"],
   "packages": ["packages/**/*"],
-  "reports": ["reports/**/*"]
+  "reports": ["reports/**/*"],
+  "datadir": [
+    "datadir/development/chaindata/"
+    ,"datadir/development/dapp/"
+    ,"datadir/development/nodes"
+    ,"datadir/development/geth.ipc"
+    ,"datadir/development/history"
+    ,"datadir/development/nodekey"
+  ]
 }
