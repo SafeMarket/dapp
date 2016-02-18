@@ -58,7 +58,7 @@
   "js": {
     "files": [
       {
-        "src": "generated/js/app.js",
+        "src": "generated/app.js",
         "dest": "generated/dapp/development/js/app.js"
       }, {
         "src": "generated/app.js",
