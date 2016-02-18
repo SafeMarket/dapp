@@ -3,9 +3,6 @@ module.exports = function(grunt){
     development: {
       options: {
         flags: grunt.file.readYAML("config/geth.yml").development
-        ,commands:{
-          js: 'js/peer.js'
-        }
       }
     },production:{
       options:{
