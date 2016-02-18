@@ -25,9 +25,7 @@ angular.module('app').controller('SettingsModalController',function($scope,growl
 		$scope.balance = user.getBalance()
 		$scope.keypairs = user.getKeypairs()
 		
-		console.log('fetchKeypair')
 		user.fetchKeypair().then(function(keypair){
-			console.log('keypair',keypair)
 			$scope.keypair = keypair
 		})
 		
@@ -40,7 +38,6 @@ angular.module('app').controller('SettingsModalController',function($scope,growl
 	})
 
 	$scope.$watch('transferAmountInUserCurrency',function(transferAmountInUserCurrency){
-		console.log(42)
 		$scope.transferAmountInEther = utils.convertCurrencyAndFormat(transferAmountInUserCurrency,{
 			from:$scope.currency
 			,to:'ETH'
@@ -48,7 +45,6 @@ angular.module('app').controller('SettingsModalController',function($scope,growl
 	})
 
 	$scope.$watch('transferAmountInEther',function(transferAmountInEther){
-		console.log(50)
 		$scope.transferAmountInUserCurrency = utils.convertCurrencyAndFormat(transferAmountInEther,{
 			from:'ETH'
 			,to:$scope.currency
@@ -109,8 +105,8 @@ angular.module('app').controller('SettingsModalController',function($scope,growl
 	$scope.transfer = function(){
 		var recipient = $scope.recipientType == 'internal' ? $scope.internalRecipient : '0x'+$scope.externalRecipient
 			,value = $scope.amountType == 'everything' 
-				? user.getBalance().toNumber()
-				: utils.convertCurrency($scope.transferAmountInEther,{from:'ETH',to:'WEI'}).toNumber()
+				? user.getBalance()
+				: utils.convertCurrency($scope.transferAmountInEther,{from:'ETH',to:'WEI'})
 
 		if(!utils.isAddr(recipient))
 			return growl.addErrorMessage('Invalid address')
@@ -121,8 +117,6 @@ angular.module('app').controller('SettingsModalController',function($scope,growl
 		if(value <= 0)
 			return growl.addErrorMessage('Amount must be greater than 0')
 
-		console.log('value1',value)
-
 		var txObject = {
 			to: recipient
 			,value: value
@@ -130,13 +124,11 @@ angular.module('app').controller('SettingsModalController',function($scope,growl
 				to: recipient
 				,value: value
 			})
-		}
+		},gasCost = web3.eth.gasPrice.times(txObject.gas)
 
-		console.log('value3',txObject.value)
-
-		if($scope.amountType=='everything')
-			txObject.value = txObject.value - (txObject.gas*web3.eth.gasPrice.toNumber()) 
-
+		if($scope.amountType=='everything'){
+			txObject.value = user.getBalance().minus(gasCost)
+		} 
 		
 		txMonitor.propose('Transfer Ether',web3.eth.sendTransaction,[txObject]).then(function(){
 			$scope.balance = user.getBalance()

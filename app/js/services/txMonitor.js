@@ -57,7 +57,6 @@ angular.module('app').service('txMonitor',function($interval, $modal, $q, $modal
 			}
 
 		txMonitor.openModal(proposal).result.then(function(receipt){
-			console.log(receipt)
 			deferred.resolve(receipt)
 		})
 

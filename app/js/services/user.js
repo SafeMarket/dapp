@@ -18,9 +18,6 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		var seed = this.getSeed()
 			,password = this.password
 
-		console.log('seed',seed)
-		console.log('password',password)
-
 		if(!seed)
 			throw 'Seed not set'
 
@@ -151,11 +148,8 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 		var deferred = $q.defer()
 			,account = this.getAccount()
 			,keypairs = this.getKeypairs()
-
-		console.log(keypairs)
 		
 		Key.fetch(account).then(function(key){
-			console.log('key',key)
 			var keypair = _.find(keypairs,{id:key.id})
 			if(keypair)
 				deferred.resolve(keypair)

@@ -1,5 +1,4 @@
 {
-  "workspaces": ["generated/**/*"],
   "packages": ["packages/**/*"],
   "reports": ["reports/**/*"],
   "datadir": [

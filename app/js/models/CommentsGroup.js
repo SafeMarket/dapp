@@ -32,9 +32,6 @@ angular.module('app').factory('CommentsGroup',function($q,utils){
 				gas:contract.addComment.estimateGas(forumAddr,parentId,text)+this.forum.contract.addComment.estimateGas(parentId,text)
 			})
 
-
-			console.log(forumAddr,parentId,text)
-
 		utils.waitForTx(txHex).then(function(tx){
 			deferred.resolve()
 		},function(error){

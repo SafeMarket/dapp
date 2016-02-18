@@ -29,8 +29,10 @@ module.exports = function(grunt){
 
   grunt.registerTask('contracts',["concat:contracts","solc","solc-output-deploy","create-info-js"])
 
-  grunt.registerTask('build',["clean:workspaces", "concat", "contracts", "index", "copy"])
+  grunt.registerTask('build',["concat", "contracts", "index", "copy"])
 
-  grunt.registerTask('run',["build", "refill:development", "watch"])
+  grunt.registerTask('run',["build", "ticker:development", "refill:development", "watch"])
+
+  grunt.registerTask('test',["refill:development","protractor"])
 
 }

@@ -16,9 +16,12 @@ module.exports = function(grunt){
             Object.keys(contracts).forEach(function(contractName){
                 _contracts[contractName] = contracts[contractName]
 
-                if(!chain[contractName]) return;
+                _contracts[contractName].bytecode = hexify(_contracts[contractName].bytecode)
+                _contracts[contractName].runtimeBytecode = hexify(_contracts[contractName].runtimeBytecode)
 
                 _contracts[contractName].abi = JSON.parse(contracts[contractName].interface)
+                
+                if(!chain[contractName]) return;
                 _contracts[contractName].address = chain[contractName].address
             });
 
@@ -27,6 +30,14 @@ module.exports = function(grunt){
             grunt.file.write(infoPath,infoJs)
             grunt.log.success('Wrote info to',infoPath)
         })
+
+        function hexify(string){
+            if(string.indexOf('0x') === 0)
+                return string
+            else
+                return '0x'+string
+
+        }
 
     })
 }

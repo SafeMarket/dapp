@@ -8,7 +8,6 @@ splash.run(function($timeout,$rootScope,$interval){
 		,firstBlock
 
 	function checkConnection(){
-		console.log('Check Connection')
         $rootScope.isConnected = web3.isConnected()
 
         if(!$rootScope.isConnected) return
@@ -22,7 +21,6 @@ splash.run(function($timeout,$rootScope,$interval){
         if(!firstBlock) firstBlock = web3.eth.blockNumber
 
         if(!isAppBootstrapped && $rootScope.isSynced){
-        	console.log('Bootstrapping app...')
         	isAppBootstrapped = true
         	angular.bootstrap(document.getElementById('app'),['app'])
         }
@@ -30,10 +28,8 @@ splash.run(function($timeout,$rootScope,$interval){
     }
 
 	function startup(){
-	    console.log('Starting Web3...')
 	    try{
 	        web3.setProvider(new web3.providers.HttpProvider('http://127.0.0.1:'+blockchain.rpcport));
-	        console.log('Web3 started.')
 	    }catch(e){
 	        setTimeout(startup,1000)
 	        return

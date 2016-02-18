@@ -91,6 +91,7 @@ angular.module('app').directive('amounts',function(utils){
 					var value = angular.copy($scope.value)
 
 				if(!$scope.from || !$scope.to || value===undefined) return
+					
 				$scope.to.forEach(function(currency){
 					$scope.amounts[currency] = utils.convertCurrency(value,{from:$scope.from,to:currency})
 				})

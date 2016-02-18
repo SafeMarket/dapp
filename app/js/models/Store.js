@@ -196,7 +196,6 @@ Store.prototype.update = function(){
 	this.scoreCountsReversed = this.scoreCounts.slice().reverse()
 
 	var metaUpdatedAt = this.contract.metaUpdatedAt()
-	console.log('metaUpdatedAt',metaUpdatedAt)
 
 	this.contract.Meta({},{fromBlock: metaUpdatedAt, toBlock: metaUpdatedAt}).get(function(error,results){
 
@@ -253,13 +252,11 @@ function Review(result,store){
 }
 
 function Product(data){
-	console.log('product',data)
 	this.id = data.id
 	this.name = data.name
 	this.price = new BigNumber(data.price)
 	this.info = data.info
 	this.imageUrl = data.imageUrl
-
 	this.quantity = 0
 }
 

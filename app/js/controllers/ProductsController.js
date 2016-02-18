@@ -10,7 +10,6 @@ angular.module('app').controller('ProductsController',function($scope,$filter,ut
 		if($scope.submarket)
 			$scope.submarket.updatePromise.then(function(){
 				$scope.feePercent = $scope.submarket.feePercentage.div(100)
-				console.log('feePercent',$scope.feePercent.toString())
 			})
 		else
 			$scope.feePercent = new BigNumber(0)
@@ -66,7 +65,6 @@ angular.module('app').controller('ProductsController',function($scope,$filter,ut
 
 
 		Order.create(meta,storeAddr,submarketAddr,feePercentage,disputeSeconds).then(function(order){
-			console.log(order)
 			window.location.hash = "#/orders/"+order.addr
 			user.addOrder(order.addr)
 			user.save()
