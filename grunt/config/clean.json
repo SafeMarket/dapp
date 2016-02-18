@@ -1,6 +1,6 @@
 {
-  "packages": ["packages/**/*"],
-  "reports": ["reports/**/*"],
+  "packages": ["generated/packages/**/*"],
+  "reports": ["generated/reports/**/*"],
   "datadir": [
     "datadir/development/chaindata/"
     ,"datadir/development/dapp/"
