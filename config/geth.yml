@@ -15,3 +15,5 @@ production:
   rpcaddr: 127.0.0.1
   rpcport: 8545
   rpccorsdomain: http://127.0.0.1:8001
+  unlock: dc99b79555385ab2fe0ff28c3c954a07b28aac5e
+  password: config/production/password

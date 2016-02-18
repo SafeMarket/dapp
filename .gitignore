@@ -15,3 +15,5 @@ npm-debug.log
 datadir/**/*
 !datadir/development/
 !datadir/development/keystore/*
+config/production/password
+config/production/githubToken
