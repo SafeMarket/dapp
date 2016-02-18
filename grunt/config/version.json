@@ -1,7 +1,5 @@
 {
-	"version":{
-    	"project":{
-    		"src": "package.json"
-    	}
-	}
+	"project":{
+    	"src": "package.json"
+    }
 }
