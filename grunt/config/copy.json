@@ -48,21 +48,21 @@
     "files": [
       {
         "src": "generated/app.css",
-        "dest": "generated/dapp/development/app.css"
+        "dest": "generated/dapp/development/css/app.css"
       }, {
         "src": "generated/app.css",
-        "dest": "generated/dapp/production/app.css"
+        "dest": "generated/dapp/production/css/app.css"
       }
     ]
   },
   "js": {
     "files": [
       {
-        "src": "generated/app.js",
-        "dest": "generated/dapp/development/app.js"
+        "src": "generated/js/app.js",
+        "dest": "generated/dapp/development/js/app.js"
       }, {
         "src": "generated/app.js",
-        "dest": "generated/dapp/production/app.js"
+        "dest": "generated/dapp/production/js/app.js"
       }
     ]
   },
