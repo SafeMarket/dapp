@@ -11,10 +11,12 @@ module.exports = function(grunt){
     client = new net.Socket();
 
     client.once('connect', function running(){
+      grunt.log.success(options.host,options.port,'is running')
       done(true)
     });
 
     client.once('error', function notRunning(){
+      grunt.log.error(options.host,options.port,'is not running')
       done(false)
     });
 
