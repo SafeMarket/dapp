@@ -6,7 +6,7 @@ module.exports = function(grunt){
 
   grunt.registerTask('release',[
     "fileExists:bin"
-    ,"checkport"
+//  ,"checkport"
     ,"gitcheckout:master"
     ,"gitadd:all"
     ,"gitstatuscheck"
