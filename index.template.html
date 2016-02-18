@@ -6,7 +6,7 @@
       script-src 'self';
       style-src 'self' 'unsafe-inline';
       font-src 'self';
-      connect-src http://127.0.0.1:* http://[rpcaddr]:[rpcport];
+      connect-src 'self' http://127.0.0.1:* http://[rpcaddr]:[rpcport];
       img-src '[imgsrc]' data:;
     "> 
     <script>alert('XSS vulnerability detected. Close SafeMarket immediately.')</script>
