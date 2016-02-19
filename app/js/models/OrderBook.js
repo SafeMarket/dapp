@@ -1,7 +1,3 @@
-(function(){
-
-angular.module('app').factory('Keystore',function(){
-	return web3.eth.contract(contracts.Keystore.abi).at(contracts.Keystore.address)
-})
-
-})();
+angular.module('app').factory('OrderBook',function(){
+	return web3.eth.contract(contracts.OrderBook.abi).at(contracts.OrderBook.address)
+});

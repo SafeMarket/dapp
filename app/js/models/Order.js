@@ -8,7 +8,7 @@ function Order(addr){
 
 window.Order = Order
 
-Order.prototype.code = Order.code = contracts.Order.code
+Order.prototype.bytecode = Order.bytecode = contracts.Order.bytecode
 Order.prototype.abi = Order.abi = contracts.Order.abi
 Order.prototype.contractFactory = Order.contractFactory = web3.eth.contract(Order.abi)
 
@@ -31,14 +31,10 @@ Order.create = function(meta,storeAddr,submarketAddr,feeCentiperun,disputeSecond
 
 	keyGroup.promise.then(function(keyGroup){
 
-
-		console.log('meta before encryption', meta)
-
 		keyGroup.encrypt(meta).then(function(pgpMessage){
-			console.log('meta added', pgpMessage.packets.write())
 			var meta = pgpMessage.packets.write()
 
-			txMonitor.propose('Create a New Order',Order.contractFactory,[meta,storeAddr,submarketAddr,feeCentiperun,disputeSeconds,OrderBook.address,{data:order.code}]).then(function(receipt){
+			txMonitor.propose('Create a New Order',Order.contractFactory,[meta,storeAddr,submarketAddr,feeCentiperun,disputeSeconds,OrderBook.address,{data:order.bytecode}]).then(function(receipt){
 				console.log(receipt)
 				var order = new Order(receipt.contractAddress)
 				deferred.resolve(order)
@@ -223,15 +219,11 @@ Order.prototype.update = function(){
 		if(results.length === 0)
 			return deferred.reject(new Error('no results found'))
 
-		console.log('meta fetched',web3.toAscii(results[results.length-1].args.meta))
-
 		var metaPgpMessageWrapper = new PgpMessageWrapper(web3.toAscii(results[results.length-1].args.meta))
 		
 		user.decrypt(metaPgpMessageWrapper)
 		
 		order.meta = utils.convertHexToObject(metaPgpMessageWrapper.text)
-
-		console.log(order.meta)
 
 		var productsTotalInOrderCurrency = new BigNumber(0)
 		order.meta.products.forEach(function(product){
@@ -258,7 +250,6 @@ Order.prototype.update = function(){
 					order.updates.push(new Update(result.args.sender,result.args.status.toNumber(),timestamp,order))
 				})
 
-				console.log('order',order,order.messages.length)
 				deferred.resolve(order)
 			})
 
@@ -277,7 +268,6 @@ Order.prototype.addMessage = function(pgpMessage){
 }
 
 Order.prototype.withdraw = function(amount){
-	console.log(amount.toString(),this.received.toString(),amount.minus(this.received).toString())
 
 	var deferred = $q.defer()
 		,txHex = this.contract.withdraw(amount,{
@@ -321,7 +311,6 @@ function Message(sender,ciphertext,timestamp,order){
 	if(!user.decrypt(this.pgpMessageWrapper))
 		console.error('Failed to decrypt message')
 	
-	console.log('text',this.pgpMessageWrapper.text)
 	this.text = this.pgpMessageWrapper.text
 }
 

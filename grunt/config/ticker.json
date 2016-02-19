@@ -1,0 +1,7 @@
+{
+	"development":{
+		"options":{
+			"env":"development"
+		}
+	}
+}

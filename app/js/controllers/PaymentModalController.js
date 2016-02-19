@@ -62,8 +62,6 @@ angular.module('app').controller('PaymentModalController',function($scope,addr,a
 
 		txObject.gas = web3.eth.estimateGas(txObject)
 
-		console.log('txObject',txObject)
-
 		txMonitor.propose('Make a Payment',web3.eth.sendTransaction,[txObject]).then(function(){
 			$scope.balance = user.getBalance()
 			$scope.transferAmountInUserCurrency = 0

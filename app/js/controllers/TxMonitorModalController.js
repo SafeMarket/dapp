@@ -7,12 +7,10 @@ angular.module('app').controller('TxMonitorModalController',function($scope,$int
 		proposal.args.push({})
 
 	var txOptions = proposal.args[proposal.args.length-1]
+		,gasLimit = web3.eth.getBlock('latest').gasLimit
 		,isFactory = typeof proposal.contractFactoryOrFunction === 'object'
 		,waitInterval
 
-	console.log(proposal.contractFactoryOrFunction)
-
-	txOptions.from = user.getAccount()
 	txOptions.gasPrice = web3.eth.gasPrice.toNumber()
 	
 	proposal.value = txOptions.value = txOptions.value ? txOptions.value : 0
@@ -20,19 +18,19 @@ angular.module('app').controller('TxMonitorModalController',function($scope,$int
 	if(typeof proposal.value === 'string')
 		proposal.value = web3.toDecimal(proposal.value)
 
+	if(txOptions.gas){
+		proposal.gas = txOptions.gas
+	}else{
+		var estimatedGas = proposal.contractFactoryOrFunction.estimateGas.apply(proposal.contractFactoryOrFunction, proposal.args)
+		
+		if(estimatedGas < gasLimit)
+			estimatedGas = Math.min(gasLimit,estimatedGas*2)
 
-	proposal.gas = txOptions.gas = txOptions.gas || (proposal.contractFactoryOrFunction.estimateGas.apply(proposal.contractFactoryOrFunction, proposal.args)*2)
+		proposal.gas = txOptions.gas = estimatedGas
+	}
+
 	proposal.gasCost = txOptions.gasPrice * txOptions.gas
 	proposal.cost = proposal.gasCost + proposal.value
-
-	console.log('gas',txOptions.gas)
-	console.log('gasCost',proposal.gasCost)
-	console.log('value',proposal.value)
-	console.log('cost',proposal.cost)
-	console.log('balance',user.getBalance().toNumber())
-
-	console.log(txOptions)
-	console.log(JSON.stringify(txOptions))
 
 	$scope.isThrown = proposal.gas > web3.eth.getBlock(web3.eth.blockNumber).gasLimit
 	$scope.isProposalAffordable = user.getBalance().toNumber() > proposal.cost
@@ -57,27 +55,22 @@ angular.module('app').controller('TxMonitorModalController',function($scope,$int
 
 		args.push(function(error,result){
 
-			console.log(arguments)
-
 			if(result && result.transactionHash && ! result.address) //contract without transaction hash
 				return
 
 			if(error){
 				$scope.error = error
 				$scope.isSyncing = false
-				console.log('cancel')
 				$interval.cancel(waitInterval)
 				return
 			}
 
 			txMonitor.waitForTx(result.transactionHash || result).then(function(receipt){
-				console.log('cancel')
 				$interval.cancel(waitInterval)
 				$modalInstance.close(receipt)
 			},function(){
 				$scope.error = 'Transaction failed to sync'
 				$scope.isSyncing = false
-				console.log('cancel')
 				$interval.cancel(waitInterval)
 			})
 

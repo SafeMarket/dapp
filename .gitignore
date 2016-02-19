@@ -1,6 +1,5 @@
 node_modules/
 bower_components
-config/chains/development.json
 generated/
 dist/
 .node-xmlhttprequest-sync-*
@@ -13,3 +12,8 @@ reports/
 !/.gitignore
 npm-debug.log
 .DS_Store
+datadir/**/*
+!datadir/development/
+!datadir/development/keystore/*
+config/production/password
+config/production/githubToken

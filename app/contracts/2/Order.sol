@@ -2,7 +2,7 @@ contract Order{
 	address public buyer;
 	address public storeAddr;
 	address public submarketAddr;
-	uint public feeCentiperun; //https://aakilfernandes.github.io/perun-a-useful-unit-for-dimensionless-programming
+	uint public feeCentiperun; 
 	uint public disputeSeconds;
 	uint public status;
 	uint public received;

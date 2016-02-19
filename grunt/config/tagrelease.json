@@ -1,0 +1,7 @@
+{
+    "file": "package.json",
+    "commit": true,
+    "message": "Release %version%",
+    "annotate": false,
+    "prefix": "v"
+}

@@ -8,8 +8,6 @@ $scope.$watch('text',function(text){
 
 $scope.addComment = function(){
 	$scope.isAddingComment = true
-
-	console.log('$scope.identity.addr === user.data.account',$scope.identity.addr === user.data.account)
 	
 	if($scope.identity.addr === user.data.account)
 		$scope.commentsGroup.addComment($scope.commentsGroup.id,$scope.text).then(function(){

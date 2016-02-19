@@ -1,0 +1,33 @@
+{
+    "darwin": {
+        "options": {
+            "version": "0.34.3",
+            "name": "SafeMarket",
+            "dir": "generated/dapp/production",
+            "platform": "darwin",
+            "arch": "x64",
+            "out": "generated/packages/",
+            "icon": "generated/SafeMarket.icns"
+        }
+    },
+    "linux": {
+        "options": {
+            "version": "0.34.3",
+            "name": "SafeMarket",
+            "dir": "generated/dapp/production",
+            "platform": "linux",
+            "arch": "x64",
+            "out": "generated/packages/"
+        }
+    },
+    "win32": {
+        "options": {
+            "version": "0.34.3",
+            "name": "SafeMarket",
+            "dir": "generated/dapp/production",
+            "platform": "win32",
+            "arch": "x64",
+            "out": "generated/packages/"
+        }
+    }
+}

@@ -11,8 +11,6 @@ angular.module('app').controller('OrderController',function($scope,Order,pgp,use
 
 	function setMessagesAndUpdates(){
 
-		console.log('setMessagesAndUpdates')
-
 		if(!$scope.order) return
 
 		var messagesAndUpdates = []

@@ -13,7 +13,7 @@ function Store(addrOrAlias){
 
 window.Store = Store
 
-Store.prototype.code = Store.code = contracts.Store.code
+Store.prototype.bytecode = Store.bytecode = contracts.Store.bytecode
 Store.prototype.runtimeBytecode = Store.runtimeBytecode = utils.runtimeBytecodes.Store
 Store.prototype.abi = Store.abi = contracts.Store.abi
 Store.prototype.contractFactory = Store.contractFactory = web3.eth.contract(Store.abi)
@@ -26,7 +26,7 @@ Store.create = function(alias,meta){
 	txMonitor.propose(
 		'Create a New Store'
 		,this.contractFactory
-		,[alias,meta,AliasReg.address,contracts.Infosphere.address,{data:this.code}]
+		,[alias,meta,AliasReg.address,contracts.Infosphere.address,{data:this.bytecode}]
 	).then(function(txReciept){
 		deferred.resolve(new Store(txReciept.contractAddress))
 	})
@@ -147,7 +147,7 @@ Store.estimateCreationGas = function(alias,meta){
 	meta = typeof meta === 'string' ? meta : utils.convertObjectToHex(meta)
 
 	return this.contractFactory.estimateGas(alias,meta,AliasReg.address,{
-		data:Store.code
+		data:Store.bytecode
 	})+AliasReg.claimAlias.estimateGas(alias)
 }
 
@@ -196,7 +196,6 @@ Store.prototype.update = function(){
 	this.scoreCountsReversed = this.scoreCounts.slice().reverse()
 
 	var metaUpdatedAt = this.contract.metaUpdatedAt()
-	console.log('metaUpdatedAt',metaUpdatedAt)
 
 	this.contract.Meta({},{fromBlock: metaUpdatedAt, toBlock: metaUpdatedAt}).get(function(error,results){
 
@@ -253,13 +252,11 @@ function Review(result,store){
 }
 
 function Product(data){
-	console.log('product',data)
 	this.id = data.id
 	this.name = data.name
 	this.price = new BigNumber(data.price)
 	this.info = data.info
 	this.imageUrl = data.imageUrl
-
 	this.quantity = 0
 }
 

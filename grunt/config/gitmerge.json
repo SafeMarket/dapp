@@ -1,0 +1,8 @@
+{
+  	"master": {
+    	"options": {
+     		 "branch": "master",
+      		"force": true
+    	}	
+  	}
+}

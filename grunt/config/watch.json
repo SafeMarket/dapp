@@ -1,0 +1,29 @@
+{
+  "html": {
+    "files": ["<%= files.html.src %>"],
+    "tasks": ["copy:html"]
+  },
+  "images": {
+    "files": ["<%= files.images.src %>"],
+    "tasks": ["copy:images"]
+  },
+  "js": {
+    "files": ["<%= files.js.src %>"],
+    "tasks": ["concat:js", "copy:js"]
+  },
+  "css": {
+    "files": ["<%= files.css.src %>"],
+    "tasks": ["concat:css"]
+  },
+  "contracts": {
+    "files": ["<%= files.contracts.src %>"],
+    "tasks": ["contracts"]
+  },
+  "config": {
+    "files": ["config/geth.yml", "config/contracts.yml", "Gruntfile.js", "grunt/**/*"],
+    "tasks": ["build"]
+  },"index":{
+    "files": ["index.template.html"],
+    "tasks": ["index"]
+  }
+}
