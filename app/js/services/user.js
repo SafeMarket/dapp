@@ -233,6 +233,7 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 
 	this.reset = function(){
 		this.data = null
+		this.setRootScopeVars()
 		this.setStorage('')
 		$rootScope.userExists = false
 		this.logout()
@@ -283,6 +284,14 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 
 	this.addSubmarket = function(addr){
 		this.getSubmarketAddrs().push(addr)
+		$rootScope.submarketAddrs = this.getSubmarketAddrs()
+		this.save()
+
+	}
+
+	this.setRootScopeVars = function(){
+		$rootScope.orderAddrs = this.getOrderAddrs()
+		$rootScope.storeAddrs = this.getStoreAddrs()
 		$rootScope.submarketAddrs = this.getSubmarketAddrs()
 		this.save()
 	}

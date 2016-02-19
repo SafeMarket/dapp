@@ -1,4 +1,4 @@
-contract Store is forumable,audible,infosphered,meta{
+contract Store is forumable,audible,infosphered,meta,permissioned{
 
     function Store(bytes32 alias, bytes meta, address alasRegAddr,address infosphereAddr){
     	infosphere = Infosphere(infosphereAddr);

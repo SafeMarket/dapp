@@ -47,7 +47,7 @@ Submarket.check = function(alias,meta){
 			,type:'string'
 		},info:{
 			type:'string'
-		},feePercentage:{
+		},feeCentiperun:{
 			presence:true
 			,type:'string'
 			,numericality:{
@@ -129,7 +129,7 @@ Submarket.prototype.update = function(){
 	this.getEvents('Meta',metaUpdatedAt,metaUpdatedAt).then(function(results){
 
 		submarket.meta = utils.convertHexToObject(results[results.length-1].args.meta)
-		submarket.feePercentage = new BigNumber(submarket.meta.feePercentage)
+		submarket.feeCentiperun = new BigNumber(feeCentiperun)
 
 		deferred.resolve(submarket)
 	},function(error){

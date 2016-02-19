@@ -10,7 +10,7 @@ angular.module('app').controller('SubmarketModalController',function($scope,tick
 		$scope.isEditing = true
 		$scope.name = submarket.meta.name
 		$scope.info = submarket.meta.info
-		$scope.feePercentage = parseFloat(submarket.meta.feePercentage)
+		$scope.feeCentiperun = parseFloat(submarket.meta.feeCentiperun)
 		$scope.bondInEther = parseInt(web3.fromWei(submarket.bond,'ether'))
 		$scope.isOpen = submarket.meta.isOpen
 
@@ -19,7 +19,7 @@ angular.module('app').controller('SubmarketModalController',function($scope,tick
 				$scope.stores.push({alias:utils.getAlias(storeAddr)})
 			})
 	}else{
-		$scope.feePercentage = 3
+		$scope.feeCentiperun = 3
 		$scope.bondInEther = 100
 		$scope.stores = []
 		$scope.isOpen = true
@@ -34,7 +34,7 @@ angular.module('app').controller('SubmarketModalController',function($scope,tick
 			,meta = {
 				name:$scope.name
 				,info:$scope.info
-				,feePercentage: $scope.feePercentage.toString()
+				,feeCentiperun: $scope.feeCentiperun.toString()
 				,isOpen:$scope.isOpen
 				,storeAddrs:[]
 			}

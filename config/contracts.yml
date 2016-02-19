@@ -17,6 +17,10 @@ development:
     deploy: false
   infosphered:
     deploy: false
+  permissioned:
+    deploy: false
+  meta:
+    deploy: false
   AliasReg:
     deploy: true
   Keystore:
@@ -51,6 +55,10 @@ production:
   audible:
     deploy: false
   infosphered:
+    deploy: false
+  permissioned:
+    deploy: false
+  meta:
     deploy: false 
   AliasReg:
     deploy: true

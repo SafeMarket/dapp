@@ -1,5 +1,3 @@
-(function(){
-
 angular.module('app').factory('Order',function(utils,ticker,$q,Store,Submarket,Key,KeyGroup,PgpMessageWrapper,txMonitor,user,OrderBook){
 
 function Order(addr){
@@ -14,7 +12,7 @@ Order.prototype.bytecode = Order.bytecode = contracts.Order.bytecode
 Order.prototype.abi = Order.abi = contracts.Order.abi
 Order.prototype.contractFactory = Order.contractFactory = web3.eth.contract(Order.abi)
 
-Order.create = function(meta,storeAddr,submarketAddr,feePercentage,disputeSeconds){
+Order.create = function(meta,storeAddr,submarketAddr,feeCentiperun,disputeSeconds){
 
 	var deferred = $q.defer()
 		,order = this
@@ -36,7 +34,8 @@ Order.create = function(meta,storeAddr,submarketAddr,feePercentage,disputeSecond
 		keyGroup.encrypt(meta).then(function(pgpMessage){
 			var meta = pgpMessage.packets.write()
 
-			txMonitor.propose('Create a New Order',Order.contractFactory,[meta,storeAddr,submarketAddr,feePercentage,disputeSeconds,OrderBook.address,{data:order.bytecode}]).then(function(receipt){
+			txMonitor.propose('Create a New Order',Order.contractFactory,[meta,storeAddr,submarketAddr,feeCentiperun,disputeSeconds,OrderBook.address,{data:order.bytecode}]).then(function(receipt){
+				console.log(receipt)
 				var order = new Order(receipt.contractAddress)
 				deferred.resolve(order)
 			})
@@ -52,7 +51,7 @@ Order.create = function(meta,storeAddr,submarketAddr,feePercentage,disputeSecond
 	return deferred.promise
 }
 
-Order.check = function(meta,storeAddr,submarketAddr,feePercentage,disputeSeconds){
+Order.check = function(meta,storeAddr,submarketAddr,feeCentiperun,disputeSeconds){
 	utils.check(meta,{
 		currency:{
 			presence:true
@@ -118,7 +117,7 @@ Order.check = function(meta,storeAddr,submarketAddr,feePercentage,disputeSeconds
 	utils.check({
 		storeAddr:storeAddr
 		,submarketAddr:submarketAddr
-		,feePercentage:feePercentage
+		,feeCentiperun:feeCentiperun
 		,disputeSeconds:disputeSeconds
 	},{
 		storeAddr:{
@@ -127,7 +126,7 @@ Order.check = function(meta,storeAddr,submarketAddr,feePercentage,disputeSeconds
 		},submarketAddr:{
 			presence:true
 			,type:'address'
-		},feePercentage:{
+		},feeCentiperun:{
 			presence:true
 			,type:'string'
 			,numericality:{
@@ -176,7 +175,7 @@ Order.prototype.update = function(){
 	this.buyer = this.contract.buyer()
 	this.store = new Store(storeAddr)
 	this.submarket = submarketAddr === utils.nullAddr ? null : new Submarket(submarketAddr)
-	this.feePercentage = this.contract.feePercentage()
+	this.feeCentiperun = this.contract.feeCentiperun()
 	this.received = this.contract.received()
 	this.status = this.contract.status().toNumber()
 	this.timestamp = this.contract.timestamp()
@@ -234,7 +233,7 @@ Order.prototype.update = function(){
 
 		order.productsTotal = utils.convertCurrency(productsTotalInOrderCurrency,{from:order.store.meta.currency,to:'WEI'})
 		order.transportPrice = utils.convertCurrency(order.meta.transport.price,{from:order.store.meta.currency,to:'WEI'})
-		order.estimatedFee = order.productsTotal.plus(order.transportPrice).times(order.feePercentage).div(100)
+		order.estimatedFee = order.productsTotal.plus(order.transportPrice).times(order.feeCentiperun).div(100)
 		order.total = order.productsTotal.plus(order.transportPrice).plus(order.estimatedFee)
 		order.unpaid = order.total.minus(order.received)
 		order.percentReceived = new BigNumber(order.received).div(order.total)
@@ -331,6 +330,4 @@ Message.prototype.isMessage = true
 
 return Order
 
-})
-
-})();
+});
