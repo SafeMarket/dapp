@@ -92,14 +92,11 @@ angular.module('app').service('utils',function(ticker,$q,$timeout,AliasReg){
 
 	function convertCurrency(amount,currencies){
 
-		console.log('convertCurrency',amount)
-
 		var deferred = $q.defer()
 
 		if(typeof amount!=='string')
 			amount = amount.toString()
 
-		
 		check({
 			amount:amount
 			,from:currencies.from

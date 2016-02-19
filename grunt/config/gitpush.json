@@ -1,0 +1,15 @@
+{
+	"master":{
+        "options":{
+        	"tags": true
+        	,"origin": "origin"
+         	,"branch": "master"
+        }
+    },"release":{
+        "options":{
+          	"tags": true
+          	,"origin": "origin"
+         	,"branch": "release"
+    	}
+    }
+}

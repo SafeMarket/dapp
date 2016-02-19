@@ -1,0 +1,12 @@
+{
+    "master": {
+      	"options": {
+        	"branch": "master"
+      	}
+    },
+    "release": {
+      	"options": {
+    		"branch": "release"
+	    }
+    }
+}

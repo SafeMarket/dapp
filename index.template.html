@@ -1,1 +1,65 @@
-<h1>SafeMarket Releases</h1>
+<html>
+  <head>
+    <title>SafeMarket</title>
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'none';
+      script-src 'self';
+      style-src 'self' 'unsafe-inline';
+      font-src 'self';
+      connect-src 'self' http://127.0.0.1:* http://[rpcaddr]:[rpcport];
+      img-src '[imgsrc]' data:;
+    "> 
+    <script>alert('XSS vulnerability detected. Close SafeMarket immediately.')</script>
+    <link rel="stylesheet" href="css/app.css">
+    <script src="js/info.js"></script>
+    <script src="js/app.js"></script>
+  </head>
+  <body>
+  <div id="app">
+    <div class="container" ng-show="!isConnected">
+      <div class="alert alert-danger text-center push-down" ng-show="!isConnected">
+        <img src="images/balls.gif"> Bootstrapping
+      </div>
+    </div>
+    <div ng-controller="MainController">
+      <nav class="navbar navbar-default navbar-top navbar-static-top" id="navbar" ng-cloak ng-show="isConnected">
+        <div class="container">
+          <div class="navbar-header pull-left">
+            <a class="navbar-brand" ng-href="{{isLoggedIn?'#/':'.'}}">SafeMarket</a>
+          </div>
+          <div class="navbar-header pull-right">
+            <blockie seed="account" ng-click="openSettingsModal()" ng-if="isLoggedIn"></blockie>
+            <button class="navbar-btn btn btn-default btn-lg" ng-click="goBack()" ng-if="isLoggedIn">
+              <span class="glyphicon glyphicon-menu-left"></span>
+            </button>
+            <button class="navbar-btn btn btn-default btn-lg" id="refreshButton">
+              <span class="glyphicon glyphicon-refresh" id="refreshIcon"></span>
+            </button>
+            <button class="navbar-btn btn btn-default btn-lg" ng-if="isLoggedIn" ng-click="openSettingsModal()">
+              <span class="glyphicon glyphicon-cog"></span>
+            </button>
+            <button class="btn btn-default btn-lg" ng-click="logout()" ng-if="isLoggedIn">
+              <span class="glyphicon glyphicon-log-out"></span>
+            </button>
+          </div>
+        </div>
+      </nav>
+      <div class="container">
+        <div class="alert alert-warning text-center">SafeMarket is still in Alpha. Funds deposited are likely to be lost.</div>
+      </div>
+      <div class="container">
+          <div growl></div>
+          <div ui-view autoscroll="true" class="mainView" ng-show="isConnected"></div>
+      </div>
+    </div>
+  </div>
+  <div ng-app="splash" class="container">
+    <div class="alert alert-danger text-center push-down" ng-show="!isSynced && !syncing">
+      <img src="images/balls.gif"> Waiting for node to start
+    </div>
+    <div class="alert alert-danger text-center push-down" ng-show="!isSynced && syncing.currentBlock < syncing.highestBlock"  ng-cloak>
+      <img src="images/balls.gif"> Your node is still syncing. On block {{syncing.currentBlock}} of {{syncing.highestBlock}}.
+    </div>
+  </div>
+  </body>
+</html>

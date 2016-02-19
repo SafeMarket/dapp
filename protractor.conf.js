@@ -12,7 +12,7 @@ exports.config = {
 		require('jasmine-reporters');
 
 		var mkdirp = require('mkdirp')
-        	,reportsDir = 'reports/'
+        	,reportsDir = 'generated/reports/'
 
         mkdirp.sync(reportsDir)
 

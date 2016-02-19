@@ -1,0 +1,9 @@
+{
+	"development":{
+		"root":"generated/dapp/development"
+		,"port":8000
+	},"production":{
+		"root":"generated/dapp/production"
+		,"port":8001
+	}
+}

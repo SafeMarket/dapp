@@ -1,0 +1,88 @@
+{
+  "html": {
+    "files": [
+      {
+        "src": ["<%= files.html.src %>"],
+        "dest": "generated/dapp/development/",
+        "expand": true,
+        "flatten": true
+      }, {
+        "src": ["<%= files.html.src %>"],
+        "dest": "generated/dapp/production/",
+        "expand": true,
+        "flatten": true
+      }
+    ]
+  },
+  "images": {
+    "files": [
+      {
+        "src": ["<%= files.images.src %>"],
+        "dest": "generated/dapp/development/images",
+        "expand": true,
+        "flatten": true
+      }, {
+        "src": ["<%= files.images.src %>"],
+        "dest": "generated/dapp/production/images",
+        "expand": true,
+        "flatten": true
+      }
+    ]
+  },
+  "fonts": {
+    "files": [
+      {
+        "src": ["<%= files.fonts.src %>"],
+        "dest": "generated/dapp/development/fonts",
+        "expand": true,
+        "flatten": true
+      }, {
+        "src": ["<%= files.fonts.src %>"],
+        "dest": "generated/dapp/production/fonts",
+        "expand": true,
+        "flatten": true
+      }
+    ]
+  },
+  "css": {
+    "files": [
+      {
+        "src": "generated/app.css",
+        "dest": "generated/dapp/development/css/app.css"
+      }, {
+        "src": "generated/app.css",
+        "dest": "generated/dapp/production/css/app.css"
+      }
+    ]
+  },
+  "js": {
+    "files": [
+      {
+        "src": "generated/app.js",
+        "dest": "generated/dapp/development/js/app.js"
+      }, {
+        "src": "generated/app.js",
+        "dest": "generated/dapp/production/js/app.js"
+      }
+    ]
+  },
+  "electron": {
+    "src": ["<%= files.electron.src %>"],
+    "dest": "generated/dapp/production/"
+  },
+  "bin": {
+    "src": ["<%= files.bin.src %>"],
+    "dest": "generated/dapp/production/",
+    "options": {
+      "mode": true
+    }
+  },
+  "modules": {
+    "src": ["<%= files.modules.src %>"],
+    "dest": "generated/dapp/production/"
+  },
+  "icns": {
+    "src": "assets/SafeMarket.icns",
+    "dest": "generated/SafeMarket.icns"
+  }
+}
