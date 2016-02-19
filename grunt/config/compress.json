@@ -5,7 +5,7 @@
             ,"mode": "zip"
         },"files":[{
             "src": "**/**"
-            ,"cwd": "packages/SafeMarket-darwin-x64/"
+            ,"cwd": "generated/packages/SafeMarket-darwin-x64/"
             ,"expand": true
         }]
     },"win32":{
