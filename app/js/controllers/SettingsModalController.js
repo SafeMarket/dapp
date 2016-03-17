@@ -37,20 +37,6 @@ angular.module('app').controller('SettingsModalController',function($scope,growl
 		user.save()
 	})
 
-	$scope.$watch('transferAmountInUserCurrency',function(transferAmountInUserCurrency){
-		$scope.transferAmountInEther = utils.convertCurrencyAndFormat(transferAmountInUserCurrency,{
-			from:$scope.currency
-			,to:'ETH'
-		})
-	})
-
-	$scope.$watch('transferAmountInEther',function(transferAmountInEther){
-		$scope.transferAmountInUserCurrency = utils.convertCurrencyAndFormat(transferAmountInEther,{
-			from:'ETH'
-			,to:$scope.currency
-		})
-	})
-
 	$scope.submit = function(){
 		user.save()
 		$modalInstance.dismiss()
@@ -106,7 +92,7 @@ angular.module('app').controller('SettingsModalController',function($scope,growl
 		var recipient = $scope.recipientType == 'internal' ? $scope.internalRecipient : '0x'+$scope.externalRecipient
 			,value = $scope.amountType == 'everything' 
 				? user.getBalance()
-				: utils.convertCurrency($scope.transferAmountInEther,{from:'ETH',to:'WEI'})
+				: utils.convertCurrency($scope.transferAmountInUserCurrency,{from:user.getCurrency(),to:'WEI'})
 
 		if(!utils.isAddr(recipient))
 			return growl.addErrorMessage('Invalid address')
@@ -128,7 +114,9 @@ angular.module('app').controller('SettingsModalController',function($scope,growl
 
 		if($scope.amountType=='everything'){
 			txObject.value = user.getBalance().minus(gasCost)
-		} 
+		}
+
+		console.log(JSON.stringify(txObject))
 		
 		txMonitor.propose('Transfer Ether',web3.eth.sendTransaction,[txObject]).then(function(){
 			$scope.balance = user.getBalance()

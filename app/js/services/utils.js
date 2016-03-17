@@ -112,6 +112,9 @@ angular.module('app').service('utils',function(ticker,$q,$timeout,AliasReg,Affil
 				.div(ticker.rates[currencies.from])
 				.times(ticker.rates[currencies.to])
 
+		if(currencies.to === 'WEI')
+			amount = amount.ceil()
+
 		return amount
 	}
 

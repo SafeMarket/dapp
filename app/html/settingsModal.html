@@ -69,10 +69,6 @@
                         <input type="text" ng-model="transferAmountInUserCurrency" class="form-control" numeric-input ng-model-options="{debounce:500}">
                         <div class="input-group-addon">{{userCurrency}}</div>
                     </div>
-                    <div class="input-group push-down" ng-show="userCurrency!=='ETH'">
-                        <input type="text" ng-model="transferAmountInEther" class="form-control" numeric-input ng-model-options="{debounce:500}">
-                        <div class="input-group-addon">ETH</div>
-                    </div>
                 </div>
             </td>
         </tr>

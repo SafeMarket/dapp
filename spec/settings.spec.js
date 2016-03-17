@@ -1,4 +1,5 @@
-var account1 = '0x1049a6c61c46a7c1e12d919189701bf26a1a2011'
+var BigNumber = require('bignumber.js')
+    ,account1 = '0x1049a6c61c46a7c1e12d919189701bf26a1a2011'
     ,account2 = '0x86b9c59ba660d09d3f528d80520e6d5017c44dd2'
 
 describe('settings',function(){
@@ -95,10 +96,10 @@ describe('modal',function(){
         expect(element(by.css('#balance [currency="USD"]')).getText()).toBe('0.00 USD')
     })
 
-    it('should transfer of half from account2 to account1',function(){
+    it('should transfer half of account2 to account1',function(){
         element(by.css('#account-select option:nth-child(2)')).click()
         element(by.css('#balance [currency="USD"]')).getText().then(function(text){
-            var balance = (parseFloat(text.split(' ')[0])/2).toFixed(2)
+            var balance = (new BigNumber(text.split(' ')[0])).div(2).toFixed(2).toString()
             element(by.css('#internalRecipient-select option:nth-child(1)')).click()
             element(by.css('#amountType-select option:nth-child(2)')).click()
             element(by.model('transferAmountInUserCurrency')).clear().sendKeys(balance.toString())

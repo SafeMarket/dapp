@@ -13,6 +13,7 @@
   "license": "ISC",
   "homepage": "",
   "devDependencies": {
+    "bignumber.js": "^2.3.0",
     "coffee-script": "^1.10.0",
     "compression": "^1.6.1",
     "electron-packager": "^5.1.1",
