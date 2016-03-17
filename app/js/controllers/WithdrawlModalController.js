@@ -2,14 +2,14 @@
 
 angular.module('app').controller('WithdrawlModalController',function($scope,order,utils,user,growl,$modalInstance){
 	$scope.addr = order.addr
-	$scope.userCurrency = user.data.currency
+	$scope.userCurrency = user.getCurrency()
 
-	$scope.amountInUserCurrency = utils.convertCurrencyAndFormat(order.received,{from:'WEI',to:user.data.currency})
+	$scope.amountInUserCurrency = utils.convertCurrencyAndFormat(order.received,{from:'WEI',to:user.getCurrency()})
 
-	if(user.data.currency !=='ETH'){
+	if(user.getCurrency() !=='ETH'){
 		$scope.$watch('amountInUserCurrency',function(amountInUserCurrency){
 			$scope.amountInEther = utils.convertCurrencyAndFormat(amountInUserCurrency,{
-				from:user.data.currency
+				from:user.getCurrency()
 				,to:'ETH'
 			})
 		})
@@ -17,7 +17,7 @@ angular.module('app').controller('WithdrawlModalController',function($scope,orde
 		$scope.$watch('amountInEther',function(amountInEther){
 			$scope.amountInUserCurrency = utils.convertCurrencyAndFormat(amountInEther,{
 				from:'ETH'
-				,to:user.data.currency
+				,to:user.getCurrency()
 			})
 		})
 	}
@@ -49,10 +49,10 @@ angular.module('app').controller('WithdrawlModalController',function($scope,orde
 
 		$scope.isSyncing = true
 
-		var amount = utils.convertCurrency($scope.amountInUserCurrency,{from:user.data.currency,to:'WEI'})
+		var amount = utils.convertCurrency($scope.amountInUserCurrency,{from:user.getCurrency(),to:'WEI'})
 
 		if(amount.greaterThan(order.received))
-			amount = new BigNumber(order.received.toString())
+			amount = web3.toBigNumber(order.received.toString())
 
 		order.withdraw(amount).then(function(){
 			$modalInstance.close()

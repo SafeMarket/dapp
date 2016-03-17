@@ -1,28 +1,29 @@
-(function(){
-
-
-angular.module('app').controller('SubmarketModalController',function($scope,ticker,growl,$modal,$modalInstance,submarket,user,helpers,utils,Submarket,AliasReg){
+angular.module('app').controller('SubmarketModalController',function($scope,ticker,growl,$modal,$modalInstance,submarket,user,helpers,utils,SubmarketReg,AliasReg,ticker,constants){
 	
 	$scope.stores = []
 
+	$scope.currencies = Object.keys(ticker.rates)
+
 	if(submarket){
 		$scope.alias = submarket.alias
+		$scope.currency = submarket.currency
 		$scope.isEditing = true
-		$scope.name = submarket.meta.name
-		$scope.info = submarket.meta.info
-		$scope.feeCentiperun = parseFloat(submarket.meta.feeCentiperun)
-		$scope.bondInEther = parseInt(web3.fromWei(submarket.bond,'ether'))
-		$scope.isOpen = submarket.meta.isOpen
+		$scope.name = submarket.meta.data.name
+		$scope.info = submarket.meta.data.info
+		$scope.escrowFeeCentiperun = submarket.infosphered.data.escrowFeeCentiperun.toNumber()
+		$scope.isOpen = submarket.infosphered.data.isOpen
+		$scope.minTotal = submarket.infosphered.data.minTotal.div(constants.tera)
 
-		if(submarket.meta.storeAddrs)
-			submarket.meta.storeAddrs.forEach(function(storeAddr){
+		if(submarket.meta.data.storeAddrs)
+			submarket.meta.data.storeAddrs.forEach(function(storeAddr){
 				$scope.stores.push({alias:utils.getAlias(storeAddr)})
 			})
 	}else{
-		$scope.feeCentiperun = 3
-		$scope.bondInEther = 100
+		$scope.currency = user.getCurrency()
+		$scope.escrowFeeCentiperun = 3
 		$scope.stores = []
 		$scope.isOpen = true
+		$scope.minTotal = 0
 	}
 
 	$scope.cancel = function(){
@@ -34,8 +35,6 @@ angular.module('app').controller('SubmarketModalController',function($scope,tick
 			,meta = {
 				name:$scope.name
 				,info:$scope.info
-				,feeCentiperun: $scope.feeCentiperun.toString()
-				,isOpen:$scope.isOpen
 				,storeAddrs:[]
 			}
 			,isOpen=!!$scope.isOpen
@@ -54,7 +53,16 @@ angular.module('app').controller('SubmarketModalController',function($scope,tick
 		if(submarket){
 
 			submarket
-				.set(meta)
+				.set(
+					{
+						isOpen: isOpen
+						,currency: $scope.currency
+						,minTotal: (web3.toBigNumber($scope.minTotal)).times(constants.tera)
+						,escrowFeeCentiperun: $scope.escrowFeeCentiperun
+					}
+					,meta
+					,$scope.alias
+				)
 				.then(function(submarket){
 					$modalInstance.close(submarket)
 				},function(error){
@@ -68,7 +76,9 @@ angular.module('app').controller('SubmarketModalController',function($scope,tick
 				return growl.addErrorMessage('The alias "'+alias+'" is taken')
 			}
 
-			Submarket.create($scope.alias,meta)
+			console.log(meta)
+
+			Submarket.create(isOpen, $scope.currency, $scope.minTotal, $scope.escrowFeeCentiperun, meta, $scope.alias)
 				.then(function(submarket){
 					user.addSubmarket(submarket.addr)
 					user.save()
@@ -84,6 +94,4 @@ angular.module('app').controller('SubmarketModalController',function($scope,tick
 	
 
 	}
-})
-
-})();
+});

@@ -1,6 +1,6 @@
 <div class="container">
 	<h2>
-		<a ng-href="{{order.store.addr | url:'store'}}">{{order.store.meta.name}}</a> » Order {{order.addr.substr(0,6)}}...
+		<a ng-href="{{order.store.addr | url:'store'}}">{{order.store.meta.data.name}}</a> » Order {{order.addr.substr(0,6)}}...
 	</h2>
 	<div class="alert alert-info text-center" ng-show="order.status>=3">
 		<a ng-click="leaveReview()">Leave a review</a> for @{{order.store.addr | alias}}	
@@ -49,10 +49,10 @@
 			<td colspan="2" alias="order.submarket.addr">
 			</td>
 		</tr>
-		<tr ng-show="order.status<3">
+		<tr ng-show="order.status===0 || order.status===2">
 			<td>Dispute Deadline</td>
 			<td colspan="2">
-				<div ng-show="order.status===1">
+				<div ng-show="order.status==0">
 					{{order.disputeSeconds | disputeSeconds}}
 				</div>
 				<div ng-show="order.status===2" timestamp="order.disputeDeadline"></div>
@@ -60,16 +60,16 @@
 		</tr>
 		<tr ng-show="order.status===5">
 			<td>Resolution</td>
-			<td>Buyer ({{order.buyerPercent | percentage}})
+			<td>Buyer ({{order.buyerPerun | perun}})
 				<amounts value="order.buyerAmount" from="'WEI'" to="displayCurrencies"></amounts>
 			</td>
-			<td class="text-right">@{{order.store.addr | alias}}  ({{order.storeOwnerPercent | percentage}})
+			<td class="text-right">@{{order.store.addr | alias}}  ({{order.storeOwnerPerun | perun}})
 				<amounts value="order.storeOwnerAmount" from="'WEI'" to="displayCurrencies"></amounts>
 			</td>
 		</tr>
 		<tr>
 			<td>Created</td>
-			<td timestamp="order.timestamp" colspan="2"></td>
+			<td timestamp="order.createdAt" colspan="2"></td>
 		</tr>
 		<tr ng-show="order.shippedAt.greaterThan(0)">
 			<td>Shipping Date</td>
@@ -89,8 +89,8 @@
 			<td>Total</td>
 			<td colspan="2">
 				<amounts
-					value="order.total"
-					from="'WEI'"
+					value="order.total.in(order.store.currency)"
+					from="order.store.currency"
 					to="displayCurrencies">
 				</amounts>
 			</td>
@@ -100,8 +100,8 @@
 				<td>Product Total</td>
 				<td colspan="2">
 					<amounts
-						value="order.productsTotal"
-						from="'WEI'"
+						value="order.productsTotal.in(order.store.currency)"
+						from="order.store.currency"
 						to="displayCurrencies">
 					</amounts>
 				</td>
@@ -110,17 +110,28 @@
 				<td>Shipping ({{order.meta.transport.type}})</td>
 				<td colspan="2">
 					<amounts
-						value="order.transportPrice"
+						value="order.transportPrice.in(order.store.currency)"
+						from="order.store.currency"
+						to="displayCurrencies">
+					</amounts>
+				</td>
+			</tr>
+			<tr>
+				<td>Submarket Escrow Fee ({{order.escrowFeeCentiperun.toNumber()}}%)</td>
+				<td colspan="2">
+					<amounts
+						value="order.escrowAmount"
 						from="'WEI'"
 						to="displayCurrencies">
 					</amounts>
 				</td>
 			</tr>
 			<tr>
-				<td>Submarket Fee ({{order.feeCentiperun}}%)</td>
+				<td>Affiliate Fee ({{order.affiliateFeeCentiperun.toNumber()}}%)</td>
 				<td colspan="2">
+					{{order.affiliate}}
 					<amounts
-						value="order.estimatedFee"
+						value="order.affiliateAmount"
 						from="'WEI'"
 						to="displayCurrencies">
 					</amounts>
@@ -128,7 +139,7 @@
 			</tr>
 		</tbody>
 		<tr>
-			<td>Received ({{order.percentReceived | percentage}})
+			<td>Received ({{order.receivedPerun | perun}})
 			<div class="text-muted text-small" ng-show="order.received.greaterThan(0)">{{order.confirmations}}/{{order.confirmationsNeeded}} Confirmations</div>
 			</td>
 			<td>
@@ -164,7 +175,7 @@
 			<td>
 				<amounts
 					value="product.price"
-					from="order.meta.currency"
+					from="order.store.currency"
 					to="displayCurrencies">
 				</amounts>
 			</td>

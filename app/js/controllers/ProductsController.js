@@ -1,70 +1,61 @@
-angular.module('app').controller('ProductsController',function($scope,$filter,utils,Submarket,helpers,growl,user,Order){
+angular.module('app').controller('ProductsController',function($scope,$filter,utils,Submarket,helpers,growl,user,Order,constants,Coinage,AffiliateReg){
 
-	$scope.$watch('submarketAddr',function(submarketAddr){
-			
-		if(!submarketAddr || submarketAddr === utils.nullAddr)
-			$scope.submarket = null
-		else
-			$scope.submarket = new Submarket(submarketAddr)
+	var currency = $scope.store.currency
 
-		if($scope.submarket)
-			$scope.submarket.updatePromise.then(function(){
-				$scope.feePerun = $scope.submarket.feeCentiperun.div(100)
-			})
-		else
-			$scope.feePerun = new BigNumber(0)
-	})
-
-	$scope.getTransportLabel = function(transport){
-		var priceInUserCurrency = utils.convertCurrency(transport.price,{from:$scope.store.meta.currency,to:user.data.currency})
-			,priceFormatted = $filter('currency')(priceInUserCurrency,user.data.currency)
-
-		return transport.type+' ('+priceFormatted+')'
-	}
+	$scope.productsTotal = new Coinage(0,currency)
+	$scope.total = new Coinage(0,currency)
 
 	$scope.createOrder = function(){
 
-		var meta = {
-			currency:$scope.store.meta.currency
-			,products:[]
-			,transport:{
-				id:$scope.transport.id
-				,type:$scope.transport.type
-				,price:$scope.transport.price.toString()
-			}
-		},storeAddr = $scope.store.addr
-		,submarketAddr = $scope.submarketAddr
-		,feeCentiperun = $scope.submarket ? $scope.submarket.meta.feeCentiperun : '0'
-		,disputeSeconds = parseInt($scope.store.meta.disputeSeconds)
-		,productsTotal = new BigNumber(0)
+		var buyer = user.getAccount()
+			,meta = {
+				products:[]
+				,transport:{
+					id:$scope.transport.id
+					,type:$scope.transport.data.type
+					,price:$scope.transport.price.in(currency).toString()
+				}
+			},storeAddr = $scope.store.addr
+			,submarketAddr = $scope.submarketOption.addr
+			,productsTotal = web3.toBigNumber(0)
+			,affiliate = utils.getAffiliate($scope.affiliateCodeOrAlias) || constants.nullAddr
+
+		if($scope.affiliateCodeOrAlias && affiliate===constants.nullAddr){
+			growl.addErrorMessage($scope.affiliateCodeOrAlias+' is not a valid affiliate')
+			return
+		}
 
 		$scope.store.products.forEach(function(product){
+
+			console.log(product)
+
 			if(product.quantity===0) return true
 
 			meta.products.push({
 				id:product.id
 				,name:product.name
-				,price:product.price.toString()
+				,price:product.price.in(currency).toString()
 				,quantity:product.quantity
 			})
 
-			productsTotal = productsTotal.plus(product.price.times(product.quantity))
+			productsTotal = productsTotal.plus(product.price.in(currency).times(product.quantity))
 		})
 
 		try{
-			Order.check(meta,storeAddr,submarketAddr,feePercentage,disputeSeconds)
+			Order.check(buyer,storeAddr,submarketAddr,affiliate,meta)
 		}catch(e){
 			growl.addErrorMessage(e)
 			return
 		}
 
-		if(productsTotal.lessThan($scope.store.meta.minTotal)){
-			growl.addErrorMessage('You must order at least '+$scope.store.meta.minTotal+' '+$scope.store.meta.currency+' of products')
+		if(productsTotal.lessThan($scope.store.minTotal.in(currency))){
+			growl.addErrorMessage('You must order at least '+$scope.store.minTotal.formattedIn(user.getCurrency())+' of products')
 			return
 		}
 
+		var value = $scope.total.in('WEI').ceil()
 
-		Order.create(meta,storeAddr,submarketAddr,feePercentage,disputeSeconds).then(function(order){
+		Order.create(buyer,storeAddr,submarketAddr,affiliate,meta,value).then(function(order){
 			window.location.hash = "#/orders/"+order.addr
 			user.addOrder(order.addr)
 			user.save()
@@ -74,31 +65,33 @@ angular.module('app').controller('ProductsController',function($scope,$filter,ut
 
 	$scope.$watch('store.products',function(products){
 
-		if(!$scope.store) return
+		
+		$scope.productsTotal = new Coinage(0,currency)
 
-		var total = new BigNumber(0)
+		if(!products) return
 
-		if(products)
-			products.forEach(function(product){
-				var subtotal = product.price.times(product.quantity)
-				total = total.plus(subtotal)
-			})
+		var productsTotal = web3.toBigNumber(0)
+		
+		products.forEach(function(product){
+			var subtotal = product.price.in(currency).times(product.quantity)
+			productsTotal = productsTotal.plus(subtotal)
+		})
 
-		$scope.productsTotal = utils.convertCurrency(total,{from:$scope.store.meta.currency,to:'WEI'})
+		$scope.productsTotal = new Coinage(productsTotal,currency)
 
 	},true)
 
-	$scope.$watchGroup(['productsTotal','feePercent','transport.id'],function(){
+	$scope.$watchGroup(['submarketOption','productsTotal','transport'],function(){
+
 		if(!$scope.transport) return
 
-		var transportPrice = utils.convertCurrency($scope.transport.price,{from:$scope.store.meta.currency,to:'WEI'})
-
-		if($scope.submarket)
-			$scope.estimatedFee = $scope.productsTotal.plus(transportPrice).times($scope.feePercent)
-		else
-			$scope.estimatedFee = new BigNumber(0)
-
-		$scope.total = $scope.productsTotal.plus(transportPrice).plus($scope.estimatedFee)
+		var fee = $scope.productsTotal.in(currency).plus($scope.transport.price.in(currency)).times($scope.submarketOption.escrowFeeCentiperun).div(100)
+		
+		$scope.fee = new Coinage(fee,currency)
+		
+		var total = $scope.productsTotal.in(currency).plus($scope.transport.price.in(currency)).plus($scope.fee.in(currency))
+	
+		$scope.total = new Coinage(total,currency)
 	})
 
 });

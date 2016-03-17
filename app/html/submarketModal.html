@@ -20,15 +20,21 @@
             </td>
         </tr>
         <tr>
+            <td>Currency</td>
+            <td>
+                <select type="text" ng-model="currency" class="form-control" ng-options="currency for currency in currencies"></select>
+            </td>
+        </tr>
+        <tr>
             <td>Info</td>
             <td>
                 <textarea ng-model="info" class="form-control"></textarea>
             </td>
         </tr>
         <tr>
-            <td>Fee: <span ng-cloak>{{feeCentiperun}}</span>%</td>
+            <td>Fee: <span ng-cloak>{{escrowFeeCentiperun}}</span>%</td>
             <td>
-                <input type="range" ng-model="feeCentiperun" class="form-control" min="0" max="10" step=".1">
+                <input type="range" ng-model="escrowFeeCentiperun" class="form-control" min="0" max="10" step="1">
             </td>
         </tr>
         <tr>

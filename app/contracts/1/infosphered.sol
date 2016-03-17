@@ -2,69 +2,87 @@ contract infosphered is owned{
 
     Infosphere infosphere;
 
+    function setInfosphere(address infosphereAddr){
+        requireOwnership();
+        infosphere = Infosphere(infosphereAddr);
+    }
+
+    function getInfosphereAddr() constant returns(address){
+        return address(infosphere);
+    }
+
     // ================ bool ================
 
-    function setBool(bytes key, bool value) external{
-        if(msg.sender!=owner) throw;
+    function setBool(bytes32 key, bool value){
+        requireOwnership();
         infosphere.setBool(key,value);
     }
 
-    function setBool(bytes key, bool value) internal{
+    function setBoolByForce(bytes32 key, bool value) internal{
         infosphere.setBool(key,value);
+    }
+
+    function getBool(bytes32 key) constant returns(bool){
+        return infosphere.getMyBool(key);
     }
 
     // ================ address ================
 
-    function setAddress(bytes key, address value) external{
-        if(msg.sender!=owner) throw;
+    function setAddress(bytes32 key, address value){
+        requireOwnership();
         infosphere.setAddress(key,value);
     }
 
-    function setAddress(bytes key, address value) internal{
+    function setAddressByForce(bytes32 key, address value) internal{
         infosphere.setAddress(key,value);
     }
 
-    // ================ bytes ================
-
-    function setBytes(bytes key, bytes value) external{
-        if(msg.sender!=owner) throw;
-        infosphere.setBytes(key,value);
+    function getAddress(bytes32 key) constant returns(address){
+        return infosphere.getMyAddress(key);
     }
 
-    function setBytes(bytes key, bytes value) internal{
-        infosphere.setBytes(key,value);
+    // ================ bytes32 ================
+
+    function setBytes32(bytes32 key, bytes32 value){
+        requireOwnership();
+        infosphere.setBytes32(key,value);
     }
 
-    // ================ string ================
-
-    function setString(bytes key, string value) external{
-        if(msg.sender!=owner) throw;
-        infosphere.setString(key,value);
+    function setBytes32ByForce(bytes32 key, bytes32 value) internal{
+        infosphere.setBytes32(key,value);
     }
 
-    function setString(bytes key, string value) internal{
-        infosphere.setString(key,value);
+    function getBytes32(bytes32 key) constant returns(bytes32){
+        return infosphere.getMyBytes32(key);
     }
 
     // ================ int ================
 
-    function setInt(bytes key, int value) external{
-        if(msg.sender!=owner) throw;
+    function setInt(bytes32 key, int value){
+        requireOwnership();
         infosphere.setInt(key,value);
     }
 
-    function setInt(bytes key, int value) internal{
+    function setIntByForce(bytes32 key, int value) internal{
         infosphere.setInt(key,value);
+    }
+
+    function getInt(bytes32 key) constant returns(int){
+        return infosphere.getMyInt(key);
     }
 
     // ================ uint ================
 
-    function setUint(bytes key, uint value) external{
-        if(msg.sender!=owner) throw;
+    function setUint(bytes32 key, uint value){
+        requireOwnership();
         infosphere.setUint(key,value);
     }
 
-    function setUint(bytes key, uint value) internal{
+    function setUintByForce(bytes32 key, uint value) internal{
         infosphere.setUint(key,value);
+    }
+
+    function getUint(bytes32 key) constant returns(uint){
+        return infosphere.getMyUint(key);
     }
 }

@@ -1,3 +1,5 @@
+angular.module('app').run(function(utils){
+
 validate.validators.exists = function(value, options, key, attributes) {
 	if(options===true)
 		if(value === null || value === undefined)
@@ -110,3 +112,5 @@ validate.validators.endsWith = function(value, options, key, attributes) {
 validate.validators.unique = function(value, options, key, attributes){
 	return _.unique(value).length === value.length ? null : 'should be unique'
 }
+
+});

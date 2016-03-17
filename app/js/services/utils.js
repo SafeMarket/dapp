@@ -1,8 +1,7 @@
-(function(){
-
-angular.module('app').service('utils',function(ticker,$q,$timeout,AliasReg){
+angular.module('app').service('utils',function(ticker,$q,$timeout,AliasReg,AffiliateReg,constants){
 
 	var utils = this
+		,compileJson = Module.cwrap("compileJSON", "string", ["string", "number"])
 
 	function sanitize(string){
 		return string.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;');
@@ -17,7 +16,7 @@ angular.module('app').service('utils',function(ticker,$q,$timeout,AliasReg){
 	}
 
 	function isAliasAvailable(alias){
-		return AliasReg.getAddr(alias) === utils.nullAddr
+		return AliasReg.getAddr(alias) === constants.nullAddr
 	}
 
 	function getTypeOfAlias(alias){
@@ -29,7 +28,7 @@ angular.module('app').service('utils',function(ticker,$q,$timeout,AliasReg){
 
 	function getTypeOfAddr(addr){
 
-		if(addr === utils.nullAddr)
+		if(addr === constants.nullAddr)
 			return null
 
 		var runtimeBytecode = web3.eth.getCode(addr)
@@ -92,7 +91,8 @@ angular.module('app').service('utils',function(ticker,$q,$timeout,AliasReg){
 
 	function convertCurrency(amount,currencies){
 
-		var deferred = $q.defer()
+		if(currencies.from === currencies.to)
+			return web3.toBigNumber(amount)
 
 		if(typeof amount!=='string')
 			amount = amount.toString()
@@ -108,7 +108,7 @@ angular.module('app').service('utils',function(ticker,$q,$timeout,AliasReg){
 		})
 
 		amount = 
-			(new BigNumber(amount))
+			(web3.toBigNumber(amount))
 				.div(ticker.rates[currencies.from])
 				.times(ticker.rates[currencies.to])
 
@@ -122,10 +122,7 @@ angular.module('app').service('utils',function(ticker,$q,$timeout,AliasReg){
 		else
 			var prefix = ''
 
-		amount = amount || 0
-
-		if(!amount instanceof BigNumber)
-			amount = new BigNumber(amount)
+		amount = web3.toBigNumber(amount || 0)
 
 		if(currency === 'ETH')
 			return amount.toFixed(6)+prefix
@@ -236,6 +233,91 @@ angular.module('app').service('utils',function(ticker,$q,$timeout,AliasReg){
 	    throw error
 	}
 
+	function getContractAddressFromTxReceipt(txReciept){
+		return '0x'+txReciept.logs[txReciept.logs.length-1].data.substr(-40)
+	}
+
+	function getAliasedMartyrCalls(address,alias){
+		return [
+			{
+				address:address
+				,data:getCallData('setAlias',["bytes32"],[alias])
+			}
+		]
+	}
+
+	function getCallData(funcName,types,values){
+		var callDataBytes = abi.rawEncode(funcName,types,values)
+		return '0x'+cryptocoin.convertHex.bytesToHex(new Uint8Array(callDataBytes))
+	}
+
+	function getMartyrData(calls){
+
+		var callCodes = []
+
+		calls.forEach(function(call,index){
+			if(!call.address)
+				throw 'Call object needs an address'
+
+			if(!call.data)
+				throw 'Call object needs data'
+
+			var splitterRegex = (call.data.length %2 == 0) ? /(?=(?:..)*$)/ : /(?=(?:..)*.$)/
+				,byteString = '\\x'+dehexify(call.data).split(splitterRegex).join('\\x')
+				,saveAs = call.saveAs ? call.saveAs +' = ' : ''
+
+			callCodes.push('temp = "'+byteString+'";')
+			callCodes.push(saveAs+'address('+call.address+').call(temp);')
+
+		})
+
+		var solCode = 'contract Martyr{\r\nfunction Martyr(){ bytes memory temp; \r\n'+callCodes.join('\r\n')+'\r\n}\r\n}'
+
+		var data = (JSON.parse(compileJson(solCode))).contracts.Martyr
+
+
+		return hexify(data.bytecode)
+	}
+
+	function getFunctionHash(name,types){
+		return web3.sha3(name+'('+types.join(',')+')').slice(0,8)
+	}
+
+	function hexify(string){
+		if(string.indexOf('0x')===0)
+			return string
+		else
+			return '0x'+string
+	}
+
+	function dehexify(string){
+		if(string.indexOf('0x')===0)
+			return string.slice(2)
+		else
+			return string
+	}
+
+	function getRandom(){
+		return web3.toBigNumber(Math.random())
+	}
+
+	function getAffiliate(affiliateCodeOrAlias){
+		var affiliate = null
+
+		if(!affiliateCodeOrAlias)
+			return affiliate
+
+		if(affiliateCodeOrAlias.charAt(0)==='@')
+			affiliate = AliasReg.getAddr(affiliateCodeOrAlias)
+		else
+			affiliate = AffiliateReg.getAffiliateParams(affiliateCodeOrAlias)[1]
+
+		if(affiliate===constants.nullAddr)
+			return null
+		else
+			return affiliate
+	}
+
 	angular.merge(this,{
 		sanitize:sanitize
 		,convertObjectToHex:convertObjectToHex
@@ -246,7 +328,6 @@ angular.module('app').service('utils',function(ticker,$q,$timeout,AliasReg){
 		,waitForTx:waitForTx
 		,waitForTxs:waitForTxs
 		,check:check
-		,nullAddr:'0x'+Array(21).join('00')
 		,isAddr:isAddr
 		,getAlias:getAlias
 		,toAscii:toAscii
@@ -260,8 +341,15 @@ angular.module('app').service('utils',function(ticker,$q,$timeout,AliasReg){
 		},validateAddr:validateAddr
 		,validateAlias:validateAlias
 		,getContract:getContract
+		,getContractAddressFromTxReceipt:getContractAddressFromTxReceipt
+		,compileJson: compileJson
+		,getFunctionHash:getFunctionHash
+		,getMartyrData:getMartyrData
+		,hexify:hexify
+		,dehexify:dehexify
+		,getAliasedMartyrCalls:getAliasedMartyrCalls
+		,getRandom:getRandom
+		,getAffiliate:getAffiliate
 	})
 	
-})
-
-})();
+});

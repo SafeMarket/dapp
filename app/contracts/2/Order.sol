@@ -1,17 +1,35 @@
-contract Order{
+contract Order is infosphered{
+	
 	address public buyer;
 	address public storeAddr;
 	address public submarketAddr;
-	uint public feeCentiperun; 
+	address public affiliate;
+
+	uint public buyerAmountCentiperun;
+	uint public escrowFeeCentiperun; 
+	uint public affiliateFeeCentiperun;
+
+	uint public bounty;
+	uint public rewardMax;
+	bool public areAmountsSet;
+
+	uint public buyerAmount;
+	uint public storeAmount;
+	uint public escrowAmount;
+	uint public affiliateAmount;
+
+	bool public isBuyerAmountReleased;
+	bool public isStoreAmountReleased;
+	bool public isEscrowAmountReleased;
+	bool public isAffiliateAmountReleased;
+
 	uint public disputeSeconds;
 	uint public status;
 	uint public received;
-	uint public timestamp;
 	uint public shippedAt;
 	uint public disputedAt;
-	uint public fee;
-	uint public buyerAmount;
-	uint public storeAmount;
+	
+	uint public createdAtBlockNumber;
 	uint public receivedAtBlockNumber;
 
 	event Meta(bytes meta);
@@ -21,26 +39,42 @@ contract Order{
 	uint public constant initialized = 0;
 	uint public constant cancelled = 1;
 	uint public constant shipped = 2;
-	uint public constant finalized = 3;
-	uint public constant disputed = 4;
-	uint public constant resolved = 5;
+	uint public constant disputed = 3;
+	uint public constant resolved = 4;
+	uint public constant finalized = 5;
 
 	function Order(
-		bytes _meta
+		address _buyer
 		,address _storeAddr
 		,address _submarketAddr
-		,uint _feeCentiperun
-		,uint _disputeSeconds
-		,address orderBookAddr
+		,address _affiliate
+		,uint _bounty
+		,uint _rewardMax
+		,bytes _meta
 	){
-		buyer = msg.sender;
+
+		createdAtBlockNumber = block.number;
+
+		buyer = _buyer;
 		storeAddr = _storeAddr;
 		submarketAddr = _submarketAddr;
-		feeCentiperun = _feeCentiperun;
-		disputeSeconds = _disputeSeconds;
-		timestamp = now;
+		affiliate = _affiliate;
+		bounty = _bounty;
+		rewardMax = _rewardMax;
+
+		var store = infosphered(_storeAddr);
+
+		affiliateFeeCentiperun = store.getUint('affiliateFeeCentiperun');
+
+		if(submarketAddr != address(0)){
+			var submarket = infosphered(_submarketAddr);
+			escrowFeeCentiperun = submarket.getUint('escrowFeeCentiperun');
+			disputeSeconds = store.getUint('disputeSeconds');
+		}
+
+		bounty = _bounty;
+
 		Meta(_meta);
-		OrderBook(orderBookAddr).addEntry(_storeAddr,_submarketAddr);
 	}
 
 	function getSenderPermission(address contractAddr, bytes32 action) private returns(bool){
@@ -58,28 +92,15 @@ contract Order{
 		Message(msg.sender, text);
 	}
 
-	function(){
-		received += msg.value;
-		receivedAtBlockNumber = block.number;
+	function isComplete() constant returns(bool){
+		return (status == cancelled || status == resolved || status == finalized);
 	}
 
-	function withdraw(uint amount){
-		
-		if(msg.sender != buyer)
-			throw;
-		
-		if(status != initialized)
-			throw;
-		
-		if(amount>received)
-			throw;
+	function(){
 
-		var isSent = buyer.send(amount);
-
-		if(isSent){
-			receivedAtBlockNumber = block.number;
-			received -= amount;
-		}
+		if(isComplete())
+			throw;
+	
 	}
 
 	function addUpdate(uint _status) private{
@@ -95,8 +116,7 @@ contract Order{
 		if(msg.sender != buyer && !getSenderPermission(storeAddr,'order.cancel'))
 			throw;
 
-		var isSent = buyer.send(this.balance);
-		if(!isSent) throw;
+		buyerAmount = getReceived();
 
 		addUpdate(cancelled);
 	}
@@ -106,7 +126,7 @@ contract Order{
 		if(status !=  initialized)
 			throw;
 
-		if(!getSenderPermission(storeAddr,'order.cancel'))
+		if(!getSenderPermission(storeAddr,'order.markAsShipped'))
 			throw;
 
 		//don't allow to mark as shipped on same block that a withdrawl is made
@@ -125,70 +145,133 @@ contract Order{
 		if(msg.sender != buyer)
 			throw;
 
-		var isSent = storeAddr.send(this.balance);
-		if(!isSent) throw;
+		setAmounts();
 		
 		addUpdate(finalized);
 	}
 
 	function dispute(){
+
 		if(msg.sender != buyer)
 			throw;
 
 		if(status != shipped)
 			throw;
 
-		if(now - shippedAt > disputeSeconds)
+		if(submarketAddr==address(0))
 			throw;
 
-		if(submarketAddr==address(0))
+		if(now - shippedAt > disputeSeconds)
 			throw;
 
 		addUpdate(disputed);
 		disputedAt=now;
+
 	}
 
-	function calculateFee() returns (uint){
-		
-		// 1. fee = products * feePerun
-			// fee = products * feeCentiperun/100
-			// products = fee * 100/feeCentiperun
+	function resolve(uint _buyerAmountCentiperun){
 
-		// 2. products + fee = received
-			// (fee * 100/feeCentiperun) + fee = receieved
-			// fee(100/feeCentiperun + 1) = received
-			// fee(100/feeCentiperun + feeCentiperun/feeCentiperun) = received
-			// fee(100+feeCentiperun)/feeCentiperun = received
-			// fee = received/((100+feeCentiperun)/feeCentiperun)
-			// fee = (received * feeCentiperun)/(100 + feeCentiperun)
-
-		
-		return (received * feeCentiperun)/(100 + feeCentiperun);
-	}
-
-	function resolve(uint buyerAmountCentiperun){
 		if(status!=disputed)
 			throw;
 
 		if(!getSenderPermission(submarketAddr,'order.resolve'))
 			throw;
 
-		fee = calculateFee();
+		buyerAmountCentiperun = _buyerAmountCentiperun;
 
-		var amountRemaining = received-fee;
+		finalize();
+	}
 
-		buyerAmount = (amountRemaining*buyerAmountCentiperun)/100;
-		storeAmount = amountRemaining - buyerAmount;
+	function getAmounts() constant returns(uint[4]){
 
-		submarketAddr.send(fee);
+		uint amountRemaining = getReceived();
+		uint[4] memory amounts;
 
-		if(buyerAmount>0)
-			buyer.send(buyerAmount);
+		var escrowAmount = (amountRemaining * escrowFeeCentiperun)/(100 + escrowFeeCentiperun);
 
-		if(storeAmount>0)
-			storeAddr.send(storeAmount);
+		amountRemaining = amountRemaining - escrowAmount;
 
-		addUpdate(resolved);
+		var buyerAmount = (amountRemaining * buyerAmountCentiperun)/100;
+
+		amountRemaining = amountRemaining - buyerAmount;
+
+		var affiliateAmount = (amountRemaining * affiliateFeeCentiperun)/100;
+
+		var storeAmount = amountRemaining - affiliateAmount;
+
+		amounts[0] = buyerAmount;
+		amounts[1] = storeAmount;
+		amounts[2] = escrowAmount;
+		amounts[3] = affiliateAmount;
+
+		return (amounts);
+	}
+
+	function setAmounts(){
+		if(areAmountsSet)
+			throw;
+
+		received = this.balance;
+
+		var amounts = getAmounts();
+		
+		buyerAmount = amounts[0];
+		storeAmount = amounts[1];
+		escrowAmount = amounts[2];
+		affiliateAmount = amounts[3];
+
+		areAmountsSet = true;
+	}
+
+	function release(bool isReleased, address addr, uint amount) private{
+
+		var reward = msg.gas + bounty;
+
+		if(!isComplete())
+			throw;
+
+		if(isReleased)
+			throw;
+
+		if(reward > rewardMax)
+			throw;
+
+		if(reward > amount)
+			throw;
+
+		if(!msg.sender.send(reward))
+			throw;
+
+		if(!addr.send(amount - reward))
+			throw;
+
+	}
+
+	function releaseBuyerAmount(){
+		release(isBuyerAmountReleased,buyer,buyerAmount);
+		isBuyerAmountReleased = true;
+	}
+
+	function releaseStoreAmount(){
+		release(isStoreAmountReleased,storeAddr,storeAmount);
+		isStoreAmountReleased = true;
+	}
+
+	function releaseEscrowAmount(){
+		release(isEscrowAmountReleased,submarketAddr,escrowAmount);
+		isEscrowAmountReleased = true;
+	}
+
+	function releaseAffiliateAmount(){
+		release(isAffiliateAmountReleased,affiliate,affiliateAmount);
+		isAffiliateAmountReleased = true;
+	}
+
+	function getReceived() constant returns (uint){
+		if(areAmountsSet)
+			return received;
+		else
+			return this.balance;
 	}
 
 }

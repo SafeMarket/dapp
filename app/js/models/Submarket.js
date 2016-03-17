@@ -1,11 +1,12 @@
-(function(){
+angular.module('app').factory('Submarket',function(utils,ticker,$q,Store,Key,Forum,txMonitor,AliasReg,SubmarketReg,Infosphered,Meta){
 
-angular.module('app').factory('Submarket',function(utils,ticker,$q,Store,Key,Forum,txMonitor,AliasReg){
-
-function Submarket(addr){
+function Submarket(addr,isDeep){
 	this.addr = addr
+	this.isDeep = !!isDeep
 	this.alias = utils.getAlias(addr)
 	this.contract = this.contractFactory.at(addr)
+	this.meta = new Meta(this.contract)
+	this.infosphered = new Infosphered(this.contract,this.infospheredTypes)
 	this.updatePromise = this.update()
 }
 
@@ -15,21 +16,32 @@ Submarket.prototype.bytecode = Submarket.bytecode = contracts.Submarket.bytecode
 Submarket.prototype.runtimeBytecode = Submarket.runtimeBytecode = utils.runtimeBytecodes.Submarket
 Submarket.prototype.abi = Submarket.abi = contracts.Submarket.abi
 Submarket.prototype.contractFactory = Submarket.contractFactory = web3.eth.contract(Submarket.abi)
+Submarket.prototype.infospheredTypes = Submarket.infospheredTypes = {
+	'isOpen':'bool'
+	,'currency':'bytes32'
+	,'minTotal':'uint'
+	,'escrowFeeCentiperun':'uint'
+}
 
-Submarket.create = function(alias,meta){
-var meta = utils.convertObjectToHex(meta)
-	,deferred = $q.defer()
+Submarket.create = function(isOpen, currency, minTotal, escrowFeeCentiperun, meta, alias){
 
-txMonitor.propose(
-	'Create a New Subsubmarket'
-	,this.contractFactory
-	,[alias,meta,AliasReg.address,contracts.Infosphere.address,{data:this.bytecode}]
-).then(function(txReciept){
-	console.log(txReciept)
-	deferred.resolve(new Submarket(txReciept.contractAddress))
-})
+	var meta = utils.convertObjectToHex(meta)
+		,minTotal = web3.toBigNumber(minTotal)
+		,escrowFeeCentiperun = web3.toBigNumber(escrowFeeCentiperun)
+		,deferred = $q.defer()
 
-return deferred.promise
+	console.log(meta)
+
+	txMonitor.propose(
+		'Create a New Submarket'
+		,SubmarketReg.create
+		,[isOpen, currency, minTotal, escrowFeeCentiperun, meta, alias]
+	).then(function(txReciept){
+		var contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
+		deferred.resolve(new Submarket(contractAddress))
+	})
+
+	return deferred.promise
 }
 
 Submarket.check = function(alias,meta){
@@ -47,16 +59,6 @@ Submarket.check = function(alias,meta){
 			,type:'string'
 		},info:{
 			type:'string'
-		},feeCentiperun:{
-			presence:true
-			,type:'string'
-			,numericality:{
-				integersOnly:true
-				,greaterThanOrEqualTo:0
-			}
-		},isOpen:{
-			presence:true
-			,type:'boolean'
 		},storeAddrs:{
 			exists:true
 			,type:'array'
@@ -79,20 +81,24 @@ Submarket.check = function(alias,meta){
 }
 
 
-Submarket.prototype.set = function(meta){
+Submarket.prototype.set = function(infospheredData, metaData){
 
-	var meta = utils.convertObjectToHex(meta)
-		,deferred = $q.defer()
-		,submarket = this
+	var deferred = $q.defer()
+		,infospheredCalls = this.infosphered.getMartyrCalls(infospheredData)
+		,metaCalls = this.meta.getMartyrCalls(metaData)
+		,allCalls = infospheredCalls.concat(metaCalls)
 
-	txMonitor.propose(
-		'Update a Subsubmarket'
-		,this.contract.setMeta
-		,[meta]
-	).then(function(txReciept){
-		submarket.update().then(function(){
-			deferred.resolve(submarket)
-		})
+	var data = utils.getMartyrData(allCalls)
+	console.log(data)
+
+	txMonitor.propose('Update Submarket',web3.eth.sendTransaction,[{
+		data:data
+		,gas:web3.eth.estimateGas({data:data})*4 
+	}]).then(function(txReciept){
+		console.log(txReciept)
+		deferred.resolve(txReciept)
+	},function(txReciept){
+		deferred.reject()
 	})
 
 	return deferred.promise
@@ -124,16 +130,20 @@ Submarket.prototype.update = function(){
 	this.stores = []
 	this.forum = new Forum(this.forumAddr)
 
-	var metaUpdatedAt = this.contract.metaUpdatedAt()
+	this.infosphered.update()
 
-	this.getEvents('Meta',metaUpdatedAt,metaUpdatedAt).then(function(results){
+	this.currency = utils.toAscii(this.infosphered.data.currency)
 
-		submarket.meta = utils.convertHexToObject(results[results.length-1].args.meta)
-		submarket.feeCentiperun = new BigNumber(feeCentiperun)
+	this.meta.update().then(function(meta){
+
+		submarket.info = utils.sanitize(meta.data.info || '')
+
+		if(submarket.isDeep)
+			meta.data.storeAddrs.forEach(function(storeAddr){
+				submarket.stores.push(new Store(storeAddr))
+			})
 
 		deferred.resolve(submarket)
-	},function(error){
-		console.error(error)
 	})
 
 
@@ -146,6 +156,4 @@ Submarket.prototype.update = function(){
 
 return Submarket
 
-})
-
-})();
+});

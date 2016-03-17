@@ -7,11 +7,11 @@ contract owned{
 	}
 
 	function requireOwnership(){
-		if(msg.sender!=owner) throw;
+		if(msg.sender!=owner && tx.origin!=owner) throw;
 	}
 
 	function setOwner(address _owner){
-		this.requireOwnership();
+		requireOwnership();
 		owner = _owner;
 	}
 }

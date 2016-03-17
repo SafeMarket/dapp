@@ -7,11 +7,23 @@ module.exports = function(grunt){
                 ,"contracts":"generated/contracts.json"
                 ,"chain":"config/development/chain.json"
                 ,"deploy":[
-                    "AliasReg"
+                   "AliasReg"
                     ,"Infosphere"
                     ,"Keystore"
-                    ,"OrderBook"
-                ]
+                    ,"AffiliateReg"
+                    ,"StoreReg"
+                    ,"SubmarketReg"
+                    ,"OrderReg"
+                ],"onDeploy":{
+                    "SubmarketReg":[
+                        'thisContract.setAliasRegAddr(chain.AliasReg.address)'
+                        ,'thisContract.setInfosphereAddr(chain.Infosphere.address)'
+                    ]
+                    ,"StoreReg":[
+                        'thisContract.setAliasRegAddr(chain.AliasReg.address)'
+                        ,'thisContract.setInfosphereAddr(chain.Infosphere.address)'
+                    ]
+                }
             }
         },"production":{
             "options":{
@@ -22,7 +34,10 @@ module.exports = function(grunt){
                     "AliasReg"
                     ,"Infosphere"
                     ,"Keystore"
-                    ,"OrderBook"
+                    ,"AffiliateReg"
+                    ,"StoreReg"
+                    ,"SubmarketReg"
+                    ,"OrderReg"
                 ]
             }
         }

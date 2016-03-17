@@ -8,13 +8,13 @@ angular.module('app').controller('ResolutionModalController',function($scope,$mo
 	var multipler = Math.pow(10,10)
 
 	$scope.$watch('percentBuyerRaw',function(percentBuyerRaw){
-		$scope.percentBuyer = new BigNumber(parseInt(percentBuyerRaw*multipler)).div(multipler)
+		$scope.percentBuyer = web3.toBigNumber(parseInt(percentBuyerRaw*multipler)).div(multipler)
 		$scope.percentStoreOwner = $scope.percentBuyer.minus(1).times(-1)
 	})
 
-	$scope.displayCurrencies = [user.data.currency]
+	$scope.displayCurrencies = [user.getCurrency()]
 
-	if(user.data.currency!=='ETH')
+	if(user.getCurrency()!=='ETH')
 		$scope.displayCurrencies.push('ETH')
 
 	$scope.cancel = function(){

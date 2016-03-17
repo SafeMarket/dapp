@@ -2,21 +2,21 @@
 
 angular.module('app').controller('PaymentModalController',function($scope,addr,amount,currency,utils,user,growl,$modalInstance,txMonitor){
 	$scope.addr = addr
-	$scope.userCurrency = user.data.currency
+	$scope.userCurrency = user.getCurrency()
 
 	$scope.displayCurrencies = []
 	if($scope.userCurrency!=='ETH')
 		$scope.displayCurrencies.push('ETH')
 
 	if(amount.greaterThan(0))
-		$scope.amountInUserCurrency = utils.convertCurrencyAndFormat(amount,{from:currency,to:user.data.currency})
+		$scope.amountInUserCurrency = utils.convertCurrencyAndFormat(amount,{from:currency,to:user.getCurrency()})
 	else
 		$scope.amountInUserCurrency = '0'
 
-	if(user.data.currency !=='ETH'){
+	if(user.getCurrency() !=='ETH'){
 		$scope.$watch('amountInUserCurrency',function(amountInUserCurrency){
 			$scope.amountInEther = utils.convertCurrencyAndFormat(amountInUserCurrency,{
-				from:user.data.currency
+				from:user.getCurrency()
 				,to:'ETH'
 			})
 		})
@@ -24,7 +24,7 @@ angular.module('app').controller('PaymentModalController',function($scope,addr,a
 		$scope.$watch('amountInEther',function(amountInEther){
 			$scope.amountInUserCurrency = utils.convertCurrencyAndFormat(amountInEther,{
 				from:'ETH'
-				,to:user.data.currency
+				,to:user.getCurrency()
 			})
 		})
 	}

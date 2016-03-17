@@ -1,16 +1,13 @@
-(function(){
-
-angular.module('app').controller('StoreController',function($scope,$filter,$state,utils,Store,Submarket,user,$stateParams,modals,growl,helpers){
+angular.module('app').controller('StoreController',function($scope,$filter,$state,utils,Store,Submarket,user,$stateParams,modals,growl,helpers,constants){
 
 	$scope.storeScope = $scope
 
-	$scope.submarketOptions = [{addr:utils.nullAddr,label:'No escrow'}];
+	$scope.submarketOptions = [{addr:constants.nullAddr,label:'No escrow',escrowFeeCentiperun:0}];
 	$scope.submarketOption = $scope.submarketOptions[0]
 	$scope.storeAddr = $stateParams.storeAddr
-	$scope.submarketAddr = $stateParams.submarketAddr || utils.nullAddr;
-	$scope.productsTotal = new BigNumber(0);
+	$scope.productsTotal = web3.toBigNumber(0);
 
-	$scope.store = new Store($stateParams.storeAddr)
+	console.log($scope)
 
 	$scope.tabs = [
         { heading: "About", route:"store.about", active:false },
@@ -29,47 +26,43 @@ angular.module('app').controller('StoreController',function($scope,$filter,$stat
         });
     });
 
+    $scope.store = new Store($stateParams.storeAddr)
+
 	$scope.store.updatePromise.then(function(store){
 
-		$scope.store.meta.submarketAddrs.forEach(function(submarketAddr){
-			$scope.submarketOptions.push({addr:submarketAddr,label:'@'+utils.getAlias(submarketAddr)})
+		console.log(store)
+
+		$scope.store.meta.data.submarketAddrs.forEach(function(submarketAddr){
+			console.log('submarketAddr',submarketAddr)
+			var submarket = new Submarket(submarketAddr)
+			$scope.submarketOptions.push({
+				addr:submarketAddr
+				,label:'@'+submarket.alias
+				,escrowFeeCentiperun:submarket.infosphered.data.escrowFeeCentiperun.toNumber()
+			})
 		})
 
-		$scope.store.meta.transports.forEach(function(transport){
-			var priceInStoreCurrency = new BigNumber(transport.price)
-				,priceInUserCurrency = utils.convertCurrency(priceInStoreCurrency,{from:$scope.store.meta.currency,to:user.data.currency})
-				,priceFormatted = $filter('currency')(priceInUserCurrency,user.data.currency)
-		})
-		$scope.transport = store.meta.transports[0]
+		
+		$scope.transport = store.transports[0]
 
-		$scope.$watch('store.meta.currency',function(){
+		setDisplayCurrencies()
 
-			$scope.displayCurrencies = [store.meta.currency];
-
-			if($scope.displayCurrencies.indexOf(user.data.currency) === -1)
-				$scope.displayCurrencies.push(user.data.currency)
-
-			if($scope.displayCurrencies.indexOf('ETH') === -1)
-				$scope.displayCurrencies.push('ETH')
-		})
 
 	})
 
-	if($stateParams.submarketAddr)
-		(new Submarket($stateParams.submarketAddr)).updatePromise.then(function(submarket){
-			$scope.submarket = submarket
-		})
+	function setDisplayCurrencies(){
+		$scope.displayCurrencies = _.uniq([user.getCurrency(),$scope.store.currency,'ETH']);
+	}
 
 	$scope.openStoreModal = function(){
 		modals
 			.openStore($scope.store)
 			.result.then(function(store){
 				$scope.store = store
+				setDisplayCurrencies()
 			})
-
-
 	}
 
-})
 
-})();
+
+});

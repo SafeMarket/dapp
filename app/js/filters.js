@@ -1,5 +1,3 @@
-(function(){
-
 angular.module('app').filter('currency',function(utils){
 	return function(amount,currencyFrom,currencyTo){
 
@@ -12,27 +10,27 @@ angular.module('app').filter('currency',function(utils){
 
 		return utils.formatCurrency(amount,currencyTo,true)
 	}
-})
+});
 
-angular.module('app').filter('percentage',function(){
-	return function(percent){
-		if(!isNaN(percent))
-			percent = new BigNumber(percent)
+angular.module('app').filter('perun',function(){
+	return function(perun){
+		if(!isNaN(perun))
+			perun = web3.toBigNumber(perun)
 
-		if(percent === undefined)
+		if(perun === undefined)
 			return ''
-		else if(!percent.isFinite())
+		else if(!perun.isFinite())
 			return 'Infinity%'
 		else
-			return percent.times(100).toFixed(2).toString()+'%'
+			return perun.times(100).toFixed(2).toString()+'%'
 	}
-})
+});
 
 angular.module('app').filter('fromWei',function(){
 	return function(amount,to){
 		return web3.fromWei(amount,to).toString()
 	}
-})
+});
 
 angular.module('app').filter('capitalize', function() {
  	return function(input) {
@@ -55,7 +53,7 @@ angular.module('app').filter('url',function(helpers){
 	return function(addr,type){
 		return helpers.getUrl(type,addr)
 	}
-})
+});
 
 angular.module('app').filter('orderObjectBy', function() {
   	return function(items, field, reverse) {
@@ -78,17 +76,17 @@ angular.module('app').filter('reverse', function() {
 });
 
 angular.module('app').filter('status',function(){
-		return function(status){
-			return [
-				'Initialized'
-				,'Cancelled'
-				,'Shipped'
-				,'Finalized'
-				,'Disputed'
-				,'Resolved'
-			][status]
-		}
-	})
+	return function(status){
+		return [
+			'Initialized'
+			,'Cancelled'
+			,'Shipped'
+			,'Finalized'
+			,'Disputed'
+			,'Resolved'
+		][status]
+	}
+});
 
 angular.module('app').filter('disputeSeconds',function(){
 	return function(disputeTime){
@@ -96,20 +94,17 @@ angular.module('app').filter('disputeSeconds',function(){
 		if(disputeTime===undefined)
 			return ''
 
-		var disputeTime = new BigNumber(disputeTime)
+		var disputeTime = web3.toBigNumber(disputeTime)
 
 		if(disputeTime.equals(0))
 			return "No Disputes Allowed"
 
 		return disputeTime.div(86400).floor().toString()+' Days After Shipping'
 	}
-})
+});
 
 angular.module('app').filter('alias',function(utils){
 	return function(addr){
 		return utils.getAlias(addr)
 	}
-})
-
-
-})();
+});

@@ -50,6 +50,13 @@ h3 .btn{float: right}
     text-overflow: ellipsis;
 }
 
+.short-addr{
+    display: inline-block;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow:ellipsis;
+}
+
 .text-small{font-size: 14px}
 
 .key{

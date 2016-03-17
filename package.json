@@ -18,6 +18,7 @@
     "electron-packager": "^5.1.1",
     "electron-prebuilt": "^0.34.1",
     "eth-lightwallet": "^1.0.1",
+    "ethereumjs-abi": "^0.4.0",
     "express": "^4.13.4",
     "grunt": "^0.4.5",
     "grunt-contrib-clean": "^0.6.0",
@@ -35,7 +36,7 @@
     "grunt-git": "^0.3.5",
     "grunt-github-release-asset": "git+https://github.com/SafeMarket/grunt-github-release-asset.git#develop",
     "grunt-http-server": "^1.14.0",
-    "grunt-infosphere": "^0.1.0",
+    "grunt-infosphere": "^0.6.0",
     "grunt-load-options": "^0.2.1",
     "grunt-multi-dest": "^1.0.0",
     "grunt-node-version": "^1.0.1",
@@ -60,7 +61,7 @@
     "q": "^1.4.1",
     "read-yaml": "^1.0.0",
     "shelljs": "^0.5.3",
-    "solc": "^0.1.6",
+    "solc": "^0.2.2-2",
     "web3": "^0.15.1"
   }
 }

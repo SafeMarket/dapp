@@ -1,12 +1,13 @@
 {
-	"infosphere":{
-		"default":{
-			"options":{
-				"files":{
-					"infosphere":"app/contracts/0/Infosphere.sol"
-					,"infosphered":"app/contracts/1/infosphered.sol"
-				}
+	"default":{
+		"options":{
+			"keyType":"bytes32"
+			,"ownershipCheck":"requireOwnership();"
+			,"ignoreSolc":true
+			,"files":{
+				"infosphere":"app/contracts/0/Infosphere.sol"
+				,"infosphered":"app/contracts/1/infosphered.sol"
 			}
 		}
-	} 
+	}
 }

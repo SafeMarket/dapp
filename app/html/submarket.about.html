@@ -1,11 +1,11 @@
 <table class="table">
 	<tr>
 		<td>Status</td>
-		<td>{{submarket.meta.isOpen ? 'Open' : 'Closed'}}</td>
+		<td>{{submarket.infosphered.data.isOpen ? 'Open' : 'Closed'}}</td>
 	</tr>
 	<tr>
-		<td>Fee</td>
-		<td>{{submarket.meta.feeCentiperun}}%</td>
+		<td>Escrow Fee</td>
+		<td>{{submarket.infosphered.data.escrowFeeCentiperun.toNumber()}}%</td>
 	</tr>
 	<tbody collapsable is-collapsed="true">
 		<tr>
@@ -18,4 +18,4 @@
 		</tr>
 	</tbody>
 </table>
-<div marked="submarket.meta.info"></div>
+<div marked="submarket.meta.data.info"></div>

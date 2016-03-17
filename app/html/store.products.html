@@ -12,8 +12,8 @@
 			</td>
 			<td>
 				<amounts
-					value="product.price"
-					from="store.meta.currency"
+					value="product.price.in(store.currency)"
+					from="store.currency"
 					to="displayCurrencies">
 				</amounts>
 			</td>
@@ -25,8 +25,8 @@
 			<td colspan="4"></td>
 			<td>
 				<amounts
-					value="productsTotal"
-					from="'WEI'"
+					value="productsTotal.in(store.currency)"
+					from="store.currency"
 					to="displayCurrencies">
 				</amounts>
 			</td>
@@ -34,31 +34,31 @@
 		<tr>
 			<td>Transport</td>
 			<td colspan="2">
-				<select ng-model="transport" ng-options="getTransportLabel(transport) for transport in store.meta.transports" class="form-control"></select>
+				<select ng-model="transport" ng-options="transport.label for transport in store.transports" class="form-control"></select>
 			</td>
 			<td></td>
 			<td>
 				<amounts
-					value="transport.price"
-					from="store.meta.currency"
+					value="transport.price.in(store.currency)"
+					from="store.currency"
 					to="displayCurrencies">
 				</amounts>
 			</td>
 		</tr>
 		<tr>
-			<td>Escrow</td>
+			<td>Submarket Escrow</td>
 			<td colspan="2">
-				<select ng-model="submarketAddr" ng-options="submarket.addr as submarket.label for submarket in submarketOptions" class="form-control"></select>
+				<select ng-model="submarketOption" ng-options="submarketOption.label for submarketOption in submarketOptions" class="form-control"></select>
 			</td>
 			<td>
-				<span ng-show="submarket">
-					Fee of {{feePercent | percentage}}
+				<span>
+					Fee of {{submarketOption.escrowFeeCentiperun}}%
 				</span>
 			</td>
 			<td>
 				<amounts
-					value="estimatedFee"
-					from="'WEI'"
+					value="fee.in(store.currency)"
+					from="store.currency"
 					to="displayCurrencies">
 				</amounts>
 			</td>
@@ -67,14 +67,14 @@
 			<td colspan="4"></td>
 			<td>
 				<amounts
-					value="total"
-					from="'WEI'"
+					value="total.in(store.currency)"
+					from="store.currency"
 					to="displayCurrencies">
 				</amounts>
 			</td>
 		</tr>
 		<tr>
-			<td>Affiliate Code or Alias</td>
+			<td>Affiliate</td>
 			<td colspan="2">
 				<input class="form-control" ng-model="affiliateCodeOrAlias" placeholder="Optional">
 			</td>

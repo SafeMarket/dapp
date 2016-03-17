@@ -8,12 +8,8 @@ contract AffiliateReg {
     mapping(bytes32=>Affiliate) affiliateMap;
     mapping(bytes32=>bool) isCodeTakenMap;
 
-    function getAffiliate(bytes32 code) internal returns(Affiliate){
-      return affiliateMap[code];
-    }
-
     function getAffiliateParams(bytes32 code) constant returns(address, address){
-      var affiliate = getAffiliate(code);
+      var affiliate = affiliateMap[code];
       return (affiliate.owner, affiliate.coinbase);
     }
 

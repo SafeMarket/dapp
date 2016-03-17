@@ -29,6 +29,7 @@ splash.run(function($timeout,$rootScope,$interval){
 
 	function startup(){
 	    try{
+	    	window.web3 = new Web3
 	        web3.setProvider(new web3.providers.HttpProvider('http://127.0.0.1:'+blockchain.rpcport));
 	    }catch(e){
 	        setTimeout(startup,1000)

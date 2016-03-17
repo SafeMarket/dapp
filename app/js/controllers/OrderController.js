@@ -1,17 +1,20 @@
-(function(){
-
 angular.module('app').controller('OrderController',function($scope,Order,pgp,user,$stateParams,modals,growl){
 	
-	(new Order($stateParams.orderAddr)).updatePromise.then(function(order){
+	$scope.order = new Order($stateParams.orderAddr)
 
-		$scope.order = order
+	var isOrderUpdated = false
+
+	console.log($scope.order)
+
+	$scope.order.updatePromise.then(function(order){
 		$scope.userRole = order.getRoleForAddr(user.getAccount())
-
+		console.log($scope.userRole)
+		isOrderUpdated = true
 	})
 
 	function setMessagesAndUpdates(){
 
-		if(!$scope.order) return
+		if(!isOrderUpdated) return
 
 		var messagesAndUpdates = []
 
@@ -87,6 +90,4 @@ angular.module('app').controller('OrderController',function($scope,Order,pgp,use
 		})
 	}
 
-})
-
-})();
+});

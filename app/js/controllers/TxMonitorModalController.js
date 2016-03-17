@@ -11,7 +11,12 @@ angular.module('app').controller('TxMonitorModalController',function($scope,$int
 		,isFactory = typeof proposal.contractFactoryOrFunction === 'object'
 		,waitInterval
 
-	txOptions.gasPrice = web3.eth.gasPrice.toNumber()
+	if(txOptions.gasPrice)
+		txOptions.gasPrice = web3.toBigNumber(txOptions.gasPrice)
+	else
+		txOptions.gasPrice = web3.eth.gasPrice
+
+	console.log('gasPrice',txOptions.gasPrice)
 	
 	proposal.value = txOptions.value = txOptions.value ? txOptions.value : 0
 
@@ -19,21 +24,23 @@ angular.module('app').controller('TxMonitorModalController',function($scope,$int
 		proposal.value = web3.toDecimal(proposal.value)
 
 	if(txOptions.gas){
-		proposal.gas = txOptions.gas
+		proposal.gas = web3.toBigNumber(txOptions.gas)
 	}else{
-		var estimatedGas = proposal.contractFactoryOrFunction.estimateGas.apply(proposal.contractFactoryOrFunction, proposal.args)
+		var estimatedGas = proposal.contractFactoryOrFunction.estimateGas.apply(proposal.contractFactoryOrFunction, angular.copy(proposal.args))
 		
 		if(estimatedGas < gasLimit)
-			estimatedGas = Math.min(gasLimit,estimatedGas*2)
+			estimatedGas = Math.min(Math.floor(gasLimit*.9),estimatedGas*2)
 
-		proposal.gas = txOptions.gas = estimatedGas
+		proposal.gas = txOptions.gas = web3.toBigNumber(estimatedGas)
 	}
 
-	proposal.gasCost = txOptions.gasPrice * txOptions.gas
-	proposal.cost = proposal.gasCost + proposal.value
+	proposal.gasCost = txOptions.gasPrice.times(txOptions.gas)
+	proposal.cost = proposal.gasCost.plus(proposal.value)
 
-	$scope.isThrown = proposal.gas > web3.eth.getBlock(web3.eth.blockNumber).gasLimit
-	$scope.isProposalAffordable = user.getBalance().toNumber() > proposal.cost
+	console.log(proposal)
+
+	$scope.isThrown = proposal.gas.greaterThan(web3.eth.getBlock(web3.eth.blockNumber).gasLimit)
+	$scope.isProposalAffordable = user.getBalance().greaterThan(proposal.cost)
 
 	var currentBlockNumber
 		,currentBlockTimestamp
@@ -48,7 +55,7 @@ angular.module('app').controller('TxMonitorModalController',function($scope,$int
 		$scope.secondsWaited  = 0
 		waitInterval = $interval(function(){
 			console.log('wait')
-			$scope.secondsWaited = new BigNumber(Date.now()).minus(startTimestamp).div(1000).floor().toNumber()
+			$scope.secondsWaited = web3.toBigNumber(Date.now()).minus(startTimestamp).div(1000).floor().toNumber()
 		},1000)
 
 		var args = proposal.args.slice(0)

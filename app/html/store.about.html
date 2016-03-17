@@ -1,15 +1,19 @@
 <table class="table">
 	<tr>
 		<td>Status</td>
-		<td>{{store.meta.isOpen ? 'Open' : 'Closed'}}</td>
+		<td>{{store.infosphered.data.isOpen ? 'Open' : 'Closed'}}</td>
 	</tr>
 	<tr>
 		<td>Dispute Resolution Time</td>
-		<td>{{store.meta.disputeSeconds | disputeSeconds}}</td>
+		<td>{{store.infosphered.data.disputeSeconds | disputeSeconds}}</td>
 	</tr>
 	<tr>
 		<td>Minimum Total Order Size</td>
-		<td>{{store.meta.minTotal}} {{store.meta.currency}}</td>
+		<td><amounts value="store.minTotal.in(store.currency)" from="store.currency" to="displayCurrencies"></amounts></td>
+	</tr>
+	<tr>
+		<td>Affiliate Fee</td>
+		<td>{{store.infosphered.data.affiliateFeeCentiperun.toNumber()}}%</td>
 	</tr>
 	<tr ng-show="store.reviews.length>0">
 		<td>Reviews ({{store.averageScore.toFixed(1).toString()}})</td>
@@ -19,7 +23,7 @@
 				<td>
 					<progressbar value="scoreCount/store.scoreCountsTotal" max="1"></progressbar>
 				</td>
-				<td>{{scoreCount/store.scoreCountsTotal | percentage}}</td>
+				<td>{{scoreCount/store.scoreCountsTotal | perun}}</td>
 			</tr>
 		</table></td>
 	</tr>

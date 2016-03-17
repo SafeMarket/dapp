@@ -208,10 +208,7 @@ angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals
 
 	this.setDisplayCurrencies = function(){
 		$rootScope.userCurrency = this.getCurrency()
-		$rootScope.displayCurrencies = [$rootScope.userCurrency]
-
-		if($rootScope.userCurrency!=='ETH')
-			$rootScope.displayCurrencies.push('ETH')
+		$rootScope.displayCurrencies = _.uniq([this.getCurrency(),'ETH'])
 	}
 
 	this.login = function(password){

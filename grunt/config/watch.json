@@ -13,7 +13,7 @@
   },
   "css": {
     "files": ["<%= files.css.src %>"],
-    "tasks": ["concat:css"]
+    "tasks": ["concat:css", "copy:css"]
   },
   "contracts": {
     "files": ["<%= files.contracts.src %>"],

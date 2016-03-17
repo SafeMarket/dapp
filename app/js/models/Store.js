@@ -1,6 +1,4 @@
-(function(){
-
-angular.module('app').factory('Store',function($q,utils,ticker,Key,txMonitor,AliasReg){
+angular.module('app').factory('Store',function($q,utils,ticker,Key,txMonitor,AliasReg,StoreReg,Infosphered,Meta,user,Coinage,constants){
 
 var currencies = Object.keys(ticker.rates)
 
@@ -8,27 +6,56 @@ function Store(addrOrAlias){
 	this.addr = utils.isAddr(addrOrAlias) ? addrOrAlias : AliasReg.getAddr(addrOrAlias)
 	this.alias = utils.getAlias(this.addr)
 	this.contract = this.contractFactory.at(this.addr)
+	this.meta = new Meta(this.contract)
+	this.infosphered = new Infosphered(this.contract,{
+		isOpen:'bool'
+		,currency:'bytes32'
+		,disputeSeconds:'uint'
+		,minTotal:'uint'
+		,affiliateFeeCentiperun:'uint'
+	})
 	this.updatePromise = this.update()
 }
-
-window.Store = Store
 
 Store.prototype.bytecode = Store.bytecode = contracts.Store.bytecode
 Store.prototype.runtimeBytecode = Store.runtimeBytecode = utils.runtimeBytecodes.Store
 Store.prototype.abi = Store.abi = contracts.Store.abi
 Store.prototype.contractFactory = Store.contractFactory = web3.eth.contract(Store.abi)
 
-Store.create = function(alias,meta){
+Store.create = function(isOpen, currency, disputeSeconds, minTotal, affiliateFeeCentiperun, meta, alias){
 
 	var meta = utils.convertObjectToHex(meta)
 		,deferred = $q.defer()
 
 	txMonitor.propose(
 		'Create a New Store'
-		,this.contractFactory
-		,[alias,meta,AliasReg.address,contracts.Infosphere.address,{data:this.bytecode}]
+		,StoreReg.create
+		,[isOpen, currency, disputeSeconds, minTotal, affiliateFeeCentiperun, meta, alias]
 	).then(function(txReciept){
-		deferred.resolve(new Store(txReciept.contractAddress))
+		var contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
+		deferred.resolve(new Store(contractAddress))
+	})
+
+	return deferred.promise
+}
+
+Store.prototype.set = function(infospheredData, metaData){
+
+	var deferred = $q.defer()
+		,infospheredCalls = this.infosphered.getMartyrCalls(infospheredData)
+		,metaCalls = this.meta.getMartyrCalls(metaData)
+		,allCalls = infospheredCalls.concat(metaCalls)
+
+
+	var data = utils.getMartyrData(allCalls)
+
+	txMonitor.propose('Update Store',web3.eth.sendTransaction,[{
+		data:data
+		,gas:web3.eth.estimateGas({data:data})*4 
+	}]).then(function(txReciept){
+		deferred.resolve(txReciept)
+	},function(txReciept){
+		deferred.reject()
 	})
 
 	return deferred.promise
@@ -46,23 +73,9 @@ Store.check = function(alias,meta){
 		name:{
 			presence:true
 			,type:'string'
-		},currency:{
-			presence:true
-			,type:'string'
-			,inclusion:currencies
 		},products:{
 			exists:true
 			,type:'array'
-		},disputeSeconds:{
-			presence:true
-			,type:'string'
-			,numericality:{
-				integerOnly:true
-				,greaterThanOrEqualTo:0
-			}
-		},isOpen:{
-			presence:true
-			,type:'boolean'
 		},info:{
 			type:'string'
 		},submarketAddrs:{
@@ -72,12 +85,6 @@ Store.check = function(alias,meta){
 			presence:true
 			,type:'array'
 			,length:{minimum:1}
-		},minTotal:{
-			presence:true
-			,type:'string'
-			,numericality:{
-				greaterThanOrEqualTo:0
-			}
 		}
 	})
 
@@ -151,31 +158,13 @@ Store.estimateCreationGas = function(alias,meta){
 	})+AliasReg.claimAlias.estimateGas(alias)
 }
 
-Store.prototype.setMeta = function(meta){
-
-	var meta = utils.convertObjectToHex(meta)
-		,deferred = $q.defer()
-		,store = this
-
-	txMonitor.propose(
-		'Update a Store'
-		,this.contract.setMeta
-		,[meta]
-	).then(function(txReciept){
-		store.update().then(function(){
-			deferred.resolve(store)
-		})
-	})
-
-	return deferred.promise
-}
-
 
 Store.prototype.update = function(){
 	var deferred = $q.defer()
 		,store = this
 
 	this.products = []
+	this.transports = []
 	this.reviews = []
 	this.scoreCounts = []
 	this.scoreCountsReversed = []
@@ -183,60 +172,30 @@ Store.prototype.update = function(){
 	this.scoreCountsTotal = 0
 	this.owner = this.contract.owner()
 
-	this.contract.getScoreCounts().forEach(function(scoreCount,index){
-		var scoreCount = scoreCount.toNumber()
-		store.scoreCounts.push(scoreCount)
-		store.scoreCountsTotal += scoreCount
-		store.scoreCountsSum += index*scoreCount
-	})
-
-	this.averageScore = (new BigNumber(this.scoreCountsTotal)).pow(-1).times(this.scoreCountsSum)
-
-
-	this.scoreCountsReversed = this.scoreCounts.slice().reverse()
-
-	var metaUpdatedAt = this.contract.metaUpdatedAt()
-
-	this.contract.Meta({},{fromBlock: metaUpdatedAt, toBlock: metaUpdatedAt}).get(function(error,results){
-
-		if(error)
-			return deferred.reject(error)
-
-		if(results.length === 0)
-			return deferred.reject(new Error('no results found'))
-
-		store.meta = utils.convertHexToObject(results[results.length-1].args.meta)
-		store.info = utils.sanitize(store.meta.info || '')
-		store.minTotal = utils.convertCurrency(store.meta.minTotal,{from:store.meta.currency,to:'ETH'})
-
-		if(store.meta && store.meta.products)
-			store.meta.products.forEach(function(productData){
-				store.products.push(new Product(productData))
-			})
-
-		store.contract.ReviewData({},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
-
-			if(error)
-				return deferred.reject(error)
-
-			var reviewsObject = {};
-
-			results.forEach(function(result){
-				reviewsObject[result.args.orderAddr] = new Review(result,store)
-			})
-
-			Object.keys(reviewsObject).forEach(function(orderAddr){
-				store.reviews.push(reviewsObject[orderAddr])
-			})
-
-			deferred.resolve(store)
-		})
-
-	})
-
-
 	Key.fetch(this.owner).then(function(key){
 		store.key = key
+	})
+
+	this.infosphered.update()
+
+	this.currency = utils.toAscii(this.infosphered.data.currency)
+	this.minTotal = new Coinage(this.infosphered.data.minTotal.div(constants.tera),this.currency)
+
+	this.meta.update().then(function(meta){
+
+		store.info = utils.sanitize(meta.data.info || '')
+
+		if(meta.data.products)
+			meta.data.products.forEach(function(data){
+				store.products.push(new Product(data,store.currency))
+			})
+
+		if(meta.data.transports)
+			meta.data.transports.forEach(function(data){
+				store.transports.push(new Transport(data,store.currency))
+			})
+
+		deferred.resolve(store)
 	})
 
 	return deferred.promise
@@ -251,17 +210,26 @@ function Review(result,store){
 	this.timestamp = reviewData[1].toNumber()
 }
 
-function Product(data){
+function Product(data,currency){
 	this.id = data.id
 	this.name = data.name
-	this.price = new BigNumber(data.price)
+	this.price = new Coinage(data.price,currency)
 	this.info = data.info
 	this.imageUrl = data.imageUrl
 	this.quantity = 0
 }
 
+function Transport(data,currency){
+	var userCurrency = user.getCurrency()
+
+	this.id = data.id
+	this.data = data
+	this.price =  new Coinage(this.data.price,currency)
+	
+	var priceFormatted = utils.formatCurrency(this.price.in(userCurrency),userCurrency,1)
+	this.label = this.data.type+' ('+priceFormatted+')'
+}
+
 return Store
 
-})
-
-})();
+});

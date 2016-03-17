@@ -19,8 +19,8 @@ angular.module('app').service('helpers',function(utils,$filter,user){
 		var gasInWei = web3.eth.gasPrice.times(gas)
 			,gasInEther = web3.fromWei(gasInWei,'ether')
 			,gasInEtherPretty = $filter('currency')(gasInEther,'ETH')
-			,gasInUserCurrency = utils.convertCurrency(gasInEther,{from:'ETH',to:user.data.currency})
-			,gasInUserCurrencyPretty = $filter('currency')(gasInUserCurrency,user.data.currency)
+			,gasInUserCurrency = utils.convertCurrency(gasInEther,{from:'ETH',to:user.getCurrency()})
+			,gasInUserCurrencyPretty = $filter('currency')(gasInUserCurrency,user.getCurrency())
 
 		if(web3.eth.syncing){
 			alert('Your node is still syncing. Please wait until sync is complete.')
@@ -28,11 +28,11 @@ angular.module('app').service('helpers',function(utils,$filter,user){
 		}
 
 		if(web3.eth.getBalance(user.data.account).lessThan(gasInWei)){
-			alert('Not enough funds to cover gas costs. You need at least '+gasInEtherPretty+' ETH / '+gasInUserCurrencyPretty+' '+user.data.currency+'.')
+			alert('Not enough funds to cover gas costs. You need at least '+gasInEtherPretty+' ETH / '+gasInUserCurrencyPretty+' '+user.getCurrency()+'.')
 			return false
 		}
 
-		return confirm('That will cost around '+gasInEtherPretty+' ETH / '+gasInUserCurrencyPretty+' '+user.data.currency+'. Continue?')
+		return confirm('That will cost around '+gasInEtherPretty+' ETH / '+gasInUserCurrencyPretty+' '+user.getCurrency()+'. Continue?')
 	}
 })
 

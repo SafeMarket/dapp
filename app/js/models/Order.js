@@ -1,4 +1,4 @@
-angular.module('app').factory('Order',function(utils,ticker,$q,Store,Submarket,Key,KeyGroup,PgpMessageWrapper,txMonitor,user,OrderBook){
+angular.module('app').factory('Order',function(utils,ticker,$q,Store,Submarket,Key,KeyGroup,PgpMessageWrapper,txMonitor,user,OrderReg,constants,Coinage){
 
 function Order(addr){
 	this.addr = addr
@@ -12,7 +12,7 @@ Order.prototype.bytecode = Order.bytecode = contracts.Order.bytecode
 Order.prototype.abi = Order.abi = contracts.Order.abi
 Order.prototype.contractFactory = Order.contractFactory = web3.eth.contract(Order.abi)
 
-Order.create = function(meta,storeAddr,submarketAddr,feeCentiperun,disputeSeconds){
+Order.create = function(buyer,storeAddr,submarketAddr,affiliate,meta,value){
 
 	var deferred = $q.defer()
 		,order = this
@@ -20,7 +20,7 @@ Order.create = function(meta,storeAddr,submarketAddr,feeCentiperun,disputeSecond
 		,parties = [web3.eth.defaultAccount,store.owner]
 		,meta = utils.convertObjectToHex(meta)
 
-	if(submarketAddr!==utils.nullAddr){
+	if(submarketAddr!==constants.nullAddr){
 		var submarket = new Submarket(submarketAddr)
 			,submarketOwner = submarket.owner
 
@@ -32,12 +32,15 @@ Order.create = function(meta,storeAddr,submarketAddr,feeCentiperun,disputeSecond
 	keyGroup.promise.then(function(keyGroup){
 
 		keyGroup.encrypt(meta).then(function(pgpMessage){
-			var meta = pgpMessage.packets.write()
+			var meta = web3.fromAscii(pgpMessage.packets.write())
 
-			txMonitor.propose('Create a New Order',Order.contractFactory,[meta,storeAddr,submarketAddr,feeCentiperun,disputeSeconds,OrderBook.address,{data:order.bytecode}]).then(function(receipt){
-				console.log(receipt)
-				var order = new Order(receipt.contractAddress)
-				deferred.resolve(order)
+			txMonitor.propose(
+				'Create a New Order'
+				,OrderReg.create
+				,[buyer,storeAddr,submarketAddr,affiliate,0,0,meta,{value:value}]
+			).then(function(txReciept){console.log(txReciept)
+				var contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
+				deferred.resolve(new Order(contractAddress))
 			})
 		},function(error){
 			deferred.reject(error)
@@ -51,13 +54,12 @@ Order.create = function(meta,storeAddr,submarketAddr,feeCentiperun,disputeSecond
 	return deferred.promise
 }
 
-Order.check = function(meta,storeAddr,submarketAddr,feeCentiperun,disputeSeconds){
+Order.check = function(buyer,storeAddr,submarketAddr,affiliate,meta){
+
+	console.log(arguments)
+
 	utils.check(meta,{
-		currency:{
-			presence:true
-			,type:'string'
-			,inclusion:Object.keys(ticker.rates)
-		},products:{
+		products:{
 			presence:true
 			,type:'array'
 		},transport:{
@@ -115,31 +117,23 @@ Order.check = function(meta,storeAddr,submarketAddr,feeCentiperun,disputeSeconds
 	},'Transport')
 
 	utils.check({
-		storeAddr:storeAddr
+		buyer:buyer
+		,storeAddr:storeAddr
 		,submarketAddr:submarketAddr
-		,feeCentiperun:feeCentiperun
-		,disputeSeconds:disputeSeconds
+		,affiliate:affiliate
 	},{
-		storeAddr:{
+		buyer:{
+			presence:true
+			,type:'address'
+		},storeAddr:{
 			presence:true
 			,type:'address'
 		},submarketAddr:{
 			presence:true
 			,type:'address'
-		},feeCentiperun:{
+		},affiliate:{
 			presence:true
-			,type:'string'
-			,numericality:{
-				onlyInteger:true
-				,greaterThanOrEqualTo:0
-			}
-		},disputeSeconds:{
-			presence:true
-			,type:'number'
-			,numericality:{
-				onlyInteger:true
-				,greaterThanOrEqualTo:0
-			}
+			,type:'address'
 		}
 	})
 }
@@ -173,20 +167,29 @@ Order.prototype.update = function(){
 		,submarketAddr = this.contract.submarketAddr()
 
 	this.buyer = this.contract.buyer()
+	this.affiliate = this.contract.affiliate()
 	this.store = new Store(storeAddr)
-	this.submarket = submarketAddr === utils.nullAddr ? null : new Submarket(submarketAddr)
-	this.feeCentiperun = this.contract.feeCentiperun()
-	this.received = this.contract.received()
+	this.submarket = submarketAddr === constants.nullAddr ? null : new Submarket(submarketAddr)
+	this.escrowFeeCentiperun = this.contract.escrowFeeCentiperun()
+	this.affiliateFeeCentiperun = this.contract.affiliateFeeCentiperun()
+	this.balance = web3.eth.getBalance(this.addr)
+	this.received = this.contract.getReceived()
 	this.status = this.contract.status().toNumber()
-	this.timestamp = this.contract.timestamp()
-	this.shippedAt = this.contract.shippedAt()
-	this.disputeSeconds = this.contract.disputeSeconds()
-	this.disputeDeadline = this.disputeSeconds.plus(this.shippedAt)
-	this.fee = this.contract.fee()
-	this.buyerAmount = this.contract.buyerAmount()
-	this.storeOwnerAmount = this.received.minus(this.fee).minus(this.buyerAmount)
-	this.buyerPercent = this.buyerAmount.div(this.received.minus(this.fee))
-	this.storeOwnerPercent = this.storeOwnerAmount.div(this.received.minus(this.fee))
+	this.createdAtBlockNumber = this.contract.createdAtBlockNumber()
+	this.createdAt = web3.eth.getBlock(this.createdAtBlockNumber).timestamp
+	this.shippedAt = this.contract.shippedAt().toNumber()
+	this.disputeSeconds = this.contract.disputeSeconds().toNumber()
+	this.disputeDeadline = this.disputeSeconds + this.shippedAt
+
+	var amounts = this.contract.getAmounts();
+
+	console.log(amounts)
+
+	this.buyerAmount = amounts[0]
+	this.storeAmount = amounts[1]
+	this.escrowAmount = amounts[2]
+	this.affiliateAmount = amounts[3]
+
 	this.receivedAtBlockNumber = this.contract.receivedAtBlockNumber()
 	this.confirmations = this.receivedAtBlockNumber.minus(web3.eth.blockNumber).times('-1').toNumber()
 	this.confirmationsNeeded = this.received.div(web3.toWei(5,'ether')).ceil().toNumber()
@@ -194,7 +197,7 @@ Order.prototype.update = function(){
 	this.messages = []
 	this.updates = []
 	this.keys = {}
-	this.productsTotalInStoreCurrency = new BigNumber(0)
+	this.productsTotalInStoreCurrency = web3.toBigNumber(0)
 
 	Key.fetch(this.buyer).then(function(key){
 		order.keys.buyer = key
@@ -225,18 +228,24 @@ Order.prototype.update = function(){
 		
 		order.meta = utils.convertHexToObject(metaPgpMessageWrapper.text)
 
-		var productsTotalInOrderCurrency = new BigNumber(0)
+		var productsTotalInOrderCurrency = web3.toBigNumber(0)
 		order.meta.products.forEach(function(product){
-			var subtotal = new BigNumber(product.price).times(product.quantity)
+			var subtotal = web3.toBigNumber(product.price).times(product.quantity)
 			productsTotalInOrderCurrency = productsTotalInOrderCurrency.plus(subtotal)
 		})
 
-		order.productsTotal = utils.convertCurrency(productsTotalInOrderCurrency,{from:order.store.meta.currency,to:'WEI'})
-		order.transportPrice = utils.convertCurrency(order.meta.transport.price,{from:order.store.meta.currency,to:'WEI'})
-		order.estimatedFee = order.productsTotal.plus(order.transportPrice).times(order.feeCentiperun).div(100)
-		order.total = order.productsTotal.plus(order.transportPrice).plus(order.estimatedFee)
-		order.unpaid = order.total.minus(order.received)
-		order.percentReceived = new BigNumber(order.received).div(order.total)
+		order.productsTotal = new Coinage(productsTotalInOrderCurrency,order.store.currency)
+		order.transportPrice = new Coinage(order.meta.transport.price,order.store.currency)
+
+		var totalInStoreCurrency = 
+			order.productsTotal.in(order.store.currency)
+				.plus(order.transportPrice.in(order.store.currency))
+				.times(order.escrowFeeCentiperun.div(100).plus(1))
+
+
+		order.total = new Coinage(totalInStoreCurrency,order.store.currency)
+		order.unpaid = order.total.in('WEI').minus(order.received)
+		order.receivedPerun = order.received.div(order.total.in('WEI'))
 
 		order.contract.Message({},{fromBlock:0,toBlock:'latest'}).get(function(error,results){
 			results.forEach(function(result){

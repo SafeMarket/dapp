@@ -1,6 +1,4 @@
-(function(){
-
-angular.module('app').controller('StoreModalController',function($scope,$filter,utils,Store,AliasReg,ticker,growl,$modal,$modalInstance,store,user,helpers){
+angular.module('app').controller('StoreModalController',function($scope,$filter,utils,Store,AliasReg,ticker,growl,$modal,$modalInstance,store,user,helpers,constants){
 	
 	$scope.currencies = Object.keys(ticker.rates)
 	$scope.user = user
@@ -21,30 +19,33 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 		disputeSecondsOption.label = $filter('disputeSeconds')(disputeSecondsOption.value)
 	})
 
+
 	if(store){
 		$scope.isEditing = true
 		$scope.alias = store.alias
-		$scope.name = store.meta.name
-		$scope.currency = store.meta.currency
-		$scope.products = store.meta.products
-		$scope.disputeSeconds = store.meta.disputeSeconds
-		$scope.info = store.meta.info
-		$scope.isOpen = store.meta.isOpen
-		$scope.transports = store.meta.transports || []
-		$scope.minTotal = store.meta.minTotal
+		$scope.name = store.meta.data.name
+		$scope.currency = store.currency
+		$scope.products = store.meta.data.products
+		$scope.disputeSeconds = store.infosphered.data.disputeSeconds.toString()
+		$scope.info = store.meta.data.info
+		$scope.isOpen = store.infosphered.data.isOpen
+		$scope.transports = store.meta.data.transports || []
+		$scope.minTotal = store.infosphered.data.minTotal.div(constants.tera).toNumber()
+		$scope.affiliateFeeCentiperun = store.infosphered.data.affiliateFeeCentiperun.toNumber()
 		
-		if(store.meta.submarketAddrs)
-			store.meta.submarketAddrs.forEach(function(submarketAddr){
+		if(store.meta.data.submarketAddrs)
+			store.meta.data.submarketAddrs.forEach(function(submarketAddr){
 				$scope.submarkets.push({alias:utils.getAlias(submarketAddr)})
 			})
 
 	}else{
-		$scope.currency = user.data.currency
+		$scope.currency = user.getCurrency()
 		$scope.products = []
 		$scope.disputeSeconds = "1209600"
 		$scope.isOpen = true
 		$scope.transports = []
-		$scope.minTotal = '0'
+		$scope.minTotal = 0
+		$scope.affiliateFeeCentiperun = 5
 	}
 
 	$scope.cancel = function(){
@@ -53,14 +54,14 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 
 	function addProduct(){
 		$scope.products.push({
-			id:BigNumber.random().times('100000000').round().toString()
+			id:utils.getRandom().times('100000000').round().toString()
 		})
 	}
 	$scope.addProduct = addProduct
 
 	function addTransport(){
 		$scope.transports.push({
-			id:BigNumber.random().times('100000000').round().toString()
+			id:utils.getRandom().times('100000000').round().toString()
 		})
 	}
 	$scope.addTransport = addTransport
@@ -69,14 +70,10 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 		var alias = $scope.alias ? $scope.alias.trim().replace(/(\r\n|\n|\r)/gm,"") : ''
 			,meta = {
 				name:$scope.name
-				,currency:$scope.currency
 				,products:$scope.products
-				,disputeSeconds:$scope.disputeSeconds
-				,isOpen:!!$scope.isOpen
 				,info:$scope.info
 				,submarketAddrs:[]
 				,transports:$scope.transports
-				,minTotal:$scope.minTotal
 			}
 
 		$scope.submarkets.forEach(function(submarket){
@@ -92,24 +89,35 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 			return
 		}
 
+		var minTotal = constants.tera.times($scope.minTotal)
+			,affiliateFeeCentiperun = web3.toBigNumber($scope.affiliateFeeCentiperun)
+
 		if(store){
 
-			store
-				.setMeta(meta)
-				.then(function(store){
+			console.log(minTotal)
+
+			store.set(
+				{
+					isOpen:$scope.isOpen
+					,currency:$scope.currency
+					,disputeSeconds:(web3.toBigNumber($scope.disputeSeconds)).toNumber()
+					,minTotal:minTotal
+					,affiliateFeeCentiperun:affiliateFeeCentiperun
+				}
+				,meta
+			).then(function(){
+				store.update().then(function(){
 					$modalInstance.close(store)
-				},function(error){
-					$scope.error = error
-				}).catch(function(error){
-					console.error(error)
 				})
+			})
+
 		}else{
 
 			if(!utils.isAliasAvailable(alias)){
 				return growl.addErrorMessage('@'+alias+' is already taken')
 			}
 
-			Store.create($scope.alias,meta)
+			Store.create($scope.isOpen, $scope.currency, $scope.disputeSeconds, minTotal, affiliateFeeCentiperun, meta,$scope.alias)
 				.then(function(store){
 					user.addStore(store.addr)
 					user.save()
@@ -125,6 +133,4 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 	
 
 	}
-})
-
-})();
+});

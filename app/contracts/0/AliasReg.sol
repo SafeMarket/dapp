@@ -1,9 +1,16 @@
 contract AliasReg {
+	
+	uint version;
+
 	mapping(address=>bytes32) addrToAliasMap;
 	mapping(bytes32=>address) aliasToAddrMap;
 
 	function claimAlias(bytes32 alias){
-		if(aliasToAddrMap[alias] != address(0)) throw;
+		if(aliasToAddrMap[alias] != address(0))
+			throw;
+
+		if(alias == '')
+			throw;
 
 		addrToAliasMap[msg.sender]=alias;
 		aliasToAddrMap[alias]=msg.sender;

@@ -1,5 +1,3 @@
-(function(){
-
 angular.module('app').directive('a',function(){
 	return {
 		link:function($scope,$element,$attributes){
@@ -11,7 +9,7 @@ angular.module('app').directive('a',function(){
 			})
 		}
 	}
-})
+});
 
 angular.module('app').directive('forum',function(){
 	return {
@@ -21,7 +19,7 @@ angular.module('app').directive('forum',function(){
 			forum:'='
 		}
 	}
-})
+});
 
 angular.module('app').directive('comment',function(user){
 	return {
@@ -46,7 +44,7 @@ angular.module('app').directive('comment',function(user){
 			}
 		}
 	}
-})
+});
 
 angular.module('app').directive('addComment',function(){
 	return {
@@ -57,7 +55,7 @@ angular.module('app').directive('addComment',function(){
 			$scope.commentsGroup = $scope.$eval($attributes.addComment)
 		}
 	}
-})
+});
 
 angular.module('app').directive('gas',function(utils,user){
 	return {
@@ -67,38 +65,37 @@ angular.module('app').directive('gas',function(utils,user){
 		},link:function(scope,element,attributes){
 			scope.$watch('gas',function(){
 				scope.costInEther = web3.fromWei(web3.eth.gasPrice,'ether').times(scope.gas)
-				scope.userCurrency = user.data.currency
-				scope.costInUserCurrency = utils.convertCurrency(scope.costInEther,{from:'ETH',to:user.data.currency})
+				scope.userCurrency = user.getCurrency()
+				scope.costInUserCurrency = utils.convertCurrency(scope.costInEther,{from:'ETH',to:user.getCurrency()})
 			})
 		}
 	}
-})
+});
 
-angular.module('app').directive('amounts',function(utils){
+angular.module('app').directive('amounts',function(utils,constants){
 	return {
 		templateUrl:'amounts.html'
 		,scope:{
 			value:'='
 			,from:'='
 			,to:'='
-		},link:function($scope){
+		},link:function($scope,$element){
+
 			$scope.amounts = {}
 
 			$scope.$watchGroup(["value","from","to"],function(){
-				if(typeof $scope.value === 'string' || typeof $scope.value === 'number')
-					var value = new BigNumber($scope.value)
-				else
-					var value = angular.copy($scope.value)
 
-				if(!$scope.from || !$scope.to || value===undefined) return
-					
+				if(!$scope.from || !$scope.to || $scope.value === undefined) return
+
+				var value = web3.toBigNumber($scope.value)
+									
 				$scope.to.forEach(function(currency){
 					$scope.amounts[currency] = utils.convertCurrency(value,{from:$scope.from,to:currency})
 				})
 			})
 		}
 	}
-})
+});
 
 angular.module('app').directive('timestamp',function(){
 	return {
@@ -112,14 +109,14 @@ angular.module('app').directive('timestamp',function(){
 			})
 		}
 	}
-})
+});
 
 angular.module('app').directive('key',function(){
 	return {
 		scope:{key:'='}
 		,templateUrl:'key.html'
 	}
-})
+});
 
 angular.module('app').directive('collapsable',function(){
 	return {
@@ -137,7 +134,7 @@ angular.module('app').directive('collapsable',function(){
 			})
 		}
 	}
-})
+});
 
 angular.module('app').directive('orderBook',function(){
 	return {
@@ -145,7 +142,7 @@ angular.module('app').directive('orderBook',function(){
 		,controller:'OrderBookController'
 		,scope:{filter:'=orderBook'}
 	}
-})
+});
 
 angular.module('app').directive('aliasBar',function(){
 	return {
@@ -153,7 +150,7 @@ angular.module('app').directive('aliasBar',function(){
 		,controller:'BarController'
 		,scope:{alias:'@aliasBar'}
 	}
-})
+});
 
 angular.module('app').directive('aliasInput', function(growl) {
   	return {
@@ -268,14 +265,14 @@ angular.module('app').directive('tabUrl',function(helpers){
 			
 		}}
 	}	
-})
+});
 
 angular.module('app').directive('txPanel',function(){
 	return {
 		templateUrl:'txPanel.html'
 		,controller:'TxPanelController'
 	}
-})
+});
 
 angular.module('app').directive('blockie',function(){
 	return {
@@ -288,6 +285,4 @@ angular.module('app').directive('blockie',function(){
 			})
 		}
 	}
-})
-
-})();
+});

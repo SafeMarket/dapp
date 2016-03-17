@@ -2,97 +2,81 @@ contract Infosphere{
 
     // ================ bool ================
 
-    mapping(address=>mapping(bytes=>bool)) boolStore;
+    mapping(address=>mapping(bytes32=>bool)) boolStore;
 
-    function getBool(address addr, bytes key) constant returns(bool){
+    function getBool(address addr, bytes32 key) constant returns(bool){
         return boolStore[addr][key];
     }
 
-    function getMyBool(bytes key) constant returns(bool){
+    function getMyBool(bytes32 key) constant returns(bool){
         return boolStore[msg.sender][key];
     }
 
-    function setBool(bytes key, bool value){
+    function setBool(bytes32 key, bool value){
         boolStore[msg.sender][key] = value;
     }
 
     // ================ address ================
 
-    mapping(address=>mapping(bytes=>address)) addressStore;
+    mapping(address=>mapping(bytes32=>address)) addressStore;
 
-    function getAddress(address addr, bytes key) constant returns(address){
+    function getAddress(address addr, bytes32 key) constant returns(address){
         return addressStore[addr][key];
     }
 
-    function getMyAddress(bytes key) constant returns(address){
+    function getMyAddress(bytes32 key) constant returns(address){
         return addressStore[msg.sender][key];
     }
 
-    function setAddress(bytes key, address value){
+    function setAddress(bytes32 key, address value){
         addressStore[msg.sender][key] = value;
     }
 
-    // ================ bytes ================
+    // ================ bytes32 ================
 
-    mapping(address=>mapping(bytes=>bytes)) bytesStore;
+    mapping(address=>mapping(bytes32=>bytes32)) bytes32Store;
 
-    function getBytes(address addr, bytes key) constant returns(bytes){
-        return bytesStore[addr][key];
+    function getBytes32(address addr, bytes32 key) constant returns(bytes32){
+        return bytes32Store[addr][key];
     }
 
-    function getMyBytes(bytes key) constant returns(bytes){
-        return bytesStore[msg.sender][key];
+    function getMyBytes32(bytes32 key) constant returns(bytes32){
+        return bytes32Store[msg.sender][key];
     }
 
-    function setBytes(bytes key, bytes value){
-        bytesStore[msg.sender][key] = value;
-    }
-
-    // ================ string ================
-
-    mapping(address=>mapping(bytes=>string)) stringStore;
-
-    function getString(address addr, bytes key) constant returns(string){
-        return stringStore[addr][key];
-    }
-
-    function getMyString(bytes key) constant returns(string){
-        return stringStore[msg.sender][key];
-    }
-
-    function setString(bytes key, string value){
-        stringStore[msg.sender][key] = value;
+    function setBytes32(bytes32 key, bytes32 value){
+        bytes32Store[msg.sender][key] = value;
     }
 
     // ================ int ================
 
-    mapping(address=>mapping(bytes=>int)) intStore;
+    mapping(address=>mapping(bytes32=>int)) intStore;
 
-    function getInt(address addr, bytes key) constant returns(int){
+    function getInt(address addr, bytes32 key) constant returns(int){
         return intStore[addr][key];
     }
 
-    function getMyInt(bytes key) constant returns(int){
+    function getMyInt(bytes32 key) constant returns(int){
         return intStore[msg.sender][key];
     }
 
-    function setInt(bytes key, int value){
+    function setInt(bytes32 key, int value){
         intStore[msg.sender][key] = value;
     }
 
     // ================ uint ================
 
-    mapping(address=>mapping(bytes=>uint)) uintStore;
+    mapping(address=>mapping(bytes32=>uint)) uintStore;
 
-    function getUint(address addr, bytes key) constant returns(uint){
+    function getUint(address addr, bytes32 key) constant returns(uint){
         return uintStore[addr][key];
     }
 
-    function getMyUint(bytes key) constant returns(uint){
+    function getMyUint(bytes32 key) constant returns(uint){
         return uintStore[msg.sender][key];
     }
 
-    function setUint(bytes key, uint value){
+    function setUint(bytes32 key, uint value){
         uintStore[msg.sender][key] = value;
     }
 }
