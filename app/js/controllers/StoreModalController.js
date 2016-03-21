@@ -19,6 +19,10 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 		disputeSecondsOption.label = $filter('disputeSeconds')(disputeSecondsOption.value)
 	})
 
+	$scope.addSubmarket = function(){
+		$scope.submarkets.push({})
+	}
+
 
 	if(store){
 		$scope.isEditing = true
@@ -129,8 +133,6 @@ angular.module('app').controller('StoreModalController',function($scope,$filter,
 				})
 
 		}
-
-	
 
 	}
 });

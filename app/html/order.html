@@ -1,7 +1,7 @@
-<div class="container">
-	<h2>
+<div class="container" id="order">
+	<h1>
 		<a ng-href="{{order.store.addr | url:'store'}}">{{order.store.meta.data.name}}</a> » Order {{order.addr.substr(0,6)}}...
-	</h2>
+	</h1>
 	<div class="alert alert-info text-center" ng-show="order.status>=3">
 		<a ng-click="leaveReview()">Leave a review</a> for @{{order.store.addr | alias}}	
 	</div>

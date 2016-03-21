@@ -48,7 +48,7 @@
 		<tr>
 			<td>Submarket Escrow</td>
 			<td colspan="2">
-				<select ng-model="submarketOption" ng-options="submarketOption.label for submarketOption in submarketOptions" class="form-control"></select>
+				<select ng-model="submarketOption" ng-options="submarketOption.label for submarketOption in submarketOptions" class="form-control" id="escrow-select"></select>
 			</td>
 			<td>
 				<span>
@@ -82,6 +82,6 @@
 		</tr>
 	</table>
     <div class="text-right">
-		<button ng-click="createOrder(store,submarket)" class="btn btn-primary btn-lg">Create Your Order</button>
+		<button ng-click="createOrder()" class="btn btn-primary btn-lg">Create Your Order</button>
 	</div>
 </div>

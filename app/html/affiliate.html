@@ -9,7 +9,7 @@
 		<th></th>
 	</tr>
 	<tr ng-repeat="affiliate in affiliates">
-		<td>{{affiliate.code}}</td>
+		<td class="affiliate-code">{{affiliate.code}}</td>
 		<td class="oneliner">{{affiliate.coinbase}}</td>
 		<td>
 			<button class="btn btn-danger" ng-click="deleteAffiliate(affiliate)">Delete</button>
