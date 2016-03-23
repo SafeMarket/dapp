@@ -86,7 +86,7 @@ app.config((growlProvider, $stateProvider, $urlRouterProvider) => {
 
   $urlRouterProvider.otherwise('/')
 
-});
+})
 
 app.run((user, $rootScope, $interval, $timeout, timeAgo) => {
 
@@ -110,4 +110,4 @@ app.run((user, $rootScope, $interval, $timeout, timeAgo) => {
 
   timeAgo.settings.allowFuture = true
 
-});
+})

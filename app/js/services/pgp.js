@@ -1,6 +1,6 @@
 /* globals angular, openpgp */
 
-angular.module('app').service('pgp', ($q) => {
+angular.module('app').service('pgp', function pgpService($q) {
 
   this.encrypt = function encrypt(publicKeys, text) {
     const deferred = $q.defer()

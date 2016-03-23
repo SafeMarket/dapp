@@ -1,6 +1,6 @@
-/* globals angular */
+/* globals angular, openpgp */
 
-angular.module('app').factory('PgpMessageWrapper', (openpgp) => {
+angular.module('app').factory('PgpMessageWrapper', () => {
 
   function PgpMessageWrapper(ciphertext) {
 
@@ -30,6 +30,7 @@ angular.module('app').factory('PgpMessageWrapper', (openpgp) => {
   }
 
   PgpMessageWrapper.prototype.decrypt = function decryptPgpMessageWrapper(privateKey) {
+    console.log(privateKey)
     this.text = this.pgpMessage.decrypt(privateKey).packets[0].data
   }
 

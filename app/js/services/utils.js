@@ -1,6 +1,6 @@
 /* globals angular, Module, cryptocoin, web3, contracts, msgpack, abi, validate */
 
-angular.module('app').service('utils', (ticker, $q, $timeout, AliasReg, AffiliateReg, constants) => {
+angular.module('app').service('utils', function utilsService(ticker, $q, $timeout, AliasReg, AffiliateReg, constants) {
 
   const utils = this
   const compileJson = Module.cwrap('compileJSON', 'string', ['string', 'number'])
@@ -246,7 +246,7 @@ angular.module('app').service('utils', (ticker, $q, $timeout, AliasReg, Affiliat
 
     const error = errors[Object.keys(errors)[0]][0]
 
-    throw new Error(prefix ? `${prefix} error` : error)
+    throw new Error(prefix ? `${prefix} ${error}` : error)
   }
 
   function getContractAddressFromTxReceipt(txReciept) {
@@ -290,7 +290,8 @@ angular.module('app').service('utils', (ticker, $q, $timeout, AliasReg, Affiliat
 
     })
 
-    const solCode = `contract Martyr{\r\nfunction Martyr() { bytes memory temp; \r\n'${callCodes.join('\r\n')}\r\n}\r\n}`
+    const solCode = `contract Martyr{\r\nfunction Martyr() { bytes memory temp; \r\n${callCodes.join('\r\n')}\r\n}\r\n}`
+    console.log(solCode)
     const data = (JSON.parse(compileJson(solCode))).contracts.Martyr
 
     return hexify(data.bytecode)

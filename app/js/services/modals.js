@@ -1,6 +1,6 @@
 /* globals angular */
 
-angular.module('app').service('modals', ($modal) => {
+angular.module('app').service('modals', function modalsService($modal) {
 
   const modals = this
 

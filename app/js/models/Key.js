@@ -1,6 +1,6 @@
-/* globals angular, web3 */
+/* globals angular, web3, openpgp */
 
-angular.module('app').factory('Key', (utils, $q, Keystore, openpgp) => {
+angular.module('app').factory('Key', (utils, $q, Keystore) => {
 
   function Key(dataHex, timestamp) {
 

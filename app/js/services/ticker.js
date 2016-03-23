@@ -1,6 +1,8 @@
 /* globals angular, blockchain, web3, contracts, deployer, _ */
 
-angular.module('app').service('ticker', ($interval, $http, $q, constants) => {
+angular.module('app').service('ticker', function tickerService($interval, $http, $q, constants) {
+
+  console.log(constants)
 
   let Infosphere
   let tickerAddress

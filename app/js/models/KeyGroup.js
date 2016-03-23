@@ -1,6 +1,6 @@
-/* globals angular */
+/* globals angular, openpgp */
 
-angular.module('app').factory('KeyGroup', (Key, $q, openpgp) => {
+angular.module('app').factory('KeyGroup', (Key, $q) => {
 
   function KeyGroup(addrs) {
 

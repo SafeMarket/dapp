@@ -1,6 +1,6 @@
 /* globals angular, web3 */
 
-angular.module('app').service('helpers', (utils, $filter, user) => {
+angular.module('app').service('helpers', function helpersService(utils, $filter, user) {
 
   this.getUrl = function(type, addr, tabSlug) {
 

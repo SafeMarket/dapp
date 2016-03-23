@@ -1,15 +1,11 @@
 /* globals angular, web3 */
 
-angular.module('app').service('txMonitor', ($interval, $modal, $q, Tx) => {
+angular.module('app').service('txMonitor', function txMonitorService($interval, $modal, $q) {
 
   const txMonitor = this
   let waitInterval
 
   this.txs = []
-
-  this.getTx = function getTx(txHex, duration, pause) {
-    return new Tx(txHex, duration, pause)
-  }
 
   this.waitForTx = function waitForTx(hex) {
     const deferred = $q.defer()
@@ -33,7 +29,7 @@ angular.module('app').service('txMonitor', ($interval, $modal, $q, Tx) => {
     $interval.cancel(waitInterval)
   }
 
-  this.openModal = function openModal(proposal){
+  this.openModal = function openModal(proposal) {
     return $modal.open({
       size: 'md',
       templateUrl: 'txMonitorModal.html',

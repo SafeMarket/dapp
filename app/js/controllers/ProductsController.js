@@ -39,6 +39,7 @@ angular.module('app').controller('ProductsController', ($scope, $filter, utils, 
       meta.products.push({
         id: product.id,
         name: product.name,
+        price: product.price.in(currency).toString(),
         quantity: product.quantity
       })
 
