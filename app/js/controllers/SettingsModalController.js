@@ -1,132 +1,148 @@
-angular.module('app').controller('SettingsModalController',function($scope,growl,user,ticker,helpers,txMonitor,utils,$modalInstance,Keystore){
-	
-	$scope.seed = user.getSeed()
-	$scope.accounts = user.getAccounts()
-	$scope.account = user.getAccount()
-	$scope.currencies = Object.keys(ticker.rates)
-	$scope.currency = user.getCurrency()
+/* globals angular, web3 */
 
-	$scope.recipientTypes = {
-		internal:'One of my SafeMarket accounts'
-		,external:'An external account'
-	}
-	$scope.recipientType = 'internal'
-	$scope.internalRecipient = $scope.accounts[0]
-	$scope.externalRecipient = ''
-	$scope.amountTypes = {
-		everything:'Transfer everything'
-		,fixed:'A fixed amount'
-	}
-	$scope.amountType = 'everything'
-	$scope.transferAmountInUserCurrency = 0 
+angular.module('app').controller('SettingsModalController', ($scope, growl, user, ticker, helpers, txMonitor, utils, $modalInstance, Keystore) => {
 
-	$scope.$watch('account',function(account){
-		user.setAccount(account)
-		$scope.balance = user.getBalance()
-		$scope.keypairs = user.getKeypairs()
-		
-		user.fetchKeypair().then(function(keypair){
-			$scope.keypair = keypair
-		})
-		
-		user.save()
-	})
+  $scope.seed = user.getSeed()
+  $scope.accounts = user.getAccounts()
+  $scope.account = user.getAccount()
+  $scope.currencies = Object.keys(ticker.rates)
+  $scope.currency = user.getCurrency()
 
-	$scope.$watch('currency',function(currency){
-		user.setCurrency(currency)
-		user.save()
-	})
+  $scope.recipientTypes = {
+    internal: 'One of my SafeMarket accounts',
+    external: 'An external account'
+  }
+  $scope.recipientType = 'internal'
+  $scope.internalRecipient = $scope.accounts[0]
+  $scope.externalRecipient = ''
+  $scope.amountTypes = {
+    everything: 'Transfer everything',
+    fixed: 'A fixed amount'
+  }
+  $scope.amountType = 'everything'
+  $scope.transferAmountInUserCurrency = '0'
 
-	$scope.submit = function(){
-		user.save()
-		$modalInstance.dismiss()
-	}
+  $scope.$watch('account', (account) => {
 
-	$scope.addKeypair = function(){
-		$scope.isChangingKeys = true
-		user.addKeypair().then(function(){
-			user.save()
+    user.setAccount(account)
+    $scope.balance = user.getBalance()
+    $scope.keypairs = user.getKeypairs()
 
-			$scope.keypairs = user.getKeypairs()
+    user.fetchKeypair().then((keypair) => {
+      $scope.keypair = keypair
+    })
 
-			var doSet = confirm('A new keypair has been generated. Would you like to set it as your primary key?')
+    user.save()
+  })
 
-			if(doSet)
-				$scope.setPrimaryKeypair(user.getKeypairs().length-1)
+  $scope.$watch('currency', (currency) => {
+    user.setCurrency(currency)
+    user.save()
+  })
 
-			$scope.isChangingKeys = false
-		})
-	}
+  $scope.submit = function submit() {
+    user.save()
+    $modalInstance.dismiss()
+  }
 
-	$scope.setPrimaryKeypair = function(index){
-		
-		var keyData = user.getKeypairs()[index].public.toPacketlist().write()
-		
-		txMonitor.propose('Set Your Primary Keypair', Keystore.setKey,[keyData]).then(function(){
-			user.fetchKeypair().then(function(keypair){
-				$scope.keypair = keypair
-			})
-		})
-	}
+  $scope.addKeypair = function addKeypair() {
 
-	$scope.deleteKeypair = function(index){
-		var doContinue = confirm('Are you sure? If this keypair was used to encrypt any messages, you will no longer be able to decrypt them')
-		if(!doContinue) return
+    $scope.isChangingKeys = true
 
-		user.deleteKeypair(index)
-		user.save()
-	}
+    user.addKeypair().then(() => {
 
-	$scope.reset = function(){
-		var doContinue = confirm('Are you sure? This will delete all the SafeMarket data on this computer.')
-		if(!doContinue) return
+      user.save()
 
-		$modalInstance.close()
+      $scope.keypairs = user.getKeypairs()
 
-		user.reset()
-		user.logout()
-		window.location.hash = 'login'
-	}
+      if (confirm('A new keypair has been generated. Would you like to set it as your primary key?')) {
+        $scope.setPrimaryKeypair(user.getKeypairs().length - 1)
+      }
 
-	$scope.transfer = function(){
-		var recipient = $scope.recipientType == 'internal' ? $scope.internalRecipient : '0x'+$scope.externalRecipient
-			,value = $scope.amountType == 'everything' 
-				? user.getBalance()
-				: utils.convertCurrency($scope.transferAmountInUserCurrency,{from:user.getCurrency(),to:'WEI'})
+      $scope.isChangingKeys = false
+    })
+  }
 
-		if(!utils.isAddr(recipient))
-			return growl.addErrorMessage('Invalid address')
+  $scope.setPrimaryKeypair = function setPrimaryKeypair(index) {
 
-		if($scope.account == recipient)
-			return growl.addErrorMessage('You are trying to send money to and from the same account')
+    const keyData = user.getKeypairs()[index].public.toPacketlist().write()
 
-		if(value <= 0)
-			return growl.addErrorMessage('Amount must be greater than 0')
+    txMonitor.propose('Set Your Primary Keypair', Keystore.setKey, [keyData]).then(() => {
+      user.fetchKeypair().then((keypair) => {
+        $scope.keypair = keypair
+      })
+    })
+  }
 
-		var txObject = {
-			to: recipient
-			,value: value
-			,gas:web3.eth.estimateGas({
-				to: recipient
-				,value: value
-			})
-		},gasCost = web3.eth.gasPrice.times(txObject.gas)
+  $scope.deleteKeypair = function deleteKeypair(index) {
 
-		if($scope.amountType=='everything'){
-			txObject.value = user.getBalance().minus(gasCost)
-		}
+    if (!confirm('Are you sure? If this keypair was used to encrypt any messages, you will no longer be able to decrypt them')) {
+      return
+    }
 
-		console.log(JSON.stringify(txObject))
-		
-		txMonitor.propose('Transfer Ether',web3.eth.sendTransaction,[txObject]).then(function(){
-			$scope.balance = user.getBalance()
-			$scope.transferAmountInUserCurrency = 0
-		})
-	}
+    user.deleteKeypair(index)
+    user.save()
+  }
 
-	$scope.refreshBalance = function(){
-		$scope.balance = web3.eth.getBalance($scope.account)
-		growl.addSuccessMessage('Balance refreshed')
-	}
+  $scope.reset = function reset() {
 
-});
+    if (!confirm('Are you sure? This will delete all the SafeMarket data on this computer.')) {
+      return
+    }
+
+    $modalInstance.close()
+
+    user.reset()
+    user.logout()
+    window.location.hash = 'login'
+
+  }
+
+  $scope.transfer = function transfer() {
+
+    const recipient = $scope.recipientType === 'internal'
+      ? $scope.internalRecipient
+      : utils.hexify($scope.externalRecipient)
+
+    const value = $scope.amountType === 'everything'
+      ? user.getBalance()
+      : utils.convertCurrency($scope.transferAmountInUserCurrency, { from: user.getCurrency(), to: 'WEI' })
+
+    if (!utils.isAddr(recipient)) {
+      return growl.addErrorMessage('Invalid address')
+    }
+
+    if ($scope.account === recipient) {
+      return growl.addErrorMessage('You are trying to send money to and from the same account')
+    }
+
+    if (value <= 0) {
+      return growl.addErrorMessage('Amount must be greater than 0')
+    }
+
+    const txObject = {
+      to: recipient,
+      value,
+      gas: web3.eth.estimateGas({
+        to: recipient,
+        value
+      })
+    }
+    const gasCost = web3.eth.gasPrice.times(txObject.gas)
+
+    if ($scope.amountType === 'everything') {
+      txObject.value = user.getBalance().minus(gasCost)
+    }
+
+    txMonitor.propose('Transfer Ether', web3.eth.sendTransaction, [txObject]).then(() => {
+      $scope.balance = user.getBalance()
+      $scope.transferAmountInUserCurrency = 0
+    })
+  }
+
+  $scope.refreshBalance = function refreshBalance() {
+    $scope.balance = web3.eth.getBalance($scope.account)
+    growl.addSuccessMessage('Balance refreshed')
+  }
+
+})

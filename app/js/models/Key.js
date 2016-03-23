@@ -1,64 +1,66 @@
-(function(){
+/* globals angular, web3 */
 
-angular.module('app').factory('Key',function(utils,$q,Keystore){
+angular.module('app').factory('Key', (utils, $q, Keystore, openpgp) => {
 
-	function Key(dataHex,timestamp){
-		this.timestamp = timestamp
-		this.data = web3.toAscii(dataHex)
-			
-		var packetlist = new openpgp.packet.List		
-		packetlist.read(this.data)
-		
-		this.key = new openpgp.key.Key(packetlist)
-		this.id = this.key.primaryKey.keyid.bytes
-	}
+  function Key(dataHex, timestamp) {
 
-	Key.fetch = function(addr){
-		var deferred = $q.defer()
-			,blockNumber = Keystore.getUpdatedAt(addr)
+    this.timestamp = timestamp
+    this.data = web3.toAscii(dataHex)
 
-		Keystore.Key({addr:addr},{fromBlock: blockNumber, toBlock: blockNumber}).get(function(error,results){
+    const packetlist = new openpgp.packet.List
+    packetlist.read(this.data)
 
-			if(error)
-				return deferred.reject(error)
+    this.key = new openpgp.key.Key(packetlist)
+    this.id = this.key.primaryKey.keyid.bytes
+  }
 
-			if(results.length === 0)
-				return deferred.reject(new Error('no results found'))
+  Key.fetch = function fetchKey(addr) {
 
-			try{
-				var key = new Key(results[results.length-1].args.data,web3.eth.getBlock(results[results.length-1].blockNumber).timestamp)
-				deferred.resolve(key)
-			}catch(e){
-				deferred.reject(e)
-			}
-		})
+    const deferred = $q.defer()
+    const blockNumber = Keystore.getUpdatedAt(addr)
 
-		return deferred.promise
-	}
+    Keystore.Key({ addr: addr }, { fromBlock: blockNumber, toBlock: blockNumber }).get((error, results) => {
 
-	Key.set = function(data){
+      if (error) {
+        return deferred.reject(error)
+      }
 
-		var estimatedGas = Keystore.setKey.estimateGas(data)
-			,txHex = Keystore.setKey(data,{gas:estimatedGas})
-			,deferred = $q.defer()
+      if (results.length === 0) {
+        return deferred.reject(new Error('no results found'))
+      }
 
-		utils.waitForTx(txHex).then(function(){
-			Key.fetch(web3.eth.defaultAcount).then(function(key){
-				deferred.resolve(key)
-			},function(error){
-				deferred.reject(error)
-			})
-		},function(error){
-			deferred.reject(error)
-		})
+      try {
+        const key = new Key(results[results.length - 1].args.data, web3.eth.getBlock(results[results.length - 1].blockNumber).timestamp)
+        deferred.resolve(key)
+      } catch (e) {
+        deferred.reject(e)
+      }
+    })
 
-		return deferred.promise
-	}
+    return deferred.promise
+  }
 
-	window.Key = Key
+  Key.set = function setKey(data) {
 
-	return Key
+    const estimatedGas = Keystore.setKey.estimateGas(data)
+    const txHex = Keystore.setKey(data, { gas: estimatedGas })
+    const deferred = $q.defer()
+
+    utils.waitForTx(txHex).then(() => {
+      Key.fetch(web3.eth.defaultAcount).then((key) => {
+        deferred.resolve(key)
+      }, (error) => {
+        deferred.reject(error)
+      })
+    }, (error) => {
+      deferred.reject(error)
+    })
+
+    return deferred.promise
+  }
+
+  window.Key = Key
+
+  return Key
 
 })
-
-})();

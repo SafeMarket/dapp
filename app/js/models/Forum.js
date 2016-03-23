@@ -1,33 +1,31 @@
-(function(){
+/* global angular, web3, contracts */
 
-angular.module('app').factory('Forum',function($q,utils,CommentsGroup){
+angular.module('app').factory('Forum', ($q, utils, CommentsGroup) => {
 
-	function Forum(addr){
-		this.addr = addr
-		this.contract = web3.eth.contract(this.abi).at(addr)
-		this.updatePromise = this.update()
-	}
+  function Forum(addr) {
+    this.addr = addr
+    this.contract = web3.eth.contract(this.abi).at(addr)
+    this.updatePromise = this.update()
+  }
 
-	Forum.prototype.bytecode = Forum.bytecode = contracts.Forum.bytecode
-	Forum.prototype.abi = Forum.abi = contracts.Forum.abi
+  Forum.prototype.bytecode = Forum.bytecode = contracts.Forum.bytecode
+  Forum.prototype.abi = Forum.abi = contracts.Forum.abi
 
-	Forum.prototype.update = function(){
-		var deferred = $q.defer()
-			,forum = this
+  Forum.prototype.update = function updateForum() {
 
-		this.votes = []
-		this.moderations = []
-		this.commentsGroup = new CommentsGroup('0x0000000000000000000000000000000000000000000000000000000000000000',forum)
-		this.commentsGroup.updatePromise.then(function(){
-			deferred.resolve(forum)
-		},function(error){
-			console.error(error)
-		})
+    const deferred = $q.defer()
+    const forum = this
 
-		return deferred.promise
-	}
+    this.votes = []
+    this.moderations = []
+    this.commentsGroup = new CommentsGroup('0x0000000000000000000000000000000000000000000000000000000000000000', this)
+    this.commentsGroup.updatePromise.then(() => {
+      deferred.resolve(forum)
+    })
 
-	return Forum
+    return deferred.promise
+  }
+
+  return Forum
+
 })
-
-})();

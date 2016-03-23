@@ -1,46 +1,46 @@
-(function(){
+/* globals angular */
 
-angular.module('app').factory('KeyGroup',function(Key,$q){
-	function KeyGroup(addrs){
+angular.module('app').factory('KeyGroup', (Key, $q, openpgp) => {
 
-		var keyGroup = this
-			,deferred = $q.defer()
-		
-		this.promise = deferred.promise
-		this.keys = []
-	
-		var keyPromises = []	
-		addrs.forEach(function(addr){
-			keyPromises.push(Key.fetch(addr))
-		})
+  function KeyGroup(addrs) {
 
-		$q.all(keyPromises).then(function(keys){
-			keyGroup.keys = keys
-			deferred.resolve(keyGroup)
-		},function(error){
-			deferred.reject(error)
-		})
-	}
+    const keyGroup = this
+    const deferred = $q.defer()
 
-	KeyGroup.prototype.encrypt = function(message){
-		var deferred = $q.defer()
-			,pgpKeys = []
+    this.promise = deferred.promise
+    this.keys = []
 
-		this.keys.forEach(function(key){
-			pgpKeys.push(key.key)
-		})
+    const keyPromises = []
+    addrs.forEach((addr) => {
+      keyPromises.push(Key.fetch(addr))
+    })
 
-		openpgp.encryptMessage(pgpKeys,message).then(function(messageArmored) {
-			var message = openpgp.message.readArmored(messageArmored)
-			deferred.resolve(message)
-		},function(error){
-		    deferred.reject(error)
-		});
+    $q.all(keyPromises).then((keys) => {
+      keyGroup.keys = keys
+      deferred.resolve(keyGroup)
+    }, (error) => {
+      deferred.reject(error)
+    })
+  }
 
-		return deferred.promise
-	}
+  KeyGroup.prototype.encrypt = function encryptKeyGroup(message) {
+    const deferred = $q.defer()
+    const pgpKeys = []
 
-	return KeyGroup
+    this.keys.forEach((key) => {
+      pgpKeys.push(key.key)
+    })
+
+    openpgp.encryptMessage(pgpKeys, message).then((messageArmored) => {
+      const _message = openpgp.message.readArmored(messageArmored)
+      deferred.resolve(_message)
+    }, (error) => {
+      deferred.reject(error)
+    })
+
+    return deferred.promise
+  }
+
+  return KeyGroup
+
 })
-
-})();

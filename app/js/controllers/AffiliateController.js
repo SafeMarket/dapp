@@ -1,16 +1,19 @@
-angular.module('app').controller('AffiliateController',function($scope,modals,user){
+/* globals angular */
 
-	function updateAffiliates(){
-		$scope.affiliates = user.getAffiliates()
-	}
+angular.module('app').controller('AffiliateController', ($scope, modals, user) => {
 
-	updateAffiliates()
+  function updateAffiliates() {
+    $scope.affiliates = user.getAffiliates()
+  }
 
-	$scope.openAffiliateModal = function(affiliate){
-		modals.openAffiliate(affiliate).result.then(updateAffiliates)
-	}
+  updateAffiliates()
 
-	$scope.deleteAffiliate = function(affiliate){
-		affiliate.delete().then(updateAffiliates)
-	}
-});
+  $scope.openAffiliateModal = function openAffiliateModal(affiliate) {
+    modals.openAffiliate(affiliate).result.then(updateAffiliates)
+  }
+
+  $scope.deleteAffiliate = function deleteAffiliate(affiliate) {
+    affiliate.delete().then(updateAffiliates)
+  }
+
+})

@@ -1,46 +1,39 @@
-(function(){
+/* globals angular, openpgp */
 
-angular.module('app').factory('pgp',function($q,$timeout){
-	var pgp = {}
+angular.module('app').service('pgp', ($q) => {
 
-	pgp.encrypt = function(publicKeys,text){
-		var deferred = $q.defer()
+  this.encrypt = function encrypt(publicKeys, text) {
+    const deferred = $q.defer()
 
-		openpgp.encryptMessage(publicKeys,text).then(function(messageArmored) {
-			var message = openpgp.message.readArmored(messageArmored)
-			deferred.resolve(message)
-		}).catch(function(error) {
-		    deferred.reject(error)
-		});
-	
-		return deferred.promise
-	}
+    openpgp.encryptMessage(publicKeys, text).then((messageArmored) => {
+      const message = openpgp.message.readArmored(messageArmored)
+      deferred.resolve(message)
+    }).catch((error) => {
+      deferred.reject(error)
+    })
 
-	pgp.decrypt = function(pgpMessage,privateKey,privateKeyPassword){
+    return deferred.promise
+  }
 
-		privateKeyPassword = typeof privateKeyPassword==='string'?privateKeyPassword:''
+  this.decrypt = function decrypt(pgpMessage, privateKey, privateKeyPassword) {
+    privateKeyPassword = typeof privateKeyPassword === 'string' ? privateKeyPassword : ''
+    return pgpMessage.decrypt(privateKey)
+  }
 
-		return pgpMessage.decrypt(privateKey)
-	}
+  this.generateKeypair = function generateKeypair(options) {
+    const deferred = $q.defer()
+    options = options || {
+      numBits: 2048,
+      userId: 'Jon Smith <jon.smith@example.org>'
+    }
 
-	pgp.generateKeypair = function(options){
-		var deferred = $q.defer()
-			,options = options ? options : {
-			    numBits: 2048,
-			    userId: 'Jon Smith <jon.smith@example.org>',
-			};
+    openpgp.generateKeyPair(options).then((keypair) => {
+      deferred.resolve(keypair)
+    }).catch((error) => {
+      deferred.reject(error)
+    })
 
-		openpgp.generateKeyPair(options).then(function(keypair) {
-		    deferred.resolve(keypair)
-		}).catch(function(error) {
-		    deferred.reject(error)
-		});
-
-		return deferred.promise
-	}
-
-	return pgp
+    return deferred.promise
+  }
 
 })
-
-})();

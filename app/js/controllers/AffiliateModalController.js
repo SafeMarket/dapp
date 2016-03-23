@@ -1,60 +1,62 @@
-angular.module('app').controller('AffiliateModalController',function($scope,affiliate,user,$modalInstance,Affiliate,AffiliateReg,utils,growl){
-	$scope.isEditing = !!affiliate
-	$scope.code = affiliate ? affiliate.code : ''
-	$scope.owner = (affiliate ? affiliate.owner : user.getAccount()).replace('0x','')
-	$scope.coinbase = (affiliate ? affiliate.coinbase : user.getAccount()).replace('0x','')
+/* globals angular */
 
-	$scope.cancel = function(){
-		$modalInstance.dismiss()
-	}
+angular.module('app').controller('AffiliateModalController', ($scope, user, affiliate, $modalInstance, Affiliate, AffiliateReg, utils, growl) => {
 
-	$scope.submit = function(){
+  $scope.isEditing = !!affiliate
+  $scope.code = affiliate ? affiliate.code : ''
+  $scope.owner = (affiliate ? affiliate.owner : user.getAccount()).replace('0x', '')
+  $scope.coinbase = (affiliate ? affiliate.coinbase : user.getAccount()).replace('0x', '')
 
-		var owner = '0x'+$scope.owner
-			,coinbase = '0x'+$scope.coinbase
+  $scope.cancel = function cancel() {
+    $modalInstance.dismiss()
+  }
 
-		try{
-			utils.check({
-				code:$scope.code
-				,owner:owner
-				,coinbase:coinbase
-			},{
-				code:{
-					presence:true
-					,type:'string'
-				},owner:{
-					presence:true
-					,type:'address'
-				},coinbase:{
-					presence:true
-					,type:'address'
-				}
-			})
-		}catch(e){
-			return growl.addErrorMessage(e)
-		}
+  $scope.submit = function submit() {
 
-		if(!$scope.isEditing){
-			
-			if(AffiliateReg.getIsCodeTaken($scope.code)){
-				growl.addErrorMessage('The code "'+$scope.code+'" is taken')
-				return
-			}
+    const owner = utils.hexify($scope.owner)
+    const coinbase = utils.hexify($scope.coinbase)
 
-			Affiliate.create($scope.code,owner,coinbase).then(function(){
-				console.log('add affiliate')
-				user.addAffiliate($scope.code)
-				$modalInstance.close()
-			})
+    try {
+      utils.check({
+        code: $scope.code,
+        owner,
+        coinbase
+      }, {
+        code: {
+          presence: true,
+          type: 'string'
+        },
+        owner: {
+          presence: true,
+          type: 'address'
+        },
+        coinbase: {
+          presence: true,
+          type: 'address'
+        }
+      })
+    } catch (e) {
+      return growl.addErrorMessage(e)
+    }
 
-			return
-		}
+    if (!$scope.isEditing) {
+      if (AffiliateReg.getIsCodeTaken($scope.code)) {
+        growl.addErrorMessage(`The code "${$scope.code}"" is taken`)
+        return
+      }
 
-		var affiliate = new Affiliate($scope.code)
-		affiliate.set(owner,coinbase).then(function(){
-			$modalInstance.close()
-		})
-	
+      Affiliate.create($scope.code, owner, coinbase).then(() => {
+        user.addAffiliate($scope.code)
+        $modalInstance.close()
+      })
 
-	}
-});
+      return
+    }
+
+    affiliate.set(owner, coinbase).then(() => {
+      $modalInstance.close()
+    })
+
+  }
+
+})

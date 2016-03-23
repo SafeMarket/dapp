@@ -1,178 +1,180 @@
-(function(){
+/* globals angular */
 
-angular.module('app').service('modals',function($modal){
+angular.module('app').service('modals', ($modal) => {
 
-	var modals = this
+  const modals = this
 
-	this.currentController = null
-	this.currentModalInstance = null
+  this.currentController = null
+  this.currentModalInstance = null
 
-	function openModal(options){
-		
-		modals.currentController = options.controller
-		modals.currentModalInstance = $modal.open(options)
-		
-		modals.currentModalInstance.opened.then(function(){
-			window.scrollTo(0,1)
-		})
-		modals.currentModalInstance.result.then(function(){
-			modals.currentController = null
-			modals.currentModalInstance = null
-		})
-		
-		return modals.currentModalInstance
-	}
+  function openModal(options) {
 
-	this.closeInstance = function(){
-		if(this.currentModalInstance)
-			this.currentModalInstance.dismiss()
-	}
+    modals.currentController = options.controller
+    modals.currentModalInstance = $modal.open(options)
 
-	this.openStore = function(store){
-		return openModal({
-			size: 'md'
-			,templateUrl: 'storeModal.html'
-			,controller: 'StoreModalController'
-			,resolve: {
-				store:function(){
-					return store
-				}
-			}
-		});
-	}
+    modals.currentModalInstance.opened.then(() => {
+      window.scrollTo(0, 1)
+    })
 
-	this.openSubmarket = function(submarket){
-		return openModal({
-			size: 'md'
-			,templateUrl: 'submarketModal.html'
-			,controller: 'SubmarketModalController'
-			,resolve: {
-				submarket:function(){
-					return submarket
-				}
-			}
-		});
-	}
+    modals.currentModalInstance.result.then(() => {
+      modals.currentController = null
+      modals.currentModalInstance = null
+    })
 
-	this.openSettings = function(){
-		return openModal({
-			size: 'lg'
-			,templateUrl: 'settingsModal.html'
-			,controller: 'SettingsModalController'
-	    });
-	}
+    return modals.currentModalInstance
+  }
 
-	this.openAliases = function(aliasable){
-		return openModal({
-			size: 'lg'
-			,templateUrl: 'aliasesModal.html'
-			,controller: 'aliasesModalController'
-			,resolve:{
-				aliasable:function(){
-					return aliasable
-				}
-			}
-	    });
-	}
+  this.closeInstance = function closeInstance() {
+    if (this.currentModalInstance) {
+      this.currentModalInstance.dismiss()
+    }
+  }
 
-	this.openPayment = function(addr,amount,currency){
-		return openModal({
-			size: 'lg'
-			,templateUrl: 'paymentModal.html'
-			,controller: 'PaymentModalController'
-			,resolve:{
-				addr:function(){
-					return addr
-				},amount:function(){
-					return amount
-				},currency:function(){
-					return currency
-				}
-			}
-	    });
-	}
+  this.openStore = function closeInstance(store) {
+    return openModal({
+      size: 'md',
+      templateUrl: 'storeModal.html',
+      controller: 'StoreModalController',
+      resolve: {
+        store: function resolveStore() {
+          return store
+        }
+      }
+    })
+  }
 
-	this.openWithdrawl = function(order){
-		return openModal({
-			size: 'lg'
-			,templateUrl: 'withdrawlModal.html'
-			,controller: 'WithdrawlModalController'
-			,resolve:{
-				order:function(){
-					return order
-				}
-			}
-	    });
-	}
+  this.openSubmarket = function openSubmarket(submarket) {
+    return openModal({
+      size: 'md',
+      templateUrl: 'submarketModal.html',
+      controller: 'SubmarketModalController',
+      resolve: {
+        submarket: function resolveSubmarket() {
+          return submarket
+        }
+      }
+    })
+  }
 
-	this.openResolution = function(order){
-		return openModal({
-			size: 'sm'
-			,templateUrl: 'resolutionModal.html'
-			,controller: 'ResolutionModalController'
-			,resolve:{
-				order:function(){
-					return order
-				}
-			}
-	    });
-	}
+  this.openSettings = function openSettings() {
+    return openModal({
+      size: 'lg',
+      templateUrl: 'settingsModal.html',
+      controller: 'SettingsModalController'
+    })
+  }
 
-	this.openImportStore = function(){
-		return openModal({
-			size: 'md'
-			,templateUrl: 'importStoreModal.html'
-			,controller: 'ImportStoreModalController'
-	    });
-	}
+  this.openAliases = function openAliases(aliasable) {
+    return openModal({
+      size: 'lg',
+      templateUrl: 'aliasesModal.html',
+      controller: 'aliasesModalController',
+      resolve: {
+        aliasable: function resolveAliasable() {
+          return aliasable
+        }
+      }
+    })
+  }
 
-	this.openImportSubmarket = function(){
-		return openModal({
-			size: 'md'
-			,templateUrl: 'importSubmarketModal.html'
-			,controller: 'ImportSubmarketModalController'
-	    });
-	}
+  this.openPayment = function openPayment(addr, amount, currency) {
+    return openModal({
+      size: 'lg',
+      templateUrl: 'paymentModal.html',
+      controller: 'PaymentModalController',
+      resolve: {
+        addr: function resolveAddr() {
+          return addr
+        },
+        amount: function resolveAmount() {
+          return amount
+        },
+        currency: function resolveCurrency() {
+          return currency
+        }
+      }
+    })
+  }
 
-	this.openLeaveReview = function(order){
-		return openModal({
-			size: 'md'
-			,templateUrl: 'leaveReviewModal.html'
-			,controller: 'LeaveReviewModalController'
-			,resolve:{
-				order:function(){
-					return order
-				}
-			}
-	    });
-	}
+  this.openWithdrawl = function openWithdrawl(order) {
+    return openModal({
+      size: 'lg',
+      templateUrl: 'withdrawlModal.html',
+      controller: 'WithdrawlModalController',
+      resolve: {
+        order: function resolveOrder(){
+          return order
+        }
+      }
+    })
+  }
 
-	this.openTxMonitor = function(){
-		return openModal({
-			size: 'md'
-			,templateUrl: 'txMonitorModal.html'
-			,controller: 'txMonitorModalController'
-			,resolve:{
-				args:function(){
-					return arguments
-				}
-			}
-	    });
-	}
+  this.openResolution = function openResolution(order) {
+    return openModal({
+      size: 'sm',
+      templateUrl: 'resolutionModal.html',
+      controller: 'ResolutionModalController',
+      resolve: {
+        order: function resolveOrder() {
+          return order
+        }
+      }
+    })
+  }
 
-	this.openAffiliate = function(affiliate){
-		return openModal({
-			size: 'md'
-			,templateUrl: 'affiliateModal.html'
-			,controller: 'AffiliateModalController'
-			,resolve:{
-				affiliate:function(){
-					return affiliate
-				}
-			}
-	    });
-	}
+  this.openImportStore = function openImportStore() {
+    return openModal({
+      size: 'md',
+      templateUrl: 'importStoreModal.html',
+      controller: 'ImportStoreModalController'
+    })
+  }
+
+  this.openImportSubmarket = function openImportSubmarket() {
+    return openModal({
+      size: 'md',
+      templateUrl: 'importSubmarketModal.html',
+      controller: 'ImportSubmarketModalController'
+    })
+  }
+
+  this.openLeaveReview = function openLeaveReview(order) {
+    return openModal({
+      size: 'md',
+      templateUrl: 'leaveReviewModal.html',
+      controller: 'LeaveReviewModalController',
+      resolve: {
+        order: function resolveOrder() {
+          return order
+        }
+      }
+    })
+  }
+
+  this.openTxMonitor = function openTxMonitor() {
+    return openModal({
+      size: 'md',
+      templateUrl: 'txMonitorModal.html',
+      controller: 'txMonitorModalController',
+      resolve: {
+        args: function resolveArgs() {
+          return arguments
+        }
+      }
+    })
+  }
+
+  this.openAffiliate = function openAffiliate(affiliate) {
+    return openModal({
+      size: 'md',
+      templateUrl: 'affiliateModal.html',
+      controller: 'AffiliateModalController',
+      resolve: {
+        affiliate: function resolveAffiliate() {
+          return affiliate
+        }
+      }
+    })
+  }
 })
 
-
-})();

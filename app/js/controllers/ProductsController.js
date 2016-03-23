@@ -1,97 +1,111 @@
-angular.module('app').controller('ProductsController',function($scope,$filter,utils,Submarket,helpers,growl,user,Order,constants,Coinage,AffiliateReg){
+/* globals angular, web3 */
 
-	var currency = $scope.store.currency
+angular.module('app').controller('ProductsController', ($scope, $filter, utils, Submarket, helpers, growl, user, Order, constants, Coinage) => {
 
-	$scope.productsTotal = new Coinage(0,currency)
-	$scope.total = new Coinage(0,currency)
+  const currency = $scope.store.currency
 
-	$scope.createOrder = function(){
+  $scope.productsTotal = new Coinage(0, currency)
+  $scope.total = new Coinage(0, currency)
 
-		var buyer = user.getAccount()
-			,meta = {
-				products:[]
-				,transport:{
-					id:$scope.transport.id
-					,type:$scope.transport.data.type
-					,price:$scope.transport.price.in(currency).toString()
-				}
-			},storeAddr = $scope.store.addr
-			,submarketAddr = $scope.submarketOption.addr
-			,productsTotal = web3.toBigNumber(0)
-			,affiliate = utils.getAffiliate($scope.affiliateCodeOrAlias) || constants.nullAddr
+  $scope.createOrder = function createOrder() {
 
-		if($scope.affiliateCodeOrAlias && affiliate===constants.nullAddr){
-			growl.addErrorMessage($scope.affiliateCodeOrAlias+' is not a valid affiliate')
-			return
-		}
+    const buyer = user.getAccount()
+    const meta = {
+      products: [],
+      transport: {
+        id: $scope.transport.id,
+        type: $scope.transport.data.type,
+        price: $scope.transport.price.in(currency).toString()
+      }
+    }
 
-		$scope.store.products.forEach(function(product){
+    const storeAddr = $scope.store.addr
+    const submarketAddr = $scope.submarketOption.addr
+    const affiliate = utils.getAffiliate($scope.affiliateCodeOrAlias) || constants.nullAddr
 
-			console.log(product)
+    let productsTotal = web3.toBigNumber(0)
 
-			if(product.quantity===0) return true
+    if ($scope.affiliateCodeOrAlias && affiliate === constants.nullAddr) {
+      growl.addErrorMessage(`${$scope.affiliateCodeOrAlias} is not a valid affiliate`)
+      return
+    }
 
-			meta.products.push({
-				id:product.id
-				,name:product.name
-				,price:product.price.in(currency).toString()
-				,quantity:product.quantity
-			})
+    $scope.store.products.forEach((product) => {
 
-			productsTotal = productsTotal.plus(product.price.in(currency).times(product.quantity))
-		})
+      if (product.quantity === 0) {
+        return true
+      }
 
-		try{
-			Order.check(buyer,storeAddr,submarketAddr,affiliate,meta)
-		}catch(e){
-			growl.addErrorMessage(e)
-			return
-		}
+      meta.products.push({
+        id: product.id,
+        name: product.name,
+        quantity: product.quantity
+      })
 
-		if(productsTotal.lessThan($scope.store.minTotal.in(currency))){
-			growl.addErrorMessage('You must order at least '+$scope.store.minTotal.formattedIn(user.getCurrency())+' of products')
-			return
-		}
+      productsTotal = productsTotal.plus(product.price.in(currency).times(product.quantity))
+    })
 
-		var value = $scope.total.in('WEI').ceil()
+    try {
+      Order.check(buyer, storeAddr, submarketAddr, affiliate, meta)
+    } catch (e) {
+      growl.addErrorMessage(e)
+      return
+    }
 
-		Order.create(buyer,storeAddr,submarketAddr,affiliate,meta,value).then(function(order){
-			window.location.hash = "#/orders/"+order.addr
-			user.addOrder(order.addr)
-			user.save()
-		})
+    if (productsTotal.lessThan($scope.store.minTotal.in(currency))) {
+      growl.addErrorMessage(`You must order at least ${$scope.store.minTotal.formattedIn(user.getCurrency())} of products`)
+      return
+    }
 
-	}
+    const value = $scope.total.in('WEI').ceil()
 
-	$scope.$watch('store.products',function(products){
+    Order.create(buyer, storeAddr, submarketAddr, affiliate, meta, value).then((order) => {
+      window.location.hash = `#/orders/${order.addr}`
+      user.addOrder(order.addr)
+      user.save()
+    })
 
-		
-		$scope.productsTotal = new Coinage(0,currency)
+  }
 
-		if(!products) return
+  $scope.$watch('store.products', (products) => {
 
-		var productsTotal = web3.toBigNumber(0)
-		
-		products.forEach(function(product){
-			var subtotal = product.price.in(currency).times(product.quantity)
-			productsTotal = productsTotal.plus(subtotal)
-		})
+    $scope.productsTotal = new Coinage(0, currency)
 
-		$scope.productsTotal = new Coinage(productsTotal,currency)
+    if (!products) {
+      return
+    }
 
-	},true)
+    let productsTotal = web3.toBigNumber(0)
 
-	$scope.$watchGroup(['submarketOption','productsTotal','transport'],function(){
+    products.forEach((product) => {
+      const subtotal = product.price.in(currency).times(product.quantity)
+      productsTotal = productsTotal.plus(subtotal)
+    })
 
-		if(!$scope.transport) return
+    $scope.productsTotal = new Coinage(productsTotal, currency)
 
-		var fee = $scope.productsTotal.in(currency).plus($scope.transport.price.in(currency)).times($scope.submarketOption.escrowFeeCentiperun).div(100)
-		
-		$scope.fee = new Coinage(fee,currency)
-		
-		var total = $scope.productsTotal.in(currency).plus($scope.transport.price.in(currency)).plus($scope.fee.in(currency))
-	
-		$scope.total = new Coinage(total,currency)
-	})
+  }, true)
 
-});
+  $scope.$watchGroup(['submarketOption', 'productsTotal', 'transport'], () => {
+
+    if (!$scope.transport) {
+      return
+    }
+
+    const fee =
+      $scope.productsTotal.in(currency)
+        .plus($scope.transport.price.in(currency))
+        .times($scope.submarketOption.escrowFeeCentiperun)
+        .div(100)
+
+    $scope.fee = new Coinage(fee, currency)
+
+    const total =
+      $scope.productsTotal.in(currency)
+        .plus($scope.transport.price.in(currency))
+        .plus($scope.fee.in(currency))
+
+    $scope.total = new Coinage(total, currency)
+  })
+
+})

@@ -1,27 +1,31 @@
-angular.module('app').factory('Affiliate',function(AffiliateReg,txMonitor,$q,growl,utils){
-	function Affiliate(code){
-		this.code = code
-		this.update()
-	}
+/* globals angular */
 
-	Affiliate.create = function(code,owner,coinbase){
-		return txMonitor.propose('Create an Affiliate',AffiliateReg.addAffiliate,[code,owner,coinbase])
-	}
+angular.module('app').factory('Affiliate', (AffiliateReg, txMonitor) => {
 
-	Affiliate.prototype.update = function(){
-		var affiliateParams = AffiliateReg.getAffiliateParams(this.code)
-		this.isDeleted = !AffiliateReg.getIsCodeTaken(this.code)
-		this.owner = affiliateParams[0]
-		this.coinbase = affiliateParams[1]
-	}
+  function Affiliate(code) {
+    this.code = code
+    this.update()
+  }
 
-	Affiliate.prototype.set = function(owner,coinbase){
-		return txMonitor.propose('Edit an Affiliate',AffiliateReg.setAffilliate,[this.code,owner,coinbase])
-	}
+  Affiliate.create = function createAffiliate(code, owner, coinbase) {
+    return txMonitor.propose('Create an Affiliate', AffiliateReg.addAffiliate, [code, owner, coinbase])
+  }
 
-	Affiliate.prototype.delete = function(){
-		return txMonitor.propose('Delete an Affiliate',AffiliateReg.abandonAffiliate,[this.code])
-	}
+  Affiliate.prototype.update = function updateAffiliate() {
+    const affiliateParams = AffiliateReg.getAffiliateParams(this.code)
+    this.isDeleted = !AffiliateReg.getIsCodeTaken(this.code)
+    this.owner = affiliateParams[0]
+    this.coinbase = affiliateParams[1]
+  }
 
-	return Affiliate
-});
+  Affiliate.prototype.set = function setAffiliate(owner, coinbase) {
+    return txMonitor.propose('Edit an Affiliate', AffiliateReg.setAffilliate, [this.code, owner, coinbase])
+  }
+
+  Affiliate.prototype.delete = function deleteAffiliate() {
+    return txMonitor.propose('Delete an Affiliate', AffiliateReg.abandonAffiliate, [this.code])
+  }
+
+  return Affiliate
+
+})

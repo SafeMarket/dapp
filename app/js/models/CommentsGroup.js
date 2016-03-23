@@ -1,81 +1,83 @@
-(function(){
+/* globals angular, web3 */
 
-angular.module('app').factory('CommentsGroup',function($q,utils){
-	function CommentsGroup(id,forum){
-		var commentsGroup = this
-		this.id = id
-		this.forum = forum
-		this.comments = []
-		this.updatePromise = this.update()
-	}
+angular.module('app').factory('CommentsGroup', ($q, utils) => {
 
-	CommentsGroup.prototype.addComment = function(parentId,text){
-		var commentsGroup = this
-			,deferred = $q.defer()
-			,txHex = this.forum.contract.addComment(parentId,text,{gas:this.forum.contract.addComment.estimateGas(parentId,text)})
+  function CommentsGroup(id, forum) {
+    this.id = id
+    this.forum = forum
+    this.comments = []
+    this.updatePromise = this.update()
+  }
 
-		utils.waitForTx(txHex).then(function(tx){
-			deferred.resolve()
-		},function(error){
-			deferred.reject(error)
-		})
+  CommentsGroup.prototype.addComment = function addCommentsGroupComment(parentId, text) {
 
-		return deferred.promise
-	}
+    const deferred = $q.defer()
+    const txHex = this.forum.contract.addComment(parentId, text, {
+      gas: this.forum.contract.addComment.estimateGas(parentId, text)
+    })
 
-	CommentsGroup.prototype.addCommentAs = function(parentId,text,addr){
-		var commentsGroup = this
-			,deferred = $q.defer()
-			,contract = utils.getContract(addr)
-			,forumAddr = this.forum.contract.address
-			,txHex = contract.addComment(forumAddr,parentId,text,{
-				gas:contract.addComment.estimateGas(forumAddr,parentId,text)+this.forum.contract.addComment.estimateGas(parentId,text)
-			})
+    utils.waitForTx(txHex).then(() => {
+      deferred.resolve()
+    }, (error) => {
+      deferred.reject(error)
+    })
 
-		utils.waitForTx(txHex).then(function(tx){
-			deferred.resolve()
-		},function(error){
-			deferred.reject(error)
-		})
+    return deferred.promise
+  }
 
-		return deferred.promise
-	}
+  CommentsGroup.prototype.addCommentAs = function addCommentsGroupCommentAs(parentId, text, addr) {
+    const deferred = $q.defer()
+    const contract = utils.getContract(addr)
+    const forumAddr = this.forum.contract.address
+    const txHex = contract.addComment(forumAddr, parentId, text, {
+      gas: contract.addComment.estimateGas(forumAddr, parentId, text) + this.forum.contract.addComment.estimateGas(parentId, text)
+    })
 
-	CommentsGroup.prototype.update = function(){
-		var commentsGroup = this
-			,deferred = $q.defer()
-			,comments = []
+    utils.waitForTx(txHex).then(() => {
+      deferred.resolve()
+    }, (error) => {
+      deferred.reject(error)
+    })
 
-		this.forum.contract.Comment({parentId:this.id},{fromBlock: 0, toBlock: 'latest'}).get(function(error,results){
+    return deferred.promise
+  }
 
-			if(error)
-				return deferred.reject(error)
+  CommentsGroup.prototype.update = function updateCommentsGroup() {
 
-			results.forEach(function(result){
-				comment = new Comment(commentsGroup.forum,result);
-				if(comment.parentId === commentsGroup.id) comments.push(comment)
-			})
+    const commentsGroup = this
+    const deferred = $q.defer()
+    const comments = []
 
-			commentsGroup.comments = comments
-			deferred.resolve(commentsGroup)
-		})
+    this.forum.contract.Comment({
+      parentId: this.id
+    }, { fromBlock: 0, toBlock: 'latest' }).get((error, results) => {
 
-		return deferred.promise
-	}
+      if (error) {
+        return deferred.reject(error)
+      }
 
-	function Comment(forum,event){
+      results.forEach((result) => {
+        const comment = new Comment(commentsGroup.forum, result)
+        if (comment.parentId === commentsGroup.id) {
+          comments.push(comment)
+        }
+      })
 
-		var comment = this
+      commentsGroup.comments = comments
+      deferred.resolve(commentsGroup)
+    })
 
-		this.id = event.transactionHash
-		this.parentId = event.args.parentId
-		this.timestamp = web3.eth.getBlock(event.blockNumber).timestamp
-		this.author = event.args.author
-		this.text = web3.toAscii(event.args.data)
-		this.commentsGroup = new CommentsGroup(this.id,forum)
-	}
+    return deferred.promise
+  }
 
-	return CommentsGroup
+  function Comment(forum, event) {
+    this.id = event.transactionHash
+    this.parentId = event.args.parentId
+    this.timestamp = web3.eth.getBlock(event.blockNumber).timestamp
+    this.author = event.args.author
+    this.text = web3.toAscii(event.args.data)
+    this.commentsGroup = new CommentsGroup(this.id, forum)
+  }
+
+  return CommentsGroup
 })
-
-})();

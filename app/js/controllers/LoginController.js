@@ -1,46 +1,49 @@
-(function(){
+/* globals angular */
 
-angular.module('app').controller('LoginController',function($scope,$rootScope,user,growl,modals){
-	$rootScope.userExists = user.verifyExistence()
+angular.module('app').controller('LoginController', ($scope, $rootScope, user, growl, modals) => {
 
-	$scope.login = function(){
-		
-		if(!user.login($scope.password)){
-			growl.addErrorMessage('Sorry, thats not correct')
-			return
-		}
-		growl.addSuccessMessage('Login successful!')
-		window.location.hash = '/'
-	}
+  $rootScope.userExists = user.verifyExistence()
 
-	$scope.reset = function(){
-		if(!confirm('Are you sure? All SafeMarket data located on this computer will be destroyed and you will not be able to recover it.'))
-			return
+  $scope.login = function login() {
 
-		user.reset()
-		growl.addSuccessMessage('Account reset')
-	}
+    if (!user.login($scope.password)) {
+      growl.addErrorMessage('Sorry, thats not correct')
+      return
+    }
 
-	$scope.register = function(){
+    growl.addSuccessMessage('Login successful!')
+    window.location.hash = '/'
+  }
 
-		if(!$scope.password){
-			growl.addErrorMessage('You must choose a password')
-			return
-		}
-		
-		if($scope.password != $scope.password1){
-			growl.addErrorMessage('Passwords do not match')
-			return
-		}
+  $scope.reset = function reset() {
 
-		user.register($scope.password)
+    if (!confirm('Are you sure? All SafeMarket data located on this computer will be destroyed and you will not be able to recover it.')) {
+      return
+    }
 
-		growl.addSuccessMessage('Account created')
+    user.reset()
+    growl.addSuccessMessage('Account reset')
 
-		modals.openSettings()
-	}
+  }
+
+  $scope.register = function register() {
+
+    if (!$scope.password) {
+      growl.addErrorMessage('You must choose a password')
+      return
+    }
+
+    if ($scope.password !== $scope.password1) {
+      growl.addErrorMessage('Passwords do not match')
+      return
+    }
+
+    user.register($scope.password)
+
+    growl.addSuccessMessage('Account created')
+
+    modals.openSettings()
+
+  }
 
 })
-
-
-})();

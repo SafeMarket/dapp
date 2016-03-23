@@ -1,65 +1,69 @@
-angular.module('app').service('txMonitor',function($interval, $modal, $q, $modalStack){
-	
-	var txMonitor = this
-		,waitInterval
+/* globals angular, web3 */
 
-	this.txs = []
+angular.module('app').service('txMonitor', ($interval, $modal, $q, Tx) => {
 
-	this.getTx = function(txHex, duration, pause){
-		var tx = new Tx(txHex, duration, pause)
-		return tx
-	}
+  const txMonitor = this
+  let waitInterval
 
-	this.waitForTx = function(hex){
-		var deferred = $q.defer()
+  this.txs = []
 
-		waitInterval = $interval(function(){
+  this.getTx = function getTx(txHex, duration, pause) {
+    return new Tx(txHex, duration, pause)
+  }
 
-			var receipt = web3.eth.getTransactionReceipt(hex)
+  this.waitForTx = function waitForTx(hex) {
+    const deferred = $q.defer()
 
-			if(receipt){
-				$interval.cancel(waitInterval)
-				deferred.resolve(receipt)
-			}
+    waitInterval = $interval(() => {
 
-		},1000)
+      const receipt = web3.eth.getTransactionReceipt(hex)
 
-		return deferred.promise
-	}
+      if (receipt) {
+        $interval.cancel(waitInterval)
+        deferred.resolve(receipt)
+      }
+
+    }, 1000)
+
+    return deferred.promise
+  }
 
 
-	this.stopWaiting = function(){
-		$interval.cancel(waitInterval)
-	}
+  this.stopWaiting = function stopWaiting() {
+    $interval.cancel(waitInterval)
+  }
 
-	this.openModal = function(proposal){		
-		return $modal.open({
-			size: 'md'
-			,templateUrl: 'txMonitorModal.html'
-			,controller: 'TxMonitorModalController'
-			,resolve:{
-				proposal:function(){
-					return proposal
-				}
-			}
-	    });
-	}
+  this.openModal = function openModal(proposal){
+    return $modal.open({
+      size: 'md',
+      templateUrl: 'txMonitorModal.html',
+      controller: 'TxMonitorModalController',
+      resolve: {
+        proposal: function resolveProposal() {
+          return proposal
+        }
+      }
+    })
+  }
 
-	this.propose = function(label,contractFactoryOrFunction,args){
-		if(typeof label !== 'string')
-			throw('Label should be a string')
+  this.propose = function propose(label, contractFactoryOrFunction, args) {
 
-		var deferred = $q.defer()
-			,proposal = {
-				label: label
-				,contractFactoryOrFunction: contractFactoryOrFunction
-				,args: args
-			}
+    if (typeof label !== 'string') {
+      throw new Error('Label should be a string')
+    }
 
-		txMonitor.openModal(proposal).result.then(function(receipt){
-			deferred.resolve(receipt)
-		})
+    const deferred = $q.defer()
+    const proposal = {
+      label: label,
+      contractFactoryOrFunction: contractFactoryOrFunction,
+      args: args
+    }
 
-		return deferred.promise
-	}
-});
+    txMonitor.openModal(proposal).result.then((receipt) => {
+      deferred.resolve(receipt)
+    })
+
+    return deferred.promise
+  }
+
+})

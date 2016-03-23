@@ -1,74 +1,88 @@
-(function(){
+/* globals angular, web3 */
 
-angular.module('app').controller('PaymentModalController',function($scope,addr,amount,currency,utils,user,growl,$modalInstance,txMonitor){
-	$scope.addr = addr
-	$scope.userCurrency = user.getCurrency()
+angular.module('app').controller('PaymentModalController', ($scope, addr, amount, currency, utils, user, growl, $modalInstance, txMonitor) => {
 
-	$scope.displayCurrencies = []
-	if($scope.userCurrency!=='ETH')
-		$scope.displayCurrencies.push('ETH')
+  $scope.addr = addr
+  $scope.userCurrency = user.getCurrency()
 
-	if(amount.greaterThan(0))
-		$scope.amountInUserCurrency = utils.convertCurrencyAndFormat(amount,{from:currency,to:user.getCurrency()})
-	else
-		$scope.amountInUserCurrency = '0'
+  $scope.displayCurrencies = []
 
-	if(user.getCurrency() !=='ETH'){
-		$scope.$watch('amountInUserCurrency',function(amountInUserCurrency){
-			$scope.amountInEther = utils.convertCurrencyAndFormat(amountInUserCurrency,{
-				from:user.getCurrency()
-				,to:'ETH'
-			})
-		})
+  if ($scope.userCurrency !== 'ETH') {
+    $scope.displayCurrencies.push('ETH')
+  }
 
-		$scope.$watch('amountInEther',function(amountInEther){
-			$scope.amountInUserCurrency = utils.convertCurrencyAndFormat(amountInEther,{
-				from:'ETH'
-				,to:user.getCurrency()
-			})
-		})
-	}
+  if (amount.greaterThan(0)) {
+    $scope.amountInUserCurrency = utils.convertCurrencyAndFormat(amount, {
+      from: currency,
+      to: user.getCurrency()
+    })
+  } else {
+    $scope.amountInUserCurrency = '0'
+  }
 
-	$scope.cancel = function(){
-		$modalInstance.dismiss('cancel')
-	}
+  if (user.getCurrency() !== 'ETH') {
 
-	$scope.submit = function(){
-		try{
-			utils.check({
-				addr:$scope.addr
-				,amountInUserCurrency:$scope.amountInUserCurrency
-			},{
-				addr:{
-					presence:true
-					,type:'address'
-				},amountInUserCurrency:{
-					presence:true
-					,type:'string'
-					,numericality:{
-						greaterThan:0
-					}
-				}
-			})
-		}catch(e){
-			return growl.addErrorMessage(e)
-		}
+    $scope.$watch('amountInUserCurrency', (amountInUserCurrency) => {
+      $scope.amountInEther = utils.convertCurrencyAndFormat(amountInUserCurrency, {
+        from: user.getCurrency(),
+        to: 'ETH'
+      })
+    })
 
-		var amount = utils.convertCurrency($scope.amountInUserCurrency,{from:user.getCurrency(),to:'WEI'})
-			,txObject = {
-				value:amount.toNumber()
-				,to:addr
-			}
+    $scope.$watch('amountInEther', (amountInEther) => {
+      $scope.amountInUserCurrency = utils.convertCurrencyAndFormat(amountInEther, {
+        from: 'ETH',
+        to: user.getCurrency()
+      })
+    })
 
-		txObject.gas = web3.eth.estimateGas(txObject)
+  }
 
-		txMonitor.propose('Make a Payment',web3.eth.sendTransaction,[txObject]).then(function(){
-			$scope.balance = user.getBalance()
-			$scope.transferAmountInUserCurrency = 0
-		}).then(function(){
-			$modalInstance.close()
-		})
-	}
+  $scope.cancel = function cancel() {
+    $modalInstance.dismiss('cancel')
+  }
+
+  $scope.submit = function submit() {
+
+    try {
+      utils.check({
+        addr: $scope.addr,
+        amountInUserCurrency: $scope.amountInUserCurrency
+      }, {
+        addr: {
+          presence: true,
+          type: 'address'
+        },
+        amountInUserCurrency: {
+          presence: true,
+          type: 'string',
+          numericality: {
+            greaterThan: 0
+          }
+        }
+      })
+    } catch (e) {
+      growl.addErrorMessage(e)
+      return
+    }
+
+    const _amount = utils.convertCurrency($scope.amountInUserCurrency, {
+      from: user.getCurrency(),
+      to: 'WEI'
+    })
+
+    const txObject = {
+      value: _amount.toNumber(),
+      to: addr
+    }
+
+    txObject.gas = web3.eth.estimateGas(txObject)
+
+    txMonitor.propose('Make a Payment', web3.eth.sendTransaction, [txObject]).then(() => {
+      $scope.balance = user.getBalance()
+      $scope.transferAmountInUserCurrency = 0
+    }).then(() => {
+      $modalInstance.close()
+    })
+  }
 })
-
-})();

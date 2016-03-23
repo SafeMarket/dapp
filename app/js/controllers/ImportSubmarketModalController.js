@@ -1,41 +1,41 @@
-(function(){
+/* globals angular */
 
-angular.module('app').controller('ImportSubmarketModalController',function($scope,$modalInstance,growl,user,utils,AliasReg){
+angular.module('app').controller('ImportSubmarketModalController', ($scope, $modalInstance, growl, user, utils, AliasReg, Submarket) => {
 
+  $scope.cancel = function cancel() {
+    $modalInstance.dismiss('cancel')
+  }
 
-	$scope.cancel = function(){
-		$modalInstance.dismiss('cancel')
-	}
+  $scope.submit = function submit() {
 
-	$scope.submit = function(){
-		try{
-			utils.check({
-				alias:$scope.alias
-			},{
-				alias:{
-					presence:true
-					,type:'alias'
-					,aliasOfContract:'Submarket'
-				}
-			})
-		}catch(e){
-			return growl.addErrorMessage(e)
-		}
+    try {
+      utils.check({
+        alias: $scope.alias
+      }, {
+        alias: {
+          presence: true,
+          type: 'alias',
+          aliasOfContract: 'Submarket'
+        }
+      })
+    } catch (e) {
+      growl.addErrorMessage(e)
+      return
+    }
 
-		var submarketAddr = AliasReg.getAddr($scope.alias)
-			,submarket = new Submarket(submarketAddr)
+    const submarketAddr = AliasReg.getAddr($scope.alias)
+    const submarket = new Submarket(submarketAddr)
 
-		if(submarket.owner !== user.getAccount())
-			return growl.addErrorMessage('You are not the owner of that submarket')
+    if (submarket.owner !== user.getAccount()) {
+      growl.addErrorMessage('You are not the owner of that submarket')
+      return
+    }
 
-		user.addSubmarket(submarketAddr)
-		user.save()
+    user.addSubmarket(submarketAddr)
+    user.save()
 
-		$modalInstance.close()
+    $modalInstance.close()
 
-	}
+  }
 
 })
-
-
-})();

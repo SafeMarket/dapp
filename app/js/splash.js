@@ -1,46 +1,47 @@
-(function(){
+/* globals angular, web3, blockchain, Web3 */
 
-var splash = angular.module('splash',[]);
+angular.module('splash', [])
 
-splash.run(function($timeout,$rootScope,$interval){
+angular.module('splash').run(($timeout, $rootScope, $interval) => {
+  let isAppBootstrapped = false
+  let firstBlock = undefined
 
-	var isAppBootstrapped = false
-		,firstBlock
+  function checkConnection() {
+    $rootScope.isConnected = web3.isConnected()
 
-	function checkConnection(){
-        $rootScope.isConnected = web3.isConnected()
-
-        if(!$rootScope.isConnected) return
-
-        $rootScope.syncing = web3.eth.syncing || blockchain.env == 'development'
-
-        $rootScope.isSynced = 
-        	($rootScope.syncing && $rootScope.syncing.currentBlock === $rootScope.syncing.highestBlock)
-        	|| (!$rootScope.syncing && web3.eth.blockNumber>firstBlock);
-
-        if(!firstBlock) firstBlock = web3.eth.blockNumber
-
-        if(!isAppBootstrapped && $rootScope.isSynced){
-        	isAppBootstrapped = true
-        	angular.bootstrap(document.getElementById('app'),['app'])
-        }
-
+    if (!$rootScope.isConnected) {
+      return
     }
 
-	function startup(){
-	    try{
-	    	window.web3 = new Web3
-	        web3.setProvider(new web3.providers.HttpProvider('http://127.0.0.1:'+blockchain.rpcport));
-	    }catch(e){
-	        setTimeout(startup,1000)
-	        return
-	    };
+    $rootScope.syncing = web3.eth.syncing || blockchain.env === 'development'
 
-	    checkConnection()
-	    $interval(checkConnection,1000)
-	}
+    $rootScope.isSynced =
+      ($rootScope.syncing && $rootScope.syncing.currentBlock === $rootScope.syncing.highestBlock)
+      || (!$rootScope.syncing && web3.eth.blockNumber > firstBlock)
 
-	startup()
+    if (!firstBlock) {
+      firstBlock = web3.eth.blockNumber
+    }
+
+    if (!isAppBootstrapped && $rootScope.isSynced) {
+      isAppBootstrapped = true
+      angular.bootstrap(document.getElementById('app'), ['app'])
+    }
+  }
+
+  function startup() {
+    try {
+      window.web3 = new Web3
+      web3.setProvider(new web3.providers.HttpProvider(`http://127.0.0.1:${blockchain.rpcport}`))
+    } catch (e) {
+      setTimeout(startup, 1000)
+      return
+    }
+
+    checkConnection()
+    $interval(checkConnection, 1000)
+  }
+
+  startup()
+
 })
-
-})();

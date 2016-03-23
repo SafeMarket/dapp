@@ -1,97 +1,87 @@
-angular.module('app').controller('SubmarketModalController',function($scope,ticker,growl,$modal,$modalInstance,submarket,user,helpers,utils,SubmarketReg,AliasReg,ticker,constants){
-	
-	$scope.stores = []
+/* globals angular, web3 */
 
-	$scope.currencies = Object.keys(ticker.rates)
+angular.module('app').controller('SubmarketModalController', ($scope, ticker, growl, $modal, $modalInstance, submarket, user, helpers, utils, SubmarketReg, AliasReg, constants, Submarket) => {
 
-	if(submarket){
-		$scope.alias = submarket.alias
-		$scope.currency = submarket.currency
-		$scope.isEditing = true
-		$scope.name = submarket.meta.data.name
-		$scope.info = submarket.meta.data.info
-		$scope.escrowFeeCentiperun = submarket.infosphered.data.escrowFeeCentiperun.toNumber()
-		$scope.isOpen = submarket.infosphered.data.isOpen
-		$scope.minTotal = submarket.infosphered.data.minTotal.div(constants.tera)
+  $scope.stores = []
 
-		if(submarket.meta.data.storeAddrs)
-			submarket.meta.data.storeAddrs.forEach(function(storeAddr){
-				$scope.stores.push({alias:utils.getAlias(storeAddr)})
-			})
-	}else{
-		$scope.currency = user.getCurrency()
-		$scope.escrowFeeCentiperun = 3
-		$scope.stores = []
-		$scope.isOpen = true
-		$scope.minTotal = 0
-	}
+  $scope.currencies = Object.keys(ticker.rates)
 
-	$scope.cancel = function(){
-		$modalInstance.dismiss('cancel')
-	}
+  if (submarket) {
+    $scope.alias = submarket.alias
+    $scope.currency = submarket.currency
+    $scope.isEditing = true
+    $scope.name = submarket.meta.data.name
+    $scope.info = submarket.meta.data.info
+    $scope.escrowFeeCentiperun = submarket.infosphered.data.escrowFeeCentiperun.toNumber()
+    $scope.isOpen = submarket.infosphered.data.isOpen
+    $scope.minTotal = submarket.infosphered.data.minTotal.div(constants.tera)
 
-	$scope.submit = function(){
-		var alias = $scope.alias
-			,meta = {
-				name:$scope.name
-				,info:$scope.info
-				,storeAddrs:[]
-			}
-			,isOpen=!!$scope.isOpen
+    if (submarket.meta.data.storeAddrs) {
+      submarket.meta.data.storeAddrs.forEach((storeAddr) => {
+        $scope.stores.push({ alias: utils.getAlias(storeAddr) })
+      })
+    }
+  } else {
+    $scope.currency = user.getCurrency()
+    $scope.escrowFeeCentiperun = 3
+    $scope.stores = []
+    $scope.isOpen = true
+    $scope.minTotal = 0
+  }
 
-		$scope.stores.forEach(function(store){
-			meta.storeAddrs.push(AliasReg.getAddr(store.alias))
-		})
-		
-		try{
-			Submarket.check(alias,meta)
-		}catch(e){
-			growl.addErrorMessage(e)
-			return
-		}
+  $scope.cancel = function cancel() {
+    $modalInstance.dismiss('cancel')
+  }
 
-		if(submarket){
+  $scope.submit = function submit() {
+    const alias = $scope.alias
+    const meta = {
+      name: $scope.name,
+      info: $scope.info,
+      storeAddrs: []
+    }
+    const isOpen = !!$scope.isOpen
 
-			submarket
-				.set(
-					{
-						isOpen: isOpen
-						,currency: $scope.currency
-						,minTotal: (web3.toBigNumber($scope.minTotal)).times(constants.tera)
-						,escrowFeeCentiperun: $scope.escrowFeeCentiperun
-					}
-					,meta
-					,$scope.alias
-				)
-				.then(function(submarket){
-					$modalInstance.close(submarket)
-				},function(error){
-					$scope.error = error
-				}).catch(function(error){
-					console.error(error)
-				})
-		}else{
+    $scope.stores.forEach((store) => {
+      meta.storeAddrs.push(AliasReg.getAddr(store.alias))
+    })
 
-			if(!utils.isAliasAvailable(alias)){
-				return growl.addErrorMessage('The alias "'+alias+'" is taken')
-			}
+    try {
+      Submarket.check(alias, meta)
+    } catch (e) {
+      growl.addErrorMessage(e)
+      return
+    }
 
-			console.log(meta)
+    if (submarket) {
 
-			Submarket.create(isOpen, $scope.currency, $scope.minTotal, $scope.escrowFeeCentiperun, meta, $scope.alias)
-				.then(function(submarket){
-					user.addSubmarket(submarket.addr)
-					user.save()
-					$modalInstance.dismiss()
-				},function(error){
-					$scope.error = error
-				}).catch(function(error){
-					console.error(error)
-				})
+      submarket
+        .set({
+          isOpen: isOpen,
+          currency: $scope.currency,
+          minTotal: (web3.toBigNumber($scope.minTotal)).times(constants.tera),
+          escrowFeeCentiperun: $scope.escrowFeeCentiperun
+        }, meta, $scope.alias).then((_submarket) => {
+          $modalInstance.close(_submarket)
+        }, (error) => {
+          $scope.error = error
+        })
 
-		}
+    } else {
 
-	
+      if (!utils.isAliasAvailable(alias)) {
+        return growl.addErrorMessage(`The alias ${alias} is taken`)
+      }
 
-	}
-});
+      Submarket
+        .create(isOpen, $scope.currency, $scope.minTotal, $scope.escrowFeeCentiperun, meta, $scope.alias)
+        .then((_submarket) => {
+          user.addSubmarket(_submarket.addr)
+          user.save()
+          $modalInstance.dismiss()
+        }, (error) => {
+          $scope.error = error
+        })
+    }
+  }
+})

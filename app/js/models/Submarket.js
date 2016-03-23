@@ -1,159 +1,159 @@
-angular.module('app').factory('Submarket',function(utils,ticker,$q,Store,Key,Forum,txMonitor,AliasReg,SubmarketReg,Infosphered,Meta){
+/* globals angular, contracts, web3 */
 
-function Submarket(addr,isDeep){
-	this.addr = addr
-	this.isDeep = !!isDeep
-	this.alias = utils.getAlias(addr)
-	this.contract = this.contractFactory.at(addr)
-	this.meta = new Meta(this.contract)
-	this.infosphered = new Infosphered(this.contract,this.infospheredTypes)
-	this.updatePromise = this.update()
-}
+angular.module('app').factory('Submarket', (utils, ticker, $q, Store, Key, Forum, txMonitor, AliasReg, SubmarketReg, Infosphered, Meta) => {
 
-window.Submarket = Submarket
+  function Submarket(addr, isDeep) {
+    this.addr = addr
+    this.isDeep = !!isDeep
+    this.alias = utils.getAlias(addr)
+    this.contract = this.contractFactory.at(addr)
+    this.meta = new Meta(this.contract)
+    this.infosphered = new Infosphered(this.contract, this.infospheredTypes)
+    this.updatePromise = this.update()
+  }
 
-Submarket.prototype.bytecode = Submarket.bytecode = contracts.Submarket.bytecode
-Submarket.prototype.runtimeBytecode = Submarket.runtimeBytecode = utils.runtimeBytecodes.Submarket
-Submarket.prototype.abi = Submarket.abi = contracts.Submarket.abi
-Submarket.prototype.contractFactory = Submarket.contractFactory = web3.eth.contract(Submarket.abi)
-Submarket.prototype.infospheredTypes = Submarket.infospheredTypes = {
-	'isOpen':'bool'
-	,'currency':'bytes32'
-	,'minTotal':'uint'
-	,'escrowFeeCentiperun':'uint'
-}
+  window.Submarket = Submarket
 
-Submarket.create = function(isOpen, currency, minTotal, escrowFeeCentiperun, meta, alias){
+  Submarket.prototype.bytecode = Submarket.bytecode = contracts.Submarket.bytecode
+  Submarket.prototype.runtimeBytecode = Submarket.runtimeBytecode = utils.runtimeBytecodes.Submarket
+  Submarket.prototype.abi = Submarket.abi = contracts.Submarket.abi
+  Submarket.prototype.contractFactory = Submarket.contractFactory = web3.eth.contract(Submarket.abi)
+  Submarket.prototype.infospheredTypes = Submarket.infospheredTypes = {
+    isOpen: 'bool',
+    currency: 'bytes32',
+    minTotal: 'uint',
+    escrowFeeCentiperun: 'uint'
+  }
 
-	var meta = utils.convertObjectToHex(meta)
-		,minTotal = web3.toBigNumber(minTotal)
-		,escrowFeeCentiperun = web3.toBigNumber(escrowFeeCentiperun)
-		,deferred = $q.defer()
+  Submarket.create = function createSubmarket(isOpen, currency, minTotal, escrowFeeCentiperun, meta, alias) {
 
-	console.log(meta)
+    meta = utils.convertObjectToHex(meta)
+    minTotal = web3.toBigNumber(minTotal)
+    escrowFeeCentiperun = web3.toBigNumber(escrowFeeCentiperun)
 
-	txMonitor.propose(
-		'Create a New Submarket'
-		,SubmarketReg.create
-		,[isOpen, currency, minTotal, escrowFeeCentiperun, meta, alias]
-	).then(function(txReciept){
-		var contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
-		deferred.resolve(new Submarket(contractAddress))
-	})
+    const deferred = $q.defer()
 
-	return deferred.promise
-}
+    txMonitor.propose(
+      'Create a New Submarket',
+      SubmarketReg.create,
+      [isOpen, currency, minTotal, escrowFeeCentiperun, meta, alias]
+    ).then((txReciept) => {
+      const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
+      deferred.resolve(new Submarket(contractAddress))
+    })
 
-Submarket.check = function(alias,meta){
+    return deferred.promise
+  }
 
-	utils.check({alias:alias},{
-		alias:{
-			presence:true
-			,type:'alias'
-		}
-	})
+  Submarket.check = function checkSubmarket(alias, meta) {
 
-	utils.check(meta,{
-		name:{
-			presence:true
-			,type:'string'
-		},info:{
-			type:'string'
-		},storeAddrs:{
-			exists:true
-			,type:'array'
-			,unique:true
-		}
-	})
+    utils.check({ alias: alias }, {
+      alias: {
+        presence: true,
+        type: 'alias'
+      }
+    })
 
-	meta.storeAddrs.forEach(function(storeAddr){
-		utils.check({
-			addr:storeAddr
-		},{
-			addr:{
-				presence:true
-				,type:'address'
-				,addrOfContract:'Store'
-			}
-		})
+    utils.check(meta, {
+      name: {
+        presence: true,
+        type: 'string'
+      }, info: {
+        type: 'string'
+      }, storeAddrs: {
+        exists: true,
+        type: 'array',
+        unique: true
+      }
+    })
 
-	})
-}
+    meta.storeAddrs.forEach((storeAddr) => {
+      utils.check({
+        addr: storeAddr
+      }, {
+        addr: {
+          presence: true,
+          type: 'address',
+          addrOfContract: 'Store'
+        }
+      })
 
-
-Submarket.prototype.set = function(infospheredData, metaData){
-
-	var deferred = $q.defer()
-		,infospheredCalls = this.infosphered.getMartyrCalls(infospheredData)
-		,metaCalls = this.meta.getMartyrCalls(metaData)
-		,allCalls = infospheredCalls.concat(metaCalls)
-
-	var data = utils.getMartyrData(allCalls)
-	console.log(data)
-
-	txMonitor.propose('Update Submarket',web3.eth.sendTransaction,[{
-		data:data
-		,gas:web3.eth.estimateGas({data:data})*4 
-	}]).then(function(txReciept){
-		console.log(txReciept)
-		deferred.resolve(txReciept)
-	},function(txReciept){
-		deferred.reject()
-	})
-
-	return deferred.promise
-}
-
-Submarket.prototype.getEvents = function(eventName,fromBlock,toBlock){
-	var deferred = $q.defer()
-		,fromBlock = fromBlock || 0
-		,toBlock = toBlock || 'lastest'
-
-	this.contract[eventName]({},{fromBlock:fromBlock,toBlock:toBlock}).get(function(error,results){
-		if(error)
-			deferred.reject(error)
-		else
-			deferred.resolve(results)
-	})
-
-	return deferred.promise
-}
+    })
+  }
 
 
-Submarket.prototype.update = function(){
-	var deferred = $q.defer()
-		,submarket = this
+  Submarket.prototype.set = function setSubmarket(infospheredData, metaData) {
 
-	this.owner = this.contract.owner()
-	this.forumAddr = this.contract.forumAddr()
+    const deferred = $q.defer()
+    const infospheredCalls = this.infosphered.getMartyrCalls(infospheredData)
+    const metaCalls = this.meta.getMartyrCalls(metaData)
+    const allCalls = infospheredCalls.concat(metaCalls)
+    const data = utils.getMartyrData(allCalls)
 
-	this.stores = []
-	this.forum = new Forum(this.forumAddr)
+    txMonitor.propose('Update Submarket', web3.eth.sendTransaction, [{
+      data: data,
+      gas: web3.eth.estimateGas({ data: data }) * 4
+    }]).then((txReciept) => {
+      deferred.resolve(txReciept)
+    }, (err) => {
+      deferred.reject(err)
+    })
 
-	this.infosphered.update()
+    return deferred.promise
+  }
 
-	this.currency = utils.toAscii(this.infosphered.data.currency)
+  Submarket.prototype.getEvents = function getSubmarketEvents(eventName, fromBlock, toBlock) {
+    const deferred = $q.defer()
+    fromBlock = fromBlock || 0
+    toBlock = toBlock || 'lastest'
 
-	this.meta.update().then(function(meta){
+    this.contract[eventName]({}, { fromBlock: fromBlock, toBlock: toBlock }).get((error, results) => {
+      if (error) {
+        deferred.reject(error)
+      } else {
+        deferred.resolve(results)
+      }
+    })
 
-		submarket.info = utils.sanitize(meta.data.info || '')
-
-		if(submarket.isDeep)
-			meta.data.storeAddrs.forEach(function(storeAddr){
-				submarket.stores.push(new Store(storeAddr))
-			})
-
-		deferred.resolve(submarket)
-	})
+    return deferred.promise
+  }
 
 
-	Key.fetch(this.owner).then(function(key){
-		submarket.key = key
-	})
+  Submarket.prototype.update = function updateSubmarket() {
+    const deferred = $q.defer()
+    const submarket = this
 
-	return deferred.promise
-}
+    this.owner = this.contract.owner()
+    this.forumAddr = this.contract.forumAddr()
 
-return Submarket
+    this.stores = []
+    this.forum = new Forum(this.forumAddr)
 
-});
+    this.infosphered.update()
+
+    this.currency = utils.toAscii(this.infosphered.data.currency)
+
+    this.meta.update().then((meta) => {
+
+      submarket.info = utils.sanitize(meta.data.info || '')
+
+      if (submarket.isDeep) {
+        meta.data.storeAddrs.forEach((storeAddr) => {
+          submarket.stores.push(new Store(storeAddr))
+        })
+      }
+
+      deferred.resolve(submarket)
+    })
+
+
+    Key.fetch(this.owner).then((key) => {
+      submarket.key = key
+    })
+
+    return deferred.promise
+  }
+
+  return Submarket
+
+})

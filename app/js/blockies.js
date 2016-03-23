@@ -1,4 +1,4 @@
-(function() {
+;(function() {
 	// The random number is a js implementation of the Xorshift PRNG
 	var randseed = new Array(4); // Xorshift: [x, y, z, w] 32 bit values
 

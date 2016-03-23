@@ -1,26 +1,30 @@
-angular.module('app').factory('Coinage',function(utils){
+/* globals angular, web3 */
 
-	function Coinage(value,currency){
-		if(!currency)
-			throw "Missing Coinage currency"
-		this.values = {}
-		this.currency = currency
-		this.values[currency] = web3.toBigNumber(value)
-	}
+angular.module('app').factory('Coinage', (utils) => {
 
-	Coinage.prototype.in = function(currency){
+  function Coinage(value, currency) {
+    if (!currency) {
+      throw new Error('Missing Coinage currency')
+    }
+    this.values = {}
+    this.currency = currency
+    this.values[currency] = web3.toBigNumber(value)
+  }
 
-		if(this.values[currency])
-			return this.values[currency]
+  Coinage.prototype.in = function coinageIn(currency) {
 
-		this.values[currency] = utils.convertCurrency(this.values[this.currency],{from:this.currency,to:currency})
-		return this.values[currency]
-	}
+    if (this.values[currency]) {
+      return this.values[currency]
+    }
 
-	Coinage.prototype.formattedIn = function(currency){
-		return utils.formatCurrency(this.in(currency),currency,true)
-	}
+    this.values[currency] = utils.convertCurrency(this.values[this.currency], { from: this.currency, to: currency })
+    return this.values[currency]
+  }
 
-	return Coinage
+  Coinage.prototype.formattedIn = function coinageFormattedIn(currency) {
+    return utils.formatCurrency(this.in(currency), currency, true)
+  }
 
-});
+  return Coinage
+
+})

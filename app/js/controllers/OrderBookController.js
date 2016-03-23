@@ -1,11 +1,11 @@
-(function(){
+/* globals angular */
 
-angular.module('app').controller('OrderBookController',function($scope,OrderBookEntry){
-	$scope.orderBookEntries = []
+angular.module('app').controller('OrderBookController', ($scope, OrderBookEntry) => {
 
-	OrderBookEntry.fetch($scope.filter).then(function(orderBookEntries){
-		$scope.orderBookEntries = orderBookEntries
-	});
+  $scope.orderBookEntries = []
+
+  OrderBookEntry.fetch($scope.filter).then((orderBookEntries) => {
+    $scope.orderBookEntries = orderBookEntries
+  })
+
 })
-
-})();

@@ -1,52 +1,52 @@
-(function(){
-	angular.module('app').controller('MainController',function($scope,$timeout,$rootScope,modals,user,growl){
+/* globals angular */
 
-		$scope.$watch('account',function(){
-			$rootScope.orderAddrs = user.getOrderAddrs()
-			$rootScope.storeAddrs = user.getStoreAddrs()
-			$rootScope.submarketAddrs = user.getSubmarketAddrs()
-		})
+angular.module('app').controller('MainController', ($scope, $timeout, $rootScope, modals, user) => {
 
-		$scope.goBack = function(){
-			window.history.back()
-		}
+  $scope.$watch('account', () => {
+    $rootScope.orderAddrs = user.getOrderAddrs()
+    $rootScope.storeAddrs = user.getStoreAddrs()
+    $rootScope.submarketAddrs = user.getSubmarketAddrs()
+  })
 
-		$scope.refresh = function(){
-			$scope.isRefreshing = true
-			$timeout(function(){
-				window.location.reload()
-			},300)
-		}
+  $scope.goBack = function goBack() {
+    window.history.back()
+  }
 
-		$scope.openSettingsModal = function(){
-			modals.openSettings()
-		}
+  $scope.refresh = function refresh() {
+    $scope.isRefreshing = true
+    $timeout(() => {
+      window.location.reload()
+    }, 300)
+  }
 
-		$scope.openStoreModal = function(){
-			user.verifyKeypair().then(function(){
-				modals.openStore()
-			})
-		}
+  $scope.openSettingsModal = function openSettingsModal() {
+    modals.openSettings()
+  }
 
-		$scope.openSubmarketModal = function(){
-			user.verifyKeypair().then(function(){
-				modals.openSubmarket()
-			})
-		}
+  $scope.openStoreModal = function openStoreModal() {
+    user.verifyKeypair().then(() => {
+      modals.openStore()
+    })
+  }
 
-		$scope.openImportStoreModal = function(){
-			modals.openImportStore()
-		}
+  $scope.openSubmarketModal = function openSubmarketModal() {
+    user.verifyKeypair().then(() => {
+      modals.openSubmarket()
+    })
+  }
 
-		$scope.openImportSubmarketModal = function(){
-			modals.openImportSubmarket()
-		}
+  $scope.openImportStoreModal = function openImportStoreModal() {
+    modals.openImportStore()
+  }
 
-		$scope.logout = function(){
-			user.logout()
-			$rootScope.isLoggedIn = false
-			window.location.hash="/login"
-		}
+  $scope.openImportSubmarketModal = function openImportSubmarketModal() {
+    modals.openImportSubmarket()
+  }
 
-	})
-})();
+  $scope.logout = function logout() {
+    user.logout()
+    $rootScope.isLoggedIn = false
+    window.location.hash = '/login'
+  }
+
+})

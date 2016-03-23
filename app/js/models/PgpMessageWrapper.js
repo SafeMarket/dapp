@@ -1,31 +1,37 @@
-(function(){
+/* globals angular */
 
-angular.module('app').factory('PgpMessageWrapper',function(){
-	function PgpMessageWrapper(ciphertext){
-		var pgpMessageWrapper = this
-			,packetlist = new openpgp.packet.List
+angular.module('app').factory('PgpMessageWrapper', (openpgp) => {
 
-		packetlist.read(ciphertext)
+  function PgpMessageWrapper(ciphertext) {
 
-		this.pgpMessage = openpgp.message.Message(packetlist)
-		this.pgpMessageArmored = this.pgpMessage.armor()
-		this.keyIds = []
-		this.text = null
+    const pgpMessageWrapper = this
+    const packetlist = new openpgp.packet.List
 
-		this.pgpMessage.packets.forEach(function(packet){
-			if(!packet.publicKeyId) return true
-			if(pgpMessageWrapper.keyIds.indexOf(packet.publicKeyId.bytes)>-1) return true
+    packetlist.read(ciphertext)
 
+    this.pgpMessage = openpgp.message.Message(packetlist)
+    this.pgpMessageArmored = this.pgpMessage.armor()
+    this.keyIds = []
+    this.text = null
 
-			pgpMessageWrapper.keyIds.push(packet.publicKeyId.bytes)
-		})
-	}
+    this.pgpMessage.packets.forEach((packet) => {
 
-	PgpMessageWrapper.prototype.decrypt = function(privateKey){
-		this.text = this.pgpMessage.decrypt(privateKey).packets[0].data
-	}
+      if (!packet.publicKeyId) {
+        return true
+      }
 
-	return PgpMessageWrapper
+      if (pgpMessageWrapper.keyIds.indexOf(packet.publicKeyId.bytes) > -1) {
+        return true
+      }
+
+      pgpMessageWrapper.keyIds.push(packet.publicKeyId.bytes)
+
+    })
+  }
+
+  PgpMessageWrapper.prototype.decrypt = function decryptPgpMessageWrapper(privateKey) {
+    this.text = this.pgpMessage.decrypt(privateKey).packets[0].data
+  }
+
+  return PgpMessageWrapper
 })
-
-})();

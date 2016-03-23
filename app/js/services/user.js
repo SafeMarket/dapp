@@ -1,370 +1,382 @@
-(function(){
+/* globals angular, blockchain, lightwallet, web3, _, CryptoJS, openpgp, HookedWeb3Provider */
 
-angular.module('app').service('user',function($q,$rootScope,words,pgp,Key,modals,growl,Affiliate){
+angular.module('app').service('user', ($q, $rootScope, words, pgp, Key, modals, growl, Affiliate, utils) => {
 
-	var user = this
-		,keystore
+  const user = this
+  let keystore
 
-	this.getSeed = function(){
-		if(blockchain.env=='development')
-			this.data.seed = 'gasp quote useless purity isolate truly scout baby rule nest bridge february'
+  this.getSeed = function getSeed() {
 
-		return this.data.seed
-	}
+    if (blockchain.env === 'development') {
+      this.data.seed = 'gasp quote useless purity isolate truly scout baby rule nest bridge february'
+    }
 
-	this.getKeystore = function(){
-		if(keystore) return keystore
+    return this.data.seed
+  }
 
-		var seed = this.getSeed()
-			,password = this.password
+  this.getKeystore = function getKeystore() {
 
-		if(!seed)
-			throw 'Seed not set'
+    if (keystore) {
+      return keystore
+    }
 
-		if(!password)
-			throw 'Password not set'
-		
-		keystore = new lightwallet.keystore(seed, password)
+    const seed = this.getSeed()
+    const password = this.password
 
-		keystore.passwordProvider = function (callback) {
-	  		callback(null, password);
-		};
+    if (!seed) {
+      throw new Error('Seed not set')
+    }
 
-		keystore.generateNewAddress(password, 20);
+    if (!password) {
+      throw new Error('Password not set')
+    }
 
-		return keystore
-	}
+    keystore = new lightwallet.keystore(seed, password)
 
-	this.getAccounts = function(){
+    keystore.passwordProvider = function passwordProvider(callback) {
+      callback(null, password)
+    }
 
-		return this.getKeystore().getAddresses().map(function(addr){
-			return '0x'+addr
-		});
+    keystore.generateNewAddress(password, 20)
 
-	}
+    return keystore
+  }
 
-	this.getData = function(){
-		if(!this.data)
-			this.data = {}
+  this.getAccounts = function getAccounts() {
 
-		return this.data
-	}
+    return this.getKeystore().getAddresses().map((addr) => {
+      return utils.hexify(addr)
+    })
 
-	this.getAccount = function(){
-		if(!this.getData().account)
-			this.getData().account = this.getAccounts()[0]
+  }
 
-		return this.getData().account
-	}
+  this.getData = function getData() {
+    if (!this.data) {
+      this.data = {}
+    }
 
-	this.setAccount = function(account){
-		web3.eth.defaultAccount = $rootScope.account = this.getData().account = account
-	}
+    return this.data
+  }
 
-	this.getCurrency = function(){
-		if(!this.getData().currency)
-			this.getData().currency = 'USD'
+  this.getAccount = function getAccount() {
+    if (!this.getData().account) {
+      this.getData().account = this.getAccounts()[0]
+    }
 
-		return this.getData().currency
-	}
+    return this.getData().account
+  }
 
-	this.setCurrency = function(currency){
-		this.getData().currency = currency
-		this.setDisplayCurrencies()
-	}
+  this.setAccount = function setAccount(account) {
+    web3.eth.defaultAccount = $rootScope.account = this.getData().account = account
+  }
 
-	this.getHiddenCommentIds = function(){
-		if(!this.getData().hiddenCommentIds)
-			this.getData().hiddenCommentIds = []
+  this.getCurrency = function getCurrency() {
+    if (!this.getData().currency) {
+      this.getData().currency = 'USD'
+    }
 
-		return this.getData().hiddenCommentIds
-	}
+    return this.getData().currency
+  }
 
-	this.setHiddenCommentIds = function(hiddenCommentIds){
-		this.getData().hiddenCommentIds = hiddenCommentIds
-	}
+  this.setCurrency = function setCurrency(currency) {
+    this.getData().currency = currency
+    this.setDisplayCurrencies()
+  }
 
-	this.getBalance = function(){
-		var account = this.getAccount()
-		return web3.eth.getBalance(account)
-	}
+  this.getHiddenCommentIds = function getHiddenCommentIds() {
+    if (!this.getData().hiddenCommentIds) {
+      this.getData().hiddenCommentIds = []
+    }
 
-	this.getAccountsData = function(){
-		if(!this.getData().accounts)
-			this.getData().accounts = {}
+    return this.getData().hiddenCommentIds
+  }
 
-		return this.getData().accounts
-	}
+  this.setHiddenCommentIds = function setHiddenCommentIds(hiddenCommentIds) {
+    this.getData().hiddenCommentIds = hiddenCommentIds
+  }
 
-	this.getAccountData = function(){
-		var account = this.getAccount()
+  this.getBalance = function getBalance() {
+    return web3.eth.getBalance(this.getAccount())
+  }
 
-		if(!this.getAccountsData()[account])
-			this.getAccountsData()[account] = {}
-
-		return this.getAccountsData()[account]
-	}
-
-	this.getAffiliateCodes = function(){
-		if(!this.getAccountData().affiliateCodes)
-			this.getAccountData().affiliateCodes = []
-
-		return this.getAccountData().affiliateCodes
-	}
-
-	this.getAffiliates = function(){
-
-		console.log('affiliates',this.getAffiliateCodes())
-
-		return _.unique(this.getAffiliateCodes()).map(function(code){return new Affiliate(code)}).filter(function(affiliate){
-			return !affiliate.isDeleted && user.getAccount() == affiliate.owner
-		})
-	}
-
-	this.getOrderAddrs = function(){
-		if(!this.getAccountData().orderAddrs)
-			this.getAccountData().orderAddrs = []
-
-		return this.getAccountData().orderAddrs
-	}
-
-	this.getStoreAddrs = function(){
-		if(!this.getAccountData().storeAddrs)
-			this.getAccountData().storeAddrs = []
-
-		return this.getAccountData().storeAddrs
-	}
-
-	this.getSubmarketAddrs = function(){
-		if(!this.getAccountData().submarketAddrs)
-			this.getAccountData().submarketAddrs = []
-
-		return this.getAccountData().submarketAddrs
-	}
-
-	this.getKeypairsData = function(){
-		if(!this.getAccountData().keypairsData)
-			this.getAccountData().keypairsData = []
-
-		return this.getAccountData().keypairsData
-	}
-
-	this.getKeypairs = function(){
-
-		var keypairs = []
-
-		this.getKeypairsData().forEach(function(keypairData){
-			keypairs.push(new Keypair(keypairData))
-		})
-		
-		return keypairs
-	}
-
-	this.fetchKeypair = function(){
-		var deferred = $q.defer()
-			,account = this.getAccount()
-			,keypairs = this.getKeypairs()
-		
-		Key.fetch(account).then(function(key){
-			var keypair = _.find(keypairs,{id:key.id})
-			if(keypair)
-				deferred.resolve(keypair)
-			else
-				deferred.reject()
-		},function(err){
-			console.error(err)
-			deferred.reject()
-		})
-
-		return deferred.promise
-	}
-
-	this.findKeypair = function(keyId){
-		return _.find(this.getKeypairs(),{id:keyId})
-	}
-
-	this.getStorage = function(){
-		return localStorage.getItem('user')
-	}
-
-	this.setStorage = function(string){
-		localStorage.setItem('user',string)
-	}
-
-	this.logout = function(){
-		this.password = null
-		keystore = null
-		$rootScope.isLoggedIn = false
-		window.location.hash = '/login'
-	}
-
-	this.register = function(password){
-		this.password = password
-		this.getData().seed = lightwallet.keystore.generateRandomSeed()
-		this.save()
-		this.init()
-		window.location.hash = '/'
-	}
-
-	this.setDisplayCurrencies = function(){
-		$rootScope.userCurrency = this.getCurrency()
-		$rootScope.displayCurrencies = _.uniq([this.getCurrency(),'ETH'])
-	}
-
-	this.login = function(password){
-		try{
-			this.data = JSON.parse(CryptoJS.AES.decrypt(this.getStorage(),password).toString(CryptoJS.enc.Utf8))
-		}catch(e){
-			console.error(e)
-			return false
-		}
-
-		this.password = password
-		this.init()
-		return true;
-	}
-
-	this.verifyExistence = function(){
-		return !! this.getStorage()
-	}
-
-	this.reset = function(){
-		this.data = null
-		this.setRootScopeVars()
-		this.setStorage('')
-		$rootScope.userExists = false
-		this.logout()
-	}
-
-	this.save = function(){
-		var dataEncrypted = CryptoJS.AES.encrypt(JSON.stringify(this.getData()), this.password)
-		this.setStorage(dataEncrypted)
-	}
-
-	this.addKeypair = function(){
-		var user = this
-			,deferred = $q.defer()
-
-		pgp.generateKeypair().then(function(keypair){
-			user.getKeypairsData().push({
-				private: keypair.privateKeyArmored
-				,public: keypair.publicKeyArmored
-				,timestamp: (new Date).getTime()
-				,label: words.generateWordPair()
-			})
-
-			user.save()
-
-			deferred.resolve()
-		})
-
-		return deferred.promise
-	}
-
-	this.addAffiliate = function(code){
-		this.getAffiliateCodes().push(code)
-		this.save()
-	}
-
-	this.addOrder = function(addr){
-		this.getOrderAddrs().push(addr)
-		$rootScope.orderAddrs = this.getOrderAddrs()
-		this.save()
-	}
-
-
-	this.addStore = function(addr){
-		this.getStoreAddrs().push(addr)
-		$rootScope.storeAddrs = this.getStoreAddrs()
-		this.save()
-	}
-
-	this.addSubmarket = function(addr){
-		this.getSubmarketAddrs().push(addr)
-		$rootScope.submarketAddrs = this.getSubmarketAddrs()
-		this.save()
-
-	}
-
-	this.setRootScopeVars = function(){
-		$rootScope.orderAddrs = this.getOrderAddrs()
-		$rootScope.storeAddrs = this.getStoreAddrs()
-		$rootScope.submarketAddrs = this.getSubmarketAddrs()
-		this.save()
-	}
-
-	this.deleteKeypair = function(index){
-		var keypairs = this.getKeypairs()
-		keypairs = keypairs.splice(index,1)
-		user.setKeypairs(keypairs)
-
-	}
-
-	this.verifyKeypair = function(){
-		var deferred = $q.defer()
-
-		this.fetchKeypair().then(function(){
-			deferred.resolve()
-		},function(){
-			growl.addErrorMessage('You need to set a primary keypair in the settings menu')
-			deferred.reject()
-		})
-
-		return deferred.promise
-	}
-
-
-	this.decrypt = function(pgpMessageWrapper){
-		var keypair
-
-		this.getKeypairs().forEach(function(_keypair){
-			if(pgpMessageWrapper.keyIds.indexOf(_keypair.id)){
-				keypair = _keypair
-				return false
-			}
-		})
-
-		if(!keypair)
-			return false
-
-		pgpMessageWrapper.decrypt(keypair.private)
-		return true
-	}
-
-	function Keypair(keypairData){
-		this.data = keypairData
-
-		var privateResponse = openpgp.key.readArmored(keypairData.private)
-			,publicResponse = openpgp.key.readArmored(keypairData.public)
-		
-
-		if(privateResponse.err && privateResponse.err.length>0)
-			throw privateResponse.err[0]
-
-		if(publicResponse.err && publicResponse.err.length>0)
-			throw privateResponse.err[0]
-
-		this.private = privateResponse.keys[0]
-		this.public = publicResponse.keys[0]
-
-		this.id = this.public.primaryKey.keyid.bytes
-	}
-
-	this.setProvider = function(){
-		web3.setProvider(new HookedWeb3Provider({
-		  host: 'http://127.0.0.1:'+blockchain.rpcport,
-		  transaction_signer: this.getKeystore()
-		}));
-	}
-
-	this.init = function(){
-		$rootScope.isLoggedIn = true
-		this.setAccount(this.getAccount())
-		this.setDisplayCurrencies()
-		this.setProvider()
-	}
+  this.getAccountsData = function getAccountsData() {
+    if (!this.getData().accounts) {
+      this.getData().accounts = {}
+    }
+
+    return this.getData().accounts
+  }
+
+  this.getAccountData = function getAccountsData() {
+    const account = this.getAccount()
+
+    if (!this.getAccountsData()[account]) {
+      this.getAccountsData()[account] = {}
+    }
+
+    return this.getAccountsData()[account]
+  }
+
+  this.getAffiliateCodes = function getAffiliateCodes() {
+    if (!this.getAccountData().affiliateCodes) {
+      this.getAccountData().affiliateCodes = []
+    }
+
+    return this.getAccountData().affiliateCodes
+  }
+
+  this.getAffiliates = function getAffiliates() {
+    return _.unique(this.getAffiliateCodes()).map((code) => {
+      return new Affiliate(code)
+    }).filter((affiliate) => {
+      return !affiliate.isDeleted && user.getAccount() === affiliate.owner
+    })
+  }
+
+  this.getOrderAddrs = function getOrderAddrs() {
+    if (!this.getAccountData().orderAddrs) {
+      this.getAccountData().orderAddrs = []
+    }
+
+    return this.getAccountData().orderAddrs
+  }
+
+  this.getStoreAddrs = function getStoreAddrs() {
+    if (!this.getAccountData().storeAddrs) {
+      this.getAccountData().storeAddrs = []
+    }
+
+    return this.getAccountData().storeAddrs
+  }
+
+  this.getSubmarketAddrs = function getSubmarketAddrs() {
+    if (!this.getAccountData().submarketAddrs) {
+      this.getAccountData().submarketAddrs = []
+    }
+
+    return this.getAccountData().submarketAddrs
+  }
+
+  this.getKeypairsData = function getKeypairsData() {
+    if (!this.getAccountData().keypairsData) {
+      this.getAccountData().keypairsData = []
+    }
+
+    return this.getAccountData().keypairsData
+  }
+
+  this.getKeypairs = function getKeypairs() {
+
+    const keypairs = []
+
+    this.getKeypairsData().forEach((keypairData) => {
+      keypairs.push(new Keypair(keypairData))
+    })
+
+    return keypairs
+  }
+
+  this.fetchKeypair = function fetchKeypair() {
+    const deferred = $q.defer()
+    const account = this.getAccount()
+    const keypairs = this.getKeypairs()
+
+    Key.fetch(account).then((key) => {
+      const keypair = _.find(keypairs, { id: key.id })
+      if (keypair) {
+        deferred.resolve(keypair)
+      } else {
+        deferred.reject()
+      }
+    }, (err) => {
+      deferred.reject(err)
+    })
+
+    return deferred.promise
+  }
+
+  this.findKeypair = function findKeypair(keyId) {
+    return _.find(this.getKeypairs(), { id: keyId })
+  }
+
+  this.getStorage = function getStorage() {
+    return localStorage.getItem('user')
+  }
+
+  this.setStorage = function setStorage(string) {
+    localStorage.setItem('user', string)
+  }
+
+  this.logout = function logout() {
+    this.password = null
+    keystore = null
+    $rootScope.isLoggedIn = false
+    window.location.hash = '/login'
+  }
+
+  this.register = function register(password) {
+    this.password = password
+    this.getData().seed = lightwallet.keystore.generateRandomSeed()
+    this.save()
+    this.init()
+    window.location.hash = '/'
+  }
+
+  this.setDisplayCurrencies = function setDisplayCurrencies() {
+    $rootScope.userCurrency = this.getCurrency()
+    $rootScope.displayCurrencies = _.uniq([this.getCurrency(), 'ETH'])
+  }
+
+  this.login = function login(password) {
+    try {
+      this.data = JSON.parse(CryptoJS.AES.decrypt(this.getStorage(), password).toString(CryptoJS.enc.Utf8))
+    } catch (e) {
+      return false
+    }
+
+    this.password = password
+    this.init()
+    return true
+  }
+
+  this.verifyExistence = function verifyExistence() {
+    return !! this.getStorage()
+  }
+
+  this.reset = function reset() {
+    this.data = null
+    this.setRootScopeVars()
+    this.setStorage('')
+    $rootScope.userExists = false
+    this.logout()
+  }
+
+  this.save = function save() {
+    this.setStorage(CryptoJS.AES.encrypt(JSON.stringify(this.getData()), this.password))
+  }
+
+  this.addKeypair = function addKeypair() {
+    const deferred = $q.defer()
+
+    pgp.generateKeypair().then((keypair) => {
+      user.getKeypairsData().push({
+        private: keypair.privateKeyArmored,
+        public: keypair.publicKeyArmored,
+        timestamp: (new Date).getTime(),
+        label: words.generateWordPair()
+      })
+
+      user.save()
+
+      deferred.resolve()
+    })
+
+    return deferred.promise
+  }
+
+  this.addAffiliate = function addAffiliate(code) {
+    this.getAffiliateCodes().push(code)
+    this.save()
+  }
+
+  this.addOrder = function addOrder(addr) {
+    this.getOrderAddrs().push(addr)
+    $rootScope.orderAddrs = this.getOrderAddrs()
+    this.save()
+  }
+
+
+  this.addStore = function addStore(addr) {
+    this.getStoreAddrs().push(addr)
+    $rootScope.storeAddrs = this.getStoreAddrs()
+    this.save()
+  }
+
+  this.addSubmarket = function addSubmarket(addr) {
+    this.getSubmarketAddrs().push(addr)
+    $rootScope.submarketAddrs = this.getSubmarketAddrs()
+    this.save()
+
+  }
+
+  this.setRootScopeVars = function setRootScopeVars() {
+    $rootScope.orderAddrs = this.getOrderAddrs()
+    $rootScope.storeAddrs = this.getStoreAddrs()
+    $rootScope.submarketAddrs = this.getSubmarketAddrs()
+    this.save()
+  }
+
+  this.deleteKeypair = function deleteKeypair(index) {
+    user.setKeypairs(this.getKeypairs().splice(index, 1))
+  }
+
+  this.verifyKeypair = function verifyKeypair() {
+    const deferred = $q.defer()
+
+    this.fetchKeypair().then(() => {
+      deferred.resolve()
+    }, () => {
+      growl.addErrorMessage('You need to set a primary keypair in the settings menu')
+      deferred.reject()
+    })
+
+    return deferred.promise
+  }
+
+
+  this.decrypt = function decrypt(pgpMessageWrapper) {
+
+    let keypair
+
+    user.getKeypairs().forEach((_keypair) => {
+      if (pgpMessageWrapper.keyIds.indexOf(_keypair.id)) {
+        keypair = _keypair
+        return false
+      }
+    })
+
+    if (!keypair) {
+      return false
+    }
+
+    pgpMessageWrapper.decrypt(keypair.private)
+    return true
+
+  }
+
+  function Keypair(keypairData) {
+    this.data = keypairData
+
+    const privateResponse = openpgp.key.readArmored(keypairData.private)
+    const publicResponse = openpgp.key.readArmored(keypairData.public)
+
+
+    if (privateResponse.err && privateResponse.err.length > 0) {
+      throw privateResponse.err[0]
+    }
+
+    if (publicResponse.err && publicResponse.err.length > 0) {
+      throw privateResponse.err[0]
+    }
+
+    this.private = privateResponse.keys[0]
+    this.public = publicResponse.keys[0]
+
+    this.id = this.public.primaryKey.keyid.bytes
+  }
+
+  this.setProvider = function setProvider() {
+    web3.setProvider(new HookedWeb3Provider({
+      host: `http://127.0.0.1:${blockchain.rpcport}`,
+      transaction_signer: this.getKeystore()
+    }))
+  }
+
+  this.init = function init() {
+    $rootScope.isLoggedIn = true
+    this.setAccount(this.getAccount())
+    this.setDisplayCurrencies()
+    this.setProvider()
+  }
 
 })
-
-
-})();

@@ -1,93 +1,99 @@
-angular.module('app').controller('OrderController',function($scope,Order,pgp,user,$stateParams,modals,growl){
-	
-	$scope.order = new Order($stateParams.orderAddr)
+/* globals angular, _ */
 
-	var isOrderUpdated = false
+angular.module('app').controller('OrderController', ($scope, Order, pgp, user, $stateParams, modals) => {
 
-	console.log($scope.order)
+  $scope.order = new Order($stateParams.orderAddr)
 
-	$scope.order.updatePromise.then(function(order){
-		$scope.userRole = order.getRoleForAddr(user.getAccount())
-		console.log($scope.userRole)
-		isOrderUpdated = true
-	})
+  let isOrderUpdated = false
 
-	function setMessagesAndUpdates(){
+  $scope.order.updatePromise.then((order) => {
+    $scope.userRole = order.getRoleForAddr(user.getAccount())
+    isOrderUpdated = true
+  })
 
-		if(!isOrderUpdated) return
+  function setMessagesAndUpdates() {
 
-		var messagesAndUpdates = []
+    if (!isOrderUpdated) {
+      return
+    }
 
-		if(Array.isArray($scope.order.messages))
-			messagesAndUpdates = messagesAndUpdates.concat($scope.order.messages)
+    let messagesAndUpdates = []
 
-		if(Array.isArray($scope.order.updates))
-			messagesAndUpdates = messagesAndUpdates.concat($scope.order.updates)
+    if (Array.isArray($scope.order.messages)) {
+      messagesAndUpdates = messagesAndUpdates.concat($scope.order.messages)
+    }
 
-		$scope.messagesAndUpdates = messagesAndUpdates
+    if (Array.isArray($scope.order.updates)) {
+      messagesAndUpdates = messagesAndUpdates.concat($scope.order.updates)
+    }
 
-	}
+    $scope.messagesAndUpdates = messagesAndUpdates
 
-	$scope.$watch('order.messages',setMessagesAndUpdates,true)
-	$scope.$watch('order.updates',setMessagesAndUpdates,true)
+  }
+
+  $scope.$watch('order.messages', setMessagesAndUpdates, true)
+  $scope.$watch('order.updates', setMessagesAndUpdates, true)
 
 
-	$scope.addMessage = function(){
-		var keys = _.map($scope.order.keys,function(key){return key.key})
-		pgp.encrypt(keys,$scope.messageText).then(function(pgpMessage){
-			$scope.order.addMessage(pgpMessage).then(function(){
-				$scope.messageText = ''
-				$scope.order.update()
-			})
-		})
-	}
+  $scope.addMessage = function addMessage() {
 
-	$scope.cancel = function(){
-		$scope.order.cancel().then(function(){
-			$scope.order.update()
-		})
-	}
+    const keys = _.map($scope.order.keys, (key) => { return key.key })
 
-	$scope.markAsShipped = function(){
-		$scope.order.markAsShipped().then(function(){
-			$scope.order.update()
-		})
-	}
+    pgp.encrypt(keys, $scope.messageText).then((pgpMessage) => {
+      $scope.order.addMessage(pgpMessage).then(() => {
+        $scope.messageText = ''
+        $scope.order.update()
+      })
+    })
 
-	$scope.dispute = function(){
-		$scope.order.dispute().then(function(){
-			$scope.order.update()
-		})
-	}
+  }
 
-	$scope.finalize = function(){
-		$scope.order.finalize().then(function(){
-			$scope.order.update()
-		})
-	}
+  $scope.cancel = function cancel() {
+    $scope.order.cancel().then(() => {
+      $scope.order.update()
+    })
+  }
 
-	$scope.openResolutionModal = function(){
-		modals.openResolution($scope.order).result.then(function(){
-			$scope.order.update()
-		})
-	}
+  $scope.markAsShipped = function cancel() {
+    $scope.order.markAsShipped().then(() => {
+      $scope.order.update()
+    })
+  }
 
-	$scope.makePayment = function(){
-		modals.openPayment($scope.order.addr,$scope.order.unpaid,'WEI').result.then(function(){
-			$scope.order.update();
-		})
-	}
+  $scope.dispute = function dispute() {
+    $scope.order.dispute().then(() => {
+      $scope.order.update()
+    })
+  }
 
-	$scope.makeWithdrawl = function(){
-		modals.openWithdrawl($scope.order).result.then(function(){
-			$scope.order.update();
-		})
-	}
+  $scope.finalize = function finalize() {
+    $scope.order.finalize().then(() => {
+      $scope.order.update()
+    })
+  }
 
-	$scope.leaveReview = function(){
-		modals.openLeaveReview($scope.order).result.then(function(){
-			$scope.order.update();
-		})
-	}
+  $scope.openResolutionModal = function openResolution() {
+    modals.openResolution($scope.order).result.then(() => {
+      $scope.order.update()
+    })
+  }
 
-});
+  $scope.makePayment = function makePayment() {
+    modals.openPayment($scope.order.addr, $scope.order.unpaid, 'WEI').result.then(() => {
+      $scope.order.update()
+    })
+  }
+
+  $scope.makeWithdrawl = function makeWithdrawl() {
+    modals.openWithdrawl($scope.order).result.then(() => {
+      $scope.order.update()
+    })
+  }
+
+  $scope.leaveReview = function leaveReview() {
+    modals.openLeaveReview($scope.order).result.then(() => {
+      $scope.order.update()
+    })
+  }
+
+})

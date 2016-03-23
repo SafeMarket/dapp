@@ -1,44 +1,41 @@
-(function(){
+/* globals angular */
 
-angular.module('app').controller('SubmarketController',function($scope,$state,Submarket,user,$stateParams,modals){
-	
-	$scope.submarket = new Submarket($stateParams.submarketAddr,true)
-	$scope.addr = $stateParams.submarketAddr
-	$scope.user = user
+angular.module('app').controller('SubmarketController', ($scope, $state, Submarket, user, $stateParams, modals) => {
 
-	$scope.openSubmarketModal = function(){
-		modals
-			.openSubmarket($scope.submarket)
-			.result.then(function(submarket){
-				$scope.submarket.update()
-			})
-	}
+  $scope.submarket = new Submarket($stateParams.submarketAddr, true)
+  $scope.addr = $stateParams.submarketAddr
+  $scope.user = user
 
-	$scope.openAliasesModal = function(){
-		modals
-			.openAliases($scope.submarket)
-			.result.then(function(){
-				$scope.submarket.update()
-			})
-	}
+  $scope.openSubmarketModal = function openSubmarketModal() {
+    modals
+      .openSubmarket($scope.submarket)
+      .result.then(() => {
+        $scope.submarket.update()
+      })
+  }
 
-	$scope.tabs = [
-        { heading: "About", route:"submarket.about", active:false },
-        { heading: "Stores", route:"submarket.stores", active:false },
-        { heading: "Forum", route:"submarket.forum", active:false },
-        { heading: "All Orders", route:"submarket.orders", active:false },
-    ];
+  $scope.openAliasesModal = function openAliasesModal() {
+    modals
+      .openAliases($scope.submarket)
+      .result.then(() => {
+        $scope.submarket.update()
+      })
+  }
 
-    $scope.go = function(route){
-        $state.go(route);
-    };
+  $scope.tabs = [
+    { heading: 'About', route: 'submarket.about', active: false },
+    { heading: 'Stores', route: 'submarket.stores', active: false },
+    { heading: 'Forum', route: 'submarket.forum', active: false },
+    { heading: 'All Orders', route: 'submarket.orders', active: false }
+  ]
 
-    $scope.$on("$stateChangeSuccess", function() {
-        $scope.tabs.forEach(function(tab) {
-            tab.active = $state.is(tab.route);
-        });
-    });
+  $scope.go = function go(route) {
+    $state.go(route)
+  }
+
+  $scope.$on('$stateChangeSuccess', () => {
+    $scope.tabs.forEach((tab) => {
+      tab.active = $state.is(tab.route)
+    })
+  })
 })
-
-
-})();

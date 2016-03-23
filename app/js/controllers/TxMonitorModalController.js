@@ -1,105 +1,107 @@
-angular.module('app').controller('TxMonitorModalController',function($scope,$interval,$q,$modalInstance,proposal,user,txMonitor){
-	
-	$scope.currency = user.getCurrency()
-	$scope.proposal = proposal
+/* globals angular, web3 */
 
-	if(typeof proposal.args[proposal.args.length-1] !== 'object')
-		proposal.args.push({})
+angular.module('app').controller('TxMonitorModalController', ($scope, $interval, $q, $modalInstance, proposal, user, txMonitor) => {
 
-	var txOptions = proposal.args[proposal.args.length-1]
-		,gasLimit = web3.eth.getBlock('latest').gasLimit
-		,isFactory = typeof proposal.contractFactoryOrFunction === 'object'
-		,waitInterval
+  $scope.currency = user.getCurrency()
+  $scope.proposal = proposal
 
-	if(txOptions.gasPrice)
-		txOptions.gasPrice = web3.toBigNumber(txOptions.gasPrice)
-	else
-		txOptions.gasPrice = web3.eth.gasPrice
+  if (typeof proposal.args[proposal.args.length - 1] !== 'object') {
+    proposal.args.push({})
+  }
 
-	console.log('gasPrice',txOptions.gasPrice)
-	
-	proposal.value = txOptions.value = txOptions.value ? txOptions.value : 0
+  const txOptions = proposal.args[proposal.args.length - 1]
+  const gasLimit = web3.eth.getBlock('latest').gasLimit
+  const isFactory = typeof proposal.contractFactoryOrFunction === 'object'
+  let waitInterval = null
 
-	if(typeof proposal.value === 'string')
-		proposal.value = web3.toDecimal(proposal.value)
+  if (txOptions.gasPrice) {
+    txOptions.gasPrice = web3.toBigNumber(txOptions.gasPrice)
+  } else {
+    txOptions.gasPrice = web3.eth.gasPrice
+  }
 
-	if(txOptions.gas){
-		proposal.gas = web3.toBigNumber(txOptions.gas)
-	}else{
-		var estimatedGas = proposal.contractFactoryOrFunction.estimateGas.apply(proposal.contractFactoryOrFunction, angular.copy(proposal.args))
-		
-		if(estimatedGas < gasLimit)
-			estimatedGas = Math.min(Math.floor(gasLimit*.9),estimatedGas*2)
+  proposal.value = txOptions.value = txOptions.value ? txOptions.value : 0
 
-		proposal.gas = txOptions.gas = web3.toBigNumber(estimatedGas)
-	}
+  if (typeof proposal.value === 'string') {
+    proposal.value = web3.toDecimal(proposal.value)
+  }
 
-	proposal.gasCost = txOptions.gasPrice.times(txOptions.gas)
-	proposal.cost = proposal.gasCost.plus(proposal.value)
+  if (txOptions.gas) {
+    proposal.gas = web3.toBigNumber(txOptions.gas)
+  } else {
 
-	console.log(proposal)
+    const args = angular.copy(proposal.args)
+    let estimatedGas = proposal.contractFactoryOrFunction.estimateGas.apply(proposal.contractFactoryOrFunction, args)
 
-	$scope.isThrown = proposal.gas.greaterThan(web3.eth.getBlock(web3.eth.blockNumber).gasLimit)
-	$scope.isProposalAffordable = user.getBalance().greaterThan(proposal.cost)
+    if (estimatedGas < gasLimit) {
+      estimatedGas = Math.min(Math.floor(gasLimit * 0.9), estimatedGas * 2)
+    }
 
-	var currentBlockNumber
-		,currentBlockTimestamp
+    proposal.gas = txOptions.gas = web3.toBigNumber(estimatedGas)
+  }
 
-	$scope.approve = function(){
+  proposal.gasCost = txOptions.gasPrice.times(txOptions.gas)
+  proposal.cost = proposal.gasCost.plus(proposal.value)
 
-		var startTimestamp = Date.now()
+  $scope.isThrown = proposal.gas.greaterThan(web3.eth.getBlock(web3.eth.blockNumber).gasLimit)
+  $scope.isProposalAffordable = user.getBalance().greaterThan(proposal.cost)
 
-		$scope.isSyncing = true
-		$scope.isApproved = true
+  $scope.approve = function approve() {
 
-		$scope.secondsWaited  = 0
-		waitInterval = $interval(function(){
-			console.log('wait')
-			$scope.secondsWaited = web3.toBigNumber(Date.now()).minus(startTimestamp).div(1000).floor().toNumber()
-		},1000)
+    const startTimestamp = Date.now()
 
-		var args = proposal.args.slice(0)
+    $scope.isSyncing = true
+    $scope.isApproved = true
 
-		args.push(function(error,result){
+    $scope.secondsWaited = 0
+    waitInterval = $interval(() => {
+      $scope.secondsWaited = web3.toBigNumber(Date.now()).minus(startTimestamp).div(1000).floor().toNumber()
+    }, 1000)
 
-			if(result && result.transactionHash && ! result.address) //contract without transaction hash
-				return
+    const args = proposal.args.slice(0)
 
-			if(error){
-				$scope.error = error
-				$scope.isSyncing = false
-				$interval.cancel(waitInterval)
-				return
-			}
+    args.push((error, result) => {
 
-			txMonitor.waitForTx(result.transactionHash || result).then(function(receipt){
-				$interval.cancel(waitInterval)
-				$modalInstance.close(receipt)
-			},function(){
-				$scope.error = 'Transaction failed to sync'
-				$scope.isSyncing = false
-				$interval.cancel(waitInterval)
-			})
+      if (result && result.transactionHash && ! result.address) {
+        return
+      }
 
-		})
-		
-		if(isFactory)
-			proposal.contractFactoryOrFunction.new.apply(proposal.contractFactoryOrFunction,args)
-		else
-			proposal.contractFactoryOrFunction.apply(window,args)
+      if (error) {
+        $scope.error = error
+        $scope.isSyncing = false
+        $interval.cancel(waitInterval)
+        return
+      }
 
-	}
+      txMonitor.waitForTx(result.transactionHash || result).then((receipt) => {
+        $interval.cancel(waitInterval)
+        $modalInstance.close(receipt)
+      }, () => {
+        $scope.error = 'Transaction failed to sync'
+        $scope.isSyncing = false
+        $interval.cancel(waitInterval)
+      })
 
-	$scope.cancel = function(){
-		$modalInstance.dismiss()
-	}
+    })
 
-	$scope.stopWaiting = function(){
-		txMonitor.stopWaiting()
-		$interval.cancel(waitInterval)
-		$modalInstance.dismiss()
-	}
+    if (isFactory) {
+      proposal.contractFactoryOrFunction.new.apply(proposal.contractFactoryOrFunction, args)
+    } else {
+      proposal.contractFactoryOrFunction.apply(window, args)
+    }
 
-	$scope.secondsWaited = 0
+  }
 
-});
+  $scope.cancel = function cancel() {
+    $modalInstance.dismiss()
+  }
+
+  $scope.stopWaiting = function stopWaiting() {
+    txMonitor.stopWaiting()
+    $interval.cancel(waitInterval)
+    $modalInstance.dismiss()
+  }
+
+  $scope.secondsWaited = 0
+
+})

@@ -1,7 +1,5 @@
-(function(){
+/* globals angular */
 
-angular.module('app').controller('404Controller',function($scope,$stateParams){
-	$scope.alias = $stateParams.alias
+angular.module('app').controller('404Controller', ($scope, $stateParams) => {
+  $scope.alias = $stateParams.alias
 })
-
-})();

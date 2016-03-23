@@ -1,74 +1,79 @@
-angular.module('app').factory('Infosphered',function(utils){
-	
-	function Infosphered(contract,types){
-		this.contract = contract
-		this.types = types
-	}
+/* globals angular */
 
-	Infosphered.prototype.getMartyrCalls = function(data){
-		
-		var infosphered = this
-			,newData = {}
-			,calls = []
-		
-		Object.keys(data).forEach(function(key){
+angular.module('app').factory('Infosphered', (utils) => {
 
-			var newValue = data[key]
-				,currentValue = infosphered.getValue(key)
-				,type = infosphered.types[key]
+  function Infosphered(contract, types) {
+    this.contract = contract
+    this.types = types
+  }
 
-			if(newValue == currentValue)
-				return true
+  Infosphered.prototype.getMartyrCalls = function getMartyrCalls(data) {
 
-			if(typeof currentValue === 'string' && utils.toAscii(currentValue) == newValue)
-				return true
+    const infosphered = this
+    const calls = []
 
-			if(currentValue.equals && currentValue.equals(newValue))
-				return true
+    Object.keys(data).forEach((key) => {
 
-			calls.push({
-				address:infosphered.contract.address
-				,data:infosphered.contract[getInfospheredSetterName(type)].getData(key,newValue)
-			})
+      const newValue = data[key]
+      const currentValue = infosphered.getValue(key)
+      const type = infosphered.types[key]
 
-		})
+      if (newValue === currentValue) {
+        return true
+      }
 
-		return calls
+      if (typeof currentValue === 'string' && utils.toAscii(currentValue) === newValue) {
+        return true
+      }
 
-	}
+      if (currentValue.equals && currentValue.equals(newValue)) {
+        return true
+      }
 
-	function getInfospheredSetterName(type){
-		return 'set'+type.charAt(0).toUpperCase() + type.slice(1)
-	}
+      calls.push({
+        address: infosphered.contract.address,
+        data: infosphered.contract[getInfospheredSetterName(type)].getData(key, newValue)
+      })
 
-	function getInfospheredGetterName(type){
-		return 'get'+type.charAt(0).toUpperCase() + type.slice(1)
-	}
+    })
 
-	
-	Infosphered.prototype.getValue = function(key){
-		var type = this.types[key]
-		
-		if(!type)
-			throw key+' has no associate type'
+    return calls
 
-		var functionName = getInfospheredGetterName(type)
+  }
 
-		return this.contract[functionName](key)
-	}
+  function getInfospheredSetterName(type) {
+    return `set${type.charAt(0).toUpperCase()}${type.slice(1)}`
+  }
 
-	Infosphered.prototype.update = function(){
-		
-		var infosphered = this
-			,data = {}
+  function getInfospheredGetterName(type) {
+    return `get${type.charAt(0).toUpperCase()}${type.slice(1)}`
+  }
 
-		Object.keys(this.types).forEach(function(key){
-			data[key] = infosphered.getValue(key)
-		})
+  Infosphered.prototype.getValue = function getInfospheredValue(key) {
 
-		this.data = data
-	}
+    const type = this.types[key]
 
+    if (!type) {
+      throw new Error('${key} has no associate type')
+    }
 
-	return Infosphered
-});
+    const functionName = getInfospheredGetterName(type)
+
+    return this.contract[functionName](key)
+  }
+
+  Infosphered.prototype.update = function updateInfosphered() {
+
+    const infosphered = this
+    const data = {}
+
+    Object.keys(this.types).forEach((key) => {
+      data[key] = infosphered.getValue(key)
+    })
+
+    this.data = data
+  }
+
+  return Infosphered
+
+})

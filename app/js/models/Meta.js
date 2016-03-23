@@ -1,46 +1,52 @@
-angular.module('app').factory('Meta',function(utils,$q){
-	
-	function Meta(contract){
-		this.contract = contract
-	}
+/* globals angular */
 
-	Meta.prototype.update = function(){
+angular.module('app').factory('Meta', (utils, $q) => {
 
-		var deferred = $q.defer()
-			,meta = this
-			,metaUpdatedAt = this.contract.metaUpdatedAt()
+  function Meta(contract) {
+    this.contract = contract
+  }
 
-		this.contract.Meta({},{fromBlock: metaUpdatedAt, toBlock: metaUpdatedAt}).get(function(error,results){
+  Meta.prototype.update = function updateMeta() {
 
-			if(error)
-				return deferred.reject(error)
+    const deferred = $q.defer()
+    const meta = this
+    const metaUpdatedAt = this.contract.metaUpdatedAt()
 
-			if(results.length === 0)
-				return deferred.reject(new Error('no results found'))
+    this.contract.Meta({}, { fromBlock: metaUpdatedAt, toBlock: metaUpdatedAt }).get((error, results) => {
 
-			meta.hex = results[results.length-1].args.meta
-			meta.data = utils.convertHexToObject(results[results.length-1].args.meta)
+      if (error) {
+        return deferred.reject(error)
+      }
 
-			deferred.resolve(meta)
-		})
+      if (results.length === 0) {
+        return deferred.reject(new Error('no results found'))
+      }
 
-		return deferred.promise
+      meta.hex = results[results.length - 1].args.meta
+      meta.data = utils.convertHexToObject(results[results.length - 1].args.meta)
 
-	}
+      deferred.resolve(meta)
 
-	Meta.prototype.getMartyrCalls = function(data){
-		
-		var hex = utils.convertObjectToHex(data)
+    })
 
-		if(hex == this.hex)
-			return []
+    return deferred.promise
 
-		return [{
-			address: this.contract.address
-			,data: this.contract.setMeta.getData(hex)
-		}]
-	}
+  }
+
+  Meta.prototype.getMartyrCalls = function getMetaMartyrCalls(data) {
+
+    const hex = utils.convertObjectToHex(data)
+
+    if (hex === this.hex) {
+      return []
+    }
+
+    return [{
+      address: this.contract.address,
+      data: this.contract.setMeta.getData(hex)
+    }]
+  }
 
 
-	return Meta
+  return Meta
 });

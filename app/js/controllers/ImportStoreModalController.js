@@ -1,40 +1,38 @@
-(function(){
+/* globals angular */
 
-angular.module('app').controller('ImportStoreModalController',function($scope,$modalInstance,growl,user,utils,AliasReg){
+angular.module('app').controller('ImportStoreModalController', ($scope, $modalInstance, growl, user, utils, AliasReg, Store) => {
 
+  $scope.cancel = function cancel() {
+    $modalInstance.dismiss('cancel')
+  }
 
-	$scope.cancel = function(){
-		$modalInstance.dismiss('cancel')
-	}
+  $scope.submit = function submit() {
+    try {
+      utils.check({
+        alias: $scope.alias
+      }, {
+        alias: {
+          presence: true,
+          type: 'alias',
+          aliasOfContract: 'Store'
+        }
+      })
+    } catch (e) {
+      return growl.addErrorMessage(e)
+    }
 
-	$scope.submit = function(){
-		try{
-			utils.check({
-				alias:$scope.alias
-			},{
-				alias:{
-					presence:true
-					,type:'alias'
-					,aliasOfContract:'Store'
-				}
-			})
-		}catch(e){
-			return growl.addErrorMessage(e)
-		}
+    const storeAddr = AliasReg.getAddr($scope.alias)
+    const store = new Store(storeAddr)
 
-		var storeAddr = AliasReg.getAddr($scope.alias)
-			,store = new Store(storeAddr)
+    if (store.owner !== user.getAccount()) {
+      return growl.addErrorMessage('You are not the owner of that store')
+    }
 
-		if(store.owner !== user.getAccount())
-			return growl.addErrorMessage('You are not the owner of that store')
+    user.addStore(storeAddr)
+    user.save()
 
-		user.addStore(storeAddr)
-		user.save()
+    $modalInstance.close()
 
-		$modalInstance.close()
-
-	}
+  }
 
 })
-
-})();

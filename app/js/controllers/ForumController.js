@@ -1,26 +1,30 @@
-(function(){
-	angular.module('app').controller('ForumController',function($scope,user,utils){
-		$scope.identities = []
+/* globals angular */
 
-		user.getAddrs().forEach(function(addr){
-			var identity = {
-				addr:addr
-				,type:utils.getTypeOfAddr(addr)
-			}
+angular.module('app').controller('ForumController', ($scope, user, utils) => {
 
-			if(identity.type === null)
-				return true;
+  $scope.identities = []
 
-			if(identity.type==='user')
-				identity.label = addr
-			else{
-				identity.label = '@'+utils.getAlias(addr)
-				identity.contract = utils.getContract(addr)
-			}
+  user.getAddrs().forEach((addr) => {
 
-			$scope.identities.push(identity)
-		})
+    const identity = {
+      addr,
+      type: utils.getTypeOfAddr(addr)
+    }
 
-		$scope.identity = $scope.identities[0]
-	})
-})();
+    if (identity.type === null) {
+      return true
+    }
+
+    if (identity.type === 'user') {
+      identity.label = addr
+    } else {
+      identity.label = `@${utils.getAlias(addr)}`
+      identity.contract = utils.getContract(addr)
+    }
+
+    $scope.identities.push(identity)
+  })
+
+  $scope.identity = $scope.identities[0]
+
+})

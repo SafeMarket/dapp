@@ -1,25 +1,16 @@
-var app = require('app')
-  ,BrowserWindow = require('browser-window')
-  ,Menu = require('menu')
-  ,Geth = require(__dirname+'/modules/Geth.js')
+const app = require('app')
+const BrowserWindow = require('browser-window')
+const Menu = require('menu')
+const Geth = require(`${__dirname}/modules/Geth.js`)
 
-// Report crashes to our server.
-require('crash-reporter').start();
+let areImagesEnabled = false
+let isGethStarted = false
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
-var mainWindow = null
-  ,areImagesEnabled = false
-  ,isGethStarted = false
+app.on('window-all-closed', () => {
+  app.quit()
+})
 
-// Quit when all windows are closed.
-app.on('window-all-closed', function() {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  app.quit();
-});
-
-var template = [
+const template = [
   {
     label: 'Edit',
     submenu: [
@@ -55,7 +46,7 @@ var template = [
         label: 'Select All',
         accelerator: 'CmdOrCtrl+A',
         role: 'selectall'
-      },
+      }
     ]
   },
   {
@@ -63,106 +54,89 @@ var template = [
     submenu: [
       {
         label: 'Toggle Full Screen',
-        accelerator: (function() {
-          if (process.platform == 'darwin')
-            return 'Ctrl+Command+F';
-          else
-            return 'F11';
-        })(),
-        click: function(item, focusedWindow) {
-          if (focusedWindow)
-            focusedWindow.setFullScreen(!focusedWindow.isFullScreen());
+        accelerator: process.platform === 'darwin' ? 'Ctrl+Command+F' : 'F11',
+        click(item, focusedWindow) {
+          if (focusedWindow) {
+            focusedWindow.setFullScreen(!focusedWindow.isFullScreen())
+          }
         }
       },
       {
         label: 'Toggle Developer Tools',
-        accelerator: (function() {
-          if (process.platform == 'darwin')
-            return 'Alt+Command+I';
-          else
-            return 'Ctrl+Shift+I';
-        })(),
-        click: function(item, focusedWindow) {
-          if (focusedWindow)
-            focusedWindow.toggleDevTools();
+        accelerator: process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
+        click(item, focusedWindow) {
+          if (focusedWindow) {
+            focusedWindow.toggleDevTools()
+          }
         }
       },
       {
         label: 'Toggle Remote Images (Unsafe)',
         type: 'checkbox',
         checked: areImagesEnabled,
-        click: function(item, focusedWindow) {
-          console.log('enable images ? ', !areImagesEnabled)
-          if (focusedWindow){
-            var htmlFile = areImagesEnabled ? '/index.html' : '/index.unsafe.html'
-            focusedWindow.loadUrl('file://' + __dirname + htmlFile);
+        click(item, focusedWindow) {
+          if (focusedWindow) {
+            const htmlFile = areImagesEnabled ? 'index.html' : 'index.unsafe.html'
+            focusedWindow.loadUrl(`file://${__dirname}/${htmlFile}`)
             areImagesEnabled = !areImagesEnabled
           }
         }
       }
     ]
   }
-];
+]
 
-if (process.platform == 'darwin') {
+if (process.platform === 'darwin') {
   template.unshift({
     label: 'SafeMarket',
     submenu: [
       {
         label: 'Quit',
         accelerator: 'Command+Q',
-        click: function() { app.quit(); }
-      },
+        click() { app.quit() }
+      }
     ]
-  });
+  })
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-app.on('ready', function() {
+app.on('ready', () => {
+  const extension = process.platform === 'win32' ? '.exe' : ''
+  const binPath = `${__dirname}/bin/${process.platform}-${process.arch}/geth${extension}`
 
-  var binPath = __dirname+'/bin/'+ process.platform +'-'+ process.arch + '/geth'
+  const geth = new Geth(binPath, [])
 
-  if(process.platform === 'win32')
-      binPath += '.exe';
-
-  console.log('binPath',binPath)
-
-  var userdir =  app.getPath('userData')
-    ,datadir = userdir+'/node'
-    ,geth = new Geth(binPath,[])
-
-  app.on('before-quit',function(){
+  app.on('before-quit', () => {
     geth.kill()
   })
 
-  menu = Menu.buildFromTemplate(template);
-  Menu.setApplicationMenu(menu);
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
 
-  var mainWindow = new BrowserWindow({width: 800, height: 600, "node-integration": false});
+  const mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    'node-integration': false
+  })
 
-  mainWindow.loadUrl('file://' + __dirname + '/index.html');
+  mainWindow.loadUrl(`file://${__dirname}/index.html`)
 
-  mainWindow.on('closed', function() {
-    mainWindow = null;
-  });
+  mainWindow.webContents.on('did-finish-load', () => {
+    if (areImagesEnabled) {
+      mainWindow.webContents.executeJavaScript('areImagesEnabled=true;alert("Remote images are now enabled. These remote images can be used to track your browsing.");')
+    }
 
-  mainWindow.webContents.on('did-finish-load', function() {
-
-    if(areImagesEnabled)
-      mainWindow.webContents.executeJavaScript("areImagesEnabled=true;alert('Remote images are now enabled. These remote images can be used to track your browsing.');");
-
-    if(isGethStarted)
+    if (isGethStarted) {
       return
-    else
-      isGethStarted = true
+    }
 
-    geth.startRpc().then(function(){
-      console.log('================================== geth ready ==================================')
-    },function(message){
-      console.log('================================== geth failed ==================================')
-      mainWindow.webContents.executeJavaScript("alert('"+message.trim().split("'").join('"')+"');");
+    isGethStarted = true
+
+    geth.startRpc().then(() => {
+      console.log('======= geth ready =======')
+    }, (message) => {
+      console.log('======= geth failed =======')
+      const minimessage = message.trim().split("'").join('"')
+      mainWindow.webContents.executeJavaScript(`alert('${minimessage}')`)
     })
-  });
-
-});
+  })
+})
