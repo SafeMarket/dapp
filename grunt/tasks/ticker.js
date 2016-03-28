@@ -22,6 +22,7 @@ module.exports = function exportTicker(grunt) {
       return soFar.then(f)
     }, Q()).then(() => {
       grunt.log.success('All rates are set')
+      done(true)
     })
 
 
