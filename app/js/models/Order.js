@@ -30,26 +30,18 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
 
     const keyGroup = new KeyGroup(parties)
 
-    keyGroup.promise.then(() => {
+    const packets = keyGroup.encrypt(meta)
+    const _meta = utils.convertObjectToHex(packets)
 
-      keyGroup.encrypt(meta).then((pgpMessage) => {
+    console.log(packets)
 
-        const _meta = web3.fromAscii(pgpMessage.packets.write())
-
-        txMonitor.propose(
-          'Create a New Order',
-          OrderReg.create,
-          [buyer, storeAddr, submarketAddr, affiliate, 0, 0, _meta, { value: value }]
-        ).then((txReciept) => {
-          const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
-          deferred.resolve(new Order(contractAddress))
-        })
-      }, (error) => {
-        deferred.reject(error)
-      })
-
-    }, (error) => {
-      deferred.reject(error)
+    txMonitor.propose(
+      'Create a New Order',
+      OrderReg.create,
+      [buyer, storeAddr, submarketAddr, affiliate, 0, 0, _meta, { value: value }]
+    ).then((txReciept) => {
+      const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
+      deferred.resolve(new Order(contractAddress))
     })
 
     return deferred.promise
@@ -196,23 +188,16 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.keys = {}
     this.productsTotalInStoreCurrency = web3.toBigNumber(0)
 
-    Key.fetch(this.buyer).then((key) => {
-      order.keys.buyer = key
-    })
-
-    Key.fetch(this.store.owner).then((key) => {
-      order.keys.storeOwner = key
-    })
+    order.keys.buyer = new Key(this.buyer)
+    order.keys.storeOwner = this.store.key
 
     if (this.submarket) {
       order.submarket.updatePromise.then((submarket) => {
-        Key.fetch(submarket.owner).then((key) => {
-          order.keys.submarketOwner = key
-        })
+        order.keys.submarketOwner = submarket.key
       })
     }
 
-    order.contract.Meta({}, { fromBlock: 0, toBlock: 'latest' }).get((error, results) => {
+    order.contract.Meta({}, { fromBlock: this.createdAtBlockNumber, toBlock: this.createdAtBlockNumber }).get((error, results) => {
 
       if (error) {
         return deferred.reject(error)
@@ -222,11 +207,11 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
         return deferred.reject(new Error('no results found'))
       }
 
-      const metaPgpMessageWrapper = new PgpMessageWrapper(web3.toAscii(results[results.length - 1].args.meta))
+      const packets = utils.convertHexToObject(results[results.length - 1].args.meta)
+      console.log(packets)
 
-      user.decrypt(metaPgpMessageWrapper)
 
-      order.meta = utils.convertHexToObject(metaPgpMessageWrapper.text)
+      order.meta = user.decrypt(packets, order.keys.buyer.pk)
 
       let productsTotalInOrderCurrency = web3.toBigNumber(0)
       order.meta.products.forEach((product) => {

@@ -1,11 +1,11 @@
-/* globals angular, web3 */
+/* globals angular, web3, _ */
 
 angular.module('app').controller('TxMonitorModalController', ($scope, $interval, $q, $modalInstance, proposal, user, txMonitor) => {
 
   $scope.currency = user.getCurrency()
   $scope.proposal = proposal
 
-  if (typeof proposal.args[proposal.args.length - 1] !== 'object') {
+  if (toString.call(_.last(proposal.args)) !== '[object Object]') {
     proposal.args.push({})
   }
 
@@ -31,10 +31,11 @@ angular.module('app').controller('TxMonitorModalController', ($scope, $interval,
   } else {
 
     const args = angular.copy(proposal.args)
+    console.log(args)
     let estimatedGas = proposal.contractFactoryOrFunction.estimateGas.apply(proposal.contractFactoryOrFunction, args)
 
     if (estimatedGas < gasLimit) {
-      estimatedGas = Math.min(Math.floor(gasLimit * 0.9), estimatedGas * 2)
+      estimatedGas = Math.min(Math.floor(gasLimit * 0.9), estimatedGas * 3)
     }
 
     proposal.gas = txOptions.gas = web3.toBigNumber(estimatedGas)

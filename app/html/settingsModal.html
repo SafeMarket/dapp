@@ -86,15 +86,14 @@
         <img src="images/balls.gif"> Updating
     </div>
     <table class="table" id="keypairs-table">
-        <tr ng-repeat="thisKeypair in keypairs">
-            <td>{{thisKeypair.data.label}}</td>
-            <td timestamp="thisKeypair.data.timestamp/1000"></td>
+        <tr ng-repeat="thisKeypair in keypairs track by $index">
+            <td>{{thisKeypair.label}}</td>
+            <td timestamp="thisKeypair.timestamp"></td>
             <td style="text-align:right" ng-show="!isChangingKeys">
                 <button
-                    class="btn"
-                    ng-class=
-                        "{'btn-success':thisKeypair.id===keypair.id,'btn-default':thisKeypair.id!==keypair.id}"
+                    class="btn btn-default"
                     ng-click="setPrimaryKeypair($index)"
+                    ng-class="{'btn-success':thisKeypair.timestamp === keypair.timestamp && thisKeypair.label === keypair.label}"
                 >
                     Primary
                 </button>

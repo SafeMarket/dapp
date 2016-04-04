@@ -1,44 +1,34 @@
-/* globals angular, openpgp */
+/* globals angular */
 
-angular.module('app').factory('KeyGroup', (Key, $q) => {
+angular.module('app').factory('KeyGroup', (Key, $q, utils, user) => {
 
   function KeyGroup(addrs) {
 
-    const keyGroup = this
-    const deferred = $q.defer()
-
-    this.promise = deferred.promise
-    this.keys = []
-
-    const keyPromises = []
-    addrs.forEach((addr) => {
-      keyPromises.push(Key.fetch(addr))
+    this.keys = addrs.map((addr) => {
+      return new Key(addr)
     })
 
-    $q.all(keyPromises).then((keys) => {
-      keyGroup.keys = keys
-      deferred.resolve(keyGroup)
-    }, (error) => {
-      deferred.reject(error)
-    })
   }
 
   KeyGroup.prototype.encrypt = function encryptKeyGroup(message) {
-    const deferred = $q.defer()
-    const pgpKeys = []
+
+    const nacl = utils.getNacl()
+    const packets = {}
+    const userKeypair = user.getKeypair()
+    const messageUtf8 = nacl.encode_utf8(message)
 
     this.keys.forEach((key) => {
-      pgpKeys.push(key.key)
+
+      const nonce = nacl.crypto_box_random_nonce()
+      const ciphertext = nacl.crypto_box(messageUtf8, nonce, key.pk, userKeypair.pk)
+
+      console.log('ciphertext', ciphertext)
+
+      packets[key.id] = { nonce: Array.from(nonce), ciphertext: Array.from(ciphertext) }
+
     })
 
-    openpgp.encryptMessage(pgpKeys, message).then((messageArmored) => {
-      const _message = openpgp.message.readArmored(messageArmored)
-      deferred.resolve(_message)
-    }, (error) => {
-      deferred.reject(error)
-    })
-
-    return deferred.promise
+    return packets
   }
 
   return KeyGroup

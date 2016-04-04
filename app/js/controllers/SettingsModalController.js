@@ -1,4 +1,4 @@
-/* globals angular, web3 */
+/* globals angular, web3, _ */
 
 angular.module('app').controller('SettingsModalController', ($scope, growl, user, ticker, helpers, txMonitor, utils, $modalInstance, Keystore) => {
 
@@ -22,17 +22,18 @@ angular.module('app').controller('SettingsModalController', ($scope, growl, user
   $scope.amountType = 'everything'
   $scope.transferAmountInUserCurrency = '0'
 
+  $scope.equals = _.equals
+
   $scope.$watch('account', (account) => {
 
     user.setAccount(account)
+
     $scope.balance = user.getBalance()
     $scope.keypairs = user.getKeypairs()
-
-    user.fetchKeypair().then((keypair) => {
-      $scope.keypair = keypair
-    })
+    $scope.keypair = user.getKeypair()
 
     user.save()
+
   })
 
   $scope.$watch('currency', (currency) => {
@@ -49,29 +50,27 @@ angular.module('app').controller('SettingsModalController', ($scope, growl, user
 
     $scope.isChangingKeys = true
 
-    user.addKeypair().then(() => {
+    user.addKeypair()
+    $scope.keypairs = user.getKeypairs()
 
-      user.save()
+    if (confirm('A new keypair has been generated. Would you like to set it as your primary key?')) {
+      $scope.setPrimaryKeypair(user.getKeypairs().length - 1)
+    }
 
-      $scope.keypairs = user.getKeypairs()
+    $scope.isChangingKeys = false
 
-      if (confirm('A new keypair has been generated. Would you like to set it as your primary key?')) {
-        $scope.setPrimaryKeypair(user.getKeypairs().length - 1)
-      }
-
-      $scope.isChangingKeys = false
-    })
   }
 
   $scope.setPrimaryKeypair = function setPrimaryKeypair(index) {
 
-    const keyData = user.getKeypairs()[index].public.toPacketlist().write()
+    const keypair = user.getKeypairs()[index]
 
-    txMonitor.propose('Set Your Primary Keypair', Keystore.setKey, [keyData]).then(() => {
-      user.fetchKeypair().then((keypair) => {
-        $scope.keypair = keypair
-      })
+    console.log(keypair)
+
+    txMonitor.propose('Set Your Primary Keypair', Keystore.setKey, [keypair.pk]).then(() => {
+      $scope.keypair = user.getKeypair()
     })
+
   }
 
   $scope.deleteKeypair = function deleteKeypair(index) {

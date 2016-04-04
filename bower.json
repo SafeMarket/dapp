@@ -23,7 +23,6 @@
     "cryptocoin": "~0.3.0",
     "lodash": "~3.10.1",
     "msgpack-javascript": "*",
-    "openpgp": "~1.2.0",
     "q": "1.0.1",
     "utf8": "~2.1.1",
     "validate": "~0.8.0",
@@ -31,5 +30,8 @@
     "angular-marked": "git@github.com:SafeMarket/angular-marked.git#master",
     "angular-sanitize": "~1.4.7",
     "angular-ui-router": "~0.2.15"
+  },
+  "devDependencies": {
+    "js-nacl": "^0.6.0"
   }
 }

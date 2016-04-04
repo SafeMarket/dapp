@@ -170,10 +170,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.scoreCountsSum = 0
     this.scoreCountsTotal = 0
     this.owner = this.contract.owner()
-
-    Key.fetch(this.owner).then((key) => {
-      store.key = key
-    })
+    this.key = new Key(this.owner)
 
     this.infosphered.update()
 

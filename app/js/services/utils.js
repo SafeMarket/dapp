@@ -1,9 +1,10 @@
-/* globals angular, Module, cryptocoin, web3, contracts, msgpack, abi, validate */
+/* globals angular, Module, cryptocoin, web3, contracts, msgpack, abi, validate, nacl_factory */
 
-angular.module('app').service('utils', function utilsService(ticker, $q, $timeout, AliasReg, AffiliateReg, constants) {
+angular.module('app').service('utils', function utilsService(ticker, $q, $timeout, AliasReg, AffiliateReg, constants, Keystore) {
 
   const utils = this
   const compileJson = Module.cwrap('compileJSON', 'string', ['string', 'number'])
+  let nacl = null
 
   function sanitize(string) {
     return string.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;')
@@ -325,6 +326,21 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     return affiliate
   }
 
+  function getNacl() {
+    if (!nacl) {
+      nacl = nacl_factory.instantiate()
+    }
+    return nacl
+  }
+
+  function getTimestamp() {
+    return (new Date).getTime() / 1000
+  }
+
+  function getKeyId(pk) {
+    return getNacl().to_hex(new Uint8Array(pk.slice(-4)))
+  }
+
   angular.merge(this, {
     sanitize,
     convertObjectToHex,
@@ -357,7 +373,10 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     dehexify,
     getAliasedMartyrCalls,
     getRandom,
-    getAffiliate
+    getAffiliate,
+    getNacl,
+    getTimestamp,
+    getKeyId
   })
 
 })

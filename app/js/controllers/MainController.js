@@ -24,15 +24,15 @@ angular.module('app').controller('MainController', ($scope, $timeout, $rootScope
   }
 
   $scope.openStoreModal = function openStoreModal() {
-    user.verifyKeypair().then(() => {
+    if (user.verifyKeypair()) {
       modals.openStore()
-    })
+    }
   }
 
   $scope.openSubmarketModal = function openSubmarketModal() {
-    user.verifyKeypair().then(() => {
+    if (user.verifyKeypair()) {
       modals.openSubmarket()
-    })
+    }
   }
 
   $scope.openImportStoreModal = function openImportStoreModal() {

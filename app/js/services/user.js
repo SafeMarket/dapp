@@ -157,46 +157,24 @@ angular.module('app').service('user', function userService($q, $rootScope, words
     return this.getAccountData().submarketAddrs
   }
 
-  this.getKeypairsData = function getKeypairsData() {
-    if (!this.getAccountData().keypairsData) {
-      this.getAccountData().keypairsData = []
+  this.getKeypairs = function getKeypairs() {
+    if (!this.getAccountData().keypairs) {
+      this.getAccountData().keypairs = []
     }
 
-    return this.getAccountData().keypairsData
+    return this.getAccountData().keypairs
   }
 
-  this.getKeypairs = function getKeypairs() {
+  this.getKeypair = function getKeypair() {
 
-    const keypairs = []
-
-    this.getKeypairsData().forEach((keypairData) => {
-      keypairs.push(new Keypair(keypairData))
-    })
-
-    return keypairs
-  }
-
-  this.fetchKeypair = function fetchKeypair() {
-    const deferred = $q.defer()
     const account = this.getAccount()
     const keypairs = this.getKeypairs()
+    const key = new Key(account)
 
-    Key.fetch(account).then((key) => {
-      const keypair = _.find(keypairs, { id: key.id })
-      if (keypair) {
-        deferred.resolve(keypair)
-      } else {
-        deferred.reject()
-      }
-    }, (err) => {
-      deferred.reject(err)
+    return _.find(keypairs, (keypair) => {
+      return _.isEqual(keypair.pk, key.pk)
     })
 
-    return deferred.promise
-  }
-
-  this.findKeypair = function findKeypair(keyId) {
-    return _.find(this.getKeypairs(), { id: keyId })
   }
 
   this.getStorage = function getStorage() {
@@ -228,6 +206,7 @@ angular.module('app').service('user', function userService($q, $rootScope, words
   }
 
   this.login = function login(password) {
+
     try {
       this.data = JSON.parse(CryptoJS.AES.decrypt(this.getStorage(), password).toString(CryptoJS.enc.Utf8))
     } catch (e) {
@@ -237,6 +216,7 @@ angular.module('app').service('user', function userService($q, $rootScope, words
     this.password = password
     this.init()
     return true
+
   }
 
   this.verifyExistence = function verifyExistence() {
@@ -256,22 +236,20 @@ angular.module('app').service('user', function userService($q, $rootScope, words
   }
 
   this.addKeypair = function addKeypair() {
-    const deferred = $q.defer()
 
-    pgp.generateKeypair().then((keypair) => {
-      user.getKeypairsData().push({
-        private: keypair.privateKeyArmored,
-        public: keypair.publicKeyArmored,
-        timestamp: (new Date).getTime(),
-        label: words.generateWordPair()
-      })
+    const cryptoBoxKeypair = utils.getNacl().crypto_box_keypair()
+    const keypair = {
+      label: words.generateWordPair(),
+      pk: Array.from(cryptoBoxKeypair.boxPk),
+      sk: Array.from(cryptoBoxKeypair.boxSk),
+      timestamp: utils.getTimestamp()
+    }
 
-      user.save()
+    user.getKeypairs().push(keypair)
+    user.save()
 
-      deferred.resolve()
-    })
+    return keypair
 
-    return deferred.promise
   }
 
   this.addAffiliate = function addAffiliate(code) {
@@ -311,58 +289,47 @@ angular.module('app').service('user', function userService($q, $rootScope, words
   }
 
   this.verifyKeypair = function verifyKeypair() {
-    const deferred = $q.defer()
 
-    this.fetchKeypair().then(() => {
-      deferred.resolve()
-    }, () => {
+    const currentKey = this.getKeypair()
+
+    if (!currentKey) {
       growl.addErrorMessage('You need to set a primary keypair in the settings menu')
-      deferred.reject()
-    })
+      return false
+    }
 
-    return deferred.promise
+    return true
+
   }
 
 
-  this.decrypt = function decrypt(pgpMessageWrapper) {
+  this.decrypt = function decrypt(packets, pk) {
 
+    const keyIds = Object.keys(packets)
     let keypair
+    let keyId
 
     user.getKeypairs().forEach((_keypair) => {
-      if (pgpMessageWrapper.keyIds.indexOf(_keypair.id)) {
+      const _keyId = utils.getKeyId(_keypair.pk)
+      if (keyIds.indexOf(_keyId) > -1) {
+        keyId = _keyId
         keypair = _keypair
         return false
       }
     })
 
     if (!keypair) {
-      return false
+      throw new Error('Could not decrypt')
     }
 
-    pgpMessageWrapper.decrypt(keypair.private)
-    return true
+    const nacl = utils.getNacl()
+    const packet = packets[keyId]
 
-  }
-
-  function Keypair(keypairData) {
-    this.data = keypairData
-
-    const privateResponse = openpgp.key.readArmored(keypairData.private)
-    const publicResponse = openpgp.key.readArmored(keypairData.public)
-
-
-    if (privateResponse.err && privateResponse.err.length > 0) {
-      throw privateResponse.err[0]
+    try {
+      return nacl.crypto_box_open(new Uint8Array(packet.ciphertext), new Uint8Array(packet.nonce), new Uint8Array(keypair.pk), new Uint8Array(keypair.sk))
+    } catch (e) {
+      throw new Error(e.message)
     }
 
-    if (publicResponse.err && publicResponse.err.length > 0) {
-      throw privateResponse.err[0]
-    }
-
-    this.private = privateResponse.keys[0]
-    this.public = publicResponse.keys[0]
-
-    this.id = this.public.primaryKey.keyid.bytes
   }
 
   this.setProvider = function setProvider() {

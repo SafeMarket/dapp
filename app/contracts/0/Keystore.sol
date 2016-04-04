@@ -1,16 +1,18 @@
 contract Keystore{
 
-	event Key(address indexed addr, bytes data);
+	mapping(address => Key) keys;
 
-	mapping(address => uint) updatedAts;
-
-	function setKey(bytes data){
-		updatedAts[msg.sender] = block.number;
-		Key(msg.sender, data);
+	struct Key{
+		uint timestamp;
+		uint8[32] byt;
 	}
 
-	function getUpdatedAt(address addr) constant returns (uint){
-		return updatedAts[addr];
+	function setKey(uint8[32] byt){
+		keys[msg.sender] = Key(now, byt);
+	}
+
+	function getKeyParams(address addr) constant returns (uint, uint8[32]){
+		return (keys[addr].timestamp, keys[addr].byt);
 	}
 
 }

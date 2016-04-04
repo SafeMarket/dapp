@@ -147,9 +147,7 @@ angular.module('app').factory('Submarket', (utils, ticker, $q, Store, Key, Forum
     })
 
 
-    Key.fetch(this.owner).then((key) => {
-      submarket.key = key
-    })
+    submarket.key = new Key(this.owner)
 
     return deferred.promise
   }
