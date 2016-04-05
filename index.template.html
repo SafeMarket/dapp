@@ -35,7 +35,7 @@
             <button class="navbar-btn btn btn-default btn-lg" id="refreshButton">
               <span class="glyphicon glyphicon-refresh" id="refreshIcon"></span>
             </button>
-            <a class="navbar-btn btn btn-default btn-lg" href="#affiliate">
+            <a class="navbar-btn btn btn-default btn-lg" href="#affiliate" ng-if="isLoggedIn">
               <span class="glyphicon glyphicon-tags" id="refreshIcon"></span>
             </a>
             <button class="navbar-btn btn btn-default btn-lg" ng-if="isLoggedIn" ng-click="openSettingsModal()">
