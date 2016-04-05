@@ -31,7 +31,7 @@ angular.module('app').controller('SettingsModalController', ($scope, growl, user
     $scope.balance = user.getBalance()
     $scope.keypairs = user.getKeypairs()
     $scope.keypair = user.getKeypair()
-
+    user.setRootScopeVars()
     user.save()
 
   })

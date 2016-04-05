@@ -1,7 +1,7 @@
 {
     "darwin": {
         "options": {
-            "version": "0.34.3",
+            "version": "0.37.4",
             "name": "SafeMarket",
             "dir": "generated/dapp/production",
             "platform": "darwin",
@@ -12,7 +12,7 @@
     },
     "linux": {
         "options": {
-            "version": "0.34.3",
+            "version": "0.37.4",
             "name": "SafeMarket",
             "dir": "generated/dapp/production",
             "platform": "linux",
@@ -22,7 +22,7 @@
     },
     "win32": {
         "options": {
-            "version": "0.34.3",
+            "version": "0.37.4",
             "name": "SafeMarket",
             "dir": "generated/dapp/production",
             "platform": "win32",
