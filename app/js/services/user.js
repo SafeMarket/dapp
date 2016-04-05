@@ -245,7 +245,6 @@ angular.module('app').service('user', function userService($q, $rootScope, words
 
   this.reset = function reset() {
     this.data = null
-    this.setRootScopeVars()
     this.setStorage('')
     $rootScope.userExists = false
     this.logout()
@@ -377,6 +376,7 @@ angular.module('app').service('user', function userService($q, $rootScope, words
     this.setAccount(this.getAccount())
     this.setDisplayCurrencies()
     this.setProvider()
+    this.setRootScopeVars()
   }
 
 })

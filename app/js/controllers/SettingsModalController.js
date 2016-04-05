@@ -31,6 +31,7 @@ angular.module('app').controller('SettingsModalController', ($scope, growl, user
     user.fetchKeypair().then((keypair) => {
       $scope.keypair = keypair
     })
+    user.setRootScopeVars()
 
     user.save()
   })

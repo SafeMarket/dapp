@@ -2,12 +2,6 @@
 
 angular.module('app').controller('MainController', ($scope, $timeout, $rootScope, modals, user) => {
 
-  $scope.$watch('account', () => {
-    $rootScope.orderAddrs = user.getOrderAddrs()
-    $rootScope.storeAddrs = user.getStoreAddrs()
-    $rootScope.submarketAddrs = user.getSubmarketAddrs()
-  })
-
   $scope.goBack = function goBack() {
     window.history.back()
   }
