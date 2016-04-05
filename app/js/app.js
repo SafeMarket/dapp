@@ -1,3 +1,5 @@
+"use strict";
+
 /* global angular, web3, blockchain*/
 
 const app = angular.module('app', [
