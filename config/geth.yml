@@ -10,7 +10,6 @@ development:
   unlock: 42c35b6c220d570bd8898a540406e0b026479f7b
   password: config/development/password
   nodiscover: true
-  solc: node_modules/solc/bin/soljson-latest.js
 production:
   rpc: true
   rpcaddr: 127.0.0.1

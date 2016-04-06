@@ -1,9 +1,8 @@
-/* globals angular, Module, cryptocoin, web3, contracts, msgpack, abi, validate, nacl_factory */
+/* globals angular, Module, cryptocoin, web3, contracts, msgpack, abi, validate */
 
-angular.module('app').service('utils', function utilsService(ticker, $q, $timeout, AliasReg, AffiliateReg, constants, Keystore) {
+angular.module('app').service('utils', function utilsService(ticker, $q, $timeout, AliasReg, AffiliateReg, constants) {
 
   const utils = this
-  let nacl = null
 
   function sanitize(string) {
     return string.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;')
@@ -92,15 +91,31 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
   }
 
   function convertObjectToHex(object) {
-    return hexify(cryptocoin.convertHex.bytesToHex(msgpack.pack(object)))
+    return convertBytesToHex(convertObjectToBytes(object))
+  }
+
+  function convertObjectToBytes(object) {
+    return msgpack.pack(object)
+  }
+
+  function convertBytesToObject(bytes) {
+    return msgpack.unpack(bytes)
+  }
+
+  function convertBytesToHex(bytes) {
+    return hexify(cryptocoin.convertHex.bytesToHex(bytes))
   }
 
   function convertHexToObject(hex) {
     try {
-      return msgpack.unpack(cryptocoin.convertHex.hexToBytes(hex))
+      return msgpack.unpack(convertHexToBytes(hex))
     } catch (e) {
       return null
     }
+  }
+
+  function convertHexToBytes(hex) {
+    return cryptocoin.convertHex.hexToBytes(hex)
   }
 
   function convertCurrency(amount, currencies) {
@@ -271,7 +286,7 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
 
     const callCodes = []
 
-    calls.forEach((call, index) => {
+    calls.forEach((call) => {
       if (!call.address) {
         throw new Error('Call object needs an address')
       }
@@ -291,9 +306,9 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     })
 
     const solCode = `contract Martyr{\r\nfunction Martyr() { bytes memory temp; \r\n${callCodes.join('\r\n')}\r\n}\r\n}`
-    const data = web3.eth.compile(solCode).contracts.Martyr
+    const bytecode = web3.eth.compile.solidity(solCode).Martyr.code
 
-    return hexify(data.bytecode)
+    return hexify(bytecode)
   }
 
   function getFunctionHash(name, types) {
@@ -324,25 +339,23 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     return affiliate
   }
 
-  function getNacl() {
-    if (!nacl) {
-      nacl = nacl_factory.instantiate()
-    }
-    return nacl
-  }
 
   function getTimestamp() {
     return (new Date).getTime() / 1000
   }
 
   function getKeyId(pk) {
-    return getNacl().to_hex(new Uint8Array(pk.slice(-4)))
+    return cryptocoin.convertHex.bytesToHex(pk.slice(-4))
   }
 
   angular.merge(this, {
     sanitize,
     convertObjectToHex,
+    convertObjectToBytes,
+    convertBytesToObject,
+    convertBytesToHex,
     convertHexToObject,
+    convertHexToBytes,
     convertCurrency,
     formatCurrency,
     convertCurrencyAndFormat,
@@ -371,7 +384,6 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     getAliasedMartyrCalls,
     getRandom,
     getAffiliate,
-    getNacl,
     getTimestamp,
     getKeyId
   })

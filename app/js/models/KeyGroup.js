@@ -1,4 +1,4 @@
-/* globals angular */
+/* globals angular, nacl */
 
 angular.module('app').factory('KeyGroup', (Key, $q, utils, user) => {
 
@@ -10,17 +10,15 @@ angular.module('app').factory('KeyGroup', (Key, $q, utils, user) => {
 
   }
 
-  KeyGroup.prototype.encrypt = function encryptKeyGroup(message) {
+  KeyGroup.prototype.getPackets = function getPackets(message) {
 
-    const nacl = utils.getNacl()
     const packets = {}
     const userKeypair = user.getKeypair()
-    const messageUtf8 = nacl.encode_utf8(message)
 
     this.keys.forEach((key) => {
 
-      const nonce = nacl.crypto_box_random_nonce()
-      const ciphertext = nacl.crypto_box(messageUtf8, nonce, key.pk, userKeypair.pk)
+      const nonce = nacl.randomBytes(nacl.box.nonceLength)
+      const ciphertext = nacl.box(new Uint8Array(message), nonce, new Uint8Array(key.pk), new Uint8Array(userKeypair.sk))
 
       console.log('ciphertext', ciphertext)
 

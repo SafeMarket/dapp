@@ -1,4 +1,4 @@
-/* globals angular, blockchain, lightwallet, web3, _, CryptoJS, openpgp, HookedWeb3Provider */
+/* globals angular, blockchain, lightwallet, web3, _, CryptoJS, openpgp, HookedWeb3Provider, nacl */
 
 angular.module('app').service('user', function userService($q, $rootScope, words, pgp, Key, modals, growl, Affiliate, utils) {
 
@@ -236,11 +236,11 @@ angular.module('app').service('user', function userService($q, $rootScope, words
 
   this.addKeypair = function addKeypair() {
 
-    const cryptoBoxKeypair = utils.getNacl().crypto_box_keypair()
+    const boxKeypair = nacl.box.keyPair()
     const keypair = {
       label: words.generateWordPair(),
-      pk: Array.from(cryptoBoxKeypair.boxPk),
-      sk: Array.from(cryptoBoxKeypair.boxSk),
+      pk: Array.from(boxKeypair.publicKey),
+      sk: Array.from(boxKeypair.secretKey),
       timestamp: utils.getTimestamp()
     }
 
@@ -301,8 +301,14 @@ angular.module('app').service('user', function userService($q, $rootScope, words
   }
 
 
-  this.decrypt = function decrypt(packets, pk) {
+  this.decryptPacketsBytes = function decryptPacketsBytes(packetsBytes) {
 
+    if (typeof packetsBytes === 'string') {
+      throw new Error('Expected input of bytes')
+    }
+
+    const packets = utils.convertBytesToObject(packetsBytes)
+    console.log(packets)
     const keyIds = Object.keys(packets)
     let keypair
     let keyId
@@ -317,18 +323,18 @@ angular.module('app').service('user', function userService($q, $rootScope, words
     })
 
     if (!keypair) {
-      throw new Error('Could not decrypt')
+      throw new Error('Could not find matching keypair')
     }
 
-    const nacl = utils.getNacl()
     const packet = packets[keyId]
+    console.log(packet, keypair)
+    const result = nacl.box.open(new Uint8Array(packet.ciphertext), new Uint8Array(packet.nonce), new Uint8Array(keypair.pk), new Uint8Array(keypair.sk))
 
-    try {
-      return nacl.crypto_box_open(new Uint8Array(packet.ciphertext), new Uint8Array(packet.nonce), new Uint8Array(keypair.pk), new Uint8Array(keypair.sk))
-    } catch (e) {
-      throw new Error(e.message)
+    if (result === false) {
+      throw new Error('Failed to decrypt')
+    } else {
+      return result
     }
-
   }
 
   this.setProvider = function setProvider() {

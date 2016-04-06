@@ -30,9 +30,8 @@
     "crypto-js": "https://github.com/SafeMarket/crypto-js.git#~3.1.2",
     "angular-marked": "git@github.com:SafeMarket/angular-marked.git#master",
     "angular-sanitize": "~1.4.7",
-    "angular-ui-router": "~0.2.15"
-  },
-  "devDependencies": {
-    "js-nacl": "^0.6.0"
+    "angular-ui-router": "~0.2.15",
+    "tweetnacl": "^0.14.3",
+    "tweetnacl-util": "^0.13.3"
   }
 }
