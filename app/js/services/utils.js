@@ -3,7 +3,6 @@
 angular.module('app').service('utils', function utilsService(ticker, $q, $timeout, AliasReg, AffiliateReg, constants, Keystore) {
 
   const utils = this
-  const compileJson = Module.cwrap('compileJSON', 'string', ['string', 'number'])
   let nacl = null
 
   function sanitize(string) {
@@ -292,8 +291,7 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     })
 
     const solCode = `contract Martyr{\r\nfunction Martyr() { bytes memory temp; \r\n${callCodes.join('\r\n')}\r\n}\r\n}`
-    console.log(solCode)
-    const data = (JSON.parse(compileJson(solCode))).contracts.Martyr
+    const data = web3.eth.compile(solCode).contracts.Martyr
 
     return hexify(data.bytecode)
   }
@@ -366,7 +364,6 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     validateAlias,
     getContract,
     getContractAddressFromTxReceipt,
-    compileJson,
     getFunctionHash,
     getMartyrData,
     hexify,
