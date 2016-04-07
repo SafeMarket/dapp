@@ -18,10 +18,8 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
 
     const deferred = $q.defer()
     const store = new Store(storeAddr)
+
     const parties = [web3.eth.defaultAccount, store.owner]
-
-    meta = utils.convertObjectToBytes(meta)
-
     if (submarketAddr !== constants.nullAddr) {
       const submarket = new Submarket(submarketAddr)
       const submarketOwner = submarket.owner
@@ -29,14 +27,12 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     }
 
     const keyGroup = new KeyGroup(parties)
-
-    const metaPackets = keyGroup.getPackets(meta)
-    const metaHex = utils.convertObjectToHex(metaPackets)
+    const metaEncrypted = utils.encryptObject(meta, keyGroup.getPks(), user.getKeypair())
 
     txMonitor.propose(
       'Create a New Order',
       OrderReg.create,
-      [buyer, storeAddr, submarketAddr, affiliate, 0, 0, metaHex, { value: value }]
+      [buyer, storeAddr, submarketAddr, affiliate, 0, 0, metaEncrypted, { value: value }]
     ).then((txReciept) => {
       const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
       deferred.resolve(new Order(contractAddress))
@@ -205,11 +201,8 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
         return deferred.reject(new Error('no results found'))
       }
 
-      console.log(utils.convertHexToBytes(results[results.length - 1].args.meta))
-
-      const metaBytes = user.decryptPacketsBytes(utils.convertHexToBytes(results[results.length - 1].args.meta), order.keys.buyer.pk)
-      console.log(metaBytes)
-      order.meta = utils.convertBytesToObject(metaBytes)
+      const metaEncrypted = results[results.length - 1].args.meta
+      order.meta = utils.decryptToObject(metaEncrypted, user.getKeypairs())
 
       let productsTotalInOrderCurrency = web3.toBigNumber(0)
       order.meta.products.forEach((product) => {

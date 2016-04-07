@@ -9,6 +9,8 @@ angular.module('app').controller('ProductsController', ($scope, $filter, utils, 
 
   $scope.createOrder = function createOrder() {
 
+    user.verifyKeypair()
+
     const buyer = user.getAccount()
     const meta = {
       products: [],

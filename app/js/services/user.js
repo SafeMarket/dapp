@@ -293,48 +293,9 @@ angular.module('app').service('user', function userService($q, $rootScope, words
 
     if (!currentKey) {
       growl.addErrorMessage('You need to set a primary keypair in the settings menu')
-      return false
+      throw new Error('Primary keypair not set')
     }
-
-    return true
-
-  }
-
-
-  this.decryptPacketsBytes = function decryptPacketsBytes(packetsBytes) {
-
-    if (typeof packetsBytes === 'string') {
-      throw new Error('Expected input of bytes')
-    }
-
-    const packets = utils.convertBytesToObject(packetsBytes)
-    console.log(packets)
-    const keyIds = Object.keys(packets)
-    let keypair
-    let keyId
-
-    user.getKeypairs().forEach((_keypair) => {
-      const _keyId = utils.getKeyId(_keypair.pk)
-      if (keyIds.indexOf(_keyId) > -1) {
-        keyId = _keyId
-        keypair = _keypair
-        return false
-      }
-    })
-
-    if (!keypair) {
-      throw new Error('Could not find matching keypair')
-    }
-
-    const packet = packets[keyId]
-    console.log(packet, keypair)
-    const result = nacl.box.open(new Uint8Array(packet.ciphertext), new Uint8Array(packet.nonce), new Uint8Array(keypair.pk), new Uint8Array(keypair.sk))
-
-    if (result === false) {
-      throw new Error('Failed to decrypt')
-    } else {
-      return result
-    }
+    
   }
 
   this.setProvider = function setProvider() {

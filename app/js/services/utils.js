@@ -1,4 +1,4 @@
-/* globals angular, Module, cryptocoin, web3, contracts, msgpack, abi, validate */
+/* globals angular, Module, cryptocoin, web3, contracts, msgpack, abi, validate, nacl */
 
 angular.module('app').service('utils', function utilsService(ticker, $q, $timeout, AliasReg, AffiliateReg, constants) {
 
@@ -348,6 +348,65 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     return cryptocoin.convertHex.bytesToHex(pk.slice(-4))
   }
 
+  function encrypt(msg, pks, keypair) {
+
+    const crystalObject = {
+      pk: keypair.pk,
+      packets: {}
+    }
+
+    pks.forEach((pk) => {
+
+      const nonce = nacl.randomBytes(nacl.box.nonceLength)
+      const ciphertext = nacl.box(new Uint8Array(msg), new Uint8Array(nonce), new Uint8Array(pk), new Uint8Array(keypair.sk))
+      const pkId = getKeyId(pk)
+
+      crystalObject.packets[pkId] = { nonce: Array.from(nonce), ciphertext: Array.from(ciphertext) }
+
+    })
+
+    return utils.convertObjectToHex(crystalObject)
+  }
+
+  function encryptObject(obj, pks, keypair) {
+    return encrypt(convertObjectToBytes(obj), pks, keypair)
+  }
+
+  function decrypt(hex, keypairs) {
+
+    const crystalObject = utils.convertHexToObject(hex)
+    const keyIds = Object.keys(crystalObject.packets)
+    let keypair
+    let keyId
+
+    keypairs.forEach((_keypair) => {
+      const _keyId = utils.getKeyId(_keypair.pk)
+      if (keyIds.indexOf(_keyId) > -1) {
+        keyId = _keyId
+        keypair = _keypair
+        return false
+      }
+    })
+
+    if (!keypair) {
+      throw new Error('Could not find matching keypair')
+    }
+
+    const packet = crystalObject.packets[keyId]
+    const result = nacl.box.open(new Uint8Array(packet.ciphertext), new Uint8Array(packet.nonce), new Uint8Array(crystalObject.pk), new Uint8Array(keypair.sk))
+
+    if (result === false) {
+      throw new Error('Failed to decrypt')
+    } else {
+      return result
+    }
+
+  }
+
+  function decryptToObject(hex, keypairs) {
+    return convertBytesToObject(decrypt(hex, keypairs))
+  }
+
   angular.merge(this, {
     sanitize,
     convertObjectToHex,
@@ -385,7 +444,11 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     getRandom,
     getAffiliate,
     getTimestamp,
-    getKeyId
+    getKeyId,
+    encrypt,
+    encryptObject,
+    decrypt,
+    decryptToObject
   })
 
 })
