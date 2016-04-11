@@ -18,7 +18,17 @@ contract OrderReg is owned{
 
 	event Registration(address orderAddr);
 
-	function create(address buyer, address storeAddr, address submarketAddr, address affiliate, uint bounty, uint rewardMax, bytes meta){
+	function create(
+		address buyer,
+		address storeAddr,
+		address submarketAddr,
+		address affiliate,
+		uint[] productIndexes,
+		uint[] productQuantities,
+		uint transportIndex,
+		uint bounty,
+		uint rewardMax
+	){
 
 		if(!storeReg.isRegistered(storeAddr))
 			throw;
@@ -26,7 +36,17 @@ contract OrderReg is owned{
 		if(submarketAddr != address(0) && !submarketReg.isRegistered(submarketAddr))
 			throw;
 
-		var order = new Order(buyer, storeAddr, submarketAddr, affiliate, bounty, rewardMax, meta);
+		var order = new Order(
+			buyer,
+			storeAddr,
+			submarketAddr,
+			affiliate,
+			productIndexes,
+			productQuantities,
+			transportIndex,
+			bounty,
+			rewardMax
+		);
 		var orderAddr = address(order);
 				
 		registeredAddrsArray.push(orderAddr);

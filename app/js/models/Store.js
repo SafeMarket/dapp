@@ -10,6 +10,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.infosphered = new Infosphered(this.contract, {
       isOpen: 'bool',
       currency: 'bytes32',
+      bufferCentiperun: 'uint',
       disputeSeconds: 'uint',
       minTotal: 'uint',
       affiliateFeeCentiperun: 'uint'
@@ -22,7 +23,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   Store.prototype.abi = Store.abi = contracts.Store.abi
   Store.prototype.contractFactory = Store.contractFactory = web3.eth.contract(Store.abi)
 
-  Store.create = function createStore(isOpen, currency, disputeSeconds, minTotal, affiliateFeeCentiperun, meta, alias) {
+  Store.create = function createStore(isOpen, currency, bufferCentiperun, disputeSeconds, minTotal, affiliateFeeCentiperun, meta, alias) {
 
     meta = utils.convertObjectToHex(meta)
     const deferred = $q.defer()
@@ -30,7 +31,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     txMonitor.propose(
       'Create a New Store',
       StoreReg.create,
-      [isOpen, currency, disputeSeconds, minTotal, affiliateFeeCentiperun, meta, alias]
+      [isOpen, currency, bufferCentiperun, disputeSeconds, minTotal, affiliateFeeCentiperun, meta, alias]
     ).then((txReciept) => {
       const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
       deferred.resolve(new Store(contractAddress))
@@ -208,22 +209,15 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.timestamp = reviewData[1].toNumber()
   }
 
-  function Product(data, currency) {
-    this.id = data.id
-    this.name = data.name
-    this.price = new Coinage(data.price, currency)
-    this.info = data.info
-    this.imageUrl = data.imageUrl
+  function Product(index, isArchived, teraprice, title, description, currency) {
+    angular.merge(this, { index, isArchived, teraprice, title, description })
+    this.price = new Coinage(teraprice.div(constants.tera), currency)
     this.quantity = 0
   }
 
-  function Transport(data, currency) {
-    const userCurrency = user.getCurrency()
-
-    this.id = data.id
-    this.data = data
-    this.price = new Coinage(this.data.price, currency)
-
+  function Transport(index, isArchived, teraprice, title, currency, userCurrency) {
+    angular.merge(this, { index, isArchived, teraprice, title })
+    this.price = new Coinage(teraprice.div(constants.tera), currency)
     const priceFormatted = utils.formatCurrency(this.price.in(userCurrency), userCurrency, 1)
     this.label = `${this.data.type} (${priceFormatted})`
   }

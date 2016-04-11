@@ -32,7 +32,6 @@ contract Order is infosphered{
 	uint public createdAtBlockNumber;
 	uint public receivedAtBlockNumber;
 
-	event Meta(bytes meta);
 	event Message(address indexed sender, bytes text);
 	event Update(address indexed sender, uint indexed status);
 
@@ -48,9 +47,11 @@ contract Order is infosphered{
 		,address _storeAddr
 		,address _submarketAddr
 		,address _affiliate
+		,uint[] productIndexes
+		,uint[] productQuantities
+		,uint transportId
 		,uint _bounty
 		,uint _rewardMax
-		,bytes _meta
 	){
 
 		createdAtBlockNumber = block.number;
@@ -73,8 +74,6 @@ contract Order is infosphered{
 		}
 
 		bounty = _bounty;
-
-		Meta(_meta);
 	}
 
 	function getSenderPermission(address contractAddr, bytes32 action) private returns(bool){
