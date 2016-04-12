@@ -1,0 +1,10 @@
+{
+	"options": {
+		"workspace": "generated/geth",
+		"output": {
+			"arm": "bin/arm",
+			"linux64": "bin/linux64",
+			"win64": "bin/win64"
+		}
+	}
+}

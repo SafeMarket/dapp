@@ -14,25 +14,19 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
   Order.prototype.abi = Order.abi = contracts.Order.abi
   Order.prototype.contractFactory = Order.contractFactory = web3.eth.contract(Order.abi)
 
-  Order.create = function createOrder(buyer, storeAddr, submarketAddr, affiliate, meta, value) {
+  Order.create = function createOrder(buyer, storeAddr, submarketAddr, affiliate, products, transportIndex) {
 
     const deferred = $q.defer()
-    const store = new Store(storeAddr)
 
-    const parties = [web3.eth.defaultAccount, store.owner]
-    if (submarketAddr !== constants.nullAddr) {
-      const submarket = new Submarket(submarketAddr)
-      const submarketOwner = submarket.owner
-      parties.push(submarketOwner)
-    }
+    const _products = products.filter((product) => { return product.quantity > 0})
+    const productIndexes = _products.map((product) => { return product.index })
+    const productQuantities = _products.map((product) => { return product.quantity })
 
-    const keyGroup = new KeyGroup(parties)
-    const metaEncrypted = utils.encryptObject(meta, keyGroup.getPks(), user.getKeypair())
 
     txMonitor.propose(
       'Create a New Order',
       OrderReg.create,
-      [buyer, storeAddr, submarketAddr, affiliate, 0, 0, metaEncrypted, { value: value }]
+      [buyer, storeAddr, submarketAddr, affiliate, productIndexes, productQuantities, transportIndex, 0, 0, { value: value }]
     ).then((txReciept) => {
       const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
       deferred.resolve(new Order(contractAddress))
