@@ -16,6 +16,7 @@ module.exports = function gruntfile(grunt) {
     'solc-output-deploy:production',
     'version::patch',
     'clean:packages',
+    'download-geth',
     'electron',
     'compress',
     'readme',

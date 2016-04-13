@@ -1,0 +1,1 @@
+echo y | $1 removedb

@@ -70,6 +70,15 @@
     "src": ["<%= files.electron.src %>"],
     "dest": "generated/dapp/production/"
   },
+  "geth": {
+    "cwd": "generated/",
+    "src": ["geth/**/*"],
+    "dest": "generated/dapp/production/",
+    "expand": true,
+    "options": {
+      "mode": true
+    }
+  },
   "bin": {
     "src": ["<%= files.bin.src %>"],
     "dest": "generated/dapp/production/",

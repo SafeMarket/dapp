@@ -1,61 +1,76 @@
 module.exports = Geth
 
-var cp = require('child_process')
-	,q = require('q')
-	,fs = require('fs')
+const cp = require('child_process')
+const q = require('q')
+const fs = require('fs')
 
-function Geth(bin,flags){
+function Geth(bin, flags) {
 
-	if(flags && !Array.isArray(flags))
-		throw 'Flags must be an array'
+  if (!fs.existsSync(bin)) {
+    throw new Error(`${bin} does not exist`)
+  }
 
+  if (flags && !Array.isArray(flags)) {
+    throw new Error('Flags must be an array')
+  }
 
-	this.bin = bin || 'geth'
-	this.flags = flags || []
+  this.bin = bin || 'geth'
+  this.flags = flags || []
 }
 
-Geth.prototype.run = function(cmd,onStdout,onStderr){
+Geth.prototype.run = function runGeth(cmd, onStdout, onStderr) {
 
-	if(cmd && !Array.isArray(cmd))
-		throw 'cmd must be an array'
+  if (cmd && !Array.isArray(cmd)) {
+    throw new Error('cmd must be an array')
+  }
 
-	var args = this.flags.concat(cmd)
+  const args = this.flags.concat(cmd)
 
-	this.proc = cp.spawn(this.bin,args)
+  this.proc = cp.spawn(this.bin, args)
 
-	this.proc.stdout.on("data", function(data){
+  this.proc.stdout.on('data', (data) => {
 
-		process.stdout.write(data.toString())
-		if(!onStdout) return
+    process.stdout.write(data.toString())
+    if (!onStdout) { return }
 
-		var args = [data.toString()].concat(Array.prototype.slice(arguments))
-		onStdout.apply(this,args)
-	});
+    const _args = [data.toString()].concat(Array.prototype.slice(arguments))
+    onStdout.apply(this, _args)
+  })
 
-	this.proc.stderr.on("data", function(data){
-		process.stdout.write(data.toString())
-		if(!onStderr) return
+  this.proc.stderr.on('data', (data) => {
+    process.stdout.write(data.toString())
+    if (!onStderr) { return }
 
-		var args = [data.toString()].concat(Array.prototype.slice(arguments))
-		onStderr.apply(this,args)
-	});
+    const _args = [data.toString()].concat(Array.prototype.slice(arguments))
+    onStderr.apply(this, _args)
+  })
 }
 
-Geth.prototype.startRpc = function(){
-	var deferred = q.defer()
+Geth.prototype.startRpc = function startGethRpc() {
+  const deferred = q.defer()
 
-	this.run(['--rpc'],function(data){
-		if(data.indexOf('Fatal')>-1)
-			deferred.reject(data)
-	},function(data){
-		if(data.indexOf('imported')>-1)
-			deferred.resolve()
+  this.run(['--rpc', '--fast'], (data) => {
+    if (data.indexOf('Fatal') > -1) {
+      deferred.reject(data)
+    }
+  }, (data) => {
+    if (data.indexOf('imported') > -1) {
+      deferred.resolve()
+    }
+  })
 
-	})
-
-	return deferred.promise
+  return deferred.promise
 }
 
-Geth.prototype.kill = function(){
-	this.proc.kill()
+Geth.prototype.kill = function killGeth() {
+
+  const deferred = q.defer()
+
+  this.proc.on('exit', () => {
+    deferred.resolve()
+  })
+
+  this.proc.kill()
+
+  return deferred.promise
 }

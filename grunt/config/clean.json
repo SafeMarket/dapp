@@ -8,5 +8,5 @@
     ,"datadir/development/geth.ipc"
     ,"datadir/development/history"
     ,"datadir/development/nodekey"
-  ]
+  ], "bin" : ["generated/bin/**/*"]
 }

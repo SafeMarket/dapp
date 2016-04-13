@@ -26,7 +26,8 @@
             ,"app/js/app.js"
             ,"app/js/validators.js"
             ,"app/js/splash.js"
-            ,"app/js/**/*.js"]
+            ,"app/js/**/*.js"
+        ]
     },
     "css": {
         "src": [
@@ -57,7 +58,12 @@
         "src": ["main.js","package.json"]
     },
     "modules": {
-        "src": ["node_modules/electron/**/*","node_modules/q/**/*","modules/**/*"]
+        "src": [
+            "modules/**/*",
+            "node_modules/electron/**/*",
+            "node_modules/q/**/*",
+            "node_modules/rimraf/**/*"
+        ]
     },
     "bin": {
         "src": ["bin/**/*"]
