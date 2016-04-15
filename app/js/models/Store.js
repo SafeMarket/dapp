@@ -25,13 +25,13 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
   Store.create = function createStore(isOpen, currency, bufferCentiperun, disputeSeconds, minTotal, affiliateFeeCentiperun, meta, alias) {
 
-    meta = utils.convertObjectToHex(meta)
+    const _meta = utils.convertObjectToHex(meta)
     const deferred = $q.defer()
 
     txMonitor.propose(
       'Create a New Store',
       StoreReg.create,
-      [isOpen, currency, bufferCentiperun, disputeSeconds, minTotal, affiliateFeeCentiperun, meta, alias]
+      [isOpen, currency, bufferCentiperun, disputeSeconds, minTotal, affiliateFeeCentiperun, _meta, alias]
     ).then((txReciept) => {
       const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
       deferred.resolve(new Store(contractAddress))
@@ -73,80 +73,11 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
       name: {
         presence: true,
         type: 'string'
-      }, products: {
-        exists: true,
-        type: 'array'
       }, info: {
         type: 'string'
-      }, submarketAddrs: {
-        exists: true,
-        type: 'array'
-      }, transports: {
-        presence: true,
-        type: 'array',
-        length: { minimum: 1 }
       }
     })
 
-    meta.submarketAddrs.forEach((submarketAddr) => {
-      utils.check({
-        addr: submarketAddr
-      }, {
-        addr: {
-          presence: true,
-          type: 'address',
-          addrOfContract: 'Submarket'
-        }
-      }, 'Submarket')
-    })
-
-    meta.products.forEach((product) => {
-      utils.check(product, {
-        id: {
-          presence: true,
-          type: 'string',
-          numericality: {
-            integerOnly: true,
-            greaterThanOrEqualTo: 0
-          }
-        }, name: {
-          presence: true,
-          type: 'string'
-        }, price: {
-          presence: true,
-          type: 'string',
-          numericality: {
-            greaterThan: 0
-          }
-        }, info: {
-          type: 'string'
-        }, imageUrl: {
-          type: 'url'
-        }
-      }, 'Product')
-    })
-
-    meta.transports.forEach((transport) => {
-      utils.check(transport, {
-        id: {
-          presence: true,
-          type: 'string',
-          numericality: {
-            integerOnly: true,
-            greaterThanOrEqualTo: 0
-          }
-        }, type: {
-          presence: true,
-          type: 'string'
-        }, price: {
-          presence: true,
-          type: 'string',
-          numericality: {
-            greaterThanOrEqualTo: 0
-          }
-        }
-      }, 'Transport')
-    })
   }
 
   Store.estimateCreationGas = function estimateStoreCreationGas(alias, meta) {

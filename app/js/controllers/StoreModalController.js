@@ -31,11 +31,9 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
     $scope.alias = store.alias
     $scope.name = store.meta.data.name
     $scope.currency = store.currency
-    $scope.products = store.meta.data.products
     $scope.disputeSeconds = store.infosphered.data.disputeSeconds.toString()
     $scope.info = store.meta.data.info
     $scope.isOpen = store.infosphered.data.isOpen
-    $scope.transports = store.meta.data.transports || []
     $scope.minTotal = store.infosphered.data.minTotal.div(constants.tera).toNumber()
     $scope.affiliateFeeCentiperun = store.infosphered.data.affiliateFeeCentiperun.toNumber()
 
@@ -119,7 +117,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
       }
 
       Store
-        .create($scope.isOpen, $scope.currency, $scope.disputeSeconds, minTotal, affiliateFeeCentiperun, meta, $scope.alias)
+        .create($scope.isOpen, $scope.currency, $scope.bufferCentiperun, $scope.disputeSeconds, minTotal, affiliateFeeCentiperun, meta, $scope.alias)
         .then((_store) => {
           user.addStore(_store.addr)
           user.save()
