@@ -34,15 +34,15 @@ angular.module('app').controller('StoreController', ($scope, $filter, $state, ut
 
   $scope.store.updatePromise.then((store) => {
 
-    $scope.store.meta.data.submarketAddrs.forEach((submarketAddr) => {
+    // $scope.store.meta.data.submarketAddrs.forEach((submarketAddr) => {
 
-      const submarket = new Submarket(submarketAddr)
-      $scope.submarketOptions.push({
-        addr: submarketAddr,
-        label: `@${submarket.alias}`,
-        escrowFeeCentiperun: submarket.infosphered.data.escrowFeeCentiperun.toNumber()
-      })
-    })
+    //   const submarket = new Submarket(submarketAddr)
+    //   $scope.submarketOptions.push({
+    //     addr: submarketAddr,
+    //     label: `@${submarket.alias}`,
+    //     escrowFeeCentiperun: submarket.infosphered.data.escrowFeeCentiperun.toNumber()
+    //   })
+    // })
 
     $scope.transport = store.transports[0]
 

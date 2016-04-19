@@ -3,8 +3,7 @@ contract Store is forumable, audible, infosphered, meta, permissioned, aliasable
 	struct Product{
 		bool isArchived;
 		uint teraprice;
-		bytes title;
-		bytes description;
+		bytes data;
 	}
 
 	Product[] products;
@@ -18,12 +17,12 @@ contract Store is forumable, audible, infosphered, meta, permissioned, aliasable
 	}
 
 	function getFullProductParams(uint index) constant returns(bool, uint, bytes, bytes){
-		return (products[index].isArchived, products[index].teraprice, products[index].title, products[index].description);
+		return (products[index].isArchived, products[index].teraprice, data);
 	}
 
-	function addProduct(uint teraprice, bytes title, bytes description){
+	function addProduct(uint teraprice, bytes data){
 		requireSenderPermission('product');
-		products.push(Product(false, teraprice, title, description));
+		products.push(Product(false, teraprice, data));
 	}
 
 	function archiveProduct(uint index){

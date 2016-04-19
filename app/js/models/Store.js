@@ -94,7 +94,9 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     const deferred = $q.defer()
     const store = this
 
-    this.products = []
+    console.log(this)
+
+    this.products = this.getProducts()
     this.transports = []
     this.reviews = []
     this.scoreCounts = []
@@ -110,25 +112,35 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.minTotal = new Coinage(this.infosphered.data.minTotal.div(constants.tera), this.currency)
 
     this.meta.update().then((meta) => {
-
       store.info = utils.sanitize(meta.data.info || '')
-
-      if (meta.data.products) {
-        meta.data.products.forEach((data) => {
-          store.products.push(new Product(data, store.currency))
-        })
-      }
-
-      if (meta.data.transports) {
-        meta.data.transports.forEach((data) => {
-          store.transports.push(new Transport(data, store.currency))
-        })
-      }
-
       deferred.resolve(store)
     })
 
     return deferred.promise
+  }
+
+  Store.prototype.getProducts = function getStoreProducts() {
+    
+    const products = []
+    const productsLength = this.contract.getProductsLength()
+
+    for (var i = 0; i < productsLength; i++) {
+      const args = [i].concat(this.contract.getFullProductParams(i))
+      products.push(new (Function.prototype.bind.apply(Product, args)))
+    }
+
+    return products
+  }
+
+  Store.prototype.getAddProductMartyrCalls = function getAddProductMartyrCalls(index, price, name, description) {
+    const teraprice = web3.toBigNumber(price).times(constants.tera)
+    return [{
+      address: this.addr,
+      data: this.contract.addProduct.getData(teraprice, title, description)
+    }].concat(this.infosphered.getMartyrCalls({
+      `p.${index}.n` : name,
+      `p.${index}.d` : description
+    }))
   }
 
   function Review(result, store) {

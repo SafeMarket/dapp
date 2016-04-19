@@ -31,21 +31,24 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
     $scope.alias = store.alias
     $scope.name = store.meta.data.name
     $scope.currency = store.currency
+    $scope.bufferCentiperun = store.infosphered.data.bufferCentiperun.toNumber()
     $scope.disputeSeconds = store.infosphered.data.disputeSeconds.toString()
     $scope.info = store.meta.data.info
     $scope.isOpen = store.infosphered.data.isOpen
     $scope.minTotal = store.infosphered.data.minTotal.div(constants.tera).toNumber()
     $scope.affiliateFeeCentiperun = store.infosphered.data.affiliateFeeCentiperun.toNumber()
+    $scope.products = _.clone(store.products)
 
-    if (store.meta.data.submarketAddrs) {
-      store.meta.data.submarketAddrs.forEach((submarketAddr) => {
-        $scope.submarkets.push({ alias: utils.getAlias(submarketAddr) })
-      })
-    }
+    // if (store.meta.data.submarketAddrs) {
+    //   store.meta.data.submarketAddrs.forEach((submarketAddr) => {
+    //     $scope.submarkets.push({ alias: utils.getAlias(submarketAddr) })
+    //   })
+    // }
 
   } else {
 
     $scope.currency = user.getCurrency()
+    $scope.bufferCentiperun = 0
     $scope.products = []
     $scope.disputeSeconds = '1209600'
     $scope.isOpen = true
@@ -66,9 +69,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
   }
 
   $scope.addTransport = function addTransport() {
-    $scope.transports.push({
-      id: utils.getRandom().times('100000000').round().toString()
-    })
+    $scope.transports.push({})
   }
 
   $scope.submit = function submit() {
@@ -76,10 +77,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
     const alias = $scope.alias ? $scope.alias.trim().replace(/(\r\n|\n|\r)/gm, '') : ''
     const meta = {
       name: $scope.name,
-      products: $scope.products,
-      info: $scope.info,
-      submarketAddrs: [],
-      transports: $scope.transports
+      info: $scope.info
     }
 
     $scope.submarkets.forEach((submarket) => {
@@ -104,7 +102,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
         disputeSeconds: (web3.toBigNumber($scope.disputeSeconds)).toNumber(),
         minTotal,
         affiliateFeeCentiperun
-      }, meta).then(() => {
+      }, meta, products).then(() => {
         store.update().then(() => {
           $modalInstance.close(store)
         })
