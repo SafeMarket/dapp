@@ -1,6 +1,6 @@
 /* globals angular, contracts, web3 */
 
-angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, AliasReg, StoreReg, Infosphered, Meta, user, Coinage, constants) => {
+angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, AliasReg, StoreReg, Infosphered, Meta, user, Coinage, constants, filestore) => {
 
   function Store(addrOrAlias) {
     this.addr = utils.isAddr(addrOrAlias) ? addrOrAlias : AliasReg.getAddr(addrOrAlias)
@@ -10,6 +10,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.infosphered = new Infosphered(this.contract, {
       isOpen: 'bool',
       currency: 'bytes32',
+      bufferCentiperun: 'uint',
       disputeSeconds: 'uint',
       minTotal: 'uint',
       affiliateFeeCentiperun: 'uint'
@@ -22,15 +23,25 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   Store.prototype.abi = Store.abi = contracts.Store.abi
   Store.prototype.contractFactory = Store.contractFactory = web3.eth.contract(Store.abi)
 
-  Store.create = function createStore(isOpen, currency, disputeSeconds, minTotal, affiliateFeeCentiperun, meta, alias) {
+  Store.create = function createStore(isOpen, currency, bufferCentiperun, disputeSeconds, minTotal, affiliateFeeCentiperun, meta, alias) {
 
-    meta = utils.convertObjectToHex(meta)
+    const metaHex = utils.convertObjectToHex(meta)
+    const metaHash = web3.sha3(metaHex, { encoding: 'hex' })
     const deferred = $q.defer()
+
+    const calls = filestore.getMartyrCalls([metaHex])
+
+    calls.push({
+      address: StoreReg.address,
+      data: StoreReg.create.getData(isOpen, currency, bufferCentiperun, disputeSeconds, minTotal, affiliateFeeCentiperun, metaHash, alias)
+    })
+
+    const martyrData = utils.getMartyrData(calls)
 
     txMonitor.propose(
       'Create a New Store',
-      StoreReg.create,
-      [isOpen, currency, disputeSeconds, minTotal, affiliateFeeCentiperun, meta, alias]
+      web3.eth.sendTransaction,
+      [{ data: martyrData}]
     ).then((txReciept) => {
       const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
       deferred.resolve(new Store(contractAddress))
@@ -39,11 +50,12 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     return deferred.promise
   }
 
-  Store.prototype.set = function setStore(infospheredData, metaData) {
+  Store.prototype.set = function setStore(infospheredData, metaData, productsData) {
 
     const deferred = $q.defer()
     const infospheredCalls = this.infosphered.getMartyrCalls(infospheredData)
     const metaCalls = this.meta.getMartyrCalls(metaData)
+    const productCalls = this.getProductMartyrCalls(productsData)
     const allCalls = infospheredCalls.concat(metaCalls)
     const data = utils.getMartyrData(allCalls)
 
@@ -72,80 +84,11 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
       name: {
         presence: true,
         type: 'string'
-      }, products: {
-        exists: true,
-        type: 'array'
       }, info: {
         type: 'string'
-      }, submarketAddrs: {
-        exists: true,
-        type: 'array'
-      }, transports: {
-        presence: true,
-        type: 'array',
-        length: { minimum: 1 }
       }
     })
 
-    meta.submarketAddrs.forEach((submarketAddr) => {
-      utils.check({
-        addr: submarketAddr
-      }, {
-        addr: {
-          presence: true,
-          type: 'address',
-          addrOfContract: 'Submarket'
-        }
-      }, 'Submarket')
-    })
-
-    meta.products.forEach((product) => {
-      utils.check(product, {
-        id: {
-          presence: true,
-          type: 'string',
-          numericality: {
-            integerOnly: true,
-            greaterThanOrEqualTo: 0
-          }
-        }, name: {
-          presence: true,
-          type: 'string'
-        }, price: {
-          presence: true,
-          type: 'string',
-          numericality: {
-            greaterThan: 0
-          }
-        }, info: {
-          type: 'string'
-        }, imageUrl: {
-          type: 'url'
-        }
-      }, 'Product')
-    })
-
-    meta.transports.forEach((transport) => {
-      utils.check(transport, {
-        id: {
-          presence: true,
-          type: 'string',
-          numericality: {
-            integerOnly: true,
-            greaterThanOrEqualTo: 0
-          }
-        }, type: {
-          presence: true,
-          type: 'string'
-        }, price: {
-          presence: true,
-          type: 'string',
-          numericality: {
-            greaterThanOrEqualTo: 0
-          }
-        }
-      }, 'Transport')
-    })
   }
 
   Store.estimateCreationGas = function estimateStoreCreationGas(alias, meta) {
@@ -162,7 +105,9 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     const deferred = $q.defer()
     const store = this
 
-    this.products = []
+    console.log(this)
+
+    this.products = this.getProducts()
     this.transports = []
     this.reviews = []
     this.scoreCounts = []
@@ -178,25 +123,24 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.minTotal = new Coinage(this.infosphered.data.minTotal.div(constants.tera), this.currency)
 
     this.meta.update().then((meta) => {
-
       store.info = utils.sanitize(meta.data.info || '')
-
-      if (meta.data.products) {
-        meta.data.products.forEach((data) => {
-          store.products.push(new Product(data, store.currency))
-        })
-      }
-
-      if (meta.data.transports) {
-        meta.data.transports.forEach((data) => {
-          store.transports.push(new Transport(data, store.currency))
-        })
-      }
-
       deferred.resolve(store)
     })
 
     return deferred.promise
+  }
+
+  Store.prototype.getProducts = function getStoreProducts() {
+    
+    const products = []
+    const productsLength = this.contract.getProductsLength()
+
+    for (var i = 0; i < productsLength; i++) {
+      const args = [i].concat(this.contract.getFullProductParams(i))
+      products.push(new (Function.prototype.bind.apply(Product, args)))
+    }
+
+    return products
   }
 
   function Review(result, store) {
@@ -208,22 +152,15 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.timestamp = reviewData[1].toNumber()
   }
 
-  function Product(data, currency) {
-    this.id = data.id
-    this.name = data.name
-    this.price = new Coinage(data.price, currency)
-    this.info = data.info
-    this.imageUrl = data.imageUrl
+  function Product(index, isArchived, teraprice, title, description, currency) {
+    angular.merge(this, { index, isArchived, teraprice, title, description })
+    this.price = new Coinage(teraprice.div(constants.tera), currency)
     this.quantity = 0
   }
 
-  function Transport(data, currency) {
-    const userCurrency = user.getCurrency()
-
-    this.id = data.id
-    this.data = data
-    this.price = new Coinage(this.data.price, currency)
-
+  function Transport(index, isArchived, teraprice, title, currency, userCurrency) {
+    angular.merge(this, { index, isArchived, teraprice, title })
+    this.price = new Coinage(teraprice.div(constants.tera), currency)
     const priceFormatted = utils.formatCurrency(this.price.in(userCurrency), userCurrency, 1)
     this.label = `${this.data.type} (${priceFormatted})`
   }

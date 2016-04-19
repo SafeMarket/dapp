@@ -4,6 +4,7 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
 
   const utils = this
 
+
   function sanitize(string) {
     return string.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;')
   }

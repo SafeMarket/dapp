@@ -20,7 +20,7 @@ contract StoreReg is owned{
 
 	event Registration(address storeAddr);
 
-	function create(bool isOpen, bytes32 currency, uint disputeSeconds, uint minTotal, uint affiliateFeeCentiperun, bytes meta, bytes32 alias){
+	function create(bool isOpen, bytes32 currency, uint disputeSeconds, uint minTotal, uint affiliateFeeCentiperun, bytes32 metaHash, bytes32 alias){
 
 		var store = new Store();
 		var storeAddr = address(store);
@@ -33,7 +33,7 @@ contract StoreReg is owned{
 		store.setUint('disputeSeconds',disputeSeconds);
 		store.setUint('minTotal',minTotal);
 		store.setUint('affiliateFeeCentiperun',affiliateFeeCentiperun);
-		store.setMeta(meta);
+		store.setBytes32('metaHash', metaHash);
 
 		if(alias!='')
 			store.setAlias(alias);

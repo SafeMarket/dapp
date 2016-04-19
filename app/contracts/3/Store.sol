@@ -1,3 +1,3 @@
-contract Store is forumable, audible, infosphered, meta, permissioned, aliasable, ordered{
+contract Store is forumable, audible, infosphered, permissioned, aliasable, ordered{
 
 }
