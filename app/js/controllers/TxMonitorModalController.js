@@ -31,8 +31,13 @@ angular.module('app').controller('TxMonitorModalController', ($scope, $interval,
   } else {
 
     const args = angular.copy(proposal.args)
+    const estimateGas = proposal.contractFactoryOrFunction.estimateGas || web3.eth.estimateGas
+
     console.log(args)
-    let estimatedGas = proposal.contractFactoryOrFunction.estimateGas.apply(proposal.contractFactoryOrFunction, args)
+
+    let estimatedGas = estimateGas.apply(proposal.contractFactoryOrFunction, args)
+
+    console.log('estimatedGas', estimatedGas)
 
     if (estimatedGas < gasLimit) {
       estimatedGas = Math.min(Math.floor(gasLimit * 0.9), estimatedGas * 3)
@@ -46,6 +51,8 @@ angular.module('app').controller('TxMonitorModalController', ($scope, $interval,
 
   $scope.isThrown = proposal.gas.greaterThan(web3.eth.getBlock(web3.eth.blockNumber).gasLimit)
   $scope.isProposalAffordable = user.getBalance().greaterThan(proposal.cost)
+
+  console.log('txm50')
 
   $scope.approve = function approve() {
 
@@ -102,7 +109,5 @@ angular.module('app').controller('TxMonitorModalController', ($scope, $interval,
     $interval.cancel(waitInterval)
     $modalInstance.dismiss()
   }
-
-  $scope.secondsWaited = 0
 
 })

@@ -14,6 +14,7 @@ module.exports = function(grunt){
                     ,"StoreReg"
                     ,"SubmarketReg"
                     ,"OrderReg"
+                    ,"Filestore"
                 ],"onDeploy":{
                     "SubmarketReg":[
                         'thisContract.setAliasRegAddr(chain.AliasReg.address)'
@@ -38,6 +39,7 @@ module.exports = function(grunt){
                     ,"StoreReg"
                     ,"SubmarketReg"
                     ,"OrderReg"
+                    ,"Filestore"
                 ]
             }
         }

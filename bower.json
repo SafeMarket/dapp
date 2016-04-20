@@ -32,6 +32,7 @@
     "angular-sanitize": "~1.4.7",
     "angular-ui-router": "~0.2.15",
     "tweetnacl": "^0.14.3",
-    "tweetnacl-util": "^0.13.3"
+    "tweetnacl-util": "^0.13.3",
+    "angular-promise-extras": "^0.1.6"
   }
 }

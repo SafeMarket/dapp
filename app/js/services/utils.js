@@ -307,6 +307,9 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     })
 
     const solCode = `contract Martyr{\r\nfunction Martyr() { bytes memory temp; \r\n${callCodes.join('\r\n')}\r\n}\r\n}`
+
+    console.log(solCode)
+
     const bytecode = web3.eth.compile.solidity(solCode).Martyr.code
 
     return hexify(bytecode)
@@ -408,6 +411,11 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     return convertBytesToObject(decrypt(hex, keypairs))
   }
 
+  function sha3(thing) {
+    const thingHex = web3.toHex(thing)
+    return `0x${web3.sha3(thingHex, { encoding: 'hex' })}`
+  }
+
   angular.merge(this, {
     sanitize,
     convertObjectToHex,
@@ -449,7 +457,8 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     encrypt,
     encryptObject,
     decrypt,
-    decryptToObject
+    decryptToObject,
+    sha3
   })
 
 })

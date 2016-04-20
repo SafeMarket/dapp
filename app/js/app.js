@@ -8,7 +8,8 @@ const app = angular.module('app', [
   'angular-growl',
   'ngRoute',
   'yaru22.angular-timeago',
-  'hc.marked'
+  'hc.marked',
+  'ngPromiseExtras'
 ])
 
 app.config((growlProvider, $stateProvider, $urlRouterProvider) => {

@@ -1,32 +1,26 @@
 /* globals angular */
 
-angular.module('app').factory('Meta', (utils, $q) => {
+angular.module('app').factory('Meta', (utils, $q, filestore) => {
 
-  function Meta(contract) {
-    this.contract = contract
+  function Meta(parent) {
+    this.parent = parent
   }
 
   Meta.prototype.update = function updateMeta() {
 
     const deferred = $q.defer()
     const meta = this
-    const metaUpdatedAt = this.contract.metaUpdatedAt()
 
-    this.contract.Meta({}, { fromBlock: metaUpdatedAt, toBlock: metaUpdatedAt }).get((error, results) => {
+    filestore.fetchFile(this.parent.infosphered.data.metaHash).then((file) => {
 
-      if (error) {
-        return deferred.reject(error)
-      }
-
-      if (results.length === 0) {
-        return deferred.reject(new Error('no results found'))
-      }
-
-      meta.hex = results[results.length - 1].args.meta
-      meta.data = utils.convertHexToObject(results[results.length - 1].args.meta)
+      meta.hex = file
+      console.log('file received', file)
+      meta.data = utils.convertHexToObject(file)
 
       deferred.resolve(meta)
 
+    }, (err) => {
+      deferred.reject(err)
     })
 
     return deferred.promise

@@ -6,14 +6,14 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.addr = utils.isAddr(addrOrAlias) ? addrOrAlias : AliasReg.getAddr(addrOrAlias)
     this.alias = utils.getAlias(this.addr)
     this.contract = this.contractFactory.at(this.addr)
-    this.meta = new Meta(this.contract)
+    this.meta = new Meta(this)
     this.infosphered = new Infosphered(this.contract, {
       isOpen: 'bool',
       currency: 'bytes32',
-      bufferCentiperun: 'uint',
       disputeSeconds: 'uint',
       minTotal: 'uint',
-      affiliateFeeCentiperun: 'uint'
+      affiliateFeeCentiperun: 'uint',
+      metaHash: 'bytes32'
     })
     this.updatePromise = this.update()
   }
@@ -23,17 +23,45 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   Store.prototype.abi = Store.abi = contracts.Store.abi
   Store.prototype.contractFactory = Store.contractFactory = web3.eth.contract(Store.abi)
 
-  Store.create = function createStore(isOpen, currency, bufferCentiperun, disputeSeconds, minTotal, affiliateFeeCentiperun, meta, alias) {
+  Store.create = function createStore(
+    isOpen,
+    currency,
+    disputeSeconds,
+    minTotal,
+    affiliateFeeCentiperun,
+    meta,
+    alias
+  ) {
+
+    console.log('create store', arguments)
 
     const metaHex = utils.convertObjectToHex(meta)
-    const metaHash = web3.sha3(metaHex, { encoding: 'hex' })
+    const aliasHex = web3.toHex(alias)
+
+    console.log('metaHex', metaHex)
+
+    const metaHash = utils.sha3(metaHex, { encoding: 'hex' })
+
+    console.log('metaHash', metaHash)
+
     const deferred = $q.defer()
 
     filestore.fetchMartyrCalls([metaHex]).then((calls) => {
 
+      console.log('filestore', calls)
+      console.log('alias', alias)
+
       calls.push({
         address: StoreReg.address,
-        data: StoreReg.create.getData(isOpen, currency, bufferCentiperun, disputeSeconds, minTotal, affiliateFeeCentiperun, metaHash, alias)
+        data: StoreReg.create.getData(
+          isOpen,
+          currency,
+          disputeSeconds,
+          minTotal,
+          affiliateFeeCentiperun,
+          metaHash,
+          aliasHex
+        )
       })
 
       const martyrData = utils.getMartyrData(calls)
@@ -41,15 +69,16 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
       txMonitor.propose(
         'Create a New Store',
         web3.eth.sendTransaction,
-        [{ data: martyrData}]
+        [{ data: martyrData }]
       ).then((txReciept) => {
         const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
         deferred.resolve(new Store(contractAddress))
       })
 
-      return deferred.promise
-
     })
+
+    return deferred.promise
+
   }
 
   Store.prototype.set = function setStore(infospheredData, metaData, productsData) {
@@ -57,7 +86,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     const deferred = $q.defer()
     const infospheredCalls = this.infosphered.getMartyrCalls(infospheredData)
     const metaCalls = this.meta.getMartyrCalls(metaData)
-    const productCalls = this.getProductMartyrCalls(productsData)
+    //const productCalls = this.getProductMartyrCalls(productsData)
     const allCalls = infospheredCalls.concat(metaCalls)
     const data = utils.getMartyrData(allCalls)
 
@@ -109,7 +138,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
     console.log(this)
 
-    this.products = this.getProducts()
+    this.products = [] //this.getProducts()
     this.transports = []
     this.reviews = []
     this.scoreCounts = []
@@ -127,6 +156,8 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.meta.update().then((meta) => {
       store.info = utils.sanitize(meta.data.info || '')
       deferred.resolve(store)
+    }, (err) => {
+      deferred.reject(err)
     })
 
     return deferred.promise
