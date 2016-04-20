@@ -1,0 +1,20 @@
+{
+    "extends": "airbnb",
+    "plugins": [
+        "react"
+    ],
+    "rules": {
+    	"no-param-reassign": "off",
+    	"no-alert": "off",
+    	"arrow-body-style": [2, "always"],
+        "comma-dangle": [2, "never"],
+        "consistent-return": "off",
+        "padded-blocks": "off",
+        "max-len": [1],
+        "semi": [2, "never"],
+        "object-shorthand": "off",
+        "no-use-before-define": [1],
+        "new-cap": [1],
+        "prefer-rest-params": [1]
+    }
+}

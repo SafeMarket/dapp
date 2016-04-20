@@ -29,25 +29,27 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     const metaHash = web3.sha3(metaHex, { encoding: 'hex' })
     const deferred = $q.defer()
 
-    const calls = filestore.getMartyrCalls([metaHex])
+    filestore.fetchMartyrCalls([metaHex]).then((calls) => {
 
-    calls.push({
-      address: StoreReg.address,
-      data: StoreReg.create.getData(isOpen, currency, bufferCentiperun, disputeSeconds, minTotal, affiliateFeeCentiperun, metaHash, alias)
+      calls.push({
+        address: StoreReg.address,
+        data: StoreReg.create.getData(isOpen, currency, bufferCentiperun, disputeSeconds, minTotal, affiliateFeeCentiperun, metaHash, alias)
+      })
+
+      const martyrData = utils.getMartyrData(calls)
+
+      txMonitor.propose(
+        'Create a New Store',
+        web3.eth.sendTransaction,
+        [{ data: martyrData}]
+      ).then((txReciept) => {
+        const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
+        deferred.resolve(new Store(contractAddress))
+      })
+
+      return deferred.promise
+
     })
-
-    const martyrData = utils.getMartyrData(calls)
-
-    txMonitor.propose(
-      'Create a New Store',
-      web3.eth.sendTransaction,
-      [{ data: martyrData}]
-    ).then((txReciept) => {
-      const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
-      deferred.resolve(new Store(contractAddress))
-    })
-
-    return deferred.promise
   }
 
   Store.prototype.set = function setStore(infospheredData, metaData, productsData) {

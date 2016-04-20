@@ -1,6 +1,6 @@
 /* globals angular */
 
-angular.module('app').service('filestore',function(){
+angular.module('app').service('filestore',function($q){
 
   const filestore = this
 	
