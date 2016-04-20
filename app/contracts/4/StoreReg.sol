@@ -21,7 +21,7 @@ contract StoreReg is owned{
 
 	event Registration(address storeAddr);
 
-	function create(bool isOpen, bytes32 currency, uint disputeSeconds, uint minTotal, uint affiliateFeeCentiperun, bytes32 metaHash, bytes32 alias){
+	function create(address owner, bool isOpen, bytes32 currency, uint disputeSeconds, uint minTotal, uint affiliateFeeCentiperun, bytes32 metaHash, bytes32 alias){
 
 		var store = new Store();
 		var storeAddr = address(store);
@@ -39,7 +39,7 @@ contract StoreReg is owned{
 		if(alias!='')
 			store.setAlias(alias);
 
-		store.setOwner(msg.sender);
+		store.setOwner(owner);
 
 		registeredAddrsArray.push(storeAddr);
 		registeredAddrsMap[storeAddr] = true;

@@ -27,20 +27,27 @@ angular.module('app').factory('Meta', (utils, $q, filestore) => {
 
   }
 
-  Meta.prototype.getMartyrCalls = function getMetaMartyrCalls(data) {
+  Meta.prototype.fetchMartyrCalls = function fetchMetaMartyrCalls(data) {
 
+    const deferred = $q.defer()
     const hex = utils.convertObjectToHex(data)
 
     if (hex === this.hex) {
       return []
     }
 
-    return [{
-      address: this.contract.address,
-      data: this.contract.setMeta.getData(hex)
-    }]
+    filestore.fetchMartyrCalls([hex]).then((calls) => {
+      const _calls = calls.concat({
+        address: this.parent.contract.address,
+        data: this.parent.contract.setBytes32.getData('metaHash', utils.sha3(hex))
+      })
+      deferred.resolve(_calls)
+    })
+
+    return deferred.promise
+
   }
 
-
   return Meta
-});
+
+})

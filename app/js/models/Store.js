@@ -1,6 +1,6 @@
 /* globals angular, contracts, web3 */
 
-angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, AliasReg, StoreReg, Infosphered, Meta, user, Coinage, constants, filestore) => {
+angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, AliasReg, StoreReg, Infosphered, Meta, Coinage, constants, filestore) => {
 
   function Store(addrOrAlias) {
     this.addr = utils.isAddr(addrOrAlias) ? addrOrAlias : AliasReg.getAddr(addrOrAlias)
@@ -24,6 +24,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   Store.prototype.contractFactory = Store.contractFactory = web3.eth.contract(Store.abi)
 
   Store.create = function createStore(
+    owner,
     isOpen,
     currency,
     disputeSeconds,
@@ -54,6 +55,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
       calls.push({
         address: StoreReg.address,
         data: StoreReg.create.getData(
+          owner,
           isOpen,
           currency,
           disputeSeconds,
@@ -85,18 +87,20 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
     const deferred = $q.defer()
     const infospheredCalls = this.infosphered.getMartyrCalls(infospheredData)
-    const metaCalls = this.meta.getMartyrCalls(metaData)
-    //const productCalls = this.getProductMartyrCalls(productsData)
-    const allCalls = infospheredCalls.concat(metaCalls)
-    const data = utils.getMartyrData(allCalls)
 
-    txMonitor.propose('Update Store', web3.eth.sendTransaction, [{
-      data: data,
-      gas: web3.eth.estimateGas({ data: data }) * 4
-    }]).then((txReciept) => {
-      deferred.resolve(txReciept)
-    }, (err) => {
-      deferred.reject(err)
+    this.meta.fetchMartyrCalls(metaData).then((metaCalls) => {
+      //const productCalls = this.getProductMartyrCalls(productsData)
+      const allCalls = infospheredCalls.concat(metaCalls)
+      const data = utils.getMartyrData(allCalls)
+
+      txMonitor.propose('Update Store', web3.eth.sendTransaction, [{
+        data: data,
+        gas: web3.eth.estimateGas({ data: data }) * 4
+      }]).then((txReciept) => {
+        deferred.resolve(txReciept)
+      }, (err) => {
+        deferred.reject(err)
+      })
     })
 
     return deferred.promise
@@ -164,11 +168,11 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   }
 
   Store.prototype.getProducts = function getStoreProducts() {
-    
+
     const products = []
     const productsLength = this.contract.getProductsLength()
 
-    for (var i = 0; i < productsLength; i++) {
+    for (let i = 0; i < productsLength; i++) {
       const args = [i].concat(this.contract.getFullProductParams(i))
       products.push(new (Function.prototype.bind.apply(Product, args)))
     }
