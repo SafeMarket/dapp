@@ -26,7 +26,7 @@ contract SubmarketReg is owned{
 		calls.push(call);
 	}
 
-	function create(bool isOpen, bytes32 currency, uint minTotal, uint escrowFeeCentiperun, bytes32 metaHash, bytes32 alias){
+	function create(address owner, bool isOpen, bytes32 currency, uint minTotal, uint escrowFeeCentiperun, bytes32 metaHash, bytes32 alias){
 
 		var submarket = new Submarket();
 		var submarketAddr = address(submarket);
@@ -43,7 +43,7 @@ contract SubmarketReg is owned{
 		if(alias!='')
 			submarket.setAlias(alias);
 
-		submarket.setOwner(msg.sender);
+		submarket.setOwner(owner);
 
 		registeredAddrsArray.push(submarketAddr);
 		registeredAddrsMap[submarketAddr] = true;
