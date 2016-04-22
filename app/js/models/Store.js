@@ -10,6 +10,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.infosphered = new Infosphered(this.contract, {
       isOpen: 'bool',
       currency: 'bytes32',
+      bufferCentiperun: 'uint',
       disputeSeconds: 'uint',
       minTotal: 'uint',
       affiliateFeeCentiperun: 'uint',
@@ -27,6 +28,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     owner,
     isOpen,
     currency,
+    bufferCentiperun,
     disputeSeconds,
     minTotal,
     affiliateFeeCentiperun,
@@ -58,6 +60,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
           owner,
           isOpen,
           currency,
+          bufferCentiperun,
           disputeSeconds,
           minTotal,
           affiliateFeeCentiperun,
@@ -76,8 +79,6 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
         const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
         deferred.resolve(new Store(contractAddress))
       })
-
-    })
 
     return deferred.promise
 
@@ -142,7 +143,11 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
     console.log(this)
 
+<<<<<<< HEAD
     this.products = [] //this.getProducts()
+=======
+    this.products = this.getProducts()
+>>>>>>> product-contracts
     this.transports = []
     this.reviews = []
     this.scoreCounts = []
@@ -168,11 +173,19 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   }
 
   Store.prototype.getProducts = function getStoreProducts() {
+<<<<<<< HEAD
 
     const products = []
     const productsLength = this.contract.getProductsLength()
 
     for (let i = 0; i < productsLength; i++) {
+=======
+    
+    const products = []
+    const productsLength = this.contract.getProductsLength()
+
+    for (var i = 0; i < productsLength; i++) {
+>>>>>>> product-contracts
       const args = [i].concat(this.contract.getFullProductParams(i))
       products.push(new (Function.prototype.bind.apply(Product, args)))
     }
@@ -180,6 +193,20 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     return products
   }
 
+<<<<<<< HEAD
+=======
+  Store.prototype.getAddProductMartyrCalls = function getAddProductMartyrCalls(index, price, name, description) {
+    const teraprice = web3.toBigNumber(price).times(constants.tera)
+    return [{
+      address: this.addr,
+      data: this.contract.addProduct.getData(teraprice, title, description)
+    }].concat(this.infosphered.getMartyrCalls({
+      `p.${index}.n` : name,
+      `p.${index}.d` : description
+    }))
+  }
+
+>>>>>>> product-contracts
   function Review(result, store) {
     this.data = utils.convertHexToObject(result.args.data)
     this.orderAddr = result.args.orderAddr

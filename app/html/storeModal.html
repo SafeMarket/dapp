@@ -33,6 +33,12 @@
                 </td>
             </tr>
             <tr>
+                <td>Exchange Rate Buffer: <span ng-cloak>{{bufferCentiperun}}</span>%</td>
+                <td>
+                    <input type="range" ng-model="bufferCentiperun" class="form-control" min="0" max="300" step="1">
+                </td>
+            </tr>
+            <tr>
                 <td>Dispute Resolution Time
                     <div class="text-small text-muted">How long after shipping can buyers open a dispute?</div>
                 </td>
@@ -71,6 +77,7 @@
                 </td>
             </tr> 
         </table>
+        <div ng-show="isEditing">
         <h3>Products</h3>
         <table class="table">   
             <tbody ng-repeat="product in products">
@@ -160,6 +167,7 @@
                 <td colspan="2" class="text-right"><button class="btn btn-primary btn-xs" ng-click="addSubmarket()">+</button></td>
             </tr>
         </table>
+        </div>
     </div>
 </div>
 <div class="modal-footer" ng-show="!isSyncing">
