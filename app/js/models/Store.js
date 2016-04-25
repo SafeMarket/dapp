@@ -6,7 +6,6 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.addr = utils.isAddr(addrOrAlias) ? addrOrAlias : AliasReg.getAddr(addrOrAlias)
     this.alias = utils.getAlias(this.addr)
     this.contract = this.contractFactory.at(this.addr)
-    this.meta = new Meta(this)
     this.infosphered = new Infosphered(this.contract, {
       isOpen: 'bool',
       currency: 'bytes32',
@@ -14,7 +13,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
       disputeSeconds: 'uint',
       minTotal: 'uint',
       affiliateFeeCentiperun: 'uint',
-      metaHash: 'bytes32'
+      fileHash: 'bytes32'
     })
     this.updatePromise = this.update()
   }
@@ -36,73 +35,75 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     alias
   ) {
 
-    console.log('create store', arguments)
-
-    const metaHex = utils.convertObjectToHex(meta)
+    const file = utils.convertObjectToHex(meta)
     const aliasHex = web3.toHex(alias)
-
-    console.log('metaHex', metaHex)
-
-    const metaHash = utils.sha3(metaHex, { encoding: 'hex' })
-
-    console.log('metaHash', metaHash)
-
+    const fileHash = utils.sha3(file, { encoding: 'hex' })
     const deferred = $q.defer()
 
-    filestore.fetchMartyrCalls([metaHex]).then((calls) => {
+    const calls = filestore.getMartyrCalls([file])
 
-      console.log('filestore', calls)
-      console.log('alias', alias)
+    calls.push({
+      address: StoreReg.address,
+      data: StoreReg.create.getData(
+        owner,
+        isOpen,
+        currency,
+        bufferCentiperun,
+        disputeSeconds,
+        minTotal,
+        affiliateFeeCentiperun,
+        fileHash,
+        aliasHex
+      )
+    })
 
-      calls.push({
-        address: StoreReg.address,
-        data: StoreReg.create.getData(
-          owner,
-          isOpen,
-          currency,
-          bufferCentiperun,
-          disputeSeconds,
-          minTotal,
-          affiliateFeeCentiperun,
-          metaHash,
-          aliasHex
-        )
-      })
+    const martyrData = utils.getMartyrData(calls)
 
-      const martyrData = utils.getMartyrData(calls)
-
-      txMonitor.propose(
-        'Create a New Store',
-        web3.eth.sendTransaction,
-        [{ data: martyrData }]
-      ).then((txReciept) => {
-        const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
-        deferred.resolve(new Store(contractAddress))
-      })
+    txMonitor.propose(
+      'Create a New Store',
+      web3.eth.sendTransaction,
+      [{ data: martyrData }]
+    ).then((txReciept) => {
+      const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
+      deferred.resolve(new Store(contractAddress))
+    })
 
     return deferred.promise
 
   }
 
-  Store.prototype.set = function setStore(infospheredData, metaData, productsData) {
+  Store.prototype.set = function setStore(infospheredData, meta, productsData) {
 
     const deferred = $q.defer()
+
+    const metaCalls = []
+    const file = utils.convertObjectToHex(meta)
+    const fileHash = utils.sha3(file)
+
+    infospheredData.fileHash = fileHash
+    console.log('fileHash', fileHash)
+
     const infospheredCalls = this.infosphered.getMartyrCalls(infospheredData)
 
-    this.meta.fetchMartyrCalls(metaData).then((metaCalls) => {
-      //const productCalls = this.getProductMartyrCalls(productsData)
-      const allCalls = infospheredCalls.concat(metaCalls)
-      const data = utils.getMartyrData(allCalls)
+    console.log('infospheredCalls', infospheredCalls)
 
-      txMonitor.propose('Update Store', web3.eth.sendTransaction, [{
-        data: data,
-        gas: web3.eth.estimateGas({ data: data }) * 4
-      }]).then((txReciept) => {
-        deferred.resolve(txReciept)
-      }, (err) => {
-        deferred.reject(err)
-      })
+    if (this.infosphered.data.fileHash !== fileHash) {
+      metaCalls.push.apply(metaCalls, filestore.getMartyrCalls([file]))
+    }
+
+    const productCalls = this.getProductMartyrCalls(productsData)
+    const allCalls = infospheredCalls.concat(metaCalls).concat(productCalls)
+    const data = utils.getMartyrData(allCalls)
+
+    txMonitor.propose('Update Store', web3.eth.sendTransaction, [{
+      data: data,
+      gas: web3.eth.estimateGas({ data: data }) * 4
+    }]).then((txReciept) => {
+      deferred.resolve(txReciept)
+    }, (err) => {
+      deferred.reject(err)
     })
+
 
     return deferred.promise
   }
@@ -143,11 +144,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
     console.log(this)
 
-<<<<<<< HEAD
-    this.products = [] //this.getProducts()
-=======
     this.products = this.getProducts()
->>>>>>> product-contracts
     this.transports = []
     this.reviews = []
     this.scoreCounts = []
@@ -162,8 +159,10 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.currency = utils.toAscii(this.infosphered.data.currency)
     this.minTotal = new Coinage(this.infosphered.data.minTotal.div(constants.tera), this.currency)
 
-    this.meta.update().then((meta) => {
-      store.info = utils.sanitize(meta.data.info || '')
+    filestore.fetchFile(this.infosphered.data.fileHash).then((file) => {
+      this.file = file
+      this.meta = utils.convertHexToObject(file)
+      store.info = utils.sanitize(this.meta.info || '')
       deferred.resolve(store)
     }, (err) => {
       deferred.reject(err)
@@ -173,40 +172,103 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   }
 
   Store.prototype.getProducts = function getStoreProducts() {
-<<<<<<< HEAD
 
     const products = []
     const productsLength = this.contract.getProductsLength()
 
     for (let i = 0; i < productsLength; i++) {
-=======
-    
-    const products = []
-    const productsLength = this.contract.getProductsLength()
-
-    for (var i = 0; i < productsLength; i++) {
->>>>>>> product-contracts
-      const args = [i].concat(this.contract.getFullProductParams(i))
-      products.push(new (Function.prototype.bind.apply(Product, args)))
+      products.push(new Product(this, i))
     }
 
     return products
   }
 
-<<<<<<< HEAD
-=======
-  Store.prototype.getAddProductMartyrCalls = function getAddProductMartyrCalls(index, price, name, description) {
-    const teraprice = web3.toBigNumber(price).times(constants.tera)
-    return [{
-      address: this.addr,
-      data: this.contract.addProduct.getData(teraprice, title, description)
-    }].concat(this.infosphered.getMartyrCalls({
-      `p.${index}.n` : name,
-      `p.${index}.d` : description
-    }))
+  Store.prototype.getProductMartyrCalls = function getProductMartyrCalls(productsData) {
+
+    const calls = []
+
+    productsData.forEach((productData) => {
+
+      if (productData.index === undefined) {
+        calls.push.apply(calls, this.getAddProductMartyrCalls(productData))
+      } else {
+        calls.push.apply(calls, this.getSetProductMartyrCalls(productData))
+      }
+    })
+
+    console.log(calls)
+
+    return calls
   }
 
->>>>>>> product-contracts
+  Store.prototype.getAddProductMartyrCalls = function getAddProductMartyrCalls(productData) {
+
+    console.log('add product', productData)
+
+    const teraprice = web3.toBigNumber(productData.price).times(constants.tera)
+    const file = this.getProductFile(productData)
+    const fileHash = utils.sha3(file)
+
+    console.log(teraprice, fileHash)
+
+    return filestore.getMartyrCalls([file]).concat([{
+      address: this.contract.address,
+      data: this.contract.addProduct.getData(teraprice, fileHash)
+    }])
+
+  }
+
+  Store.prototype.getSetProductMartyrCalls = function getSetProductMartyrCalls(productData) {
+
+    console.log('set product productData', productData)
+
+    const product = new Product(this, productData.index)
+    const teraprice = web3.toBigNumber(productData.price).times(constants.tera)
+    const file = this.getProductFile(productData)
+    const fileHash = utils.sha3(file)
+
+    const calls = []
+
+    console.log(product, teraprice, file, fileHash)
+
+    if (product.isArchived !== productData.isArchived) {
+      calls.push({
+        address: this.contract.address,
+        data: this.contract.setProductIsArchived.getData(productData.index, productData.isArchived)
+      })
+    }
+
+    if (!product.teraprice.equals(teraprice)) {
+      calls.push({
+        address: this.contract.address,
+        data: this.contract.setProductTeraprice.getData(productData.index, teraprice)
+      })
+    }
+
+    console.log(product.teraprice)
+
+    if (product.fileHash !== fileHash) {
+      calls.push({
+        address: this.contract.address,
+        data: this.contract.setProductFileHash.getData(productData.index, fileHash)
+      })
+      console.log('filestore martyr calls', filestore.getMartyrCalls([file]))
+      calls.push.apply(calls, filestore.getMartyrCalls([file]))
+    }
+
+    console.log('set product', calls)
+
+    return calls
+
+  }
+
+  Store.prototype.getProductFile = function getProductFile(productData) {
+    return utils.convertObjectToHex({
+      name: productData.name,
+      info: productData.description
+    })
+  }
+
   function Review(result, store) {
     this.data = utils.convertHexToObject(result.args.data)
     this.orderAddr = result.args.orderAddr
@@ -216,10 +278,27 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.timestamp = reviewData[1].toNumber()
   }
 
-  function Product(index, isArchived, teraprice, title, description, currency) {
-    angular.merge(this, { index, isArchived, teraprice, title, description })
-    this.price = new Coinage(teraprice.div(constants.tera), currency)
+  function Product(store, index) {
+    this.store = store
+    this.index = index
+    this.updatePromise = this.update()
     this.quantity = 0
+  }
+
+  Product.prototype.update = function updateProduct() {
+    const deferred = $q.defer()
+    this.isArchived = this.store.contract.getProductIsArchived(this.index)
+    this.teraprice = this.store.contract.getProductTeraprice(this.index)
+    this.price = this.teraprice.div(constants.tera).toNumber()
+    this.fileHash = this.store.contract.getProductFileHash(this.index)
+    filestore.fetchFile(this.fileHash).then((file) => {
+      this.file = file
+      const data = utils.convertHexToObject(file)
+      this.name = data.name
+      this.info = data.info
+      deferred.resolve(this)
+    })
+    return deferred.promise
   }
 
   function Transport(index, isArchived, teraprice, title, currency, userCurrency) {

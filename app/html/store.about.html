@@ -8,6 +8,10 @@
 		<td>{{store.infosphered.data.disputeSeconds | disputeSeconds}}</td>
 	</tr>
 	<tr>
+		<td>Exchange Rate Buffer</td>
+		<td>{{store.infosphered.data.bufferCentiperun.toNumber()}}%</td>
+	</tr>
+	<tr>
 		<td>Minimum Total Order Size</td>
 		<td><amounts value="store.minTotal.in(store.currency)" from="store.currency" to="displayCurrencies"></amounts></td>
 	</tr>

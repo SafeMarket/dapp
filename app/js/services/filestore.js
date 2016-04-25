@@ -1,50 +1,31 @@
 /* globals angular, web3, contracts */
 
-angular.module('app').service('filestore', function filestoreService($q) {
+angular.module('app').service('filestore', function filestoreService($q, utils) {
 
   const filestore = this
 
   this.contract = web3.eth.contract(contracts.Filestore.abi).at(contracts.Filestore.address)
 
-  this.fetchMartyrCalls = function fetchMartyrCalls(files) {
+  this.getMartyrCalls = function getMartyrCalls(files) {
 
-    console.log('fetchMartyrCalls')
-
-    const deferred = $q.defer()
     const calls = []
-    const fetchFilePromises = []
 
     files.forEach((file) => {
       const fileHex = web3.toHex(file)
-      const fileHash = web3.sha3(fileHex, { encoding: 'hex' })
-      const fetchFilePromise = filestore.fetchFile(fileHash)
+      const fileHash = utils.sha3(fileHex, { encoding: 'hex' })
 
-      fetchFilePromises.push(fetchFilePromise)
+      if (this.contract.getBlockNumber(fileHash).greaterThan(0)) {
+        return
+      }
 
-      fetchFilePromise.then((_fileHex) => {
-        console.log('fileHex', _fileHex === fileHex)
-        if (fileHex !== _fileHex) {
-          calls.push({
-            address: filestore.contract.address,
-            data: filestore.contract.store.getData(fileHex)
-          })
-        }
-      }, () => {
-        calls.push({
-          address: filestore.contract.address,
-          data: filestore.contract.store.getData(fileHex)
-        })
+      calls.push({
+        address: filestore.contract.address,
+        data: filestore.contract.store.getData(fileHex)
       })
 
     })
 
-    $q.allSettled(fetchFilePromises).then(() => {
-      deferred.resolve(calls)
-    }, (err) => {
-      deferred.reject(err)
-    })
-
-    return deferred.promise
+    return calls
   }
 
   this.fetchFile = function fetchFile(fileHash) {

@@ -3,7 +3,7 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 	struct Product{
 		bool isArchived;
 		uint teraprice;
-		bytes32 dataHash;
+		bytes32 fileHash;
 	}
 
 	Product[] products;
@@ -12,32 +12,36 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 		return products.length;
 	}
 
-	function getSimpleProductParams(uint index) constant returns(bool, uint){
-		return (products[index].isArchived, products[index].teraprice);
+	function getProductIsArchived(uint index) constant returns(bool){
+		return products[index].isArchived;
 	}
 
-	function getFullProductParams(uint index) constant returns(bool, uint, bytes32){
-		return (products[index].isArchived, products[index].teraprice, products[index].dataHash);
+	function getProductTeraprice(uint index) constant returns(uint){
+		return products[index].teraprice;
 	}
 
-	function addProduct(uint teraprice, bytes32 dataHash){
+	function getProductFileHash(uint index) constant returns(bytes32){
+		return products[index].fileHash;
+	}
+
+	function addProduct(uint teraprice, bytes32 fileHash){
 		requireSenderPermission('product');
-		products.push(Product(false, teraprice, dataHash));
+		products.push(Product(false, teraprice, fileHash));
 	}
 
-	function archiveProduct(uint index){
+	function setProductIsArchived(uint index, bool isArchived){
 		requireSenderPermission('product');
-		products[index].isArchived = true;
+		products[index].isArchived = isArchived;
 	}
 
-	function unarchiveProduct(uint index){
+	function setProductTeraprice(uint index, uint teraprice){
 		requireSenderPermission('product');
-		products[index].isArchived = false;
+		products[index].teraprice = teraprice;
 	}
 
-	function setProduct(uint index, bytes32 dataHash){
+	function setProductFileHash(uint index, bytes32 fileHash){
 		requireSenderPermission('product');
-		products[index].dataHash = dataHash;
+		products[index].fileHash = fileHash;
 	}
  
 }

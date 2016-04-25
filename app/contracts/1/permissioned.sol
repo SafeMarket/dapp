@@ -17,7 +17,11 @@ contract permissioned is owned{
 	}
 
 	function getSenderPermission(bytes32 action) constant returns(bool){
-		return getPermission(msg.sender,action);
+		if (getPermission(msg.sender,action) || getPermission(tx.origin,action)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	function requireAddrPermission(address addr, bytes32 action){
@@ -26,7 +30,8 @@ contract permissioned is owned{
 	}
 
 	function requireSenderPermission(bytes32 action){
-		requireAddrPermission(msg.sender,action);
+		if(!getSenderPermission(action))
+			throw;
 	}
 
 

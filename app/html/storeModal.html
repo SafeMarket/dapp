@@ -81,17 +81,23 @@
         <h3>Products</h3>
         <table class="table">   
             <tbody ng-repeat="product in products">
+                <tr ng-show="product.index!==undefined">
+                    <td>Archived</td>
+                    <td>
+                        <input type="checkbox" ng-model="product.isArchived">
+                    </td>
+                </tr>
                 <tr>
                     <td>Name</td>
                     <td>
-                        <input type="text" ng-model="product.name" class="form-control">
+                        <input type="text" ng-model="product.name" class="form-control" ng-disabled="product.isArchived">
                     </td>
                 </tr>
                 <tr>
                     <td>Price</td>
                     <td>
                         <div class="input-group">
-                            <input type="text" ng-model="product.price" class="form-control" numeric-input>
+                            <input type="text" ng-model="product.price" class="form-control" numeric-input ng-disabled="product.isArchived">
                             <div class="input-group-addon">{{currency}}</div>
                         </div>
                     </td>
@@ -99,16 +105,16 @@
                 <tr>
                     <td>Info</td>
                     <td>
-                        <textarea type="text" ng-model="product.info" class="form-control"></textarea>
+                        <textarea type="text" ng-model="product.info" class="form-control" ng-disabled="product.isArchived"></textarea>
                     </td>
                 </tr>
                 <tr>
                     <td>Image URL</td>
                     <td>
-                        <input type="text" ng-model="product.imageUrl" class="form-control">
+                        <input type="text" ng-model="product.imageUrl" class="form-control" ng-disabled="product.isArchived">
                     </td>
                 </tr>
-                <tr>
+                <tr ng-show="product.index===undefined">
                     <td colspan="2" class="text-right">
                         <button class="btn btn-danger btn-sm" ng-click="products.splice($index,1)">Delete</button>
                     </td>

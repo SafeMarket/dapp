@@ -29,11 +29,11 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
 
     $scope.isEditing = true
     $scope.alias = store.alias
-    $scope.name = store.meta.data.name
+    $scope.name = store.meta.name
     $scope.currency = store.currency
     $scope.bufferCentiperun = store.infosphered.data.bufferCentiperun.toNumber()
     $scope.disputeSeconds = store.infosphered.data.disputeSeconds.toString()
-    $scope.info = store.meta.data.info
+    $scope.info = store.meta.info
     $scope.isOpen = store.infosphered.data.isOpen
     $scope.minTotal = store.infosphered.data.minTotal.div(constants.tera).toNumber()
     $scope.affiliateFeeCentiperun = store.infosphered.data.affiliateFeeCentiperun.toNumber()
@@ -99,10 +99,11 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
       store.set({
         isOpen: $scope.isOpen,
         currency: $scope.currency,
+        bufferCentiperun: web3.toBigNumber($scope.bufferCentiperun).toNumber(),
         disputeSeconds: (web3.toBigNumber($scope.disputeSeconds)).toNumber(),
         minTotal,
         affiliateFeeCentiperun
-      }, meta, products).then(() => {
+      }, meta, $scope.products).then(() => {
         store.update().then(() => {
           $modalInstance.close(store)
         })
@@ -115,11 +116,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
       }
 
       Store
-<<<<<<< HEAD
-        .create(user.getAccount(), $scope.isOpen, $scope.currency, $scope.disputeSeconds, minTotal, affiliateFeeCentiperun, meta, $scope.alias)
-=======
-        .create($scope.isOpen, $scope.currency, $scope.bufferCentiperun, $scope.disputeSeconds, minTotal, affiliateFeeCentiperun, meta, $scope.alias)
->>>>>>> product-contracts
+        .create(user.getAccount(), $scope.isOpen, $scope.currency, $scope.bufferCentiperun, $scope.disputeSeconds, minTotal, affiliateFeeCentiperun, meta, $scope.alias)
         .then((_store) => {
           user.addStore(_store.addr)
           user.save()
