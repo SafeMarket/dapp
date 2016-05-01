@@ -150,7 +150,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.buyer = this.contract.buyer()
     this.affiliate = this.contract.affiliate()
     this.store = new Store(storeAddr)
-    this.storeCurrency = this.contract.storeCurrency()
+    this.storeCurrency = utils.toAscii(this.contract.storeCurrency())
     this.submarket = submarketAddr === constants.nullAddr ? null : new Submarket(submarketAddr)
     this.escrowFeeCentiperun = this.contract.escrowFeeCentiperun()
     this.affiliateFeeCentiperun = this.contract.affiliateFeeCentiperun()
@@ -175,6 +175,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.confirmationsNeeded = this.received.div(web3.toWei(5, 'ether')).ceil().toNumber()
 
     this.products = this.getProducts()
+    this.transport = new Transport(this)
 
     this.messages = []
     this.updates = []
@@ -314,7 +315,6 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.order = order
     this.index = index
     this.updatePromise = this.update()
-    this.quantity = 0
   }
 
   Product.prototype.update = function update() {
@@ -322,12 +322,32 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.teraprice = this.order.contract.getProductTeraprice(this.index)
     this.price = new Coinage(this.teraprice.div(constants.tera), this.order.storeCurrency)
     this.fileHash = this.order.contract.getProductFileHash(this.index)
+    this.quantity = this.order.contract.getProductQuantity(this.index)
     filestore.fetchFile(this.fileHash).then((file) => {
       this.file = file
       const data = utils.convertHexToObject(file)
       this.name = data.name
       this.info = data.info
       this.img = data.img
+      deferred.resolve(this)
+    })
+    return deferred.promise
+  }
+
+  function Transport(order) {
+    this.order = order
+    this.updatePromise = this.update()
+  }
+
+  Transport.prototype.update = function update() {
+    const deferred = $q.defer()
+    this.teraprice = this.order.contract.transportTeraprice()
+    this.price = new Coinage(this.teraprice.div(constants.tera), this.order.storeCurrency)
+    this.fileHash = this.order.contract.transportFileHash()
+    filestore.fetchFile(this.fileHash).then((file) => {
+      this.file = file
+      const data = utils.convertHexToObject(file)
+      this.name = data.name
       deferred.resolve(this)
     })
     return deferred.promise

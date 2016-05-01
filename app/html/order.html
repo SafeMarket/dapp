@@ -89,8 +89,8 @@
 			<td>Total</td>
 			<td colspan="2">
 				<amounts
-					value="order.total.in(order.store.currency)"
-					from="order.store.currency"
+					value="order.total.in(order.storeCurrency)"
+					from="order.storeCurrency"
 					to="displayCurrencies">
 				</amounts>
 			</td>
@@ -100,18 +100,18 @@
 				<td>Product Total</td>
 				<td colspan="2">
 					<amounts
-						value="order.productsTotal.in(order.store.currency)"
-						from="order.store.currency"
+						value="order.productsTotal.in(order.storeCurrency)"
+						from="order.storeCurrency"
 						to="displayCurrencies">
 					</amounts>
 				</td>
 			</tr>
 			<tr>
-				<td>Shipping ({{order.meta.transport.type}})</td>
+				<td>Shipping ({{order.transport.name}})</td>
 				<td colspan="2">
 					<amounts
-						value="order.transportPrice.in(order.store.currency)"
-						from="order.store.currency"
+						value="order.transport.price.in(order.storeCurrency)"
+						from="order.storeCurrency"
 						to="displayCurrencies">
 					</amounts>
 				</td>
@@ -165,7 +165,7 @@
 	</table>
 	<h3>Products</h3>
 	<table class="table">
-		<tr ng-repeat="product in order.meta.products">
+		<tr ng-repeat="product in order.products">
 			<td>
 				{{product.name}}
 			</td>
@@ -174,13 +174,13 @@
 			</td>
 			<td>
 				<amounts
-					value="product.price"
-					from="order.store.currency"
+					value="product.price.in(order.storeCurrency)"
+					from="order.storeCurrency"
 					to="displayCurrencies">
 				</amounts>
 			</td>
 			<td>
-				x{{product.quantity}}
+				x{{product.quantity.toString()}}
 			</td>
 		</tr>
 	</table>
