@@ -41,8 +41,7 @@ contract Order is infosphered{
 	uint public shippedAt;
 	uint public disputedAt;
 	
-	uint public createdAtBlockNumber;
-	uint public receivedAtBlockNumber;
+	uint public blockNumber;
 
 	event Message(address indexed sender, bytes text);
 	event Update(address indexed sender, uint indexed status);
@@ -66,7 +65,7 @@ contract Order is infosphered{
 		,uint _rewardMax
 	){
 
-		createdAtBlockNumber = block.number;
+		blockNumber = block.number;
 
 		buyer = _buyer;
 		storeAddr = _storeAddr;
@@ -161,8 +160,8 @@ contract Order is infosphered{
 			throw;
 
 		//don't allow to mark as shipped on same block that a withdrawl is made
-		if(receivedAtBlockNumber == block.number)
-			throw;
+		//if(receivedAtBlockNumber == block.number)
+		//	throw;
 
 		shippedAt = now;
 		addUpdate(shipped);

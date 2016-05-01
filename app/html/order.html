@@ -140,7 +140,7 @@
 		</tbody>
 		<tr>
 			<td>Received ({{order.receivedPerun | perun}})
-			<div class="text-muted text-small" ng-show="order.received.greaterThan(0)">{{order.confirmations}}/{{order.confirmationsNeeded}} Confirmations</div>
+			<div class="text-muted text-small" ng-show="order.received.greaterThan(0)">{{order.confirmations.toString()}}/{{order.confirmationsNeeded.toString()}} Confirmations</div>
 			</td>
 			<td>
 				<amounts

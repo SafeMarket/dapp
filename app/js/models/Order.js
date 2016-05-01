@@ -157,8 +157,8 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.balance = web3.eth.getBalance(this.addr)
     this.received = this.contract.getReceived()
     this.status = this.contract.status().toNumber()
-    this.createdAtBlockNumber = this.contract.createdAtBlockNumber()
-    this.createdAt = web3.eth.getBlock(this.createdAtBlockNumber).timestamp
+    this.blockNumber = this.contract.blockNumber()
+    this.createdAt = web3.eth.getBlock(this.blockNumber).timestamp
     this.shippedAt = this.contract.shippedAt().toNumber()
     this.disputeSeconds = this.contract.disputeSeconds().toNumber()
     this.disputeDeadline = this.disputeSeconds + this.shippedAt
@@ -170,9 +170,9 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.escrowAmount = amounts[2]
     this.affiliateAmount = amounts[3]
 
-    this.receivedAtBlockNumber = this.contract.receivedAtBlockNumber()
-    this.confirmations = this.receivedAtBlockNumber.minus(web3.eth.blockNumber).times('-1').toNumber()
-    this.confirmationsNeeded = this.received.div(web3.toWei(5, 'ether')).ceil().toNumber()
+    this.receivedAtBlockNumber = this.contract.blockNumber()
+    this.confirmations = this.blockNumber.minus(web3.eth.blockNumber).times('-1')
+    this.confirmationsNeeded = this.received.div(web3.toWei(5, 'ether')).ceil()
 
     this.products = this.getProducts()
     this.transport = new Transport(this)
@@ -182,35 +182,34 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.keys = {}
     this.productsTotalInStoreCurrency = web3.toBigNumber(0)
 
-    order.keys.buyer = new Key(this.buyer)
-    order.keys.storeOwner = this.store.key
+    this.keys.buyer = new Key(this.buyer)
+    this.keys.storeOwner = this.store.key
 
     if (this.submarket) {
-      order.submarket.updatePromise.then((submarket) => {
-        order.keys.submarketOwner = submarket.key
+      this.submarket.updatePromise.then((submarket) => {
+        this.keys.submarketOwner = submarket.key
       })
     }
 
 
-    // let productsTotalInOrderCurrency = web3.toBigNumber(0)
-    // order.meta.products.forEach((product) => {
-    //   const subtotal = web3.toBigNumber(product.price).times(product.quantity)
-    //   productsTotalInOrderCurrency = productsTotalInOrderCurrency.plus(subtotal)
-    // })
+    let productsTotal = web3.toBigNumber(0)
+    this.products.forEach((product) => {
+      const subtotal = web3.toBigNumber(product.price.in(this.storeCurrency)).times(product.quantity)
+      productsTotal = productsTotal.plus(subtotal)
+    })
 
-    // order.productsTotal = new Coinage(productsTotalInOrderCurrency, order.store.currency)
-    // order.transportPrice = new Coinage(order.meta.transport.price, order.store.currency)
+    this.productsTotal = new Coinage(productsTotal, this.storeCurrency)
 
-    // const totalInStoreCurrency =
-    //   order.productsTotal.in(order.store.currency)
-    //     .plus(order.transportPrice.in(order.store.currency))
-    //     .times(order.escrowFeeCentiperun.div(100).plus(1))
+    const totalInStoreCurrency =
+      this.productsTotal.in(this.storeCurrency)
+        .plus(this.transport.price.in(this.storeCurrency))
+        .times(this.escrowFeeCentiperun.div(100).plus(1))
 
-    // order.total = new Coinage(totalInStoreCurrency, order.store.currency)
-    // order.unpaid = order.total.in('WEI').minus(order.received)
-    // order.receivedPerun = order.received.div(order.total.in('WEI'))
+    this.total = new Coinage(totalInStoreCurrency, this.storeCurrency)
+    this.unpaid = this.total.in('WEI').minus(this.received)
+    this.receivedPerun = this.received.div(this.total.in('WEI'))
 
-    order.contract.Message({}, { fromBlock: 0, toBlock: 'latest' }).get((_error, _results) => {
+    this.contract.Message({}, { fromBlock: 0, toBlock: 'latest' }).get((_error, _results) => {
 
       _results.forEach((result) => {
         const timestamp = web3.eth.getBlock(result.blockNumber).timestamp
