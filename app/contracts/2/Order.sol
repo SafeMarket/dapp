@@ -2,8 +2,20 @@ contract Order is infosphered{
 	
 	address public buyer;
 	address public storeAddr;
+	bytes32 public storeCurrency;
 	address public submarketAddr;
 	address public affiliate;
+
+	struct Product{	
+		uint teraprice;
+		bytes32 fileHash;
+		uint quantity;
+	}
+	Product[] products;
+
+	
+	uint public transportTeraprice;
+	bytes32 public transportFileHash;
 
 	uint public buyerAmountCentiperun;
 	uint public escrowFeeCentiperun; 
@@ -47,9 +59,9 @@ contract Order is infosphered{
 		,address _storeAddr
 		,address _submarketAddr
 		,address _affiliate
-		,uint[] productIndexes
-		,uint[] productQuantities
-		,uint transportId
+		,uint[] _productIndexes
+		,uint[] _productQuantities
+		,uint _transportIndex
 		,uint _bounty
 		,uint _rewardMax
 	){
@@ -63,7 +75,22 @@ contract Order is infosphered{
 		bounty = _bounty;
 		rewardMax = _rewardMax;
 
-		var store = infosphered(_storeAddr);
+		var store = Store(_storeAddr);
+		storeCurrency = store.getBytes32('currency');
+
+		if(_productIndexes.length != _productQuantities.length)
+			throw;
+
+		for(uint i = 0; i< _productIndexes.length; i++){
+			products.push(Product(
+				store.getProductTeraprice(i),
+				store.getProductFileHash(i),
+				_productQuantities[i]
+			));
+		}
+
+		transportTeraprice = store.getTransportTeraprice(_transportIndex);
+		transportFileHash = store.getTransportFileHash(_transportIndex);
 
 		affiliateFeeCentiperun = store.getUint('affiliateFeeCentiperun');
 
@@ -79,6 +106,11 @@ contract Order is infosphered{
 	function getSenderPermission(address contractAddr, bytes32 action) private returns(bool){
 		return permissioned(contractAddr).getPermission(msg.sender,action);
 	}
+
+	function getProductsLength() constant returns (uint){ return products.length; }
+	function getProductTeraprice(uint _index) constant returns (uint){ return products[_index].teraprice; }
+	function getProductFileHash(uint _index) constant returns (bytes32){ return products[_index].fileHash; }
+	function getProductQuantity(uint _index) constant returns (uint){ return products[_index].quantity; }
 
 	function addMessage(bytes text){
 		if(

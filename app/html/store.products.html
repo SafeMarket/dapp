@@ -1,8 +1,8 @@
 <div ng-controller="ProductsController">
 	<table class="table">
-		<tr ng-repeat="product in store.products">
+		<tr ng-repeat="product in products">
 			<td>
-				<img ng-src="{{product.imageUrl}}" ng-if="product.imageUrl" class="product-image">
+				<img ng-src="{{product.img}}" ng-if="product.img" class="product-image">
 			</td>
 			<td>
 				{{product.name}}
@@ -18,7 +18,7 @@
 				</amounts>
 			</td>
 			<td>
-				<input class="form-control" type="number" ng-model="product.quantity" min="0">
+				<input class="form-control" type="number" ng-model="product.quantity" min="0" ng-change="quantityChanged()">
 			</td>
 		</tr>
 		<tr>
@@ -34,7 +34,7 @@
 		<tr>
 			<td>Transport</td>
 			<td colspan="2">
-				<select ng-model="transport" ng-options="transport.label for transport in store.transports" class="form-control"></select>
+				<select ng-model="transport" ng-options="getTransportLabel(transport) for transport in store.transports" class="form-control"></select>
 			</td>
 			<td></td>
 			<td>

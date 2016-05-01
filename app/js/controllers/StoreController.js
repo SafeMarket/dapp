@@ -2,12 +2,8 @@
 
 angular.module('app').controller('StoreController', ($scope, $filter, $state, utils, Store, Submarket, user, $stateParams, modals, growl, helpers, constants) => {
 
-  $scope.storeScope = $scope
-
-  $scope.submarketOptions = [{ addr: constants.nullAddr, label: 'No escrow', escrowFeeCentiperun: 0 }]
-  $scope.submarketOption = $scope.submarketOptions[0]
   $scope.storeAddr = $stateParams.storeAddr
-  $scope.productsTotal = web3.toBigNumber(0)
+  $scope.store = new Store($stateParams.storeAddr)
 
   $scope.tabs = [
     { heading: 'About', route: 'store.about', active: false },
@@ -29,8 +25,6 @@ angular.module('app').controller('StoreController', ($scope, $filter, $state, ut
   function setDisplayCurrencies() {
     $scope.displayCurrencies = _.uniq([user.getCurrency(), $scope.store.currency, 'ETH'])
   }
-
-  $scope.store = new Store($stateParams.storeAddr)
 
   $scope.store.updatePromise.then((store) => {
 

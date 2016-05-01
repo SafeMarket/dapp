@@ -1,6 +1,6 @@
 /* globals angular, contracts, web3 */
 
-angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, AliasReg, StoreReg, Infosphered, Meta, Coinage, constants, filestore) => {
+angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, AliasReg, StoreReg, Infosphered, Meta, Coinage, constants, filestore, user) => {
 
   function Store(addrOrAlias) {
     this.addr = utils.isAddr(addrOrAlias) ? addrOrAlias : AliasReg.getAddr(addrOrAlias)
@@ -72,7 +72,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
   }
 
-  Store.prototype.set = function setStore(infospheredData, meta, productsData) {
+  Store.prototype.set = function setStore(infospheredData, meta, productsData, transportsData) {
 
     const deferred = $q.defer()
 
@@ -92,7 +92,8 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     }
 
     const productCalls = this.getProductMartyrCalls(productsData)
-    const allCalls = infospheredCalls.concat(metaCalls).concat(productCalls)
+    const transportCalls = this.getTransportMartyrCalls(transportsData)
+    const allCalls = infospheredCalls.concat(metaCalls).concat(productCalls).concat(transportCalls)
     const data = utils.getMartyrData(allCalls)
 
     txMonitor.propose('Update Store', web3.eth.sendTransaction, [{
@@ -137,16 +138,13 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   }
 
 
-  Store.prototype.update = function updateStore() {
+  Store.prototype.update = function update() {
 
     const deferred = $q.defer()
     const store = this
 
     console.log(this)
 
-    this.products = this.getProducts()
-    this.transports = []
-    this.reviews = []
     this.scoreCounts = []
     this.scoreCountsReversed = []
     this.scoreCountsSum = 0
@@ -155,8 +153,12 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.key = new Key(this.owner)
 
     this.infosphered.update()
-
     this.currency = utils.toAscii(this.infosphered.data.currency)
+
+    this.products = this.getProducts()
+    this.transports = this.getTransports()
+    this.reviews = []
+
     this.minTotal = new Coinage(this.infosphered.data.minTotal.div(constants.tera), this.currency)
 
     filestore.fetchFile(this.infosphered.data.fileHash).then((file) => {
@@ -184,6 +186,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   }
 
   Store.prototype.getProductMartyrCalls = function getProductMartyrCalls(productsData) {
+    console.log(productsData)
 
     const calls = []
 
@@ -205,7 +208,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
     console.log('add product', productData)
 
-    const teraprice = web3.toBigNumber(productData.price).times(constants.tera)
+    const teraprice = productData.price.in(this.currency).times(constants.tera)
     const file = this.getProductFile(productData)
     const fileHash = utils.sha3(file)
 
@@ -223,7 +226,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     console.log('set product productData', productData)
 
     const product = new Product(this, productData.index)
-    const teraprice = web3.toBigNumber(productData.price).times(constants.tera)
+    const teraprice = productData.price.in(this.currency).times(constants.tera)
     const file = this.getProductFile(productData)
     const fileHash = utils.sha3(file)
 
@@ -265,7 +268,105 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   Store.prototype.getProductFile = function getProductFile(productData) {
     return utils.convertObjectToHex({
       name: productData.name,
-      info: productData.description
+      info: productData.info,
+      img: productData.img
+    })
+  }
+
+  Store.prototype.getTransports = function getStoreTransports() {
+
+    const transports = []
+    const transportsLength = this.contract.getTransportsLength()
+
+    for (let i = 0; i < transportsLength; i++) {
+      transports.push(new Transport(this, i))
+    }
+
+    return transports
+  }
+
+  Store.prototype.getTransportMartyrCalls = function getTransportMartyrCalls(transportsData) {
+
+    const calls = []
+
+    transportsData.forEach((transportData) => {
+
+      if (transportData.index === undefined) {
+        calls.push.apply(calls, this.getAddTransportMartyrCalls(transportData))
+      } else {
+        calls.push.apply(calls, this.getSetTransportMartyrCalls(transportData))
+      }
+    })
+
+    console.log(calls)
+
+    return calls
+  }
+
+  Store.prototype.getAddTransportMartyrCalls = function getAddTransportMartyrCalls(transportData) {
+
+    console.log('add transport', transportData)
+
+    const teraprice = transportData.price.in(this.currency).times(constants.tera)
+    const file = this.getTransportFile(transportData)
+    const fileHash = utils.sha3(file)
+
+    console.log(teraprice, fileHash)
+
+    return filestore.getMartyrCalls([file]).concat([{
+      address: this.contract.address,
+      data: this.contract.addTransport.getData(teraprice, fileHash)
+    }])
+
+  }
+
+  Store.prototype.getSetTransportMartyrCalls = function getSetTransportMartyrCalls(transportData) {
+
+    console.log('set transport transportData', transportData)
+
+    const transport = new Transport(this, transportData.index)
+    const teraprice = transportData.price.in(this.currency).times(constants.tera)
+    const file = this.getTransportFile(transportData)
+    const fileHash = utils.sha3(file)
+
+    const calls = []
+
+    console.log(transport, teraprice, file, fileHash)
+
+    if (transport.isArchived !== transportData.isArchived) {
+      calls.push({
+        address: this.contract.address,
+        data: this.contract.setTransportIsArchived.getData(transportData.index, transportData.isArchived)
+      })
+    }
+
+    if (!transport.teraprice.equals(teraprice)) {
+      calls.push({
+        address: this.contract.address,
+        data: this.contract.setTransportTeraprice.getData(transportData.index, teraprice)
+      })
+    }
+
+    console.log(transport.teraprice)
+
+    if (transport.fileHash !== fileHash) {
+      calls.push({
+        address: this.contract.address,
+        data: this.contract.setTransportFileHash.getData(transportData.index, fileHash)
+      })
+      console.log('filestore martyr calls', filestore.getMartyrCalls([file]))
+      calls.push.apply(calls, filestore.getMartyrCalls([file]))
+    }
+
+    console.log('set transport', calls)
+
+    return calls
+
+  }
+
+  Store.prototype.getTransportFile = function getTransportFile(transportData) {
+    return utils.convertObjectToHex({
+      name: transportData.name
     })
   }
 
@@ -285,27 +386,43 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.quantity = 0
   }
 
-  Product.prototype.update = function updateProduct() {
+  Product.prototype.update = function update() {
     const deferred = $q.defer()
     this.isArchived = this.store.contract.getProductIsArchived(this.index)
     this.teraprice = this.store.contract.getProductTeraprice(this.index)
-    this.price = this.teraprice.div(constants.tera).toNumber()
+    this.price = new Coinage(this.teraprice.div(constants.tera), this.store.currency)
     this.fileHash = this.store.contract.getProductFileHash(this.index)
     filestore.fetchFile(this.fileHash).then((file) => {
       this.file = file
       const data = utils.convertHexToObject(file)
       this.name = data.name
       this.info = data.info
+      this.img = data.img
       deferred.resolve(this)
     })
     return deferred.promise
   }
 
-  function Transport(index, isArchived, teraprice, title, currency, userCurrency) {
-    angular.merge(this, { index, isArchived, teraprice, title })
-    this.price = new Coinage(teraprice.div(constants.tera), currency)
-    const priceFormatted = utils.formatCurrency(this.price.in(userCurrency), userCurrency, 1)
-    this.label = `${this.data.type} (${priceFormatted})`
+  function Transport(store, index) {
+    this.store = store
+    this.index = index
+    this.updatePromise = this.update()
+    this.quantity = 0
+  }
+
+  Transport.prototype.update = function update() {
+    const deferred = $q.defer()
+    this.isArchived = this.store.contract.getTransportIsArchived(this.index)
+    this.teraprice = this.store.contract.getTransportTeraprice(this.index)
+    this.price = new Coinage(this.teraprice.div(constants.tera), this.store.currency)
+    this.fileHash = this.store.contract.getTransportFileHash(this.index)
+    filestore.fetchFile(this.fileHash).then((file) => {
+      this.file = file
+      const data = utils.convertHexToObject(file)
+      this.name = data.name
+      deferred.resolve(this)
+    })
+    return deferred.promise
   }
 
   return Store

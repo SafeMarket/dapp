@@ -79,14 +79,8 @@
         </table>
         <div ng-show="isEditing">
         <h3>Products</h3>
-        <table class="table">   
+        <table class="table tbody-alternate">   
             <tbody ng-repeat="product in products">
-                <tr ng-show="product.index!==undefined">
-                    <td>Archived</td>
-                    <td>
-                        <input type="checkbox" ng-model="product.isArchived">
-                    </td>
-                </tr>
                 <tr>
                     <td>Name</td>
                     <td>
@@ -97,7 +91,7 @@
                     <td>Price</td>
                     <td>
                         <div class="input-group">
-                            <input type="text" ng-model="product.price" class="form-control" numeric-input ng-disabled="product.isArchived">
+                            <input coinage-input="currency" type="text" ng-model="product.price" class="form-control" numeric-input ng-disabled="product.isArchived">
                             <div class="input-group-addon">{{currency}}</div>
                         </div>
                     </td>
@@ -111,7 +105,13 @@
                 <tr>
                     <td>Image URL</td>
                     <td>
-                        <input type="text" ng-model="product.imageUrl" class="form-control" ng-disabled="product.isArchived">
+                        <input type="text" ng-model="product.img" class="form-control" ng-disabled="product.isArchived">
+                    </td>
+                </tr>
+                <tr ng-show="product.index!==undefined">
+                    <td>Archived</td>
+                    <td>
+                        <input type="checkbox" ng-model="product.isArchived">
                     </td>
                 </tr>
                 <tr ng-show="product.index===undefined">
@@ -125,24 +125,30 @@
             </td></tr>
         </table>
         <h3>Transport Options</h3>
-        <table class="table">   
+        <table class="table tbody-alternate">   
             <tbody ng-repeat="transport in transports">
                 <tr>
-                    <td>Type</td>
+                    <td>Name</td>
                     <td>
-                        <input type="text" ng-model="transport.type" class="form-control">
+                        <input type="name" ng-model="transport.name" class="form-control" ng-disabled="transport.isArchived">
                     </td>
                 </tr>
                 <tr>
                     <td>Price</td>
                     <td>
                         <div class="input-group">
-                            <input type="text" ng-model="transport.price" class="form-control" numeric-input>
+                            <input coinage-input="currency" type="text" ng-model="transport.price" class="form-control" numeric-input ng-disabled="transport.isArchived">
                             <div class="input-group-addon">{{currency}}</div>
                         </div>
                     </td>
                 </tr>
-                <tr>
+                <tr ng-show="transport.index!==undefined">
+                    <td>Archived</td>
+                    <td>
+                        <input type="checkbox" ng-model="transport.isArchived">
+                    </td>
+                </tr>
+                <tr ng-show="transport.index===undefined">
                     <td colspan="2" class="text-right">
                         <button class="btn btn-danger btn-sm" ng-click="transports.splice($index,1)">Delete</button>
                     </td>

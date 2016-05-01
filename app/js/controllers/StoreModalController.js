@@ -1,4 +1,4 @@
-/* globals angular, web3 */
+/* globals angular, web3, _ */
 
 angular.module('app').controller('StoreModalController', ($scope, $filter, utils, Store, AliasReg, ticker, growl, $modal, $modalInstance, store, user, helpers, constants) => {
 
@@ -38,6 +38,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
     $scope.minTotal = store.infosphered.data.minTotal.div(constants.tera).toNumber()
     $scope.affiliateFeeCentiperun = store.infosphered.data.affiliateFeeCentiperun.toNumber()
     $scope.products = _.clone(store.products)
+    $scope.transports = _.clone(store.transports)
 
     // if (store.meta.data.submarketAddrs) {
     //   store.meta.data.submarketAddrs.forEach((submarketAddr) => {
@@ -103,7 +104,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
         disputeSeconds: (web3.toBigNumber($scope.disputeSeconds)).toNumber(),
         minTotal,
         affiliateFeeCentiperun
-      }, meta, $scope.products).then(() => {
+      }, meta, $scope.products, $scope.transports).then(() => {
         store.update().then(() => {
           $modalInstance.close(store)
         })

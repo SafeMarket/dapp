@@ -295,7 +295,7 @@ angular.module('app').service('user', function userService($q, $rootScope, words
       growl.addErrorMessage('You need to set a primary keypair in the settings menu')
       throw new Error('Primary keypair not set')
     }
-    
+
   }
 
   this.setProvider = function setProvider() {

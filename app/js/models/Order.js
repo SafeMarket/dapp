@@ -1,26 +1,29 @@
 /* globals angular, contracts, web3 */
 
-angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key, KeyGroup, PgpMessageWrapper, txMonitor, user, OrderReg, constants, Coinage) => {
+angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key, KeyGroup, PgpMessageWrapper, txMonitor, user, OrderReg, constants, Coinage, filestore) => {
 
   function Order(addr) {
+    console.log(this)
+
     this.addr = addr
     this.contract = this.contractFactory.at(addr)
     this.updatePromise = this.update()
   }
 
-  window.Order = Order
-
   Order.prototype.bytecode = Order.bytecode = contracts.Order.bytecode
   Order.prototype.abi = Order.abi = contracts.Order.abi
   Order.prototype.contractFactory = Order.contractFactory = web3.eth.contract(Order.abi)
 
-  Order.create = function createOrder(buyer, storeAddr, submarketAddr, affiliate, products, transportIndex) {
+  Order.create = function createOrder(buyer, storeAddr, submarketAddr, affiliate, products, transportIndex, value) {
 
     const deferred = $q.defer()
 
     const _products = products.filter((product) => { return product.quantity > 0})
     const productIndexes = _products.map((product) => { return product.index })
     const productQuantities = _products.map((product) => { return product.quantity })
+
+    console.log(productIndexes)
+    console.log(productQuantities)
 
     txMonitor.propose(
       'Create a New Order',
@@ -147,6 +150,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.buyer = this.contract.buyer()
     this.affiliate = this.contract.affiliate()
     this.store = new Store(storeAddr)
+    this.storeCurrency = this.contract.storeCurrency()
     this.submarket = submarketAddr === constants.nullAddr ? null : new Submarket(submarketAddr)
     this.escrowFeeCentiperun = this.contract.escrowFeeCentiperun()
     this.affiliateFeeCentiperun = this.contract.affiliateFeeCentiperun()
@@ -170,6 +174,8 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.confirmations = this.receivedAtBlockNumber.minus(web3.eth.blockNumber).times('-1').toNumber()
     this.confirmationsNeeded = this.received.div(web3.toWei(5, 'ether')).ceil().toNumber()
 
+    this.products = this.getProducts()
+
     this.messages = []
     this.updates = []
     this.keys = {}
@@ -184,57 +190,42 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
       })
     }
 
-    order.contract.Meta({}, { fromBlock: this.createdAtBlockNumber, toBlock: this.createdAtBlockNumber }).get((error, results) => {
 
-      if (error) {
-        return deferred.reject(error)
-      }
+    // let productsTotalInOrderCurrency = web3.toBigNumber(0)
+    // order.meta.products.forEach((product) => {
+    //   const subtotal = web3.toBigNumber(product.price).times(product.quantity)
+    //   productsTotalInOrderCurrency = productsTotalInOrderCurrency.plus(subtotal)
+    // })
 
-      if (results.length === 0) {
-        return deferred.reject(new Error('no results found'))
-      }
+    // order.productsTotal = new Coinage(productsTotalInOrderCurrency, order.store.currency)
+    // order.transportPrice = new Coinage(order.meta.transport.price, order.store.currency)
 
-      const metaEncrypted = results[results.length - 1].args.meta
-      order.meta = utils.decryptToObject(metaEncrypted, user.getKeypairs())
+    // const totalInStoreCurrency =
+    //   order.productsTotal.in(order.store.currency)
+    //     .plus(order.transportPrice.in(order.store.currency))
+    //     .times(order.escrowFeeCentiperun.div(100).plus(1))
 
-      let productsTotalInOrderCurrency = web3.toBigNumber(0)
-      order.meta.products.forEach((product) => {
-        const subtotal = web3.toBigNumber(product.price).times(product.quantity)
-        productsTotalInOrderCurrency = productsTotalInOrderCurrency.plus(subtotal)
+    // order.total = new Coinage(totalInStoreCurrency, order.store.currency)
+    // order.unpaid = order.total.in('WEI').minus(order.received)
+    // order.receivedPerun = order.received.div(order.total.in('WEI'))
+
+    order.contract.Message({}, { fromBlock: 0, toBlock: 'latest' }).get((_error, _results) => {
+
+      _results.forEach((result) => {
+        const timestamp = web3.eth.getBlock(result.blockNumber).timestamp
+        order.messages.push(new Message(result.args.sender, web3.toAscii(result.args.text), timestamp, order))
       })
 
-      order.productsTotal = new Coinage(productsTotalInOrderCurrency, order.store.currency)
-      order.transportPrice = new Coinage(order.meta.transport.price, order.store.currency)
-
-      const totalInStoreCurrency =
-        order.productsTotal.in(order.store.currency)
-          .plus(order.transportPrice.in(order.store.currency))
-          .times(order.escrowFeeCentiperun.div(100).plus(1))
-
-      order.total = new Coinage(totalInStoreCurrency, order.store.currency)
-      order.unpaid = order.total.in('WEI').minus(order.received)
-      order.receivedPerun = order.received.div(order.total.in('WEI'))
-
-      order.contract.Message({}, { fromBlock: 0, toBlock: 'latest' }).get((_error, _results) => {
-
-        _results.forEach((result) => {
+      order.contract.Update({}, { fromBlock: 0, toBlock: 'latest' }).get((__error, __results) => {
+        __results.forEach((result) => {
           const timestamp = web3.eth.getBlock(result.blockNumber).timestamp
-          order.messages.push(new Message(result.args.sender, web3.toAscii(result.args.text), timestamp, order))
+          order.updates.push(new Update(result.args.sender, result.args.status.toNumber(), timestamp, order))
         })
 
-        order.contract.Update({}, { fromBlock: 0, toBlock: 'latest' }).get((__error, __results) => {
-          __results.forEach((result) => {
-            const timestamp = web3.eth.getBlock(result.blockNumber).timestamp
-            order.updates.push(new Update(result.args.sender, result.args.status.toNumber(), timestamp, order))
-          })
-
-          deferred.resolve(order)
-        })
-
+        deferred.resolve(order)
       })
 
     })
-
 
     return deferred.promise
 
@@ -306,6 +297,41 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
   Update.prototype.isMessage = false
   Message.prototype.isUpdate = false
   Message.prototype.isMessage = true
+
+  Order.prototype.getProducts = function getStoreProducts() {
+
+    const products = []
+    const productsLength = this.contract.getProductsLength()
+
+    for (let i = 0; i < productsLength; i++) {
+      products.push(new Product(this, i))
+    }
+
+    return products
+  }
+
+  function Product(order, index) {
+    this.order = order
+    this.index = index
+    this.updatePromise = this.update()
+    this.quantity = 0
+  }
+
+  Product.prototype.update = function update() {
+    const deferred = $q.defer()
+    this.teraprice = this.order.contract.getProductTeraprice(this.index)
+    this.price = new Coinage(this.teraprice.div(constants.tera), this.order.storeCurrency)
+    this.fileHash = this.order.contract.getProductFileHash(this.index)
+    filestore.fetchFile(this.fileHash).then((file) => {
+      this.file = file
+      const data = utils.convertHexToObject(file)
+      this.name = data.name
+      this.info = data.info
+      this.img = data.img
+      deferred.resolve(this)
+    })
+    return deferred.promise
+  }
 
   return Order
 

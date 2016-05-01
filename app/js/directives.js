@@ -306,3 +306,22 @@ angular.module('app').directive('blockie', () => {
     }
   }
 })
+
+angular.module('app').directive('coinageInput', (Coinage) => {
+  return {
+    scope: { currency: '=coinageInput' },
+    require: 'ngModel',
+    link($scope, $element, $attributes, $model) {
+      $model.$formatters.push((value) => {
+        if (value) {
+          return value.in($scope.currency).toString()
+        }
+      })
+      $model.$parsers.push((value) => {
+        if (value) {
+          return new Coinage(value, $scope.currency)
+        }
+      })
+    }
+  }
+})
