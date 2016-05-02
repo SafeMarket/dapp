@@ -43,8 +43,20 @@ contract Order is infosphered{
 	
 	uint public blockNumber;
 
-	event Message(address indexed sender, bytes text);
-	event Update(address indexed sender, uint indexed status);
+	struct Message{
+		uint blockNumber;
+		address sender;
+		bytes32 fileHash;
+	}
+
+	struct Update{
+		uint blockNumber;
+		address sender;
+		uint status;
+	}
+
+	Message[] messages;
+	Update[] updates;
 
 	uint public constant initialized = 0;
 	uint public constant cancelled = 1;
@@ -111,7 +123,7 @@ contract Order is infosphered{
 	function getProductFileHash(uint _index) constant returns (bytes32){ return products[_index].fileHash; }
 	function getProductQuantity(uint _index) constant returns (uint){ return products[_index].quantity; }
 
-	function addMessage(bytes text){
+	function addMessage(bytes32 fileHash){
 		if(
 			msg.sender != buyer
 			&& !getSenderPermission(storeAddr,'order.addMessage')
@@ -119,7 +131,7 @@ contract Order is infosphered{
 		)
 			throw;
 
-		Message(msg.sender, text);
+		messages.push(Message(block.number, msg.sender, fileHash));
 	}
 
 	function isComplete() constant returns(bool){
@@ -135,7 +147,7 @@ contract Order is infosphered{
 
 	function addUpdate(uint _status) private{
 		status = _status;
-		Update(msg.sender,_status);
+		updates.push(Update(block.number, msg.sender, _status));
 	}
 
 	function cancel(){
@@ -302,6 +314,38 @@ contract Order is infosphered{
 			return received;
 		else
 			return this.balance;
+	}
+
+	function getMessagesLength() constant returns(uint) {
+		return messages.length;
+	}
+
+	function getMessageBlockNumber(uint index) constant returns(uint){
+		return messages[index].blockNumber;
+	}
+
+	function getMessageSender(uint index) constant returns(address){
+		return messages[index].sender;
+	}
+
+	function getMessageFileHash(uint index) constant returns(bytes32){
+		return messages[index].fileHash;
+	}
+
+	function getUpdatesLength() constant returns(uint) {
+		return updates.length;
+	}
+
+	function getUpdateBlockNumber(uint index) constant returns(uint){
+		return updates[index].blockNumber;
+	}
+
+	function getUpdateSender(uint index) constant returns(address){
+		return updates[index].sender;
+	}
+
+	function getUpdateStatus(uint index) constant returns(uint){
+		return updates[index].status;
 	}
 
 }

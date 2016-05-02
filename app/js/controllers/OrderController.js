@@ -1,6 +1,6 @@
 /* globals angular, _ */
 
-angular.module('app').controller('OrderController', ($scope, Order, pgp, user, $stateParams, modals) => {
+angular.module('app').controller('OrderController', ($scope, Order, user, $stateParams, modals, utils) => {
 
   $scope.order = new Order($stateParams.orderAddr)
 
@@ -36,16 +36,10 @@ angular.module('app').controller('OrderController', ($scope, Order, pgp, user, $
 
 
   $scope.addMessage = function addMessage() {
-
-    const keys = _.map($scope.order.keys, (key) => { return key.key })
-
-    pgp.encrypt(keys, $scope.messageText).then((pgpMessage) => {
-      $scope.order.addMessage(pgpMessage).then(() => {
-        $scope.messageText = ''
-        $scope.order.update()
-      })
+    $scope.order.addMessage($scope.messageText).then(() => {
+      $scope.messageText = ''
+      $scope.order.update()
     })
-
   }
 
   $scope.cancel = function cancel() {

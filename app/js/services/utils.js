@@ -354,6 +354,18 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
 
   function encrypt(msg, pks, keypair) {
 
+    let _msg
+
+    if (typeof msg === 'string') {
+      if (msg.indexOf('0x') === 0) {
+        _msg = convertHexToBytes(msg)
+      } else {
+        _msg = convertHexToBytes(web3.fromAscii(msg))
+      }
+    } else {
+      _msg = msg
+    }
+
     const crystalObject = {
       pk: keypair.pk,
       packets: {}
@@ -362,7 +374,7 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     pks.forEach((pk) => {
 
       const nonce = nacl.randomBytes(nacl.box.nonceLength)
-      const ciphertext = nacl.box(new Uint8Array(msg), new Uint8Array(nonce), new Uint8Array(pk), new Uint8Array(keypair.sk))
+      const ciphertext = nacl.box(new Uint8Array(_msg), new Uint8Array(nonce), new Uint8Array(pk), new Uint8Array(keypair.sk))
       const pkId = getKeyId(pk)
 
       crystalObject.packets[pkId] = { nonce: Array.from(nonce), ciphertext: Array.from(ciphertext) }
