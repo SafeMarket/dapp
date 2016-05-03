@@ -11,30 +11,6 @@ angular.module('app').controller('OrderController', ($scope, Order, user, $state
     isOrderUpdated = true
   })
 
-  function setMessagesAndUpdates() {
-
-    if (!isOrderUpdated) {
-      return
-    }
-
-    let messagesAndUpdates = []
-
-    if (Array.isArray($scope.order.messages)) {
-      messagesAndUpdates = messagesAndUpdates.concat($scope.order.messages)
-    }
-
-    if (Array.isArray($scope.order.updates)) {
-      messagesAndUpdates = messagesAndUpdates.concat($scope.order.updates)
-    }
-
-    $scope.messagesAndUpdates = messagesAndUpdates
-
-  }
-
-  $scope.$watch('order.messages', setMessagesAndUpdates, true)
-  $scope.$watch('order.updates', setMessagesAndUpdates, true)
-
-
   $scope.addMessage = function addMessage() {
     $scope.order.addMessage($scope.messageText).then(() => {
       $scope.messageText = ''

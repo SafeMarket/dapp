@@ -7,7 +7,6 @@
             ,"bower_components/validate/validate.min.js"
             ,"bower_components/lodash/lodash.min.js"
             ,"bower_components/q/q.js"
-            ,"bower_components/openpgp/dist/openpgp.js"
             ,"bower_components/marked/lib/marked.js"
             ,"bower_components/angular/angular.js"
             ,"bower_components/angular-route/angular-route.min.js"

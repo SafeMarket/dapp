@@ -1,6 +1,6 @@
 /* globals angular, contracts, web3 */
 
-angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key, KeyGroup, PgpMessageWrapper, txMonitor, user, OrderReg, constants, Coinage, filestore) => {
+angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key, KeyGroup, txMonitor, user, OrderReg, constants, Coinage, filestore) => {
 
   function Order(addr) {
     console.log(this)
@@ -209,6 +209,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
 
     this.messages = this.getMessages()
     this.updates = this.getUpdates()
+    this.messagesAndUpdates = this.messages.concat(this.updates)
 
     const messagePromises = this.messages.map((message) => {
       return message.promise
@@ -233,7 +234,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     const filestoreCalls = filestore.getMartyrCalls([crystalHex])
     const addMessageCalls = [{
       address: this.contract.address,
-      data: this.contract.addMessage.getData(crystalHexHash)
+      data: this.contract.addMessage.getData(crystalHexHash, user.getAccount())
     }]
     const allCalls = filestoreCalls.concat(addMessageCalls)
     const martyrData = utils.getMartyrData(allCalls)
@@ -314,11 +315,11 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.blockNumber = this.order.contract.getMessageBlockNumber(this.index)
     this.timestamp = web3.eth.getBlock(this.blockNumber).timestamp
     this.sender = this.order.contract.getMessageSender(this.index)
-    //this.from = this.order.getRoleForAddr(this.sender)
+    this.role = this.order.getRoleForAddr(this.sender)
     this.fileHash = this.order.contract.getMessageFileHash(this.index)
     filestore.fetchFile(this.fileHash).then((file) => {
       this.file = file
-      this.text = utils.decrypt(this.file, user.getKeypair())
+      this.text = web3.toAscii(utils.convertBytesToHex(utils.decrypt(this.file, user.getKeypairs())))
       deferred.resolve(this)
     })
     return deferred.promise
@@ -331,6 +332,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.blockNumber = this.order.contract.getUpdateBlockNumber(this.index)
     this.timestamp = web3.eth.getBlock(this.blockNumber).timestamp
     this.sender = this.order.contract.getUpdateSender(this.index)
+    this.role = this.order.getRoleForAddr(this.sender)
     this.status = this.order.contract.getUpdateStatus(this.index)
   }
 

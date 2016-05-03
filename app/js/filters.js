@@ -127,3 +127,14 @@ angular.module('app').filter('alias', (utils) => {
     return utils.getAlias(addr)
   }
 })
+
+angular.module('app').filter('role', (utils) => {
+  return function roleFilter(role) {
+    switch (role) {
+      case 'buyer': return 'buyer'
+      case 'storeOwner': return 'store owner'
+      case 'submarketOwner': return 'submarketOwner'
+      case null: return 'unknown user'
+    }
+  }
+})

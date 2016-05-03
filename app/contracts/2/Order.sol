@@ -114,6 +114,10 @@ contract Order is infosphered{
 		bounty = _bounty;
 	}
 
+	function getPermission(address user, address contractAddr, bytes32 action) private returns(bool){
+		return permissioned(contractAddr).getPermission(msg.sender,action);
+	}
+
 	function getSenderPermission(address contractAddr, bytes32 action) private returns(bool){
 		return permissioned(contractAddr).getPermission(msg.sender,action);
 	}
@@ -123,15 +127,18 @@ contract Order is infosphered{
 	function getProductFileHash(uint _index) constant returns (bytes32){ return products[_index].fileHash; }
 	function getProductQuantity(uint _index) constant returns (uint){ return products[_index].quantity; }
 
-	function addMessage(bytes32 fileHash){
+	function addMessage(bytes32 fileHash, address user){
+		if(tx.origin != user && msg.sender != user)
+			throw;
+
 		if(
-			msg.sender != buyer
-			&& !getSenderPermission(storeAddr,'order.addMessage')
-			&& !getSenderPermission(submarketAddr,'order.addMessage')
+			user != buyer
+			&& !getPermission(user, storeAddr, 'order.addMessage')
+			&& !getPermission(user, submarketAddr, 'order.addMessage')
 		)
 			throw;
 
-		messages.push(Message(block.number, msg.sender, fileHash));
+		messages.push(Message(block.number, user, fileHash));
 	}
 
 	function isComplete() constant returns(bool){

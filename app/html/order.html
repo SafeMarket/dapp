@@ -187,18 +187,18 @@
 	<h3>Messages</h3>
 	<p>Messages are encrypted and stored on the blockchain</p>
 	<table class="table">
-		<tr ng-repeat="messageOrUpdate in messagesAndUpdates" ng-class="{'update':messageOrUpdate.isUpdate,'message':messageOrUpdate.isMessage}">
+		<tr ng-repeat="messageOrUpdate in order.messagesAndUpdates" ng-class="{'update':messageOrUpdate.isUpdate,'message':messageOrUpdate.isMessage}">
 			<td>
-				<span ng-show="messageOrUpdate.isMessage">{{messageOrUpdate.from | capitalize}}:</span>
+				<span ng-show="messageOrUpdate.isMessage">{{messageOrUpdate.role | role | capitalize}}:</span>
 				<span ng-show="messageOrUpdate.isUpdate">Update:</span>
 			</td>
 			<td>
-				<div ng-show="messageOrUpdate.ciphertext">
+				<div ng-show="messageOrUpdate.file">
 					<div ng-show="messageOrUpdate.text">{{messageOrUpdate.text}}</div>
-					<pre ng-show="!messageOrUpdate.text">{{messageOrUpdate.ciphertext}}</pre>
+					<pre ng-show="!messageOrUpdate.text">Unable to decrypt</pre>
 				</div>
 				<div ng-show="messageOrUpdate.status">
-					{{messageOrUpdate.from | capitalize}} has marked the order as {{messageOrUpdate.status | status | lowercase}}
+					{{messageOrUpdate.role | role | capitalize}} has marked the order as {{messageOrUpdate.status | status | lowercase}}
 				</div>
 			</td>
 			<td class="text-right" timestamp="messageOrUpdate.timestamp"></td>

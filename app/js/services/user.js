@@ -1,6 +1,6 @@
-/* globals angular, blockchain, lightwallet, web3, _, CryptoJS, openpgp, HookedWeb3Provider, nacl */
+/* globals angular, blockchain, lightwallet, web3, _, CryptoJS, HookedWeb3Provider, nacl */
 
-angular.module('app').service('user', function userService($q, $rootScope, words, pgp, Key, modals, growl, Affiliate, utils) {
+angular.module('app').service('user', function userService($q, $rootScope, words, Key, modals, growl, Affiliate, utils) {
 
   const user = this
   let keystore
