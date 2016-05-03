@@ -1,6 +1,6 @@
 <div class="container" id="order">
 	<h1>
-		<a ng-href="{{order.store.addr | url:'store'}}">{{order.store.meta.data.name}}</a> » Order {{order.addr.substr(0,6)}}...
+		<a ng-href="{{order.store.addr | url:'store'}}">{{order.store.meta.name}}</a> » Order {{order.addr.substr(0,6)}}...
 	</h1>
 	<div class="alert alert-info text-center" ng-show="order.status>=3">
 		<a ng-click="leaveReview()">Leave a review</a> for @{{order.store.addr | alias}}	
@@ -189,8 +189,11 @@
 	<table class="table">
 		<tr ng-repeat="messageOrUpdate in order.messagesAndUpdates" ng-class="{'update':messageOrUpdate.isUpdate,'message':messageOrUpdate.isMessage}">
 			<td>
-				<span ng-show="messageOrUpdate.isMessage">{{messageOrUpdate.role | role | capitalize}}:</span>
-				<span ng-show="messageOrUpdate.isUpdate">Update:</span>
+				<span ng-show="messageOrUpdate.isMessage">{{messageOrUpdate.role | role | capitalize}}</span>
+				<span ng-show="messageOrUpdate.isUpdate">Update</span>
+				<div class="text-small text-muted">
+					<span class="short-addr">{{messageOrUpdate.sender}}</span>
+				</div>
 			</td>
 			<td>
 				<div ng-show="messageOrUpdate.file">
