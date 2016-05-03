@@ -4,7 +4,7 @@ angular.module('app').controller('SubmarketModalController', ($scope, ticker, gr
 
   $scope.stores = []
 
-  $scope.currencies = Object.keys(ticker.rates)
+  $scope.currencies = Object.keys(ticker.prices)
 
   if (submarket) {
     $scope.alias = submarket.alias

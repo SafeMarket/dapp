@@ -7,43 +7,43 @@ module.exports = function exportTicker(grunt) {
     const gethConfig = grunt.file.readYAML('config/geth.yml')[options.env]
     const contracts = grunt.file.readYAML('generated/contracts.json').contracts
     const chain = grunt.file.readJSON(`config/${options.env}/chain.json`)
-    const rates = grunt.file.readJSON('config/rates.json')
+    const prices = grunt.file.readJSON('config/prices.json')
     const done = this.async()
 
     web3.setProvider(new web3.providers.HttpProvider(`http://localhost:${gethConfig.rpcport}`))
     web3.eth.defaultAccount = web3.eth.accounts[0]
 
-    const Infosphere = web3.eth.contract(JSON.parse(contracts.Infosphere.interface)).at(chain.Infosphere.address)
-    const rateSetters = Object.keys(rates).map((symbol) => {
-      return getRateSetter(symbol, rates[symbol])
+    const Ticker = web3.eth.contract(JSON.parse(contracts.Ticker.interface)).at(chain.Ticker.address)
+    const priceSetters = Object.keys(prices).map((symbol) => {
+      return getPriceSetter(symbol, prices[symbol])
     })
 
-    rateSetters.reduce((soFar, f) => {
+    priceSetters.reduce((soFar, f) => {
       return soFar.then(f)
     }, Q()).then(() => {
-      grunt.log.success('All rates are set')
+      grunt.log.success('All prices are set')
       done(true)
     })
 
 
-    function getRateSetter(symbol, value) {
-      return function rateSetter() {
+    function getPriceSetter(symbol, value) {
+      return function priceSetter() {
         const deferred = Q.defer()
-        setRate(symbol, value).then(() => {
+        setPrice(symbol, value).then(() => {
           deferred.resolve()
         })
         return deferred.promise
       }
     }
 
-    function setRate(symbol, value) {
+    function setPrice(symbol, value) {
 
       grunt.log.writeln(`Setting ${symbol} to ${value}...`)
 
       const deferred = Q.defer()
 
-      Infosphere.setUint(symbol, value, {
-        gas: Infosphere.setUint.estimateGas(symbol, value)
+      Ticker.setPrice(symbol, value, {
+        gas: Ticker.setPrice.estimateGas(symbol, value)
       }, (err, txHex) => {
         if (err) {
           grunt.log.error(err)

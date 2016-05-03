@@ -2,7 +2,7 @@
 
 angular.module('app').controller('StoreModalController', ($scope, $filter, utils, Store, AliasReg, ticker, growl, $modal, $modalInstance, store, user, helpers, constants) => {
 
-  $scope.currencies = Object.keys(ticker.rates)
+  $scope.currencies = Object.keys(ticker.prices)
   $scope.user = user
   $scope.submarkets = []
 

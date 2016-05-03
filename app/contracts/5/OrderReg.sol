@@ -2,6 +2,7 @@ contract OrderReg is owned{
 
 	StoreReg storeReg;
 	SubmarketReg submarketReg;
+	address tickerAddr;
 
 	function setStoreReg(address storeRegAddr){
 		requireOwnership();
@@ -11,6 +12,11 @@ contract OrderReg is owned{
 	function setSubmarketReg(address submarketRegAddr){
 		requireOwnership();
 		submarketReg = SubmarketReg(submarketRegAddr);
+	}
+
+	function setTickerAddr(address _tickerAddr){
+		requireOwnership();
+		tickerAddr = _tickerAddr;
 	}
 
 	address[] registeredAddrsArray;
@@ -45,7 +51,8 @@ contract OrderReg is owned{
 			productQuantities,
 			transportIndex,
 			bounty,
-			rewardMax
+			rewardMax,
+			tickerAddr
 		);
 		var orderAddr = address(order);
 				

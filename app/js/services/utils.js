@@ -135,14 +135,14 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
       to: currencies.to
     }, {
       amount: { presence: true, type: 'string', numericality: {} },
-      from: { presence: true, inclusion: Object.keys(ticker.rates), type: 'string' },
-      to: { presence: true, inclusion: Object.keys(ticker.rates), type: 'string' }
+      from: { presence: true, inclusion: Object.keys(ticker.prices), type: 'string' },
+      to: { presence: true, inclusion: Object.keys(ticker.prices), type: 'string' }
     })
 
     amount =
       web3.toBigNumber(amount)
-        .div(ticker.rates[currencies.from])
-        .times(ticker.rates[currencies.to])
+        .div(ticker.prices[currencies.to])
+        .times(ticker.prices[currencies.from])
 
     if (currencies.to === 'WEI') {
       amount = amount.ceil()

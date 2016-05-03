@@ -154,8 +154,11 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.submarket = submarketAddr === constants.nullAddr ? null : new Submarket(submarketAddr)
     this.escrowFeeCentiperun = this.contract.escrowFeeCentiperun()
     this.affiliateFeeCentiperun = this.contract.affiliateFeeCentiperun()
+    this.bufferCentiperun = this.contract.bufferCentiperun()
+    this.escrowAmount = new Coinage(this.contract.escrowFeeTeramount().div(constants.tera), this.storeCurrency)
+    this.bufferAmount = new Coinage(this.contract.bufferTeramount().div(constants.tera), this.storeCurrency)
+    this.total = new Coinage(this.contract.teratotal().div(constants.tera), this.storeCurrency)
     this.balance = web3.eth.getBalance(this.addr)
-    this.received = this.contract.getReceived()
     this.status = this.contract.status().toNumber()
     this.blockNumber = this.contract.blockNumber()
     this.createdAt = web3.eth.getBlock(this.blockNumber).timestamp
@@ -172,7 +175,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
 
     this.receivedAtBlockNumber = this.contract.blockNumber()
     this.confirmations = this.blockNumber.minus(web3.eth.blockNumber).times('-1')
-    this.confirmationsNeeded = this.received.div(web3.toWei(5, 'ether')).ceil()
+    this.confirmationsNeeded = this.balance.div(web3.toWei(5, 'ether')).ceil()
 
     this.products = this.getProducts()
     this.transport = new Transport(this)
@@ -198,14 +201,9 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
 
     this.productsTotal = new Coinage(productsTotal, this.storeCurrency)
 
-    const totalInStoreCurrency =
-      this.productsTotal.in(this.storeCurrency)
-        .plus(this.transport.price.in(this.storeCurrency))
-        .times(this.escrowFeeCentiperun.div(100).plus(1))
-
-    this.total = new Coinage(totalInStoreCurrency, this.storeCurrency)
-    this.unpaid = this.total.in('WEI').minus(this.received)
-    this.receivedPerun = this.received.div(this.total.in('WEI'))
+    
+    this.unpaid = this.total.in('WEI').minus(this.balance)
+    this.receivedPerun = this.balance.div(this.total.in('WEI'))
 
     this.messages = this.getMessages()
     this.updates = this.getUpdates()

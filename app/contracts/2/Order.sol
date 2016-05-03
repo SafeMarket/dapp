@@ -1,4 +1,6 @@
-contract Order is infosphered{
+contract Order{
+
+	Ticker ticker;
 	
 	address public buyer;
 	address public storeAddr;
@@ -20,6 +22,11 @@ contract Order is infosphered{
 	uint public buyerAmountCentiperun;
 	uint public escrowFeeCentiperun; 
 	uint public affiliateFeeCentiperun;
+	uint public bufferCentiperun;
+
+	uint public escrowFeeTeramount;
+	uint public bufferTeramount;
+	uint public teratotal;
 
 	uint public bounty;
 	uint public rewardMax;
@@ -75,6 +82,7 @@ contract Order is infosphered{
 		,uint _transportIndex
 		,uint _bounty
 		,uint _rewardMax
+		,address tickerAddr
 	){
 
 		blockNumber = block.number;
@@ -86,30 +94,47 @@ contract Order is infosphered{
 		bounty = _bounty;
 		rewardMax = _rewardMax;
 
+		ticker = Ticker(tickerAddr);
+
 		var store = Store(_storeAddr);
 		storeCurrency = store.getBytes32('currency');
+
+		uint _teratotal = 0;
 
 		if(_productIndexes.length != _productQuantities.length)
 			throw;
 
 		for(uint i = 0; i< _productIndexes.length; i++){
+			uint productTeraprice = store.getProductTeraprice(i);
 			products.push(Product(
-				store.getProductTeraprice(i),
+				productTeraprice,
 				store.getProductFileHash(i),
 				_productQuantities[i]
 			));
+			_teratotal = _teratotal + productTeraprice;
 		}
 
 		transportTeraprice = store.getTransportTeraprice(_transportIndex);
 		transportFileHash = store.getTransportFileHash(_transportIndex);
 
+		_teratotal = _teratotal + transportTeraprice;
+
+		bufferCentiperun = store.getUint('bufferCentiperun');
 		affiliateFeeCentiperun = store.getUint('affiliateFeeCentiperun');
 
 		if(submarketAddr != address(0)){
 			var submarket = infosphered(_submarketAddr);
 			escrowFeeCentiperun = submarket.getUint('escrowFeeCentiperun');
+			escrowFeeTeramount = (_teratotal * escrowFeeCentiperun) / 100;
 			disputeSeconds = store.getUint('disputeSeconds');
+
+			_teratotal = _teratotal + escrowFeeTeramount;
 		}
+
+		teratotal = _teratotal;
+
+		bufferTeramount = (_teratotal * bufferCentiperun) / 100;
+
 
 		bounty = _bounty;
 	}
