@@ -143,7 +143,6 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
   Order.prototype.update = function updateOrder() {
 
     const deferred = $q.defer()
-    const order = this
     const storeAddr = this.contract.storeAddr()
     const submarketAddr = this.contract.submarketAddr()
 
@@ -155,7 +154,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.escrowFeeCentiperun = this.contract.escrowFeeCentiperun()
     this.affiliateFeeCentiperun = this.contract.affiliateFeeCentiperun()
     this.bufferCentiperun = this.contract.bufferCentiperun()
-    this.escrowAmount = new Coinage(this.contract.escrowFeeTeramount().div(constants.tera), this.storeCurrency)
+    this.escrowFeeAmount = new Coinage(this.contract.escrowFeeTeramount().div(constants.tera), this.storeCurrency)
     this.bufferAmount = new Coinage(this.contract.bufferTeramount().div(constants.tera), this.storeCurrency)
     this.total = new Coinage(this.contract.teratotal().div(constants.tera), this.storeCurrency)
     this.balance = web3.eth.getBalance(this.addr)
@@ -201,7 +200,6 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
 
     this.productsTotal = new Coinage(productsTotal, this.storeCurrency)
 
-    
     this.unpaid = this.total.in('WEI').minus(this.balance)
     this.receivedPerun = this.balance.div(this.total.in('WEI'))
 

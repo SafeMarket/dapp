@@ -54,16 +54,20 @@ contract OrderReg is owned{
 			rewardMax,
 			tickerAddr
 		);
+
+
+		if(msg.value < order.getMinimumBalance())
+			throw;
+
+		if(!order.send(msg.value))
+			throw;
+
 		var orderAddr = address(order);
 				
 		registeredAddrsArray.push(orderAddr);
 		registeredAddrsMap[orderAddr] = true;
 
 		Registration(orderAddr);
-
-		if(!orderAddr.send(msg.value))
-			throw;
-
 	}
 
 	function isRegistered(address addr) constant returns(bool){

@@ -28,7 +28,6 @@ angular.module('app').controller('ProductsController', ($scope, $filter, utils, 
     const storeAddr = $scope.store.addr
     const submarketAddr = $scope.submarketOption.addr
     const affiliate = utils.getAffiliate($scope.affiliateCodeOrAlias) || constants.nullAddr
-    const transportIndex = $scope.transport.index
 
     if ($scope.affiliateCodeOrAlias && affiliate === constants.nullAddr) {
       growl.addErrorMessage(`${$scope.affiliateCodeOrAlias} is not a valid affiliate`)
@@ -82,7 +81,7 @@ angular.module('app').controller('ProductsController', ($scope, $filter, utils, 
     console.log($scope.transport.price.in(currency))
     console.log($scope.submarketOption.escrowFeeCentiperun)
 
-    const fee =
+    const escrowFeeAmount =
       $scope.productsTotal.in(currency)
         .plus($scope.transport.price.in(currency))
         .times($scope.submarketOption.escrowFeeCentiperun)
@@ -90,12 +89,22 @@ angular.module('app').controller('ProductsController', ($scope, $filter, utils, 
 
     console.log('$watch1')
 
-    $scope.fee = new Coinage(fee, currency)
+    $scope.escrowFeeAmount = new Coinage(escrowFeeAmount, currency)
+
+    const bufferAmount =
+      $scope.productsTotal.in(currency)
+        .plus($scope.transport.price.in(currency))
+        .plus(escrowFeeAmount)
+        .times($scope.store.infosphered.data.bufferCentiperun)
+        .div(100)
+
+    $scope.bufferAmount = new Coinage(bufferAmount, currency)
 
     const total =
       $scope.productsTotal.in(currency)
         .plus($scope.transport.price.in(currency))
-        .plus(fee)
+        .plus(escrowFeeAmount)
+        .plus(bufferAmount)
 
     console.log('$watch2')
 

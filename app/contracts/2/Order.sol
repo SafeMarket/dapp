@@ -27,6 +27,7 @@ contract Order{
 	uint public escrowFeeTeramount;
 	uint public bufferTeramount;
 	uint public teratotal;
+	uint public total;
 
 	uint public bounty;
 	uint public rewardMax;
@@ -120,7 +121,10 @@ contract Order{
 		_teratotal = _teratotal + transportTeraprice;
 
 		bufferCentiperun = store.getUint('bufferCentiperun');
-		affiliateFeeCentiperun = store.getUint('affiliateFeeCentiperun');
+
+		if(_affiliate != address(0)) {
+			affiliateFeeCentiperun = store.getUint('affiliateFeeCentiperun');
+		}
 
 		if(submarketAddr != address(0)){
 			var submarket = infosphered(_submarketAddr);
@@ -132,9 +136,7 @@ contract Order{
 		}
 
 		teratotal = _teratotal;
-
 		bufferTeramount = (_teratotal * bufferCentiperun) / 100;
-
 
 		bounty = _bounty;
 	}
@@ -378,6 +380,10 @@ contract Order{
 
 	function getUpdateStatus(uint index) constant returns(uint){
 		return updates[index].status;
+	}
+
+	function getMinimumBalance() constant returns(uint) {
+		return ticker.convert(teratotal + bufferTeramount, bytes4(storeCurrency), bytes4('WEI')) / 1000000000000;
 	}
 
 }

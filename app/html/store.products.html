@@ -57,7 +57,17 @@
 			</td>
 			<td>
 				<amounts
-					value="fee.in(store.currency)"
+					value="escrowFeeAmount.in(store.currency)"
+					from="store.currency"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="4">Exchange Rate Buffer ({{store.infosphered.data.bufferCentiperun.toNumber()}}%)</td>
+			<td>
+				<amounts
+					value="bufferAmount.in(store.currency)"
 					from="store.currency"
 					to="displayCurrencies">
 				</amounts>

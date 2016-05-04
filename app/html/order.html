@@ -86,6 +86,48 @@
 			</tr>
 		</tbody>
 		<tr>
+			<td>Product Total</td>
+			<td colspan="2">
+				<amounts
+					value="order.productsTotal.in(order.storeCurrency)"
+					from="order.storeCurrency"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+		<tr>
+			<td>Shipping ({{order.transport.name}})</td>
+			<td colspan="2">
+				<amounts
+					value="order.transport.price.in(order.storeCurrency)"
+					from="order.storeCurrency"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+		<tr>
+			<td>Submarket Escrow Fee ({{order.escrowFeeCentiperun.toNumber()}}%)</td>
+			<td colspan="2">
+				<amounts
+					value="order.escrowFeeAmount.in(order.storeCurrency)"
+					from="order.storeCurrency"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+		<tr>
+			<td>Affiliate Fee ({{order.affiliateFeeCentiperun.toNumber()}}%)
+			<div><span class="short-addr text-small text-muted">{{order.affiliate}}</span></div>
+			</td>
+			<td colspan="2">
+				<amounts
+					value="order.affiliateAmount"
+					from="'WEI'"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+		<tr>
 			<td>Total</td>
 			<td colspan="2">
 				<amounts
@@ -95,56 +137,23 @@
 				</amounts>
 			</td>
 		</tr>
-		<tbody collapsable is-collapsed="true">
-			<tr>
-				<td>Product Total</td>
-				<td colspan="2">
-					<amounts
-						value="order.productsTotal.in(order.storeCurrency)"
-						from="order.storeCurrency"
-						to="displayCurrencies">
-					</amounts>
-				</td>
-			</tr>
-			<tr>
-				<td>Shipping ({{order.transport.name}})</td>
-				<td colspan="2">
-					<amounts
-						value="order.transport.price.in(order.storeCurrency)"
-						from="order.storeCurrency"
-						to="displayCurrencies">
-					</amounts>
-				</td>
-			</tr>
-			<tr>
-				<td>Submarket Escrow Fee ({{order.escrowFeeCentiperun.toNumber()}}%)</td>
-				<td colspan="2">
-					<amounts
-						value="order.escrowAmount"
-						from="'WEI'"
-						to="displayCurrencies">
-					</amounts>
-				</td>
-			</tr>
-			<tr>
-				<td>Affiliate Fee ({{order.affiliateFeeCentiperun.toNumber()}}%)</td>
-				<td colspan="2">
-					{{order.affiliate}}
-					<amounts
-						value="order.affiliateAmount"
-						from="'WEI'"
-						to="displayCurrencies">
-					</amounts>
-				</td>
-			</tr>
-		</tbody>
+		<tr>
+			<td>Exchange Rate Buffer ({{order.bufferCentiperun.toNumber()}}%)</td>
+			<td colspan="2">
+				<amounts
+					value="order.bufferAmount.in(order.storeCurrency)"
+					from="order.storeCurrency"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
 		<tr>
 			<td>Received ({{order.receivedPerun | perun}})
-			<div class="text-muted text-small" ng-show="order.received.greaterThan(0)">{{order.confirmations.toString()}}/{{order.confirmationsNeeded.toString()}} Confirmations</div>
+			<div class="text-muted text-small">{{order.confirmations.toString()}}/{{order.confirmationsNeeded.toString()}} Confirmations</div>
 			</td>
 			<td>
 				<amounts
-					value="order.received"
+					value="order.balance"
 					from="'WEI'"
 					to="displayCurrencies">
 				</amounts>
@@ -192,7 +201,7 @@
 				<span ng-show="messageOrUpdate.isMessage">{{messageOrUpdate.role | role | capitalize}}</span>
 				<span ng-show="messageOrUpdate.isUpdate">Update</span>
 				<div class="text-small text-muted">
-					<span class="short-addr">{{messageOrUpdate.sender}}</span>
+					<span class="short-addr text-small text-muted">{{messageOrUpdate.sender}}</span>
 				</div>
 			</td>
 			<td>
