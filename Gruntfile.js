@@ -37,7 +37,7 @@ module.exports = function gruntfile(grunt) {
 
   grunt.registerTask('build', ['concat', 'contracts', 'index', 'copy'])
 
-  grunt.registerTask('run', ['build', 'ticker:development', 'refill:development', 'watch'])
+  grunt.registerTask('run', ['build', 'set-prices', 'ticker:development', 'refill:development', 'watch'])
 
   grunt.registerTask('test', ['refill:development', 'protractor'])
 }

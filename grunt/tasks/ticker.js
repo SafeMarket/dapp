@@ -38,9 +38,19 @@ module.exports = function exportTicker(grunt) {
 
     function setPrice(symbol, value) {
 
-      grunt.log.writeln(`Setting ${symbol} to ${value}...`)
+      grunt.log.writeln(`${symbol} is ${value}`)
 
       const deferred = Q.defer()
+
+      const _value = Ticker.getPrice(symbol)
+      const diff = _value.minus(value)
+      const diffPerun = diff.div(_value)
+
+      if (diffPerun.lessThanOrEqualTo('.01')) {
+        grunt.log.writeln(`${symbol} has moved less than 1%. Skipping`)
+        deferred.resolve()
+        return deferred.promise
+      }
 
       Ticker.setPrice(symbol, value, {
         gas: Ticker.setPrice.estimateGas(symbol, value)
@@ -51,7 +61,7 @@ module.exports = function exportTicker(grunt) {
         }
 
         waitForTx(txHex).then(() => {
-          grunt.log.writeln(`Set ${symbol} to ${value}...`)
+          grunt.log.writeln(`${symbol} updated`)
           deferred.resolve()
         })
       })
