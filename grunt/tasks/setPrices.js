@@ -37,7 +37,7 @@ module.exports = function exportSetPrices(grunt) {
             grunt.log.writeln(`1 ${symbol} = ${priceOfSymbolInUsd.toFixed(2)} USD`)
           })
 
-          fs.writeFileSync('config/prices.json', JSON.stringify(prices))
+          fs.writeFileSync('generated/prices.json', JSON.stringify(prices))
 
           grunt.log.success('prices.json written')
           done()

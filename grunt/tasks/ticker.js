@@ -7,7 +7,7 @@ module.exports = function exportTicker(grunt) {
     const gethConfig = grunt.file.readYAML('config/geth.yml')[options.env]
     const contracts = grunt.file.readYAML('generated/contracts.json').contracts
     const chain = grunt.file.readJSON(`config/${options.env}/chain.json`)
-    const prices = grunt.file.readJSON('config/prices.json')
+    const prices = grunt.file.readJSON('generated/prices.json')
     const done = this.async()
 
     web3.setProvider(new web3.providers.HttpProvider(`http://localhost:${gethConfig.rpcport}`))
