@@ -156,7 +156,11 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     const prefix = doPrefix ? ` ${currency}` : ''
     const places = currency === 'ETH' ? 6 : 2
 
-    return amount.toFixed(places).toString() + prefix
+    const amountStringWithoutCommas = amount.toFixed(places).toString()
+    const amountBeforePeriod = amountStringWithoutCommas.split('.')[0]
+    const amountAfterPeriod = amountStringWithoutCommas.split('.')[1]
+
+    return amountBeforePeriod.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '.' + amountAfterPeriod + prefix
 
   }
 
