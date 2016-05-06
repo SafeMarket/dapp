@@ -7,7 +7,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
 
     this.addr = addr
     this.contract = this.contractFactory.at(addr)
-    this.updatePromise = this.update()
+    this.update()
   }
 
   Order.prototype.bytecode = Order.bytecode = contracts.Order.bytecode
@@ -145,7 +145,9 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     const deferred = $q.defer()
     const storeAddr = this.contract.storeAddr()
     const submarketAddr = this.contract.submarketAddr()
+    const promises = []
 
+    this.updatePromise = deferred.promise
     this.buyer = this.contract.buyer()
     this.affiliate = this.contract.affiliate()
     this.store = new Store(storeAddr)
@@ -189,6 +191,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
       this.submarket.updatePromise.then((submarket) => {
         this.keys.submarketOwner = submarket.key
       })
+      promises.push(this.submarket.updatePromise)
     }
 
 
@@ -207,11 +210,27 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.updates = this.getUpdates()
     this.messagesAndUpdates = this.messages.concat(this.updates)
 
-    const messagePromises = this.messages.map((message) => {
-      return message.promise
+    this.review = {
+      blockNumber: this.contract.reviewBlockNumber(),
+      score: this.contract.reviewScore().toNumber(),
+      fileHash: this.contract.reviewFileHash()
+    }
+
+    if (!this.review.blockNumber.equals(0)) {
+      this.review.timestamp = web3.eth.getBlock(this.review.blockNumber).timestamp
+      const reviewPromise = filestore.fetchFile(this.review.fileHash).then((file) => {
+        this.review.file = file
+        const data = utils.convertHexToObject(file)
+        this.review.text = data.text
+      })
+      promises.push(reviewPromise)
+    }
+
+    this.messages.forEach((message) => {
+      promises.push(message.promise)
     })
 
-    $q.all(messagePromises).then(() => {
+    $q.all(promises).then(() => {
       deferred.resolve(this)
     })
 
@@ -255,12 +274,21 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     return deferred.promise
   }
 
-  Order.prototype.leaveReview = function leaveOrderReview(score, text) {
+  Order.prototype.setReview = function leaveOrderReview(score, text) {
     const dataHex = utils.convertObjectToHex({
       text: text
     })
+    const dataHash = utils.sha3(dataHex)
 
-    return txMonitor.propose('Leave a Review', this.store.contract.leaveReview, [this.addr, score, dataHex])
+    const filestoreCalls = filestore.getMartyrCalls([dataHex])
+    const setReviewCalls = [{
+      address: this.contract.address,
+      data: this.contract.setReview.getData(score, dataHash)
+    }]
+    const allCalls = filestoreCalls.concat(setReviewCalls)
+    const martyrData = utils.getMartyrData(allCalls)
+
+    return txMonitor.propose('Set a Review', web3.eth.sendTransaction, [{ data: martyrData }])
   }
 
   Order.prototype.getRoleForAddr = function getOrderRoleForAddr(addr) {

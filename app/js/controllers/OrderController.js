@@ -60,8 +60,8 @@ angular.module('app').controller('OrderController', ($scope, Order, user, $state
     })
   }
 
-  $scope.leaveReview = function leaveReview() {
-    modals.openLeaveReview($scope.order).result.then(() => {
+  $scope.setReview = function setReview() {
+    modals.openSetReview($scope.order).result.then(() => {
       $scope.order.update()
     })
   }

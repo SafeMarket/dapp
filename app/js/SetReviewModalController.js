@@ -1,6 +1,6 @@
 /* globals angular */
 
-angular.module('app').controller('LeaveReviewModalController', ($scope, $modalInstance, order) => {
+angular.module('app').controller('SetReviewModalController', ($scope, $modalInstance, order) => {
 
   $scope.score = 3
   $scope.scores = [0, 1, 2, 3, 4, 5]
@@ -10,7 +10,7 @@ angular.module('app').controller('LeaveReviewModalController', ($scope, $modalIn
   }
 
   $scope.submit = function submit() {
-    order.leaveReview($scope.score, $scope.text).then(() => {
+    order.setReview($scope.score, $scope.text).then(() => {
       $modalInstance.close()
     })
   }

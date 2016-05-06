@@ -2,8 +2,8 @@
 	<h1>
 		<a ng-href="{{order.store.addr | url:'store'}}">{{order.store.meta.name}}</a> » Order {{order.addr.substr(0,6)}}...
 	</h1>
-	<div class="alert alert-info text-center" ng-show="order.status>=3">
-		<a ng-click="leaveReview()">Leave a review</a> for @{{order.store.addr | alias}}	
+	<div class="alert alert-info text-center" ng-show="order.status>=3 ** order.review.blockNumber.equals(0)">
+		<a ng-click="setReview()">Leave a review</a> for @{{order.store.addr | alias}}	
 	</div>
 	<table class="table">
 		<tr>
