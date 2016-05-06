@@ -2,7 +2,10 @@
 
 angular.module('app').controller('SetReviewModalController', ($scope, $modalInstance, order) => {
 
-  $scope.score = order.review.isSet ? order.review.score : 3
+  $scope.isSubmarket = !!order.submarket
+  $scope.storeScore = order.review.isSet ? order.review.storeScore : 3
+  $scope.submarketScore = order.review.isSet ? order.review.submarketScore : ($scope.isSubmarket ? 3 : 0)
+
   $scope.text = order.review.text
   $scope.scores = [0, 1, 2, 3, 4, 5]
 
@@ -11,7 +14,7 @@ angular.module('app').controller('SetReviewModalController', ($scope, $modalInst
   }
 
   $scope.submit = function submit() {
-    order.setReview($scope.score, $scope.text).then(() => {
+    order.setReview($scope.storeScore, $scope.submarketScore, $scope.text).then(() => {
       $modalInstance.close()
     })
   }

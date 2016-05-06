@@ -213,7 +213,8 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.review = {
       blockNumber: this.contract.reviewBlockNumber(),
       isSet: this.contract.reviewBlockNumber().greaterThan(0),
-      score: this.contract.reviewScore().toNumber(),
+      storeScore: this.contract.reviewStoreScore().toNumber(),
+      submarketScore: this.contract.reviewSubmarketScore().toNumber(),
       fileHash: this.contract.reviewFileHash()
     }
 
@@ -275,7 +276,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     return deferred.promise
   }
 
-  Order.prototype.setReview = function leaveOrderReview(score, text) {
+  Order.prototype.setReview = function leaveOrderReview(storeScore, submarketScore, text) {
     const dataHex = utils.convertObjectToHex({
       text: text
     })
@@ -284,7 +285,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     const filestoreCalls = filestore.getMartyrCalls([dataHex])
     const setReviewCalls = [{
       address: this.contract.address,
-      data: this.contract.setReview.getData(score, dataHash)
+      data: this.contract.setReview.getData(storeScore, submarketScore, dataHash)
     }]
     const allCalls = filestoreCalls.concat(setReviewCalls)
     const martyrData = utils.getMartyrData(allCalls)

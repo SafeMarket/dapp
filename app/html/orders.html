@@ -6,7 +6,8 @@
 		<th>Store</th>
 		<th>Submarket</th>
 		<th>Status</th>
-		<th>Score</th>
+		<th>Store Score</th>
+		<th>Submarket Score</th>
 		<th>Review</th>
 	</tr>
 	<tr ng-repeat="order in orders">
@@ -20,10 +21,13 @@
 			{{order.status | status}}
 		</td>
 		<td>
-			{{order.review.isSet ? order.review.score : ''}}
+			{{order.review.isSet ? order.review.storeScore : ''}}
 		</td>
 		<td>
-			{{order.review.isSet ? order.review.text : ''}}
+			{{order.review.isSet && order.submarket ? order.review.submarketScore : ''}}
+		</td>
+		<td>
+			{{order.review.text}}
 		</td>
 	</tr>
 </table>

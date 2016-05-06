@@ -74,7 +74,8 @@ contract Order{
 	uint public constant finalized = 5;
 
 	uint public reviewBlockNumber;
-	uint8 public reviewScore;
+	uint8 public reviewStoreScore;
+	uint8 public reviewSubmarketScore;
 	bytes32 public reviewFileHash;
 
 	function Order(
@@ -390,15 +391,19 @@ contract Order{
 		return ticker.convert(teratotal + bufferTeramount, bytes4(storeCurrency), bytes4('WEI')) / 1000000000000;
 	}
 
-	function setReview(uint8 score, bytes32 fileHash) {
+	function setReview(uint8 storeScore, uint8 submarketScore, bytes32 fileHash) {
 		if(msg.sender != buyer && tx.origin != buyer)
 			throw;
 
-		if(score > 5)
+		if(storeScore > 5 || submarketScore > 5)
+			throw;
+
+		if(submarketAddr == address(0) && submarketScore != 0)
 			throw;
 
 		reviewBlockNumber = block.number;
-		reviewScore = score;
+		reviewStoreScore = storeScore;
+		reviewSubmarketScore = submarketScore;
 		reviewFileHash = fileHash;
 	}
 

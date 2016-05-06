@@ -7,9 +7,15 @@
     </div>
     <table class="table" ng-show="!isSyncing">
         <tr>
-            <td>Score</td>
+            <td>Store Score</td>
             <td>
-                 <select ng-model="score" ng-options="score for score in scores" class="form-control"></select>
+                 <select ng-model="storeScore" ng-options="score for score in scores" class="form-control"></select>
+            </td>
+        </tr>
+        <tr ng-show="isSubmarket">
+            <td>Submarket Score</td>
+            <td>
+                 <select ng-model="submarketScore" ng-options="score for score in scores" class="form-control"></select>
             </td>
         </tr>
         <tr>
