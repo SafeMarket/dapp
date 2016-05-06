@@ -73,6 +73,10 @@ contract Order{
 	uint public constant resolved = 4;
 	uint public constant finalized = 5;
 
+	uint public reviewBlockNumber;
+	uint8 public reviewScore;
+	bytes32 public reviewFileHash;
+
 	function Order(
 		address _buyer
 		,address _storeAddr
@@ -384,6 +388,18 @@ contract Order{
 
 	function getMinimumBalance() constant returns(uint) {
 		return ticker.convert(teratotal + bufferTeramount, bytes4(storeCurrency), bytes4('WEI')) / 1000000000000;
+	}
+
+	function setReview(uint8 score, bytes32 fileHash) {
+		if(msg.sender != buyer && tx.origin != buyer)
+			throw;
+
+		if(score > 5)
+			throw;
+
+		reviewBlockNumber = block.number;
+		reviewScore = score;
+		reviewFileHash = fileHash;
 	}
 
 }

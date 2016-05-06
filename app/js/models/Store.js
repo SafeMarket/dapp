@@ -15,7 +15,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
       affiliateFeeCentiperun: 'uint',
       fileHash: 'bytes32'
     })
-    this.updatePromise = this.update()
+    this.update()
   }
 
   Store.prototype.bytecode = Store.bytecode = contracts.Store.bytecode
@@ -143,12 +143,12 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   }
 
 
-  Store.prototype.update = function update(isDeep) {
+  Store.prototype.update = function update() {
 
     const deferred = $q.defer()
     const store = this
 
-    console.log(this)
+    this.updatePromise = deferred.promise
 
     this.scoreCounts = []
     this.scoreCountsReversed = []
@@ -393,12 +393,13 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   function Product(store, index) {
     this.store = store
     this.index = index
-    this.updatePromise = this.update()
+    this.update()
     this.quantity = 0
   }
 
   Product.prototype.update = function update() {
     const deferred = $q.defer()
+    this.updatePromise = deferred.promise
     this.isArchived = this.store.contract.getProductIsArchived(this.index)
     this.teraprice = this.store.contract.getProductTeraprice(this.index)
     this.price = new Coinage(this.teraprice.div(constants.tera), this.store.currency)
@@ -417,12 +418,13 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   function Transport(store, index) {
     this.store = store
     this.index = index
-    this.updatePromise = this.update()
+    this.update()
     this.quantity = 0
   }
 
   Transport.prototype.update = function update() {
     const deferred = $q.defer()
+    this.updatePromise = deferred.promise
     this.isArchived = this.store.contract.getTransportIsArchived(this.index)
     this.teraprice = this.store.contract.getTransportTeraprice(this.index)
     this.price = new Coinage(this.teraprice.div(constants.tera), this.store.currency)
@@ -435,7 +437,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
       this.isGlobal = !data.to
       deferred.resolve(this)
     })
-    return deferred.promise
+    return this.updatePromise
   }
 
   return Store

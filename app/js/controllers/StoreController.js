@@ -29,21 +29,7 @@ angular.module('app').controller('StoreController', ($scope, $filter, $state, ut
   }
 
   $scope.store.updatePromise.then((store) => {
-
-    // $scope.store.meta.data.submarketAddrs.forEach((submarketAddr) => {
-
-    //   const submarket = new Submarket(submarketAddr)
-    //   $scope.submarketOptions.push({
-    //     addr: submarketAddr,
-    //     label: `@${submarket.alias}`,
-    //     escrowFeeCentiperun: submarket.infosphered.data.escrowFeeCentiperun.toNumber()
-    //   })
-    // })
-
-    //$scope.transport = store.transports[0]
-
     setDisplayCurrencies()
-
   }, (err) => {
     growl.addErrorMessage(err)
   })
@@ -53,7 +39,6 @@ angular.module('app').controller('StoreController', ($scope, $filter, $state, ut
       .openStore($scope.store)
       .result.then((store) => {
         $scope.store = store
-        setDisplayCurrencies()
       })
   }
 

@@ -1,21 +1,29 @@
 /* globals angular, web3, _ */
 
-angular.module('app').controller('ProductsController', ($scope, $filter, utils, Submarket, helpers, growl, user, Order, constants, Coinage, $stateParams) => {
+angular.module('app').controller('ProductsController', ($scope, $filter, utils, Submarket, helpers, growl, user, Order, constants, Coinage) => {
 
   const currency = $scope.store.currency
 
-  $scope.store.updatePromise.then(() => {
-    $scope.products = $scope.store.products.map((product) => {
-      const _product = _.clone(product)
-      _product.quantity = 0
-      return _product
+  $scope.$watch('store.updatePromise', () => {
+    $scope.store.updatePromise.then(() => {
+      $scope.products = $scope.store.products.map((product) => {
+        const _product = _.clone(product)
+        _product.quantity = 0
+        return _product
+      })
+      $scope.products = $scope.store.products.map((product) => {
+        const _product = _.clone(product)
+        _product.quantity = 0
+        return _product
+      })
+      $scope.transports = _.clone($scope.store.transports)
+      $scope.transport = $scope.transports[0]
+
+      $scope.productsTotal = new Coinage(0, currency)
+      $scope.total = new Coinage(0, currency)
     })
-    $scope.transports = _.clone($scope.store.transports)
-    $scope.transport = $scope.transports[0]
   })
 
-  $scope.productsTotal = new Coinage(0, currency)
-  $scope.total = new Coinage(0, currency)
 
   $scope.submarketOptions = [{ addr: constants.nullAddr, label: 'No escrow', escrowFeeCentiperun: 0 }]
   $scope.submarketOption = $scope.submarketOptions[0]
