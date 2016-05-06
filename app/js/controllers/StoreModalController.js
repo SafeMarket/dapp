@@ -1,8 +1,9 @@
 /* globals angular, web3, _ */
 
-angular.module('app').controller('StoreModalController', ($scope, $filter, utils, Store, AliasReg, ticker, growl, $modal, $modalInstance, store, user, helpers, constants) => {
+angular.module('app').controller('StoreModalController', ($scope, $filter, utils, Store, AliasReg, ticker, growl, $modal, $modalInstance, store, user, helpers, constants, ISO3166) => {
 
   $scope.currencies = Object.keys(ticker.prices)
+  $scope.countries = ISO3166.codeToCountry
   $scope.user = user
   $scope.submarkets = []
 
@@ -30,6 +31,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
     $scope.isEditing = true
     $scope.alias = store.alias
     $scope.name = store.meta.name
+    $scope.base = store.meta.base
     $scope.currency = store.currency
     $scope.bufferCentiperun = store.infosphered.data.bufferCentiperun.toNumber()
     $scope.disputeSeconds = store.infosphered.data.disputeSeconds.toString()
@@ -48,6 +50,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
 
   } else {
 
+    $scope.base = 'US'
     $scope.currency = user.getCurrency()
     $scope.bufferCentiperun = 0
     $scope.products = []
@@ -70,7 +73,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
   }
 
   $scope.addTransport = function addTransport() {
-    $scope.transports.push({})
+    $scope.transports.push({ isGlobal: true, to: 'US' })
   }
 
   $scope.submit = function submit() {
@@ -78,6 +81,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
     const alias = $scope.alias ? $scope.alias.trim().replace(/(\r\n|\n|\r)/gm, '') : ''
     const meta = {
       name: $scope.name,
+      base: $scope.base,
       info: $scope.info
     }
 

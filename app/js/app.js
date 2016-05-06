@@ -9,7 +9,8 @@ const app = angular.module('app', [
   'ngRoute',
   'yaru22.angular-timeago',
   'hc.marked',
-  'ngPromiseExtras'
+  'ngPromiseExtras',
+  'iso-3166-country-codes'
 ])
 
 app.config((growlProvider, $stateProvider, $urlRouterProvider) => {

@@ -14,16 +14,16 @@
       }
     ]
   },
-  "images": {
+  "img": {
     "files": [
       {
-        "src": ["<%= files.images.src %>"],
-        "dest": "generated/dapp/development/images",
+        "src": ["<%= files.img.src %>"],
+        "dest": "generated/dapp/development/img",
         "expand": true,
         "flatten": true
       }, {
-        "src": ["<%= files.images.src %>"],
-        "dest": "generated/dapp/production/images",
+        "src": ["<%= files.img.src %>"],
+        "dest": "generated/dapp/production/img",
         "expand": true,
         "flatten": true
       }

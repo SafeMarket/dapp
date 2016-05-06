@@ -19,6 +19,7 @@
             ,"bower_components/angular-promise-extras/angular-promise-extras.js"
             ,"bower_components/tweetnacl/nacl.js"
             ,"bower_components/tweetnacl-util/nacl-util.js"
+            ,"bower_components/iso-3166-country-codes-angular/dist/iso-3166-country-codes-angular.min.js"
             ,"node_modules/web3/dist/web3.js"
             ,"node_modules/hooked-web3-provider/build/hooked-web3-provider.js"
             ,"node_modules/eth-lightwallet/dist/lightwallet.min.js"
@@ -33,6 +34,7 @@
         "src": [
             "bower_components/angular/angular-csp.css"
             ,"bower_components/bootstrap/dist/css/bootstrap.min.css"
+            ,"bower_components/flag-sprites/dist/css/flag-sprites.min.css"
             ,"assets/slim/dist/styles/main.css"
             ,"bower_components/angular-growl/build/angular-growl.min.css"
             ,"app/css/**/*.css"
@@ -41,8 +43,8 @@
     "html": {
         "src": ["app/html/**/*.html"]
     },
-    "images": {
-        "src": ["app/images/*"]
+    "img": {
+        "src": ["app/img/*", "bower_components/flag-sprites/dist/img/flags.png"]
     },
     "fonts": {
         "src": [

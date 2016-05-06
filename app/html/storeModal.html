@@ -27,6 +27,12 @@
                 </td>
             </tr>
             <tr>
+                <td>Location (Ships From) <span flag="base"></span></td>
+                <td>
+                    <select type="text" ng-model="base" class="form-control" ng-options="code as name for (code, name) in countries"></select>
+                </td>
+            </tr>
+            <tr>
                 <td>Currency</td>
                 <td>
                     <select type="text" ng-model="currency" class="form-control" ng-options="currency for currency in currencies"></select>
@@ -140,6 +146,14 @@
                             <input coinage-input="currency" type="text" ng-model="transport.price" class="form-control" numeric-input ng-disabled="transport.isArchived">
                             <div class="input-group-addon">{{currency}}</div>
                         </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Ships To <span flag="transport.to" ng-show="!transport.isGlobal"></span></td>
+                    <td>
+                        <label><input type="checkbox" ng-model='transport.isGlobal'> Anywhere in the World</label>
+                        <select type="text" ng-model="transport.to" class="form-control" ng-options="code as name for (code, name) in countries" ng-show="!transport.isGlobal"></select>
                     </td>
                 </tr>
                 <tr ng-show="transport.index!==undefined">

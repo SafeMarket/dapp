@@ -32,6 +32,8 @@
     "angular-ui-router": "~0.2.15",
     "tweetnacl": "^0.14.3",
     "tweetnacl-util": "^0.13.3",
-    "angular-promise-extras": "^0.1.6"
+    "angular-promise-extras": "^0.1.6",
+    "iso-3166-country-codes-angular": "^1.2.1",
+    "flag-sprites": "^1.1.1"
   }
 }

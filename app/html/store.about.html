@@ -4,6 +4,20 @@
 		<td>{{store.infosphered.data.isOpen ? 'Open' : 'Closed'}}</td>
 	</tr>
 	<tr>
+		<td>Location</td>
+		<td country="store.meta.base"></td>
+	</tr>
+	<tr>
+		<td>Shipping</td>
+		<td>
+			<div ng-repeat="transport in store.transports">
+				<span ng-if="!transport.isGlobal" country="transport.to"></span>
+				<span ng-if="transport.isGlobal">Globally</span>
+				({{transport.name}})
+			</div>
+		</td>
+	</tr>
+	<tr>
 		<td>Dispute Resolution Time</td>
 		<td>{{store.infosphered.data.disputeSeconds | disputeSeconds}}</td>
 	</tr>

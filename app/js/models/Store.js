@@ -122,7 +122,12 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
       name: {
         presence: true,
         type: 'string'
-      }, info: {
+      },
+      base: {
+        presence: true,
+        type: 'string'
+      },
+      info: {
         type: 'string'
       }
     })
@@ -366,7 +371,8 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
   Store.prototype.getTransportFile = function getTransportFile(transportData) {
     return utils.convertObjectToHex({
-      name: transportData.name
+      name: transportData.name,
+      to: transportData.isGlobal ? null : transportData.to
     })
   }
 
@@ -420,6 +426,8 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
       this.file = file
       const data = utils.convertHexToObject(file)
       this.name = data.name
+      this.to = data.to
+      this.isGlobal = !data.to
       deferred.resolve(this)
     })
     return deferred.promise

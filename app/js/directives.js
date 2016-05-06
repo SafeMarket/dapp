@@ -325,3 +325,26 @@ angular.module('app').directive('coinageInput', (Coinage) => {
     }
   }
 })
+
+angular.module('app').directive('flag', () => {
+  return {
+    scope: {
+      countryCode: '=flag'
+    },
+    templateUrl: 'flag.html'
+  }
+})
+
+angular.module('app').directive('country', (ISO3166) => {
+  return {
+    scope: {
+      countryCode: '=country'
+    },
+    link($scope) {
+      $scope.$watch('countryCode', (countryCode) => {
+        $scope.countryName = ISO3166.codeToCountry[countryCode]
+      })
+    },
+    templateUrl: 'country.html'
+  }
+})
