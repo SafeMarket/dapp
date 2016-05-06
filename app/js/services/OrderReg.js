@@ -14,7 +14,7 @@ angular.module('app').service('orderReg', function orderRegService(utils) {
       if (!utils.isAddr(addr)) {
         return addrs
       }
-      addrs.push(this.contract.getAddr(i))
+      addrs.push(addr)
     }
 
     return addrs
@@ -31,7 +31,7 @@ angular.module('app').service('orderReg', function orderRegService(utils) {
       if (!utils.isAddr(addr)) {
         return addrs
       }
-      addrs.push(this.contract.getAddr(i))
+      addrs.push(addr)
     }
 
     return addrs
@@ -48,7 +48,7 @@ angular.module('app').service('orderReg', function orderRegService(utils) {
       if (!utils.isAddr(addr)) {
         return addrs
       }
-      addrs.push(this.contract.getAddr(i))
+      addrs.push(addr)
     }
 
     return addrs
