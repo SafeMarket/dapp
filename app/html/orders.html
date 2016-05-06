@@ -6,6 +6,8 @@
 		<th>Store</th>
 		<th>Submarket</th>
 		<th>Status</th>
+		<th>Score</th>
+		<th>Review</th>
 	</tr>
 	<tr ng-repeat="order in orders">
 		<td timestamp ="order.createdAt"></td>
@@ -16,6 +18,12 @@
 		</td>
 		<td>
 			{{order.status | status}}
+		</td>
+		<td>
+			{{order.review.isSet ? order.review.score : ''}}
+		</td>
+		<td>
+			{{order.review.isSet ? order.review.text : ''}}
 		</td>
 	</tr>
 </table>

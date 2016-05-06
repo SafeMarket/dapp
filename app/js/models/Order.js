@@ -212,11 +212,12 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
 
     this.review = {
       blockNumber: this.contract.reviewBlockNumber(),
+      isSet: this.contract.reviewBlockNumber().greaterThan(0),
       score: this.contract.reviewScore().toNumber(),
       fileHash: this.contract.reviewFileHash()
     }
 
-    if (!this.review.blockNumber.equals(0)) {
+    if (this.review.isSet) {
       this.review.timestamp = web3.eth.getBlock(this.review.blockNumber).timestamp
       const reviewPromise = filestore.fetchFile(this.review.fileHash).then((file) => {
         this.review.file = file
