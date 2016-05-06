@@ -1,11 +1,6 @@
 /* globals angular */
 
-angular.module('app').controller('OrderBookController', ($scope, OrderBookEntry) => {
-
-  $scope.orderBookEntries = []
-
-  OrderBookEntry.fetch($scope.filter).then((orderBookEntries) => {
-    $scope.orderBookEntries = orderBookEntries
-  })
-
+angular.module('app').controller('OrdersController', ($scope, Order) => {
+  $scope.orders = Order.byFilter($scope.filter, 0, 10)
+  console.log($scope.orders)
 })

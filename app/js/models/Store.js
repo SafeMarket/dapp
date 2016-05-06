@@ -143,7 +143,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   }
 
 
-  Store.prototype.update = function update() {
+  Store.prototype.update = function update(isDeep) {
 
     const deferred = $q.defer()
     const store = this
@@ -374,6 +374,11 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
       name: transportData.name,
       to: transportData.isGlobal ? null : transportData.to
     })
+  }
+
+  Store.prototype.getOrders = function getOrders() {
+    const orders = []
+
   }
 
   function Review(result, store) {

@@ -156,11 +156,11 @@ angular.module('app').directive('collapsable', () => {
   }
 })
 
-angular.module('app').directive('orderBook', () => {
+angular.module('app').directive('orders', () => {
   return {
-    templateUrl: 'orderBook.html',
-    controller: 'OrderBookController',
-    scope: { filter: '=orderBook' }
+    templateUrl: 'orders.html',
+    controller: 'OrdersController',
+    scope: { filter: '=orders' }
   }
 })
 

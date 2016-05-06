@@ -1,6 +1,6 @@
 /* globals angular, contracts, web3 */
 
-angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key, KeyGroup, txMonitor, user, OrderReg, constants, Coinage, filestore) => {
+angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key, KeyGroup, txMonitor, user, orderReg, constants, Coinage, filestore) => {
 
   function Order(addr) {
     console.log(this)
@@ -27,7 +27,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
 
     txMonitor.propose(
       'Create a New Order',
-      OrderReg.create,
+      orderReg.contract.create,
       [buyer, storeAddr, submarketAddr, affiliate, productIndexes, productQuantities, transportIndex, 0, 0, { value: value }]
     ).then((txReciept) => {
       const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
@@ -298,6 +298,24 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     }
 
     return updates
+  }
+
+  Order.byFilter = function byFilter(filter, startIndex, length) {
+    let orderAddrs = []
+    console.log(orderReg)
+    if (!filter) {
+      orderAddrs = orderReg.getAddrs(startIndex, length)
+    } else if (filter.storeAddr) {
+      orderAddrs = orderReg.getAddrsByStoreAddr(filter.storeAddr, startIndex, length)
+    } else if (filter.submarketAddr) {
+      orderAddrs = orderReg.getAddrsBySubmarketAddr(filter.submarketAddr, startIndex, length)
+    }
+
+    const orders = orderAddrs.map((orderAddr) => {
+      return new Order(orderAddr)
+    })
+
+    return orders
   }
 
   function Message(order, index) {

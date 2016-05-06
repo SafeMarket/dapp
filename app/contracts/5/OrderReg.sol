@@ -19,10 +19,12 @@ contract OrderReg is owned{
 		tickerAddr = _tickerAddr;
 	}
 
-	address[] registeredAddrsArray;
-	mapping(address=>bool) registeredAddrsMap;
+	address[] addrs;
+	mapping(address=>bool) addrsMap;
+	mapping(address=>address[]) addrsByStoreAddr;
+	mapping(address=>address[]) addrsBySubmarketAddr;
 
-	event Registration(address orderAddr);
+	event Registration(address orderAddr, address indexed storeAddr, address indexed submarketAddr);
 
 	function create(
 		address buyer,
@@ -64,21 +66,42 @@ contract OrderReg is owned{
 
 		var orderAddr = address(order);
 				
-		registeredAddrsArray.push(orderAddr);
-		registeredAddrsMap[orderAddr] = true;
+		addrs.push(orderAddr);
+		addrsMap[orderAddr] = true;
+		addrsByStoreAddr[storeAddr].push(orderAddr);
 
-		Registration(orderAddr);
+		if(submarketAddr != address(0)){
+			addrsBySubmarketAddr[submarketAddr].push(orderAddr);
+		}
+
+		Registration(orderAddr, storeAddr, submarketAddr);
 	}
 
 	function isRegistered(address addr) constant returns(bool){
-		return registeredAddrsMap[addr];
+		return addrsMap[addr];
 	}
 
-	function count() constant returns(uint){
-		return registeredAddrsArray.length;
+	function getAddrsLength() constant returns(uint){
+		return addrs.length;
 	}
 
-	function getStoreAddr(uint index) constant returns(address){
-		return registeredAddrsArray[index];
+	function getAddr(uint index) constant returns(address){
+		return addrs[index];
+	}
+
+	function getAddrsByStoreAddrLength(address storeAddr) constant returns(uint){
+		return addrsByStoreAddr[storeAddr].length;
+	}
+
+	function getAddrByStoreAddr(address storeAddr, uint index) constant returns(address){
+		return addrsByStoreAddr[storeAddr][index];
+	}
+
+	function getAddrsBySubmarketAddrLength(address storeAddr) constant returns(uint){
+		return addrsBySubmarketAddr[storeAddr].length;
+	}
+
+	function getAddrBySubmarketAddr(address storeAddr, uint index) constant returns(address){
+		return addrsBySubmarketAddr[storeAddr][index];
 	}
 }
