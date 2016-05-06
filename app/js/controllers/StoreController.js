@@ -22,6 +22,8 @@ angular.module('app').controller('StoreController', ($scope, $filter, $state, ut
     })
   })
 
+  $scope.$watch('userCurrency', setDisplayCurrencies)
+
   function setDisplayCurrencies() {
     $scope.displayCurrencies = _.uniq([user.getCurrency(), $scope.store.currency, 'ETH'])
   }
