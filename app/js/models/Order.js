@@ -3,8 +3,6 @@
 angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key, KeyGroup, txMonitor, user, orderReg, constants, Coinage, filestore) => {
 
   function Order(addr) {
-    console.log(this)
-
     this.addr = addr
     this.contract = this.contractFactory.at(addr)
     this.update()
@@ -21,9 +19,6 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     const _products = products.filter((product) => { return product.quantity > 0})
     const productIndexes = _products.map((product) => { return product.index })
     const productQuantities = _products.map((product) => { return product.quantity })
-
-    console.log(productIndexes)
-    console.log(productQuantities)
 
     txMonitor.propose(
       'Create a New Order',
@@ -332,7 +327,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
 
   Order.byFilter = function byFilter(filter, startIndex, length) {
     let orderAddrs = []
-    console.log(orderReg)
+
     if (!filter) {
       orderAddrs = orderReg.getAddrs(startIndex, length)
     } else if (filter.storeAddr) {

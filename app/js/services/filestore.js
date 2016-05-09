@@ -30,14 +30,10 @@ angular.module('app').service('filestore', function filestoreService($q, utils) 
 
   this.fetchFile = function fetchFile(fileHash) {
 
-    console.log('fetch', fileHash)
-
     const deferred = $q.defer()
     const blockNumber = filestore.contract.getBlockNumber(fileHash)
 
     filestore.contract.Store({ hash: fileHash }, { fromBlock: blockNumber, toBlock: blockNumber }).get((error, results) => {
-
-      console.log('Store', results)
 
       if (error) {
         return deferred.reject(error)

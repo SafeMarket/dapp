@@ -326,6 +326,24 @@ angular.module('app').directive('coinageInput', (Coinage) => {
   }
 })
 
+angular.module('app').directive('bigNumberInput', () => {
+  return {
+    require: 'ngModel',
+    link($scope, $element, $attributes, $model) {
+      $model.$formatters.push((value) => {
+        if (value) {
+          return value.toNumber()
+        }
+      })
+      $model.$parsers.push((value) => {
+        if (value) {
+          return web3.toBigNumber(value)
+        }
+      })
+    }
+  }
+})
+
 angular.module('app').directive('flag', () => {
   return {
     scope: {

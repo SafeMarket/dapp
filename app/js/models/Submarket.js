@@ -36,9 +36,6 @@ angular.module('app').factory('Submarket', (utils, ticker, $q, Store, Key, Forum
 
     filestore.fetchMartyrCalls([metaHex]).then((calls) => {
 
-      console.log('filestore', calls)
-      console.log('alias', alias)
-
       calls.push({
         address: SubmarketReg.address,
         data: SubmarketReg.create.getData(

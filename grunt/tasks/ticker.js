@@ -43,7 +43,7 @@ module.exports = function exportTicker(grunt) {
       const deferred = Q.defer()
 
       const _value = Ticker.getPrice(symbol)
-      const diff = _value.minus(value)
+      const diff = _value.minus(value).absoluteValue()
       const diffPerun = diff.div(_value)
 
       if (diffPerun.lessThanOrEqualTo('.01')) {

@@ -68,7 +68,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
 
   $scope.addProduct = function addProduct() {
     $scope.products.push({
-      id: utils.getRandom().times('100000000').round().toString()
+      units: web3.toBigNumber(1)
     })
   }
 

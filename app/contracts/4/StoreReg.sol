@@ -8,6 +8,7 @@ contract StoreReg is owned{
 
 	address public infosphereAddr;
 	address public aliasRegAddr;
+	address public orderRegAddr;
 
 	function setInfosphereAddr(address _infosphereAddr){
 		requireOwnership();
@@ -19,11 +20,16 @@ contract StoreReg is owned{
 		aliasRegAddr = _aliasRegAddr;
 	}
 
+	function setOrderRegAddr(address _orderRegAddr){
+		requireOwnership();
+		orderRegAddr = _orderRegAddr;
+	}
+
 	event Registration(address storeAddr);
 
 	function create(address owner, bool isOpen, bytes32 currency, uint bufferCentiperun, uint disputeSeconds, uint minTotal, uint affiliateFeeCentiperun, bytes32 fileHash, bytes32 alias){
 
-		var store = new Store();
+		var store = new Store(orderRegAddr);
 		var storeAddr = address(store);
 		
 		store.setInfosphere(infosphereAddr);

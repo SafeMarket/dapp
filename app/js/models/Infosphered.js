@@ -29,8 +29,6 @@ angular.module('app').factory('Infosphered', (utils) => {
         return true
       }
 
-      console.log('changed', key)
-
       calls.push({
         address: this.contract.address,
         data: this.contract[getInfospheredSetterName(type)].getData(key, newValue)

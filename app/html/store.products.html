@@ -6,6 +6,7 @@
 			</td>
 			<td>
 				{{product.name}}
+				<div class="text-muted text-small">{{product.units.toString()}} Units Available</div>
 			</td>
 			<td>
 				{{product.info}}
@@ -18,7 +19,7 @@
 				</amounts>
 			</td>
 			<td>
-				<input class="form-control" type="number" ng-model="product.quantity" min="0" ng-change="quantityChanged()">
+				<input class="form-control" type="number" ng-model="product.quantity" min="0" max="{{product.units.toNumber()}}" ng-change="quantityChanged()">
 			</td>
 		</tr>
 		<tr>

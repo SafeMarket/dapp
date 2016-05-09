@@ -14,7 +14,6 @@ angular.module('app').factory('Meta', (utils, $q, filestore) => {
     filestore.fetchFile(this.parent.infosphered.data.metaHash).then((file) => {
 
       meta.hex = file
-      console.log('file received', file)
       meta.data = utils.convertHexToObject(file)
 
       deferred.resolve(meta)

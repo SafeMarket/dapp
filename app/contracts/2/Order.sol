@@ -1,6 +1,8 @@
 contract Order{
 
 	Ticker ticker;
+
+	bool isCreated;
 	
 	address public buyer;
 	address public storeAddr;
@@ -8,7 +10,8 @@ contract Order{
 	address public submarketAddr;
 	address public affiliate;
 
-	struct Product{	
+	struct Product{
+		uint index;
 		uint teraprice;
 		bytes32 fileHash;
 		uint quantity;
@@ -78,7 +81,7 @@ contract Order{
 	uint8 public reviewSubmarketScore;
 	bytes32 public reviewFileHash;
 
-	function Order(
+	function create(
 		address _buyer
 		,address _storeAddr
 		,address _submarketAddr
@@ -90,6 +93,11 @@ contract Order{
 		,uint _rewardMax
 		,address tickerAddr
 	){
+
+		if(isCreated)
+			throw;
+
+		isCreated = true;
 
 		blockNumber = block.number;
 
@@ -111,13 +119,22 @@ contract Order{
 			throw;
 
 		for(uint i = 0; i< _productIndexes.length; i++){
-			uint productTeraprice = store.getProductTeraprice(i);
+
+			uint[3] memory productParams = [
+				_productIndexes[i],									//productIndex
+				store.getProductTeraprice(_productIndexes[i]),		//productTeraprice
+				_productQuantities[i]								//productQuantity
+			];
+
+			store.depleteProductUnits(productParams[0], productParams[2]);
+
 			products.push(Product(
-				productTeraprice,
-				store.getProductFileHash(i),
-				_productQuantities[i]
+				productParams[0],
+				productParams[1],
+				store.getProductFileHash(productParams[0]),
+				productParams[2]
 			));
-			_teratotal = _teratotal + productTeraprice;
+			_teratotal = _teratotal + productParams[1];
 		}
 
 		transportTeraprice = store.getTransportTeraprice(_transportIndex);
@@ -143,6 +160,9 @@ contract Order{
 		teratotal = _teratotal;
 		bufferTeramount = (_teratotal * bufferCentiperun) / 100;
 
+		if(msg.value < ticker.convert(teratotal + bufferTeramount, bytes4(storeCurrency), bytes4('WEI')) / 1000000000000)
+			throw;
+
 		bounty = _bounty;
 	}
 
@@ -155,6 +175,7 @@ contract Order{
 	}
 
 	function getProductsLength() constant returns (uint){ return products.length; }
+	function getProductIndex(uint _index) constant returns (uint){ return products[_index].index; }
 	function getProductTeraprice(uint _index) constant returns (uint){ return products[_index].teraprice; }
 	function getProductFileHash(uint _index) constant returns (bytes32){ return products[_index].fileHash; }
 	function getProductQuantity(uint _index) constant returns (uint){ return products[_index].quantity; }
@@ -196,6 +217,11 @@ contract Order{
 
 		if(msg.sender != buyer && !getSenderPermission(storeAddr,'order.cancel'))
 			throw;
+
+		for(uint i = 0; i< products.length; i++){
+			Store store = Store(storeAddr);
+			store.restoreProductUnits(products[i].index, products[i].quantity);
+		}
 
 		buyerAmount = getReceived();
 
@@ -385,10 +411,6 @@ contract Order{
 
 	function getUpdateStatus(uint index) constant returns(uint){
 		return updates[index].status;
-	}
-
-	function getMinimumBalance() constant returns(uint) {
-		return ticker.convert(teratotal + bufferTeramount, bytes4(storeCurrency), bytes4('WEI')) / 1000000000000;
 	}
 
 	function setReview(uint8 storeScore, uint8 submarketScore, bytes32 fileHash) {

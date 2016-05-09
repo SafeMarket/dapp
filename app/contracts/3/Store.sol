@@ -1,13 +1,26 @@
 contract Store is forumable, audible, infosphered, permissioned, aliasable, ordered{
 
-	struct Option{
+	OrderReg orderReg;
+
+	function Store(address orderRegAddr){
+		orderReg = OrderReg(orderRegAddr);
+	}
+
+	struct Product{
+		bool isArchived;
+		uint teraprice;
+		uint units;
+		bytes32 fileHash;
+	}
+
+	struct Transport{
 		bool isArchived;
 		uint teraprice;
 		bytes32 fileHash;
 	}
 
-	Option[] products;
-	Option[] transports;
+	Product[] products;
+	Transport[] transports;
 
 	function getProductsLength() constant returns(uint){
 		return products.length;
@@ -21,13 +34,17 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 		return products[index].teraprice;
 	}
 
+	function getProductUnits(uint index) constant returns(uint){
+		return products[index].units;
+	}
+
 	function getProductFileHash(uint index) constant returns(bytes32){
 		return products[index].fileHash;
 	}
 
-	function addProduct(uint teraprice, bytes32 fileHash){
+	function addProduct(uint teraprice, uint units, bytes32 fileHash){
 		requireSenderPermission('product');
-		products.push(Option(false, teraprice, fileHash));
+		products.push(Product(false, teraprice, units, fileHash));
 	}
 
 	function setProductIsArchived(uint index, bool isArchived){
@@ -38,6 +55,11 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 	function setProductTeraprice(uint index, uint teraprice){
 		requireSenderPermission('product');
 		products[index].teraprice = teraprice;
+	}
+
+	function setProductUnits(uint index, uint units){
+		requireSenderPermission('product');
+		products[index].units = units;
 	}
 
 	function setProductFileHash(uint index, bytes32 fileHash){
@@ -63,7 +85,7 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 
 	function addTransport(uint teraprice, bytes32 fileHash){
 		requireSenderPermission('transport');
-		transports.push(Option(false, teraprice, fileHash));
+		transports.push(Transport(false, teraprice, fileHash));
 	}
 
 	function setTransportIsArchived(uint index, bool isArchived){
@@ -79,6 +101,23 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 	function setTransportFileHash(uint index, bytes32 fileHash){
 		requireSenderPermission('transport');
 		transports[index].fileHash = fileHash;
+	}
+
+	function depleteProductUnits(uint index, uint quantity){
+		if(!orderReg.isRegistered(msg.sender))
+			throw;
+
+		if(products[index].units < quantity)
+			throw;
+
+		products[index].units = products[index].units - quantity;
+	}
+
+	function restoreProductUnits(uint index, uint quantity){
+		if(!orderReg.isRegistered(msg.sender))
+			throw;
+
+		products[index].units = products[index].units + quantity;
 	}
  
 }

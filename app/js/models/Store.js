@@ -3,6 +3,7 @@
 angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, AliasReg, StoreReg, Infosphered, Meta, Coinage, constants, filestore, user) => {
 
   function Store(addrOrAlias) {
+    console.log(this)
     this.addr = utils.isAddr(addrOrAlias) ? addrOrAlias : AliasReg.getAddr(addrOrAlias)
     this.alias = utils.getAlias(this.addr)
     this.contract = this.contractFactory.at(this.addr)
@@ -81,11 +82,8 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     const fileHash = utils.sha3(file)
 
     infospheredData.fileHash = fileHash
-    console.log('fileHash', fileHash)
 
     const infospheredCalls = this.infosphered.getMartyrCalls(infospheredData)
-
-    console.log('infospheredCalls', infospheredCalls)
 
     if (this.infosphered.data.fileHash !== fileHash) {
       metaCalls.push.apply(metaCalls, filestore.getMartyrCalls([file]))
@@ -147,6 +145,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
     const deferred = $q.defer()
     const store = this
+    const promises = []
 
     this.updatePromise = deferred.promise
 
@@ -166,13 +165,19 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
     this.minTotal = new Coinage(this.infosphered.data.minTotal.div(constants.tera), this.currency)
 
-    filestore.fetchFile(this.infosphered.data.fileHash).then((file) => {
+    const filestorePromise = filestore.fetchFile(this.infosphered.data.fileHash).then((file) => {
       this.file = file
       this.meta = utils.convertHexToObject(file)
       store.info = utils.sanitize(this.meta.info || '')
+    })
+
+    promises.push(filestorePromise)
+    this.products.forEach((product) => {
+      promises.push(product.updatePromise)
+    })
+
+    $q.all(promises).then(() => {
       deferred.resolve(store)
-    }, (err) => {
-      deferred.reject(err)
     })
 
     return deferred.promise
@@ -191,7 +196,6 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   }
 
   Store.prototype.getProductMartyrCalls = function getProductMartyrCalls(productsData) {
-    console.log(productsData)
 
     const calls = []
 
@@ -204,31 +208,23 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
       }
     })
 
-    console.log(calls)
-
     return calls
   }
 
   Store.prototype.getAddProductMartyrCalls = function getAddProductMartyrCalls(productData) {
 
-    console.log('add product', productData)
-
     const teraprice = productData.price.in(this.currency).times(constants.tera)
     const file = this.getProductFile(productData)
     const fileHash = utils.sha3(file)
 
-    console.log(teraprice, fileHash)
-
     return filestore.getMartyrCalls([file]).concat([{
       address: this.contract.address,
-      data: this.contract.addProduct.getData(teraprice, fileHash)
+      data: this.contract.addProduct.getData(teraprice, productData.units, fileHash)
     }])
 
   }
 
   Store.prototype.getSetProductMartyrCalls = function getSetProductMartyrCalls(productData) {
-
-    console.log('set product productData', productData)
 
     const product = new Product(this, productData.index)
     const teraprice = productData.price.in(this.currency).times(constants.tera)
@@ -236,8 +232,6 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     const fileHash = utils.sha3(file)
 
     const calls = []
-
-    console.log(product, teraprice, file, fileHash)
 
     if (product.isArchived !== productData.isArchived) {
       calls.push({
@@ -253,18 +247,20 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
       })
     }
 
-    console.log(product.teraprice)
+    if (!product.units.equals(productData.units)) {
+      calls.push({
+        address: this.contract.address,
+        data: this.contract.setProductUnits.getData(productData.index, productData.units)
+      })
+    }
 
     if (product.fileHash !== fileHash) {
       calls.push({
         address: this.contract.address,
         data: this.contract.setProductFileHash.getData(productData.index, fileHash)
       })
-      console.log('filestore martyr calls', filestore.getMartyrCalls([file]))
       calls.push.apply(calls, filestore.getMartyrCalls([file]))
     }
-
-    console.log('set product', calls)
 
     return calls
 
@@ -303,20 +299,14 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
       }
     })
 
-    console.log(calls)
-
     return calls
   }
 
   Store.prototype.getAddTransportMartyrCalls = function getAddTransportMartyrCalls(transportData) {
 
-    console.log('add transport', transportData)
-
     const teraprice = transportData.price.in(this.currency).times(constants.tera)
     const file = this.getTransportFile(transportData)
     const fileHash = utils.sha3(file)
-
-    console.log(teraprice, fileHash)
 
     return filestore.getMartyrCalls([file]).concat([{
       address: this.contract.address,
@@ -327,16 +317,12 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
   Store.prototype.getSetTransportMartyrCalls = function getSetTransportMartyrCalls(transportData) {
 
-    console.log('set transport transportData', transportData)
-
     const transport = new Transport(this, transportData.index)
     const teraprice = transportData.price.in(this.currency).times(constants.tera)
     const file = this.getTransportFile(transportData)
     const fileHash = utils.sha3(file)
 
     const calls = []
-
-    console.log(transport, teraprice, file, fileHash)
 
     if (transport.isArchived !== transportData.isArchived) {
       calls.push({
@@ -352,18 +338,13 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
       })
     }
 
-    console.log(transport.teraprice)
-
     if (transport.fileHash !== fileHash) {
       calls.push({
         address: this.contract.address,
         data: this.contract.setTransportFileHash.getData(transportData.index, fileHash)
       })
-      console.log('filestore martyr calls', filestore.getMartyrCalls([file]))
       calls.push.apply(calls, filestore.getMartyrCalls([file]))
     }
-
-    console.log('set transport', calls)
 
     return calls
 
@@ -402,6 +383,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.updatePromise = deferred.promise
     this.isArchived = this.store.contract.getProductIsArchived(this.index)
     this.teraprice = this.store.contract.getProductTeraprice(this.index)
+    this.units = this.store.contract.getProductUnits(this.index)
     this.price = new Coinage(this.teraprice.div(constants.tera), this.store.currency)
     this.fileHash = this.store.contract.getProductFileHash(this.index)
     filestore.fetchFile(this.fileHash).then((file) => {

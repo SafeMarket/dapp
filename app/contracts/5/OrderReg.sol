@@ -44,7 +44,12 @@ contract OrderReg is owned{
 		if(submarketAddr != address(0) && !submarketReg.isRegistered(submarketAddr))
 			throw;
 
-		var order = new Order(
+		var order = new Order();
+		var orderAddr = address(order);
+		addrs.push(orderAddr);
+		addrsMap[orderAddr] = true;
+
+		order.create.value(msg.value)(
 			buyer,
 			storeAddr,
 			submarketAddr,
@@ -56,18 +61,7 @@ contract OrderReg is owned{
 			rewardMax,
 			tickerAddr
 		);
-
-
-		if(msg.value < order.getMinimumBalance())
-			throw;
-
-		if(!order.send(msg.value))
-			throw;
-
-		var orderAddr = address(order);
-				
-		addrs.push(orderAddr);
-		addrsMap[orderAddr] = true;
+		
 		addrsByStoreAddr[storeAddr].push(orderAddr);
 
 		if(submarketAddr != address(0)){

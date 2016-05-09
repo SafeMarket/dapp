@@ -90,28 +90,34 @@
                 <tr>
                     <td>Name</td>
                     <td>
-                        <input type="text" ng-model="product.name" class="form-control" ng-disabled="product.isArchived">
+                        <input type="text" ng-model="product.name" class="form-control">
                     </td>
                 </tr>
                 <tr>
                     <td>Price</td>
                     <td>
                         <div class="input-group">
-                            <input coinage-input="currency" type="text" ng-model="product.price" class="form-control" numeric-input ng-disabled="product.isArchived">
+                            <input coinage-input="currency" type="text" ng-model="product.price" class="form-control" numeric-input>
                             <div class="input-group-addon">{{currency}}</div>
                         </div>
                     </td>
                 </tr>
                 <tr>
+                    <td>Units Available</td>
+                    <td>
+                        <input big-number-input type="number" ng-model="product.units" class="form-control" min="0">
+                    </td>
+                </tr>
+                <tr>
                     <td>Info</td>
                     <td>
-                        <textarea type="text" ng-model="product.info" class="form-control" ng-disabled="product.isArchived"></textarea>
+                        <textarea type="text" ng-model="product.info" class="form-control"></textarea>
                     </td>
                 </tr>
                 <tr>
                     <td>Image URL</td>
                     <td>
-                        <input type="text" ng-model="product.img" class="form-control" ng-disabled="product.isArchived">
+                        <input type="text" ng-model="product.img" class="form-control">
                     </td>
                 </tr>
                 <tr ng-show="product.index!==undefined">

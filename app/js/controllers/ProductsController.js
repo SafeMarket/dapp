@@ -76,26 +76,15 @@ angular.module('app').controller('ProductsController', ($scope, $filter, utils, 
 
   $scope.$watchGroup(['submarketOption', 'productsTotal', 'transport'], () => {
 
-    console.log('$watch start')
-
-
     if (!$scope.transport || !$scope.productsTotal) {
       return
     }
-
-    console.log($scope.productsTotal)
-
-    console.log($scope.productsTotal.in(currency))
-    console.log($scope.transport.price.in(currency))
-    console.log($scope.submarketOption.escrowFeeCentiperun)
 
     const escrowFeeAmount =
       $scope.productsTotal.in(currency)
         .plus($scope.transport.price.in(currency))
         .times($scope.submarketOption.escrowFeeCentiperun)
         .div(100)
-
-    console.log('$watch1')
 
     $scope.escrowFeeAmount = new Coinage(escrowFeeAmount, currency)
 
@@ -114,11 +103,7 @@ angular.module('app').controller('ProductsController', ($scope, $filter, utils, 
         .plus(escrowFeeAmount)
         .plus(bufferAmount)
 
-    console.log('$watch2')
-
     $scope.total = new Coinage(total, currency)
-
-    console.log('$watch end')
   })
 
 })

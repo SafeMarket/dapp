@@ -65,8 +65,6 @@ angular.module('app').controller('SettingsModalController', ($scope, growl, user
 
     const keypair = user.getKeypairs()[index]
 
-    console.log(keypair)
-
     txMonitor.propose('Set Your Primary Keypair', Keystore.setKey, [keypair.pk]).then(() => {
       $scope.keypair = user.getKeypair()
     })

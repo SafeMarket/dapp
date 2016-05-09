@@ -312,8 +312,6 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
 
     const solCode = `contract Martyr{\r\nfunction Martyr() { bytes memory temp; \r\n${callCodes.join('\r\n')}\r\n}\r\n}`
 
-    console.log(solCode)
-
     const bytecode = web3.eth.compile.solidity(solCode).Martyr.code
 
     return hexify(bytecode)
