@@ -1,11 +1,6 @@
 contract Store is forumable, audible, infosphered, permissioned, aliasable, ordered{
 
 	OrderReg orderReg;
-
-	function Store(address orderRegAddr){
-		orderReg = OrderReg(orderRegAddr);
-	}
-
 	struct Product{
 		bool isArchived;
 		uint teraprice;
@@ -15,12 +10,39 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 
 	struct Transport{
 		bool isArchived;
-		uint teraprice;
+		uint256 teraprice;
 		bytes32 fileHash;
 	}
 
 	Product[] products;
 	Transport[] transports;
+
+
+	function Store(
+		address orderRegAddr,
+		bytes32[] productParams,
+		bytes32[] transportParams
+	){
+
+		orderReg = OrderReg(orderRegAddr);
+
+		for(uint i = 0; i< productParams.length; i=i+3){
+			products.push(Product(
+				false,
+				uint(productParams[i]),
+				uint(productParams[i+1]),
+				productParams[i+2]
+			));
+		}
+
+		for(uint j = 0; j< products.length; j=j+2){
+			transports.push(Transport(
+				false,
+				uint(transportParams[j]),
+				transportParams[j+1]
+			));
+		}
+	}
 
 	function getProductsLength() constant returns(uint){
 		return products.length;

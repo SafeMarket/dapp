@@ -121,7 +121,19 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
       }
 
       Store
-        .create(user.getAccount(), $scope.isOpen, $scope.currency, $scope.bufferCentiperun, $scope.disputeSeconds, minTotal, affiliateFeeCentiperun, meta, $scope.alias)
+        .create(
+          user.getAccount(),
+          $scope.isOpen,
+          $scope.currency,
+          $scope.bufferCentiperun,
+          $scope.disputeSeconds,
+          minTotal,
+          affiliateFeeCentiperun,
+          meta,
+          $scope.alias,
+          $scope.products,
+          $scope.transports
+        )
         .then((_store) => {
           user.addStore(_store.addr)
           user.save()

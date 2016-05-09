@@ -4,7 +4,6 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
 
   const utils = this
 
-
   function sanitize(string) {
     return string.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;')
   }
@@ -14,6 +13,13 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
       return string
     }
     return `0x${string}`
+  }
+
+  function toBytes32(thing) {
+    const hex = web3.toHex(thing)
+    const hexWithout0x = hex.replace('0x', '')
+    const missingZeros = '0'.repeat(66 - hex.length)
+    return `0x${missingZeros}${hexWithout0x}`
   }
 
   function dehexify(string) {
@@ -472,7 +478,8 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     encryptObject,
     decrypt,
     decryptToObject,
-    sha3
+    sha3,
+    toBytes32
   })
 
 })

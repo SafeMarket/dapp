@@ -27,9 +27,25 @@ contract StoreReg is owned{
 
 	event Registration(address storeAddr);
 
-	function create(address owner, bool isOpen, bytes32 currency, uint bufferCentiperun, uint disputeSeconds, uint minTotal, uint affiliateFeeCentiperun, bytes32 fileHash, bytes32 alias){
+	function create(
+		address owner,
+		bool isOpen,
+		bytes32 currency,
+		uint bufferCentiperun,
+		uint disputeSeconds,
+		uint minTotal,
+		uint affiliateFeeCentiperun,
+		bytes32 fileHash,
+		bytes32 alias,
+		bytes32[] productParams,
+		bytes32[] transportParams
+	){
 
-		var store = new Store(orderRegAddr);
+		var store = new Store(
+			orderRegAddr,
+			productParams,
+			transportParams
+		);
 		var storeAddr = address(store);
 		
 		store.setInfosphere(infosphereAddr);
