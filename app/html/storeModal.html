@@ -121,9 +121,9 @@
                     </td>
                 </tr>
                 <tr ng-show="product.index!==undefined">
-                    <td>Archived</td>
+                    <td>Active</td>
                     <td>
-                        <input type="checkbox" ng-model="product.isArchived">
+                        <input type="checkbox" ng-model="product.isActive">
                     </td>
                 </tr>
                 <tr ng-show="product.index===undefined">
@@ -142,14 +142,14 @@
                 <tr>
                     <td>Name</td>
                     <td>
-                        <input type="name" ng-model="transport.name" class="form-control" ng-disabled="transport.isArchived">
+                        <input type="name" ng-model="transport.name" class="form-control">
                     </td>
                 </tr>
                 <tr>
                     <td>Price</td>
                     <td>
                         <div class="input-group">
-                            <input coinage-input="currency" type="text" ng-model="transport.price" class="form-control" numeric-input ng-disabled="transport.isArchived">
+                            <input coinage-input="currency" type="text" ng-model="transport.price" class="form-control" numeric-input>
                             <div class="input-group-addon">{{currency}}</div>
                         </div>
                     </td>
@@ -163,9 +163,9 @@
                     </td>
                 </tr>
                 <tr ng-show="transport.index!==undefined">
-                    <td>Archived</td>
+                    <td>Active</td>
                     <td>
-                        <input type="checkbox" ng-model="transport.isArchived">
+                        <input type="checkbox" ng-model="transport.isActive">
                     </td>
                 </tr>
                 <tr ng-show="transport.index===undefined">

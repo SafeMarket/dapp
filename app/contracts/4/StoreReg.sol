@@ -1,8 +1,5 @@
 contract StoreReg is owned{
 
-	uint version1;
-	uint version2;
-
 	address[] registeredAddrsArray;
 	mapping(address=>bool) registeredAddrsMap;
 

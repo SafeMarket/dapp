@@ -264,10 +264,10 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
     const calls = []
 
-    if (product.isArchived !== productData.isArchived) {
+    if (product.isActive !== productData.isActive) {
       calls.push({
         address: this.contract.address,
-        data: this.contract.setProductIsArchived.getData(productData.index, productData.isArchived)
+        data: this.contract.setProductIsActive.getData(productData.index, productData.isActive)
       })
     }
 
@@ -355,10 +355,10 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
     const calls = []
 
-    if (transport.isArchived !== transportData.isArchived) {
+    if (transport.isActive !== transportData.isActive) {
       calls.push({
         address: this.contract.address,
-        data: this.contract.setTransportIsArchived.getData(transportData.index, transportData.isArchived)
+        data: this.contract.setTransportIsActive.getData(transportData.index, transportData.isActive)
       })
     }
 
@@ -412,7 +412,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   Product.prototype.update = function update() {
     const deferred = $q.defer()
     this.updatePromise = deferred.promise
-    this.isArchived = this.store.contract.getProductIsArchived(this.index)
+    this.isActive = this.store.contract.getProductIsActive(this.index)
     this.teraprice = this.store.contract.getProductTeraprice(this.index)
     this.units = this.store.contract.getProductUnits(this.index)
     this.price = new Coinage(this.teraprice.div(constants.tera), this.store.currency)
@@ -438,7 +438,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   Transport.prototype.update = function update() {
     const deferred = $q.defer()
     this.updatePromise = deferred.promise
-    this.isArchived = this.store.contract.getTransportIsArchived(this.index)
+    this.isActive = this.store.contract.getTransportIsActive(this.index)
     this.teraprice = this.store.contract.getTransportTeraprice(this.index)
     this.price = new Coinage(this.teraprice.div(constants.tera), this.store.currency)
     this.fileHash = this.store.contract.getTransportFileHash(this.index)

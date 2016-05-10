@@ -126,6 +126,9 @@ contract Order{
 				_productQuantities[i]								//productQuantity
 			];
 
+			if(!store.getProductIsActive(productParams[i]))
+				throw;
+
 			store.depleteProductUnits(productParams[0], productParams[2]);
 
 			products.push(Product(
@@ -136,6 +139,9 @@ contract Order{
 			));
 			_teratotal = _teratotal + productParams[1];
 		}
+
+		if(!store.getTransportIsActive(_transportIndex))
+			throw;
 
 		transportTeraprice = store.getTransportTeraprice(_transportIndex);
 		transportFileHash = store.getTransportFileHash(_transportIndex);

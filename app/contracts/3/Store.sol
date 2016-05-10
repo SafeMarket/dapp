@@ -2,14 +2,14 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 
 	OrderReg orderReg;
 	struct Product{
-		bool isArchived;
+		bool isActive;
 		uint teraprice;
 		uint units;
 		bytes32 fileHash;
 	}
 
 	struct Transport{
-		bool isArchived;
+		bool isActive;
 		uint256 teraprice;
 		bytes32 fileHash;
 	}
@@ -28,7 +28,7 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 
 		for(uint i = 0; i< productParams.length; i=i+3){
 			products.push(Product(
-				false,
+				true,
 				uint(productParams[i]),
 				uint(productParams[i+1]),
 				productParams[i+2]
@@ -37,7 +37,7 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 
 		for(uint j = 0; j< products.length; j=j+2){
 			transports.push(Transport(
-				false,
+				true,
 				uint(transportParams[j]),
 				transportParams[j+1]
 			));
@@ -48,8 +48,8 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 		return products.length;
 	}
 
-	function getProductIsArchived(uint index) constant returns(bool){
-		return products[index].isArchived;
+	function getProductIsActive(uint index) constant returns(bool){
+		return products[index].isActive;
 	}
 
 	function getProductTeraprice(uint index) constant returns(uint){
@@ -69,9 +69,9 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 		products.push(Product(false, teraprice, units, fileHash));
 	}
 
-	function setProductIsArchived(uint index, bool isArchived){
+	function setProductIsActive(uint index, bool isActive){
 		requireSenderPermission('product');
-		products[index].isArchived = isArchived;
+		products[index].isActive = isActive;
 	}
 
 	function setProductTeraprice(uint index, uint teraprice){
@@ -93,8 +93,8 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 		return transports.length;
 	}
 
-	function getTransportIsArchived(uint index) constant returns(bool){
-		return transports[index].isArchived;
+	function getTransportIsActive(uint index) constant returns(bool){
+		return transports[index].isActive;
 	}
 
 	function getTransportTeraprice(uint index) constant returns(uint){
@@ -110,9 +110,9 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 		transports.push(Transport(false, teraprice, fileHash));
 	}
 
-	function setTransportIsArchived(uint index, bool isArchived){
+	function setTransportIsActive(uint index, bool isActive){
 		requireSenderPermission('transport');
-		transports[index].isArchived = isArchived;
+		transports[index].isActive = isActive;
 	}
 
 	function setTransportTeraprice(uint index, uint teraprice){
