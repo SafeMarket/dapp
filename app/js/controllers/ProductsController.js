@@ -18,6 +18,7 @@ angular.module('app').controller('ProductsController', ($scope, $filter, utils, 
       })
       $scope.transports = angular.copy($scope.store.transports)
       $scope.transport = $scope.transports[0]
+      console.log($scope)
 
       $scope.productsTotal = new Coinage(0, currency)
       $scope.total = new Coinage(0, currency)

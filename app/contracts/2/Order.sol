@@ -133,11 +133,11 @@ contract Order{
 				store.getProductFileHash(productParams[0]),
 				productParams[2]
 			));
-			productsTeratotal = productsTeratotal + productParams[1];
+			productsTeratotal = productsTeratotal + (productParams[1] * productParams[2]);
 		}
 
-		//if(productsTeratotal < store.getUint('minProductsTeratotal'))
-		//	throw;
+		if(productsTeratotal < store.getUint('minProductsTeratotal'))
+			throw;
 
 		if(!store.getTransportIsActive(_transportIndex))
 			throw;
@@ -158,11 +158,11 @@ contract Order{
 			disputeSeconds = store.getUint('disputeSeconds');
 		}
 
-		teratotal = productsTeratotal + transportTeraprice + escrowFeeTeramount;
+		teratotal = productsTeratotal + transportTeraprice;
 		bufferTeramount = (teratotal * bufferCentiperun) / 100;
 
-		//if(msg.value < ticker.convert(teratotal + bufferTeramount, bytes4(storeCurrency), bytes4('WEI')) / 1000000000000)
-		//	throw;
+		if(msg.value < ticker.convert(teratotal + bufferTeramount + escrowFeeTeramount, bytes4(storeCurrency), bytes4('WEI')) / 1000000000000)
+			throw;
 
 
 		bounty = _bounty;
