@@ -1,6 +1,6 @@
 /* globals angular, web3, _ */
 
-angular.module('app').controller('StoreModalController', ($scope, $filter, utils, Store, AliasReg, ticker, growl, $modal, $modalInstance, store, user, helpers, constants, ISO3166) => {
+angular.module('app').controller('StoreModalController', ($scope, $filter, utils, Store, AliasReg, ticker, growl, $modal, $modalInstance, store, user, helpers, constants, ISO3166, Coinage) => {
 
   $scope.currencies = Object.keys(ticker.prices)
   $scope.countries = ISO3166.codeToCountry
@@ -37,10 +37,10 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
     $scope.disputeSeconds = store.infosphered.data.disputeSeconds.toString()
     $scope.info = store.meta.info
     $scope.isOpen = store.infosphered.data.isOpen
-    $scope.minTotal = store.infosphered.data.minTotal.div(constants.tera).toNumber()
+    $scope.minProductsTotal = angular.copy(store.minProductsTotal)
     $scope.affiliateFeeCentiperun = store.infosphered.data.affiliateFeeCentiperun.toNumber()
-    $scope.products = _.clone(store.products)
-    $scope.transports = _.clone(store.transports)
+    $scope.products = angular.copy(store.products)
+    $scope.transports = angular.copy(store.transports)
 
     // if (store.meta.data.submarketAddrs) {
     //   store.meta.data.submarketAddrs.forEach((submarketAddr) => {
@@ -57,7 +57,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
     $scope.disputeSeconds = '1209600'
     $scope.isOpen = true
     $scope.transports = []
-    $scope.minTotal = 0
+    $scope.minProductsTotal = new Coinage(0, user.getCurrency())
     $scope.affiliateFeeCentiperun = 5
 
   }
@@ -96,7 +96,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
       return
     }
 
-    const minTotal = constants.tera.times($scope.minTotal)
+    const minProductsTeratotal = $scope.minProductsTotal.in($scope.currency).times(constants.tera)
     const affiliateFeeCentiperun = web3.toBigNumber($scope.affiliateFeeCentiperun)
 
     if (store) {
@@ -106,7 +106,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
         currency: $scope.currency,
         bufferCentiperun: web3.toBigNumber($scope.bufferCentiperun).toNumber(),
         disputeSeconds: (web3.toBigNumber($scope.disputeSeconds)).toNumber(),
-        minTotal,
+        minProductsTeratotal,
         affiliateFeeCentiperun
       }, meta, $scope.products, $scope.transports).then(() => {
         store.update().then(() => {
@@ -127,7 +127,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
           $scope.currency,
           $scope.bufferCentiperun,
           $scope.disputeSeconds,
-          minTotal,
+          minProductsTeratotal,
           affiliateFeeCentiperun,
           meta,
           $scope.alias,

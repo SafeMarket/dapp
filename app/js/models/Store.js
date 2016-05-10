@@ -1,6 +1,6 @@
 /* globals angular, contracts, web3 */
 
-angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, AliasReg, StoreReg, Infosphered, Meta, Coinage, constants, filestore, user) => {
+angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, AliasReg, StoreReg, Infosphered, Meta, Coinage, constants, filestore) => {
 
   function Store(addrOrAlias) {
     this.addr = utils.isAddr(addrOrAlias) ? addrOrAlias : AliasReg.getAddr(addrOrAlias)
@@ -11,7 +11,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
       currency: 'bytes32',
       bufferCentiperun: 'uint',
       disputeSeconds: 'uint',
-      minTotal: 'uint',
+      minProductsTeratotal: 'uint',
       affiliateFeeCentiperun: 'uint',
       fileHash: 'bytes32'
     })
@@ -29,7 +29,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     currency,
     bufferCentiperun,
     disputeSeconds,
-    minTotal,
+    minProductsTeratotal,
     affiliateFeeCentiperun,
     meta,
     alias,
@@ -81,7 +81,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
           currency,
           bufferCentiperun,
           disputeSeconds,
-          minTotal,
+          minProductsTeratotal,
           affiliateFeeCentiperun,
           fileHash,
           aliasHex,
@@ -194,7 +194,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.transports = this.getTransports()
     this.reviews = []
 
-    this.minTotal = new Coinage(this.infosphered.data.minTotal.div(constants.tera), this.currency)
+    this.minProductsTotal = new Coinage(this.infosphered.data.minProductsTeratotal.div(constants.tera), this.currency)
 
     const filestorePromise = filestore.fetchFile(this.infosphered.data.fileHash).then((file) => {
       this.file = file

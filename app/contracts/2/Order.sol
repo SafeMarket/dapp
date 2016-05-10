@@ -29,6 +29,7 @@ contract Order{
 
 	uint public escrowFeeTeramount;
 	uint public bufferTeramount;
+	uint public productsTeratotal;
 	uint public teratotal;
 	uint public total;
 
@@ -113,11 +114,6 @@ contract Order{
 		var store = Store(_storeAddr);
 		storeCurrency = store.getBytes32('currency');
 
-		uint _teratotal = 0;
-
-		if(_productIndexes.length != _productQuantities.length)
-			throw;
-
 		for(uint i = 0; i< _productIndexes.length; i++){
 
 			uint[3] memory productParams = [
@@ -126,7 +122,7 @@ contract Order{
 				_productQuantities[i]								//productQuantity
 			];
 
-			if(!store.getProductIsActive(productParams[i]))
+			if(!store.getProductIsActive(productParams[0]))
 				throw;
 
 			store.depleteProductUnits(productParams[0], productParams[2]);
@@ -137,16 +133,17 @@ contract Order{
 				store.getProductFileHash(productParams[0]),
 				productParams[2]
 			));
-			_teratotal = _teratotal + productParams[1];
+			productsTeratotal = productsTeratotal + productParams[1];
 		}
+
+		//if(productsTeratotal < store.getUint('minProductsTeratotal'))
+		//	throw;
 
 		if(!store.getTransportIsActive(_transportIndex))
 			throw;
 
 		transportTeraprice = store.getTransportTeraprice(_transportIndex);
 		transportFileHash = store.getTransportFileHash(_transportIndex);
-
-		_teratotal = _teratotal + transportTeraprice;
 
 		bufferCentiperun = store.getUint('bufferCentiperun');
 
@@ -157,17 +154,16 @@ contract Order{
 		if(submarketAddr != address(0)){
 			var submarket = infosphered(_submarketAddr);
 			escrowFeeCentiperun = submarket.getUint('escrowFeeCentiperun');
-			escrowFeeTeramount = (_teratotal * escrowFeeCentiperun) / 100;
+			escrowFeeTeramount = ((productsTeratotal + transportTeraprice) * escrowFeeCentiperun) / 100;
 			disputeSeconds = store.getUint('disputeSeconds');
-
-			_teratotal = _teratotal + escrowFeeTeramount;
 		}
 
-		teratotal = _teratotal;
-		bufferTeramount = (_teratotal * bufferCentiperun) / 100;
+		teratotal = productsTeratotal + transportTeraprice + escrowFeeTeramount;
+		bufferTeramount = (teratotal * bufferCentiperun) / 100;
 
-		if(msg.value < ticker.convert(teratotal + bufferTeramount, bytes4(storeCurrency), bytes4('WEI')) / 1000000000000)
-			throw;
+		//if(msg.value < ticker.convert(teratotal + bufferTeramount, bytes4(storeCurrency), bytes4('WEI')) / 1000000000000)
+		//	throw;
+
 
 		bounty = _bounty;
 	}

@@ -7,16 +7,16 @@ angular.module('app').controller('ProductsController', ($scope, $filter, utils, 
   $scope.$watch('store.updatePromise', () => {
     $scope.store.updatePromise.then(() => {
       $scope.products = $scope.store.products.map((product) => {
-        const _product = _.clone(product)
+        const _product = angular.copy(product)
         _product.quantity = 0
         return _product
       })
       $scope.products = $scope.store.products.map((product) => {
-        const _product = _.clone(product)
+        const _product = angular.copy(product)
         _product.quantity = 0
         return _product
       })
-      $scope.transports = _.clone($scope.store.transports)
+      $scope.transports = angular.copy($scope.store.transports)
       $scope.transport = $scope.transports[0]
 
       $scope.productsTotal = new Coinage(0, currency)

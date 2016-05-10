@@ -30,7 +30,7 @@ contract StoreReg is owned{
 		bytes32 currency,
 		uint bufferCentiperun,
 		uint disputeSeconds,
-		uint minTotal,
+		uint minProductsTeratotal,
 		uint affiliateFeeCentiperun,
 		bytes32 fileHash,
 		bytes32 alias,
@@ -52,7 +52,7 @@ contract StoreReg is owned{
 		store.setBytes32('currency',currency);
 		store.setUint('bufferCentiperun',bufferCentiperun);
 		store.setUint('disputeSeconds',disputeSeconds);
-		store.setUint('minTotal',minTotal);
+		store.setUint('minProductsTeratotal',minProductsTeratotal);
 		store.setUint('affiliateFeeCentiperun',affiliateFeeCentiperun);
 		store.setBytes32('fileHash', fileHash);
 

@@ -53,12 +53,10 @@
                 </td>
             </tr>
             <tr>
-                <td>Minimum Total Order
-                    <p class="text-muted text-small">Not Including Shipping</p>
-                </td>
+                <td>Minimum Products Total</td>
                 <td>
                     <div class="input-group">
-                        <input type="text" ng-model="minTotal" class="form-control" numeric-input>
+                        <input type="text" ng-model="minProductsTotal" class="form-control" numeric-input coinage-input="currency">
                         <div class="input-group-addon">{{currency}}</div>
                     </div>
                 </td>
