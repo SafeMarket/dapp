@@ -2,10 +2,11 @@
 
 angular.module('app').controller('StoreModalController', ($scope, $filter, utils, Store, AliasReg, ticker, growl, $modal, $modalInstance, store, user, helpers, constants, ISO3166, Coinage) => {
 
+  console.log($scope)
+
   $scope.currencies = Object.keys(ticker.prices)
   $scope.countries = ISO3166.codeToCountry
   $scope.user = user
-  $scope.submarkets = []
 
   $scope.disputeSecondsOptions = [
     { value: '0' },
@@ -22,8 +23,8 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
     disputeSecondsOption.label = $filter('disputeSeconds')(disputeSecondsOption.value)
   })
 
-  $scope.addSubmarket = function addSubmarket() {
-    $scope.submarkets.push({})
+  $scope.addApprovedAliasObject = function addApprovedAlias() {
+    $scope.approvedAliasObjects.push({ alias: '' })
   }
 
   if (store) {
@@ -41,12 +42,9 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
     $scope.affiliateFeeCentiperun = store.infosphered.data.affiliateFeeCentiperun.toNumber()
     $scope.products = angular.copy(store.products)
     $scope.transports = angular.copy(store.transports)
-
-    // if (store.meta.data.submarketAddrs) {
-    //   store.meta.data.submarketAddrs.forEach((submarketAddr) => {
-    //     $scope.submarkets.push({ alias: utils.getAlias(submarketAddr) })
-    //   })
-    // }
+    $scope.approvedAliasObjects = store.approvedAliases.map((alias) => {
+      return { alias }
+    })
 
   } else {
 
@@ -59,6 +57,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
     $scope.transports = []
     $scope.minProductsTotal = new Coinage(0, user.getCurrency())
     $scope.affiliateFeeCentiperun = 5
+    $scope.approvedAliasObjects = []
 
   }
 
@@ -85,10 +84,6 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
       info: $scope.info
     }
 
-    $scope.submarkets.forEach((submarket) => {
-      meta.submarketAddrs.push(AliasReg.getAddr(submarket.alias))
-    })
-
     try {
       Store.check(alias, meta)
     } catch (e) {
@@ -98,6 +93,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
 
     const minProductsTeratotal = $scope.minProductsTotal.in($scope.currency).times(constants.tera)
     const affiliateFeeCentiperun = web3.toBigNumber($scope.affiliateFeeCentiperun)
+    const approvedAliases = $scope.approvedAliasObjects.map((aliasObject) => { return aliasObject.alias })
 
     if (store) {
 
@@ -132,7 +128,8 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
           meta,
           $scope.alias,
           $scope.products,
-          $scope.transports
+          $scope.transports,
+          approvedAliases
         )
         .then((_store) => {
           user.addStore(_store.addr)

@@ -322,6 +322,12 @@ angular.module('app').directive('coinageInput', (Coinage) => {
           return new Coinage(value, $scope.currency)
         }
       })
+      $scope.$watch('currency', (currency) => {
+        if (!currency || !$model.$$rawModelValue) { return }
+        $model.$setViewValue($model.$$rawModelValue.in(currency).toString())
+        $model.$commitViewValue()
+        $model.$render()
+      })
     }
   }
 })

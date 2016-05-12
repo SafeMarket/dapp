@@ -4,6 +4,13 @@ angular.module('app').controller('ProductsController', ($scope, $filter, utils, 
 
   const currency = $scope.store.currency
 
+  const noSubmarketOption = {
+    addr: constants.nullAddr,
+    label: 'No escrow (Free)',
+    escrowFeeBase: new Coinage(0, 'WEI'),
+    escrowFeeCentiperun: web3.toBigNumber(0)
+  }
+
   $scope.$watch('store.updatePromise', () => {
     $scope.store.updatePromise.then(() => {
       $scope.products = $scope.store.products.map((product) => {
@@ -18,16 +25,28 @@ angular.module('app').controller('ProductsController', ($scope, $filter, utils, 
       })
       $scope.transports = angular.copy($scope.store.transports)
       $scope.transport = $scope.transports[0]
-      console.log($scope)
 
       $scope.productsTotal = new Coinage(0, currency)
       $scope.total = new Coinage(0, currency)
     })
+
+    $scope.submarketOptions = [noSubmarketOption]
+
+    $scope.store.approvedAliases.forEach((alias) => {
+      const submarket = new Submarket(alias)
+      const escrowFeeBaseFormatted = submarket.escrowFeeBase.formattedIn(user.getCurrency())
+      const escrowFeeCentiperun = submarket.infosphered.data.escrowFeeCentiperun
+      submarket.updatePromise.then(() => {
+        $scope.submarketOptions.push({
+          addr: submarket.contract.address,
+          label: `@${submarket.alias} (${escrowFeeBaseFormatted} + ${escrowFeeCentiperun.toNumber()}%)`,
+          escrowFeeBase: submarket.escrowFeeBase,
+          escrowFeeCentiperun: escrowFeeCentiperun
+        })
+      })
+    })
+    $scope.submarketOption = $scope.submarketOptions[0]
   })
-
-
-  $scope.submarketOptions = [{ addr: constants.nullAddr, label: 'No escrow', escrowFeeCentiperun: 0 }]
-  $scope.submarketOption = $scope.submarketOptions[0]
 
   $scope.createOrder = function createOrder() {
 
@@ -81,29 +100,14 @@ angular.module('app').controller('ProductsController', ($scope, $filter, utils, 
       return
     }
 
-    const escrowFeeAmount =
-      $scope.productsTotal.in(currency)
-        .plus($scope.transport.price.in(currency))
-        .times($scope.submarketOption.escrowFeeCentiperun)
-        .div(100)
+    const storeTotal = $scope.productsTotal.in(currency).plus($scope.transport.price.in(currency))
+    const escrowFee = storeTotal.times($scope.submarketOption.escrowFeeCentiperun).div(100).plus($scope.submarketOption.escrowFeeBase.in(currency))
+    $scope.escrowFee = new Coinage(escrowFee, currency)
 
-    $scope.escrowFeeAmount = new Coinage(escrowFeeAmount, currency)
+    const buffer = storeTotal.plus(escrowFee).times($scope.store.infosphered.data.bufferCentiperun).div(100)
+    $scope.buffer = new Coinage(buffer, currency)
 
-    const bufferAmount =
-      $scope.productsTotal.in(currency)
-        .plus($scope.transport.price.in(currency))
-        .plus(escrowFeeAmount)
-        .times($scope.store.infosphered.data.bufferCentiperun)
-        .div(100)
-
-    $scope.bufferAmount = new Coinage(bufferAmount, currency)
-
-    const total =
-      $scope.productsTotal.in(currency)
-        .plus($scope.transport.price.in(currency))
-        .plus(escrowFeeAmount)
-        .plus(bufferAmount)
-
+    const total = storeTotal.plus(escrowFee).plus(buffer)
     $scope.total = new Coinage(total, currency)
   })
 

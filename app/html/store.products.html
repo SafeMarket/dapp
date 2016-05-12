@@ -34,10 +34,9 @@
 		</tr>
 		<tr>
 			<td>Transport</td>
-			<td colspan="2">
+			<td colspan="3">
 				<select ng-model="transport" ng-options="getTransportLabel(transport) for transport in transports" class="form-control"></select>
 			</td>
-			<td></td>
 			<td>
 				<amounts
 					value="transport.price.in(store.currency)"
@@ -48,17 +47,12 @@
 		</tr>
 		<tr>
 			<td>Submarket Escrow</td>
-			<td colspan="2">
+			<td colspan="3">
 				<select ng-model="submarketOption" ng-options="submarketOption.label for submarketOption in submarketOptions" class="form-control" id="escrow-select"></select>
 			</td>
 			<td>
-				<span>
-					Fee of {{submarketOption.escrowFeeCentiperun}}%
-				</span>
-			</td>
-			<td>
 				<amounts
-					value="escrowFeeAmount.in(store.currency)"
+					value="escrowFee.in(store.currency)"
 					from="store.currency"
 					to="displayCurrencies">
 				</amounts>
@@ -68,7 +62,7 @@
 			<td colspan="4">Exchange Rate Buffer ({{store.infosphered.data.bufferCentiperun.toNumber()}}%)</td>
 			<td>
 				<amounts
-					value="bufferAmount.in(store.currency)"
+					value="buffer.in(store.currency)"
 					from="store.currency"
 					to="displayCurrencies">
 				</amounts>

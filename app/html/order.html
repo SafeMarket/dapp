@@ -116,11 +116,11 @@
 			</td>
 		</tr>
 		<tr>
-			<td>Submarket Escrow Fee ({{order.escrowFeeCentiperun.toNumber()}}%)</td>
+			<td>Submarket Escrow Fee ({{order.escrowFeeBase | coinage:userCurrency}} + {{order.escrowFeeCentiperun.toNumber()}}%)</td>
 			<td colspan="2">
 				<amounts
-					value="order.escrowFeeAmount.in(order.storeCurrency)"
-					from="order.storeCurrency"
+					value="order.escrowFee.in(order.submarketCurrency)"
+					from="order.submarketCurrency"
 					to="displayCurrencies">
 				</amounts>
 			</td>
@@ -133,26 +133,6 @@
 				<amounts
 					value="order.affiliateAmount"
 					from="'WEI'"
-					to="displayCurrencies">
-				</amounts>
-			</td>
-		</tr>
-		<tr>
-			<td>Total</td>
-			<td colspan="2">
-				<amounts
-					value="order.total.in(order.storeCurrency)"
-					from="order.storeCurrency"
-					to="displayCurrencies">
-				</amounts>
-			</td>
-		</tr>
-		<tr>
-			<td>Exchange Rate Buffer ({{order.bufferCentiperun.toNumber()}}%)</td>
-			<td colspan="2">
-				<amounts
-					value="order.bufferAmount.in(order.storeCurrency)"
-					from="order.storeCurrency"
 					to="displayCurrencies">
 				</amounts>
 			</td>

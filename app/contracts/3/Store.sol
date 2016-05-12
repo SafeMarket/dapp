@@ -1,4 +1,4 @@
-contract Store is forumable, audible, infosphered, permissioned, aliasable, ordered{
+contract Store is forumable, audible, infosphered, permissioned, aliasable, ordered, approvesAliases{
 
 	OrderReg orderReg;
 	struct Product{
@@ -21,7 +21,8 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 	function Store(
 		address orderRegAddr,
 		bytes32[] productParams,
-		bytes32[] transportParams
+		bytes32[] transportParams,
+		bytes32[] _approvedAliases
 	){
 
 		orderReg = OrderReg(orderRegAddr);
@@ -42,6 +43,8 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 				transportParams[j+1]
 			));
 		}
+
+		approvedAliases = _approvedAliases;
 	}
 
 	function getProductsLength() constant returns(uint){

@@ -1,8 +1,10 @@
 /* globals angular, contracts, web3 */
 
-angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, AliasReg, StoreReg, Infosphered, Meta, Coinage, constants, filestore) => {
+angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, AliasReg, StoreReg, Infosphered, Meta, Coinage, constants, filestore, ApprovesAliases) => {
 
   function Store(addrOrAlias) {
+    console.log(this)
+
     this.addr = utils.isAddr(addrOrAlias) ? addrOrAlias : AliasReg.getAddr(addrOrAlias)
     this.alias = utils.getAlias(this.addr)
     this.contract = this.contractFactory.at(this.addr)
@@ -17,6 +19,8 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     })
     this.update()
   }
+
+  Store.prototype = ApprovesAliases.prototype
 
   Store.prototype.bytecode = Store.bytecode = contracts.Store.bytecode
   Store.prototype.runtimeBytecode = Store.runtimeBytecode = utils.runtimeBytecodes.Store
@@ -34,7 +38,8 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     meta,
     alias,
     productsData,
-    transportsData
+    transportsData,
+    approvedAliases
   ) {
 
     const file = utils.convertObjectToHex(meta)
@@ -86,7 +91,8 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
           fileHash,
           aliasHex,
           productParams,
-          transportParams
+          transportParams,
+          approvedAliases
         )
       }])
 
@@ -180,21 +186,17 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
     this.updatePromise = deferred.promise
 
-    this.scoreCounts = []
-    this.scoreCountsReversed = []
-    this.scoreCountsSum = 0
-    this.scoreCountsTotal = 0
     this.owner = this.contract.owner()
     this.key = new Key(this.owner)
 
     this.infosphered.update()
     this.currency = utils.toAscii(this.infosphered.data.currency)
+    this.minProductsTotal = new Coinage(this.infosphered.data.minProductsTeratotal.div(constants.tera), this.currency)
 
     this.products = this.getProducts()
     this.transports = this.getTransports()
-    this.reviews = []
-
-    this.minProductsTotal = new Coinage(this.infosphered.data.minProductsTeratotal.div(constants.tera), this.currency)
+    this.approvedAliases = this.getApprovedAliases()
+    this.submarkets = []
 
     const filestorePromise = filestore.fetchFile(this.infosphered.data.fileHash).then((file) => {
       this.file = file

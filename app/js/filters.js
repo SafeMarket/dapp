@@ -16,6 +16,16 @@ angular.module('app').filter('currency', (utils) => {
   }
 })
 
+angular.module('app').filter('coinage', (utils) => {
+  return function currencyFilter(coinage, currency) {
+    if (coinage === undefined) {
+      return undefined
+    }
+
+    return utils.formatCurrency(coinage.in(currency), currency, true)
+  }
+})
+
 angular.module('app').filter('perun', () => {
   return function perunFilter(perun) {
     if (!isNaN(perun)) {

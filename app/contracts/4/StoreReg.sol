@@ -35,13 +35,15 @@ contract StoreReg is owned{
 		bytes32 fileHash,
 		bytes32 alias,
 		bytes32[] productParams,
-		bytes32[] transportParams
+		bytes32[] transportParams,
+		bytes32[] approvedSubmarkets
 	){
 
 		var store = new Store(
 			orderRegAddr,
 			productParams,
-			transportParams
+			transportParams,
+			approvedSubmarkets
 		);
 		var storeAddr = address(store);
 		

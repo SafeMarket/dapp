@@ -1,15 +1,13 @@
 /* globals angular, contracts, web3 */
 
-angular.module('app').factory('Submarket', (utils, ticker, $q, Store, Key, Forum, txMonitor, AliasReg, SubmarketReg, Infosphered, Meta, filestore) => {
+angular.module('app').factory('Submarket', (utils, ticker, $q, Store, Key, Forum, txMonitor, AliasReg, SubmarketReg, Infosphered, Meta, filestore, constants, Coinage) => {
 
-  function Submarket(addr, isDeep) {
-    this.addr = addr
-    this.isDeep = !!isDeep
-    this.alias = utils.getAlias(addr)
-    this.contract = this.contractFactory.at(addr)
-    this.meta = new Meta(this)
+  function Submarket(addrOrAlias) {
+    this.addr = utils.isAddr(addrOrAlias) ? addrOrAlias : AliasReg.getAddr(addrOrAlias)
+    this.alias = utils.getAlias(this.addr)
+    this.contract = this.contractFactory.at(this.addr)
     this.infosphered = new Infosphered(this.contract, this.infospheredTypes)
-    this.updatePromise = this.update()
+    this.update()
   }
 
   window.Submarket = Submarket
@@ -21,12 +19,12 @@ angular.module('app').factory('Submarket', (utils, ticker, $q, Store, Key, Forum
   Submarket.prototype.infospheredTypes = Submarket.infospheredTypes = {
     isOpen: 'bool',
     currency: 'bytes32',
-    minTotal: 'uint',
+    escrowFeeTerabase: 'uint',
     escrowFeeCentiperun: 'uint',
-    metaHash: 'bytes32'
+    fileHash: 'bytes32'
   }
 
-  Submarket.create = function createSubmarket(owner, isOpen, currency, minTotal, escrowFeeCentiperun, meta, alias) {
+  Submarket.create = function createSubmarket(owner, isOpen, currency, escrowFeeTerabase, escrowFeeCentiperun, meta, alias) {
 
     const metaHex = utils.convertObjectToHex(meta)
     const aliasHex = web3.toHex(alias)
@@ -34,32 +32,28 @@ angular.module('app').factory('Submarket', (utils, ticker, $q, Store, Key, Forum
 
     const deferred = $q.defer()
 
-    filestore.fetchMartyrCalls([metaHex]).then((calls) => {
+    const calls = filestore.getMartyrCalls([metaHex]).concat([{
+      address: SubmarketReg.address,
+      data: SubmarketReg.create.getData(
+        owner,
+        isOpen,
+        currency,
+        escrowFeeTerabase,
+        escrowFeeCentiperun,
+        metaHash,
+        aliasHex
+      )
+    }])
 
-      calls.push({
-        address: SubmarketReg.address,
-        data: SubmarketReg.create.getData(
-          owner,
-          isOpen,
-          currency,
-          minTotal,
-          escrowFeeCentiperun,
-          metaHash,
-          aliasHex
-        )
-      })
+    const martyrData = utils.getMartyrData(calls)
 
-      const martyrData = utils.getMartyrData(calls)
-
-      txMonitor.propose(
-        'Create a New Store',
-        web3.eth.sendTransaction,
-        [{ data: martyrData }]
-      ).then((txReciept) => {
-        const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
-        deferred.resolve(new Store(contractAddress))
-      })
-
+    txMonitor.propose(
+      'Create a New Store',
+      web3.eth.sendTransaction,
+      [{ data: martyrData }]
+    ).then((txReciept) => {
+      const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
+      deferred.resolve(new Store(contractAddress))
     })
 
     return deferred.promise
@@ -99,22 +93,32 @@ angular.module('app').factory('Submarket', (utils, ticker, $q, Store, Key, Forum
   }
 
 
-  Submarket.prototype.set = function setSubmarket(infospheredData, metaData) {
+  Submarket.prototype.set = function setSubmarket(infospheredData, meta) {
 
     const deferred = $q.defer()
+
+    const metaCalls = []
+    const file = utils.convertObjectToHex(meta)
+    const fileHash = utils.sha3(file)
+
+    infospheredData.fileHash = fileHash
+
     const infospheredCalls = this.infosphered.getMartyrCalls(infospheredData)
 
-    this.meta.fetchMartyrCalls(metaData).then((metaCalls) => {
-      const allCalls = infospheredCalls.concat(metaCalls)
-      const data = utils.getMartyrData(allCalls)
+    if (this.infosphered.data.fileHash !== fileHash) {
+      metaCalls.push.apply(metaCalls, filestore.getMartyrCalls([file]))
+    }
 
-      txMonitor.propose('Update Submarket', web3.eth.sendTransaction, [{
-        data: data
-      }]).then((txReciept) => {
-        deferred.resolve(txReciept)
-      }, (err) => {
-        deferred.reject(err)
-      })
+    const allCalls = infospheredCalls.concat(metaCalls)
+    const data = utils.getMartyrData(allCalls)
+
+    txMonitor.propose('Update Submarket', web3.eth.sendTransaction, [{
+      data: data,
+      gas: web3.eth.estimateGas({ data: data }) * 4
+    }]).then((txReciept) => {
+      deferred.resolve(txReciept)
+    }, (err) => {
+      deferred.reject(err)
     })
 
     return deferred.promise
@@ -139,7 +143,8 @@ angular.module('app').factory('Submarket', (utils, ticker, $q, Store, Key, Forum
 
   Submarket.prototype.update = function updateSubmarket() {
     const deferred = $q.defer()
-    const submarket = this
+
+    this.updatePromise = deferred.promise
 
     this.owner = this.contract.owner()
     this.forumAddr = this.contract.forumAddr()
@@ -150,24 +155,15 @@ angular.module('app').factory('Submarket', (utils, ticker, $q, Store, Key, Forum
     this.infosphered.update()
 
     this.currency = utils.toAscii(this.infosphered.data.currency)
+    this.escrowFeeBase = new Coinage(this.infosphered.data.escrowFeeTerabase.div(constants.tera), this.currency)
+    this.key = new Key(this.owner)
 
-    this.meta.update().then((meta) => {
-
-      submarket.info = utils.sanitize(meta.data.info || '')
-
-      // if (submarket.isDeep) {
-      //   meta.data.storeAddrs.forEach((storeAddr) => {
-      //     submarket.stores.push(new Store(storeAddr))
-      //   })
-      // }
-
-      deferred.resolve(submarket)
+    filestore.fetchFile(this.infosphered.data.fileHash).then((file) => {
+      this.file = file
+      this.meta = utils.convertHexToObject(file)
+      this.info = utils.sanitize(this.meta.info || '')
+      deferred.resolve(this)
     })
-
-
-    submarket.key = new Key(this.owner)
-
-    return deferred.promise
   }
 
   return Submarket

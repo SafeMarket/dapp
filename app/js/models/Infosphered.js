@@ -53,7 +53,7 @@ angular.module('app').factory('Infosphered', (utils) => {
     const type = this.types[key]
 
     if (!type) {
-      throw new Error('${key} has no associate type')
+      throw new Error(`${key} has no associate type`)
     }
 
     const functionName = getInfospheredGetterName(type)

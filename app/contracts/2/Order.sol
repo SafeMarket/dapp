@@ -6,8 +6,9 @@ contract Order{
 	
 	address public buyer;
 	address public storeAddr;
-	bytes32 public storeCurrency;
+	bytes4 public storeCurrency;
 	address public submarketAddr;
+	bytes4 public submarketCurrency;
 	address public affiliate;
 
 	struct Product{
@@ -23,6 +24,7 @@ contract Order{
 	bytes32 public transportFileHash;
 
 	uint public buyerAmountCentiperun;
+	uint public escrowFeeTerabase;
 	uint public escrowFeeCentiperun; 
 	uint public affiliateFeeCentiperun;
 	uint public bufferCentiperun;
@@ -30,7 +32,7 @@ contract Order{
 	uint public escrowFeeTeramount;
 	uint public bufferTeramount;
 	uint public productsTeratotal;
-	uint public teratotal;
+	uint public storeTeratotal;
 	uint public total;
 
 	uint public bounty;
@@ -112,7 +114,7 @@ contract Order{
 		ticker = Ticker(tickerAddr);
 
 		var store = Store(_storeAddr);
-		storeCurrency = store.getBytes32('currency');
+		storeCurrency = bytes4(store.getBytes32('currency'));
 
 		for(uint i = 0; i< _productIndexes.length; i++){
 
@@ -153,15 +155,25 @@ contract Order{
 
 		if(submarketAddr != address(0)){
 			var submarket = infosphered(_submarketAddr);
+			submarketCurrency = bytes4(submarket.getBytes32('currency'));
+			escrowFeeTerabase = submarket.getUint('escrowFeeTerabase');
 			escrowFeeCentiperun = submarket.getUint('escrowFeeCentiperun');
-			escrowFeeTeramount = ((productsTeratotal + transportTeraprice) * escrowFeeCentiperun) / 100;
 			disputeSeconds = store.getUint('disputeSeconds');
 		}
 
-		teratotal = productsTeratotal + transportTeraprice;
-		bufferTeramount = (teratotal * bufferCentiperun) / 100;
+		storeTeratotal = productsTeratotal + transportTeraprice;
 
-		if(msg.value < ticker.convert(teratotal + bufferTeramount + escrowFeeTeramount, bytes4(storeCurrency), bytes4('WEI')) / 1000000000000)
+		uint[1] memory totals = [
+			ticker.convert(storeTeratotal, storeCurrency, bytes4('WEI')) / 1000000000000 	//Store total in wei
+		];
+
+		if(msg.value < 
+			( 
+				totals[0]																					// Store total in wei
+				+ (ticker.convert(escrowFeeTerabase, submarketCurrency, bytes4('WEI')) / 1000000000000)		// Escrow base in wei
+				+ (totals[0] * escrowFeeCentiperun / 100)													// Escrow percent fee in wei
+			) * ( (100 + bufferCentiperun) / 100 )															// Exchange rate buffer
+		)
 			throw;
 
 

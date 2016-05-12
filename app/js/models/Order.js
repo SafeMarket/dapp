@@ -3,6 +3,7 @@
 angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key, KeyGroup, txMonitor, user, orderReg, constants, Coinage, filestore) => {
 
   function Order(addr) {
+    console.log(this)
     this.addr = addr
     this.contract = this.contractFactory.at(addr)
     this.update()
@@ -148,12 +149,17 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.store = new Store(storeAddr)
     this.storeCurrency = utils.toAscii(this.contract.storeCurrency())
     this.submarket = submarketAddr === constants.nullAddr ? null : new Submarket(submarketAddr)
+    this.submarketCurrency = utils.toAscii(this.contract.submarketCurrency())
+    this.escrowFeeBase = new Coinage(this.contract.escrowFeeTerabase().div(constants.tera), this.submarketCurrency)
     this.escrowFeeCentiperun = this.contract.escrowFeeCentiperun()
     this.affiliateFeeCentiperun = this.contract.affiliateFeeCentiperun()
     this.bufferCentiperun = this.contract.bufferCentiperun()
-    this.escrowFeeAmount = new Coinage(this.contract.escrowFeeTeramount().div(constants.tera), this.storeCurrency)
-    this.bufferAmount = new Coinage(this.contract.bufferTeramount().div(constants.tera), this.storeCurrency)
-    this.total = new Coinage(this.contract.teratotal().div(constants.tera), this.storeCurrency)
+    this.storeTotal = new Coinage(this.contract.storeTeratotal().div(constants.tera), this.storeCurrency)
+    this.escrowFee = new Coinage(
+      this.escrowFeeBase.in(this.submarketCurrency).plus(
+        this.storeTotal.in(this.submarketCurrency).times(this.escrowFeeCentiperun).div(100)
+      ), this.submarketCurrency
+    )
     this.balance = web3.eth.getBalance(this.addr)
     this.status = this.contract.status().toNumber()
     this.blockNumber = this.contract.blockNumber()
@@ -198,8 +204,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
 
     this.productsTotal = new Coinage(productsTotal, this.storeCurrency)
 
-    this.unpaid = this.total.in('WEI').minus(this.balance)
-    this.receivedPerun = this.balance.div(this.total.in('WEI'))
+    this.receivedPerun = this.balance.div(this.storeTotal.in('WEI').plus(this.escrowFee.in('WEI')))
 
     this.messages = this.getMessages()
     this.updates = this.getUpdates()
