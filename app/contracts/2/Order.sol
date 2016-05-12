@@ -114,6 +114,10 @@ contract Order{
 		ticker = Ticker(tickerAddr);
 
 		var store = Store(_storeAddr);
+
+		if(!store.getBool('isOpen'))
+			throw;
+
 		storeCurrency = bytes4(store.getBytes32('currency'));
 
 		for(uint i = 0; i< _productIndexes.length; i++){
@@ -155,6 +159,8 @@ contract Order{
 
 		if(submarketAddr != address(0)){
 			var submarket = infosphered(_submarketAddr);
+			if(!submarket.getBool('isOpen'))
+				throw;
 			submarketCurrency = bytes4(submarket.getBytes32('currency'));
 			escrowFeeTerabase = submarket.getUint('escrowFeeTerabase');
 			escrowFeeCentiperun = submarket.getUint('escrowFeeCentiperun');
@@ -232,8 +238,8 @@ contract Order{
 		if(msg.sender != buyer && !getSenderPermission(storeAddr,'order.cancel'))
 			throw;
 
+		Store store = Store(storeAddr);
 		for(uint i = 0; i< products.length; i++){
-			Store store = Store(storeAddr);
 			store.restoreProductUnits(products[i].index, products[i].quantity);
 		}
 

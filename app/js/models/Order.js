@@ -149,7 +149,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.store = new Store(storeAddr)
     this.storeCurrency = utils.toAscii(this.contract.storeCurrency())
     this.submarket = submarketAddr === constants.nullAddr ? null : new Submarket(submarketAddr)
-    this.submarketCurrency = utils.toAscii(this.contract.submarketCurrency())
+    this.submarketCurrency = utils.toAscii(this.contract.submarketCurrency()) || 'WEI'
     this.escrowFeeBase = new Coinage(this.contract.escrowFeeTerabase().div(constants.tera), this.submarketCurrency)
     this.escrowFeeCentiperun = this.contract.escrowFeeCentiperun()
     this.affiliateFeeCentiperun = this.contract.affiliateFeeCentiperun()
