@@ -13,7 +13,9 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
   Order.prototype.abi = Order.abi = contracts.Order.abi
   Order.prototype.contractFactory = Order.contractFactory = web3.eth.contract(Order.abi)
 
-  Order.create = function createOrder(buyer, storeAddr, submarketAddr, affiliate, products, transportIndex, value) {
+  Order.create = function create(buyer, storeAddr, submarketAddr, affiliate, products, transportIndex, orderTotal, value) {
+
+    console.log(arguments)
 
     const deferred = $q.defer()
 
@@ -24,7 +26,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     txMonitor.propose(
       'Create a New Order',
       orderReg.contract.create,
-      [buyer, storeAddr, submarketAddr, affiliate, productIndexes, productQuantities, transportIndex, 0, 0, { value: value }]
+      [buyer, storeAddr, submarketAddr, affiliate, productIndexes, productQuantities, transportIndex, orderTotal, { value: value }]
     ).then((txReciept) => {
       const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
       deferred.resolve(new Order(contractAddress))

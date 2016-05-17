@@ -72,6 +72,26 @@
 			<td colspan="4"></td>
 			<td>
 				<amounts
+					value="orderTotal.in(store.currency)"
+					from="store.currency"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="4">Safemarket Fee ({{safemarketFeeMilliperun.div(10).toString() | bigNumber}}%)</td>
+			<td>
+				<amounts
+					value="safemarketFee.in(store.currency)"
+					from="store.currency"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="4"></td>
+			<td>
+				<amounts
 					value="total.in(store.currency)"
 					from="store.currency"
 					to="displayCurrencies">

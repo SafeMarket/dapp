@@ -1,8 +1,6 @@
 contract permissioned is owned{
 	
 	struct User{
-		bool isRegistered;
-		bytes data;
 		mapping(bytes32=>bool) actionToPermissionMap;
 	}
 
@@ -34,25 +32,8 @@ contract permissioned is owned{
 			throw;
 	}
 
-
-	function addUser(address userAddr, bytes userData){
-
-		requireSenderPermission('admin.adduser');
-
-		if(userMap[userAddr].isRegistered)
-			throw;
-
-		userAddrs[userAddrs.length++] = userAddr;
-		userMap[userAddr] = User(true, userData);
-	}
-
-	function removeUser(address userAddr){
-		requireSenderPermission('admin.removeuser');
-		userMap[userAddr].isRegistered = false;
-	}
-
-
 	function setPermission(address userAddr, bytes32 action, bool perMission){
+		requireSenderPermission('admin.setpermission');
 		userMap[userAddr].actionToPermissionMap[action] = perMission;
 	}
 

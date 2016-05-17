@@ -28,6 +28,7 @@ contract Order{
 	uint public escrowFeeCentiperun; 
 	uint public affiliateFeeCentiperun;
 	uint public bufferCentiperun;
+	uint public safemarketFee;
 
 	uint public escrowFeeTeramount;
 	uint public bufferTeramount;
@@ -72,12 +73,12 @@ contract Order{
 	Message[] messages;
 	Update[] updates;
 
-	uint public constant initialized = 0;
-	uint public constant cancelled = 1;
-	uint public constant shipped = 2;
-	uint public constant disputed = 3;
-	uint public constant resolved = 4;
-	uint public constant finalized = 5;
+	uint constant initialized = 0;
+	uint constant cancelled = 1;
+	uint constant shipped = 2;
+	uint constant disputed = 3;
+	uint constant resolved = 4;
+	uint constant finalized = 5;
 
 	uint public reviewBlockNumber;
 	uint8 public reviewStoreScore;
@@ -92,8 +93,6 @@ contract Order{
 		,uint[] _productIndexes
 		,uint[] _productQuantities
 		,uint _transportIndex
-		,uint _bounty
-		,uint _rewardMax
 		,address tickerAddr
 	){
 
@@ -108,8 +107,6 @@ contract Order{
 		storeAddr = _storeAddr;
 		submarketAddr = _submarketAddr;
 		affiliate = _affiliate;
-		bounty = _bounty;
-		rewardMax = _rewardMax;
 
 		ticker = Ticker(tickerAddr);
 
@@ -169,29 +166,31 @@ contract Order{
 
 		storeTeratotal = productsTeratotal + transportTeraprice;
 
-		uint[1] memory totals = [
-			ticker.convert(storeTeratotal, storeCurrency, bytes4('WEI')) / 1000000000000 	//Store total in wei
+		uint[5] memory totals = [
+			ticker.convert(storeTeratotal, storeCurrency, bytes4('WEI')) / 1000000000000, 	//Store total in wei
+			0,																				//Escrow base in wei
+			0,																				//Escrow percent fee in wei
+			0,																				//Total before buffer
+			0																				//Buffer
 		];
 
-		if(msg.value < 
-			( 
-				totals[0]																					// Store total in wei
-				+ (ticker.convert(escrowFeeTerabase, submarketCurrency, bytes4('WEI')) / 1000000000000)		// Escrow base in wei
-				+ (totals[0] * escrowFeeCentiperun / 100)													// Escrow percent fee in wei
-			) * ( (100 + bufferCentiperun) / 100 )															// Exchange rate buffer
-		)
-			throw;
+		if (escrowFeeTerabase > 0) {
+			totals[1] = (ticker.convert(escrowFeeTerabase, submarketCurrency, bytes4('WEI')) / 1000000000000);
+		}
 
+		if (escrowFeeCentiperun > 0) {
+			totals[2] = (totals[0] * escrowFeeCentiperun / 100);
+		}
 
-		bounty = _bounty;
-	}
+		totals[3] = totals[0] + totals[1] + totals[2];
 
-	function getPermission(address user, address contractAddr, bytes32 action) private returns(bool){
-		return permissioned(contractAddr).getPermission(msg.sender,action);
-	}
+		if (bufferCentiperun > 0) {
+			totals[4] = ((totals[3] + bufferCentiperun) / 100);
+		}
 
-	function getSenderPermission(address contractAddr, bytes32 action) private returns(bool){
-		return permissioned(contractAddr).getPermission(msg.sender,action);
+		// if (msg.value < (totals[3] + totals[4]))
+		// 	throw;
+
 	}
 
 	function getProductsLength() constant returns (uint){ return products.length; }
@@ -206,8 +205,8 @@ contract Order{
 
 		if(
 			user != buyer
-			&& !getPermission(user, storeAddr, 'order.addMessage')
-			&& !getPermission(user, submarketAddr, 'order.addMessage')
+			&& user != storeAddr
+			&& user != submarketAddr
 		)
 			throw;
 
@@ -235,7 +234,7 @@ contract Order{
 		if(status != initialized)
 			throw;
 
-		if(msg.sender != buyer && !getSenderPermission(storeAddr,'order.cancel'))
+		if(msg.sender != buyer && msg.sender != storeAddr)
 			throw;
 
 		Store store = Store(storeAddr);
@@ -253,7 +252,7 @@ contract Order{
 		if(status !=  initialized)
 			throw;
 
-		if(!getSenderPermission(storeAddr,'order.markAsShipped'))
+		if(msg.sender != storeAddr)
 			throw;
 
 		//don't allow to mark as shipped on same block that a withdrawl is made
@@ -272,7 +271,7 @@ contract Order{
 		if(msg.sender != buyer)
 			throw;
 
-		setAmounts();
+		//setAmounts();
 		
 		addUpdate(finalized);
 	}
@@ -301,7 +300,7 @@ contract Order{
 		if(status!=disputed)
 			throw;
 
-		if(!getSenderPermission(submarketAddr,'order.resolve'))
+		if(msg.sender != submarketAddr)
 			throw;
 
 		buyerAmountCentiperun = _buyerAmountCentiperun;
@@ -309,90 +308,91 @@ contract Order{
 		finalize();
 	}
 
-	function getAmounts() constant returns(uint[4]){
+	function getAmounts() constant returns(uint, uint, uint, uint){
 
 		uint amountRemaining = getReceived();
-		uint[4] memory amounts;
+		uint[5] memory amounts = [
+			getReceived(), 	//remaining
+			0,				//buyer 
+			0,				//store
+			0,				//submarket
+			0				//affiliate
+		];
 
-		var escrowAmount = (amountRemaining * escrowFeeCentiperun)/(100 + escrowFeeCentiperun);
+		amounts[2] = (amounts[0] * escrowFeeCentiperun)/(100 + escrowFeeCentiperun);
 
-		amountRemaining = amountRemaining - escrowAmount;
+		amounts[0] -= escrowAmount;
 
-		var buyerAmount = (amountRemaining * buyerAmountCentiperun)/100;
+		amounts[1] = (amounts[0] * buyerAmountCentiperun)/100;
 
-		amountRemaining = amountRemaining - buyerAmount;
+		amounts[0] -= buyerAmount;
 
-		var affiliateAmount = (amountRemaining * affiliateFeeCentiperun)/100;
+		amounts[4] = (amounts[0] * affiliateFeeCentiperun)/100;
 
-		var storeAmount = amountRemaining - affiliateAmount;
+		amounts[3] = amounts[0] - amounts[4];
 
-		amounts[0] = buyerAmount;
-		amounts[1] = storeAmount;
-		amounts[2] = escrowAmount;
-		amounts[3] = affiliateAmount;
-
-		return (amounts);
+		return (amounts[1], amounts[2], amounts[3], amounts[4]);
 	}
 
-	function setAmounts(){
-		if(areAmountsSet)
-			throw;
+	// function setAmounts(){
+	// 	if(areAmountsSet)
+	// 		throw;
 
-		received = this.balance;
+	// 	received = this.balance;
 
-		var amounts = getAmounts();
+	// 	var amounts = getAmounts();
 		
-		buyerAmount = amounts[0];
-		storeAmount = amounts[1];
-		escrowAmount = amounts[2];
-		affiliateAmount = amounts[3];
+	// 	buyerAmount = amounts[0];
+	// 	storeAmount = amounts[1];
+	// 	escrowAmount = amounts[2];
+	// 	affiliateAmount = amounts[3];
 
-		areAmountsSet = true;
-	}
+	// 	areAmountsSet = true;
+	// }
 
-	function release(bool isReleased, address addr, uint amount) private{
+	// function release(bool isReleased, address addr, uint amount) private{
 
-		var reward = msg.gas + bounty;
+	// 	var reward = msg.gas + bounty;
 
-		if(!isComplete())
-			throw;
+	// 	if(!isComplete())
+	// 		throw;
 
-		if(isReleased)
-			throw;
+	// 	if(isReleased)
+	// 		throw;
 
-		if(reward > rewardMax)
-			throw;
+	// 	if(reward > rewardMax)
+	// 		throw;
 
-		if(reward > amount)
-			throw;
+	// 	if(reward > amount)
+	// 		throw;
 
-		if(!msg.sender.send(reward))
-			throw;
+	// 	if(!msg.sender.send(reward))
+	// 		throw;
 
-		if(!addr.send(amount - reward))
-			throw;
+	// 	if(!addr.send(amount - reward))
+	// 		throw;
 
-	}
+	// }
 
-	function releaseBuyerAmount(){
-		release(isBuyerAmountReleased,buyer,buyerAmount);
-		isBuyerAmountReleased = true;
-	}
+	// function releaseBuyerAmount(){
+	// 	release(isBuyerAmountReleased,buyer,buyerAmount);
+	// 	isBuyerAmountReleased = true;
+	// }
 
-	function releaseStoreAmount(){
-		release(isStoreAmountReleased,storeAddr,storeAmount);
-		isStoreAmountReleased = true;
-	}
+	// function releaseStoreAmount(){
+	// 	release(isStoreAmountReleased,storeAddr,storeAmount);
+	// 	isStoreAmountReleased = true;
+	// }
 
-	function releaseEscrowAmount(){
-		release(isEscrowAmountReleased,submarketAddr,escrowAmount);
-		isEscrowAmountReleased = true;
-	}
+	// function releaseEscrowAmount(){
+	// 	release(isEscrowAmountReleased,submarketAddr,escrowAmount);
+	// 	isEscrowAmountReleased = true;
+	// }
 
-	function releaseAffiliateAmount(){
-		release(isAffiliateAmountReleased,affiliate,affiliateAmount);
-		isAffiliateAmountReleased = true;
-	}
+	// function releaseAffiliateAmount(){
+	// 	release(isAffiliateAmountReleased,affiliate,affiliateAmount);
+	// 	isAffiliateAmountReleased = true;
+	// }
 
 	function getReceived() constant returns (uint){
 		if(areAmountsSet)

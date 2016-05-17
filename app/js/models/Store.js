@@ -57,7 +57,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     productsData.forEach((productData) => {
       const productFile = Store.getProductFile(productData)
       const productFileHash = utils.sha3(productFile)
-      productsFilestoreCalls.concat(filestore.getMartyrCalls([productFile]))
+      productsFilestoreCalls.push.apply(productsFilestoreCalls, filestore.getMartyrCalls([productFile]))
       productParams.push(
         utils.toBytes32(productData.price.in(currency).times(constants.tera)),
         utils.toBytes32(productData.units),
@@ -68,7 +68,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     transportsData.forEach((transportData) => {
       const transportFile = Store.getTransportFile(transportData)
       const transportFileHash = utils.sha3(transportFile)
-      transportsFilestoreCalls.concat(filestore.getMartyrCalls([transportFile]))
+      transportsFilestoreCalls.push.apply(transportsFilestoreCalls, filestore.getMartyrCalls([transportFile]))
       transportParams.push(
         utils.toBytes32(transportData.price.in(currency).times(constants.tera)),
         transportFileHash
@@ -211,6 +211,8 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
     $q.all(promises).then(() => {
       deferred.resolve(store)
+    }, (err) => {
+      deferred.reject(err)
     })
 
     return deferred.promise

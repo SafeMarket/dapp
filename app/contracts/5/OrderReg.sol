@@ -1,30 +1,26 @@
 contract OrderReg is owned{
 
+	event Registration(address orderAddr);
+
+	SafitsReg safitsReg;
 	StoreReg storeReg;
 	SubmarketReg submarketReg;
-	address tickerAddr;
+	Ticker ticker;
 
-	function setStoreReg(address storeRegAddr){
+	uint public safemarketFeeMilliperun = 30;
+
+	function set(address safitsRegAddr, address storeRegAddr, address submarketRegAddr, address tickerAddr){
 		requireOwnership();
+		safitsReg = SafitsReg(safitsRegAddr);
 		storeReg = StoreReg(storeRegAddr);
-	}
-
-	function setSubmarketReg(address submarketRegAddr){
-		requireOwnership();
 		submarketReg = SubmarketReg(submarketRegAddr);
-	}
-
-	function setTickerAddr(address _tickerAddr){
-		requireOwnership();
-		tickerAddr = _tickerAddr;
+		ticker = Ticker(tickerAddr);
 	}
 
 	address[] addrs;
 	mapping(address=>bool) addrsMap;
 	mapping(address=>address[]) addrsByStoreAddr;
 	mapping(address=>address[]) addrsBySubmarketAddr;
-
-	event Registration(address orderAddr, address indexed storeAddr, address indexed submarketAddr);
 
 	function create(
 		address buyer,
@@ -34,22 +30,45 @@ contract OrderReg is owned{
 		uint[] productIndexes,
 		uint[] productQuantities,
 		uint transportIndex,
-		uint bounty,
-		uint rewardMax
+		uint orderTotal
 	){
 
 		if(!storeReg.isRegistered(storeAddr))
 			throw;
 
-		if(submarketAddr != address(0) && !submarketReg.isRegistered(submarketAddr))
+		bool usesSubmarket = (submarketAddr != address(0));
+
+		if(usesSubmarket && !submarketReg.isRegistered(submarketAddr))
 			throw;
 
-		var order = new Order();
-		var orderAddr = address(order);
+		Order order = new Order();
+		address orderAddr = address(order);
 		addrs.push(orderAddr);
 		addrsMap[orderAddr] = true;
 
-		order.create.value(msg.value)(
+		uint safemarketFee = msg.value - orderTotal;
+
+		if(safemarketFee <  ((orderTotal * safemarketFeeMilliperun) / 1000)){
+			throw;
+		}
+
+		safitsReg.depositWei.value(msg.value - orderTotal)();
+
+		uint safitsReward = ticker.convert(safemarketFee, bytes4("WEI"), bytes4('SAF'));
+		
+		if (usesSubmarket) {
+			safitsReward = safitsReward / 3;
+			safitsReg.inflate(submarketAddr, safitsReward);
+			addrsBySubmarketAddr[submarketAddr].push(orderAddr);
+		} else {
+			safitsReward = safitsReward / 2;
+		}
+
+		addrsByStoreAddr[storeAddr].push(orderAddr);
+		safitsReg.inflate(buyer, safitsReward);
+		safitsReg.inflate(storeAddr, safitsReward);
+
+		order.create.value(orderTotal)(
 			buyer,
 			storeAddr,
 			submarketAddr,
@@ -57,18 +76,11 @@ contract OrderReg is owned{
 			productIndexes,
 			productQuantities,
 			transportIndex,
-			bounty,
-			rewardMax,
-			tickerAddr
+			address(ticker)
 		);
 		
-		addrsByStoreAddr[storeAddr].push(orderAddr);
+		Registration(orderAddr);
 
-		if(submarketAddr != address(0)){
-			addrsBySubmarketAddr[submarketAddr].push(orderAddr);
-		}
-
-		Registration(orderAddr, storeAddr, submarketAddr);
 	}
 
 	function isRegistered(address addr) constant returns(bool){

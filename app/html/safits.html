@@ -1,0 +1,16 @@
+<table class="table">
+	<tr>
+		<th>Period #</th>
+		<th>Safits Delta</th>
+		<th>Total Safits Supply</th>
+		<th>Wei Received</th>
+		<th></th>
+	</tr>
+	<tr ng-repeat="log in logs">
+		<td>{{log.period | bigNumber}}</td>
+		<td>{{log.holder.safitsDelta | bigNumber}}</td>
+		<td>{{log.reg.safitsSupply | bigNumber}}</td>
+		<td>{{log.reg.weiReceived | bigNumber}}</td>
+		<td>{{log.reg.isFinalized ? 'Finalized' : 'Not Finalized'}}</td>
+	</tr>
+</table>

@@ -9,7 +9,8 @@ module.exports = function exportSetPrices(grunt) {
     const done = this.async()
     const prices = {
       WEI: '1',
-      ETH: '1000000000000000000'
+      ETH: '1000000000000000000',
+      SAF: '100000000000000000'
     }
 
     getUsdPrice('ETH').then((ethPriceInUsd) => {

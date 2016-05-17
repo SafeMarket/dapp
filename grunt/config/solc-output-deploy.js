@@ -14,10 +14,14 @@ module.exports = function exportSolcOutputDeploy(grunt) {
           'AffiliateReg',
           'StoreReg',
           'SubmarketReg',
+          'SafitsReg',
           'OrderReg',
           'Filestore'
         ],
         onDeploy: {
+          SafitsReg: [
+            'contracts.SafitsReg.inflate("0x1049a6c61c46a7c1e12d919189701bf26a1a2011",1, {gas:contracts.SafitsReg.inflate.estimateGas("0x1049a6c61c46a7c1e12d919189701bf26a1a2011",1)})'
+          ],
           SubmarketReg: [
             'contracts.SubmarketReg.setAliasRegAddr(chain.AliasReg.address)',
             'contracts.SubmarketReg.setInfosphereAddr(chain.Infosphere.address)'
@@ -27,8 +31,8 @@ module.exports = function exportSolcOutputDeploy(grunt) {
             'contracts.StoreReg.setInfosphereAddr(chain.Infosphere.address)'
           ],
           OrderReg: [
-            'contracts.OrderReg.setTickerAddr(chain.Ticker.address)',
-            'contracts.StoreReg.setOrderRegAddr(chain.OrderReg.address)'
+            'contracts.OrderReg.set(chain.SafitsReg.address, chain.StoreReg.address, chain.SubmarketReg.address, chain.Ticker.address)',
+            'contracts.SafitsReg.setPermission(contracts.OrderReg.address,"inflate",true)'
           ]
         }
       }
@@ -39,6 +43,7 @@ module.exports = function exportSolcOutputDeploy(grunt) {
         contracts: 'generated/contracts.json',
         chain: 'config/production/chain.json',
         deploy: [
+          'SafitsReg',
           'AliasReg',
           'Ticker',
           'Infosphere',

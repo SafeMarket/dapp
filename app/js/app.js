@@ -87,6 +87,11 @@ app.config((growlProvider, $stateProvider, $urlRouterProvider) => {
       templateUrl: 'affiliate.html',
       controller: 'AffiliateController'
     })
+    .state('safits', {
+      url: '/safits',
+      templateUrl: 'safits.html',
+      controller: 'SafitsController'
+    })
 
   $urlRouterProvider.otherwise('/')
 

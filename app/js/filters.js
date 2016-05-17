@@ -26,6 +26,16 @@ angular.module('app').filter('coinage', (utils) => {
   }
 })
 
+angular.module('app').filter('bigNumber', () => {
+  return function bigNumberFilter(bigNumber) {
+    if (bigNumber === undefined) {
+      return undefined
+    }
+
+    return bigNumber.toString()
+  }
+})
+
 angular.module('app').filter('perun', () => {
   return function perunFilter(perun) {
     if (!isNaN(perun)) {
