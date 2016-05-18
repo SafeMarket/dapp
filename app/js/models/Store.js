@@ -75,19 +75,6 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
       )
     })
 
-    console.log(owner,
-          isOpen,
-          currency,
-          bufferCentiperun,
-          disputeSeconds,
-          minProductsTeratotal,
-          affiliateFeeCentiperun,
-          fileHash,
-          aliasHex,
-          productParams,
-          transportParams,
-          approvedAliases)
-
     const calls = filestoreCalls
       .concat(productsFilestoreCalls)
       .concat(transportsFilestoreCalls)
@@ -101,12 +88,11 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
           disputeSeconds,
           minProductsTeratotal,
           affiliateFeeCentiperun,
-          fileHash
-          //,
-          // aliasHex,
-          // productParams,
-          // transportParams,
-          // approvedAliases
+          fileHash,
+          aliasHex,
+          productParams,
+          transportParams,
+          approvedAliases
         )
       }])
 
