@@ -96,15 +96,17 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
         )
       }])
 
-    const martyrData = utils.getMartyrData(calls)
-
-    txMonitor.propose(
-      'Create a New Store',
-      web3.eth.sendTransaction,
-      [{ data: martyrData }]
-    ).then((txReciept) => {
-      const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
-      deferred.resolve(new Store(contractAddress))
+    utils.fetchMartyrData(calls).then((martyrData) => {
+      txMonitor.propose(
+        'Create a New Store',
+        web3.eth.sendTransaction,
+        [{ data: martyrData }]
+      ).then((txReciept) => {
+        const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
+        deferred.resolve(new Store(contractAddress))
+      })
+    }, (err) => {
+      deferred.reject(err)
     })
 
     return deferred.promise

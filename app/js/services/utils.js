@@ -1,6 +1,6 @@
 /* globals angular, Module, cryptocoin, web3, contracts, msgpack, abi, validate, nacl */
 
-angular.module('app').service('utils', function utilsService(ticker, $q, $timeout, AliasReg, AffiliateReg, constants) {
+angular.module('app').service('utils', function utilsService(ticker, $q, $timeout, AliasReg, AffiliateReg, constants, $http) {
 
   const utils = this
 
@@ -293,8 +293,9 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     return hexify(cryptocoin.convertHex.bytesToHex(new Uint8Array(callDataBytes)))
   }
 
-  function getMartyrData(calls) {
+  function fetchMartyrData(calls) {
 
+    const deferred = $q.defer()
     const callCodes = []
 
     calls.forEach((call) => {
@@ -307,20 +308,34 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
       }
 
       const splitterRegex = (call.data.length % 2 === 0) ? /(?=(?:..)*$)/ : /(?=(?:..)*.$)/
-      let byteString = dehexify(call.data).split(splitterRegex).join('\\x')
+      let byteString = dehexify(call.data).split(splitterRegex).join("\\x")
       byteString = `\\x${byteString}`
-      const saveAs = call.saveAs ? `${call.saveAs} = ` : ''
-
       callCodes.push(`temp = "${byteString}";`)
-      callCodes.push(`${saveAs}address(${call.address}).call(temp);`)
+      callCodes.push(`address(${call.address}).call(temp);`)
 
     })
 
     const solCode = `contract Martyr{\r\nfunction Martyr() { bytes memory temp; \r\n${callCodes.join('\r\n')}\r\n}\r\n}`
 
-    const bytecode = web3.eth.compile.solidity(solCode).Martyr.code
+    console.log(solCode)
 
-    return hexify(bytecode)
+    $http({
+      method: 'GET',
+      url: '/api/compile',
+      params: {
+        solCode: solCode
+      }
+    }).then((response) => {
+      if (response.data.errors && response.data.errors.length > 0) {
+        deferred.reject(new Error(response.data.errors[0]))
+      } else {
+        deferred.resolve(hexify(response.data.contracts.Martyr.bytecode))
+      }
+    }, (err) => {
+      deferred.reject(err)
+    })
+
+    return deferred.promise
   }
 
   function getFunctionHash(name, types) {
@@ -466,7 +481,7 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     getContract,
     getContractAddressFromTxReceipt,
     getFunctionHash,
-    getMartyrData,
+    fetchMartyrData,
     hexify,
     dehexify,
     getAliasedMartyrCalls,

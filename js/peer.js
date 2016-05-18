@@ -12,5 +12,6 @@ var interval = setInterval(function(){
 
 	console.log('Connected to peer',admin.peers[0].id)
 	clearInterval(interval)
+	setInterval(function(){}, 1000000000)
 
 },1000)

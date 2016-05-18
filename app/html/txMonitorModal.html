@@ -4,6 +4,7 @@
 <div class="modal-body" id="tx-monitor-modal-body">
 	<div ng-show="!isApproved && !isThrown">
 		This will cost roughly {{proposal.cost | currency:'WEI':currency}} or {{proposal.cost | currency:'WEI':'ETH'}}.
+		<!--
 		<table class="table">
 			<tr>
 				<td>Value</td>
@@ -14,6 +15,7 @@
 				<td amounts value="proposal.gasCost" from="'WEI'" to="displayCurrencies"></td>
 			</tr>
 		</table>
+		-->
 	</div>
 	<div ng-show="isSyncing" class="alert alert-info text-center">
 		<img src="images/balls.gif"> Waiting for blockchain to sync ({{secondsWaited}} seconds)

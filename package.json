@@ -72,7 +72,7 @@
     "tar": "^2.2.1",
     "unzip": "^0.1.11",
     "url-download": "0.0.4",
-    "web3": "^0.15.3"
+    "web3": "^0.16.0"
   },
   "dependencies": {
     "seek-bzip": "^1.0.5"
