@@ -24,7 +24,7 @@ contract StoreReg is owned{
 
 	event Registration(address storeAddr);
 
-	function create(
+	 function create(
 		address owner,
 		bool isOpen,
 		bytes32 currency,
@@ -32,41 +32,42 @@ contract StoreReg is owned{
 		uint disputeSeconds,
 		uint minProductsTeratotal,
 		uint affiliateFeeCentiperun,
-		bytes32 fileHash,
-		bytes32 alias,
-		bytes32[] productParams,
-		bytes32[] transportParams,
-		bytes32[] approvedSubmarkets
-	){
+		bytes32 fileHash
+	//,
+	// 	bytes32 alias,
+	// 	bytes32[] productParams,
+	// 	bytes32[] transportParams,
+	// 	bytes32[] approvedSubmarkets
+	 ){
 
-		var store = new Store(
-			orderRegAddr,
-			productParams,
-			transportParams,
-			approvedSubmarkets
-		);
-		var storeAddr = address(store);
+	// 	var store = new Store(
+	// 		orderRegAddr,
+	// 		productParams,
+	// 		transportParams,
+	// 		approvedSubmarkets
+	// 	);
+	// 	var storeAddr = address(store);
 		
-		store.setInfosphere(infosphereAddr);
-		store.setAliasReg(aliasRegAddr);
+	// 	store.setInfosphere(infosphereAddr);
+	// 	store.setAliasReg(aliasRegAddr);
 
-		store.setBool('isOpen',isOpen);
-		store.setBytes32('currency',currency);
-		store.setUint('bufferCentiperun',bufferCentiperun);
-		store.setUint('disputeSeconds',disputeSeconds);
-		store.setUint('minProductsTeratotal',minProductsTeratotal);
-		store.setUint('affiliateFeeCentiperun',affiliateFeeCentiperun);
-		store.setBytes32('fileHash', fileHash);
+	// 	store.setBool('isOpen',isOpen);
+	// 	store.setBytes32('currency',currency);
+	// 	store.setUint('bufferCentiperun',bufferCentiperun);
+	// 	store.setUint('disputeSeconds',disputeSeconds);
+	// 	store.setUint('minProductsTeratotal',minProductsTeratotal);
+	// 	store.setUint('affiliateFeeCentiperun',affiliateFeeCentiperun);
+	// 	store.setBytes32('fileHash', fileHash);
 
-		if(alias!='')
-			store.setAlias(alias);
+	// 	if(alias!='')
+	// 		store.setAlias(alias);
 
-		store.setOwner(owner);
+	// 	store.setOwner(owner);
 
-		registeredAddrsArray.push(storeAddr);
-		registeredAddrsMap[storeAddr] = true;
+	// 	registeredAddrsArray.push(storeAddr);
+	// 	registeredAddrsMap[storeAddr] = true;
 
-		Registration(storeAddr);
+	// 	Registration(storeAddr);
 
 	}
 

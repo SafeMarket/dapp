@@ -295,10 +295,13 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
 
   function fetchMartyrData(calls) {
 
+    console.log(calls)
+
     const deferred = $q.defer()
     const callCodes = []
+    const inputParams = []
 
-    calls.forEach((call) => {
+    calls.forEach((call, i) => {
       if (!call.address) {
         throw new Error('Call object needs an address')
       }
@@ -307,15 +310,13 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
         throw new Error('Call object needs data')
       }
 
-      const splitterRegex = (call.data.length % 2 === 0) ? /(?=(?:..)*$)/ : /(?=(?:..)*.$)/
-      let byteString = dehexify(call.data).split(splitterRegex).join("\\x")
-      byteString = `\\x${byteString}`
-      callCodes.push(`temp = "${byteString}";`)
-      callCodes.push(`address(${call.address}).call(temp);`)
+      const callDataVar = `callData${i}`
+      inputParams.push(`bytes ${callDataVar}`)
+      callCodes.push(`address(${call.address}).call(${callDataVar});`)
 
     })
 
-    const solCode = `contract Martyr{\r\nfunction Martyr() { bytes memory temp; \r\n${callCodes.join('\r\n')}\r\n}\r\n}`
+    const solCode = `contract Martyr{\r\nfunction Martyr(${inputParams.join(', ')}) { \r\n${callCodes.join('\r\n')}\r\n}\r\n}`
 
     console.log(solCode)
 
@@ -329,7 +330,17 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
       if (response.data.errors && response.data.errors.length > 0) {
         deferred.reject(new Error(response.data.errors[0]))
       } else {
-        deferred.resolve(hexify(response.data.contracts.Martyr.bytecode))
+        const martyrFactory = web3.eth.contract(JSON.parse(response.data.contracts.Martyr.interface))
+        const getDataParams = calls.map((call) => {
+          return hexify(call.data.replace('0x', ''))
+        }).concat({
+          data: hexify(response.data.contracts.Martyr.bytecode)
+        })
+
+        console.log(getDataParams)
+        console.log(martyrFactory.new.getData.apply(martyrFactory, getDataParams))
+
+        deferred.resolve(martyrFactory.new.getData.apply(martyrFactory, getDataParams))
       }
     }, (err) => {
       deferred.reject(err)
@@ -448,7 +459,7 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
 
   function sha3(thing) {
     const thingHex = web3.toHex(thing)
-    return `0x${web3.sha3(thingHex, { encoding: 'hex' })}`
+    return hexify(`${web3.sha3(thingHex, { encoding: 'hex' })}`)
   }
 
   angular.merge(this, {

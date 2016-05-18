@@ -23,7 +23,7 @@ module.exports = function exportGrunt(grunt) {
       app.get('/api/compile', (req, res) => {
         const solCode = req.query.solCode
         console.log(req.query, solCode)
-        const solcOutput = solc.compile(solCode)
+        const solcOutput = solc.compile(solCode, 1)
         console.log(solcOutput)
         res.setHeader('Content-Type', 'application/json')
         res.send(JSON.stringify(solcOutput))

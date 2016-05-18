@@ -45,15 +45,17 @@ angular.module('app').factory('Submarket', (utils, ticker, $q, Store, Key, Forum
       )
     }])
 
-    const martyrData = utils.getMartyrData(calls)
+    utils.fetchMartyrData(calls).then((martyrData) => {
 
-    txMonitor.propose(
-      'Create a New Store',
-      web3.eth.sendTransaction,
-      [{ data: martyrData }]
-    ).then((txReciept) => {
-      const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
-      deferred.resolve(new Store(contractAddress))
+      txMonitor.propose(
+        'Create a New Submarket',
+        web3.eth.sendTransaction,
+        [{ data: martyrData }]
+      ).then((txReciept) => {
+        const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
+        deferred.resolve(new Submarket(contractAddress))
+      })
+
     })
 
     return deferred.promise
