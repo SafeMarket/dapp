@@ -66,9 +66,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
   }
 
   $scope.addProduct = function addProduct() {
-    $scope.products.push({
-      units: web3.toBigNumber(1)
-    })
+    $scope.products.push({isActive:true})
   }
 
   $scope.addTransport = function addTransport() {
@@ -104,7 +102,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
         disputeSeconds: (web3.toBigNumber($scope.disputeSeconds)).toNumber(),
         minProductsTeratotal,
         affiliateFeeCentiperun
-      }, meta, $scope.products, $scope.transports).then(() => {
+      }, meta, $scope.products, $scope.transports, approvedAliases).then(() => {
         store.update().then(() => {
           $modalInstance.close(store)
         })

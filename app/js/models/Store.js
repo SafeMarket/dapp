@@ -113,7 +113,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
   }
 
-  Store.prototype.set = function setStore(infospheredData, meta, productsData, transportsData) {
+  Store.prototype.set = function setStore(infospheredData, meta, productsData, transportsData, approvedAliases) {
 
     const deferred = $q.defer()
 
@@ -131,16 +131,24 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
     const productCalls = this.getProductMartyrCalls(productsData)
     const transportCalls = this.getTransportMartyrCalls(transportsData)
-    const allCalls = infospheredCalls.concat(metaCalls).concat(productCalls).concat(transportCalls)
-    const data = utils.getMartyrData(allCalls)
+    const approvedAliasesMartyrCalls = this.getApprovedAliasesMartyrCalls(approvedAliases)
 
-    txMonitor.propose('Update Store', web3.eth.sendTransaction, [{
-      data: data,
-      gas: web3.eth.estimateGas({ data: data }) * 4
-    }]).then((txReciept) => {
-      deferred.resolve(txReciept)
-    }, (err) => {
-      deferred.reject(err)
+    const allCalls =
+      infospheredCalls
+      .concat(metaCalls)
+      .concat(productCalls)
+      .concat(transportCalls)
+      .concat(approvedAliasesMartyrCalls)
+
+    utils.fetchMartyrData(allCalls).then((martyrData) => {
+      txMonitor.propose('Update Store', web3.eth.sendTransaction, [{
+        data: martyrData,
+        gas: web3.eth.estimateGas({ data: martyrData }) * 4
+      }]).then((txReciept) => {
+        deferred.resolve(txReciept)
+      }, (err) => {
+        deferred.reject(err)
+      })
     })
 
     return deferred.promise
@@ -198,7 +206,6 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.products = this.getProducts()
     this.transports = this.getTransports()
     this.approvedAliases = this.getApprovedAliases()
-    this.submarkets = []
 
     const filestorePromise = filestore.fetchFile(this.infosphered.data.fileHash).then((file) => {
       this.file = file

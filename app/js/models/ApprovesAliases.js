@@ -9,14 +9,14 @@ angular.module('app').factory('ApprovesAliases', (utils) => {
     const approvedAliases = []
     for (let i = 0; i < approvedAliasesLength; i ++) {
       const alias = this.contract.getApprovedAlias(i)
-      if (!this.contract.getIsAliasApproved(alias)) {
+      if (this.contract.getIsAliasApproved(alias)) {
         approvedAliases.push(utils.toAscii(alias))
       }
     }
     return approvedAliases
   }
 
-  ApprovesAliases.prototype.getMartyrCalls = function getMartyrCalls(newlyApprovedAliases) {
+  ApprovesAliases.prototype.getApprovedAliasesMartyrCalls = function getApprovedAliasesMartyrCalls(newlyApprovedAliases) {
     const calls = []
 
     newlyApprovedAliases.forEach((alias) => {
@@ -34,6 +34,10 @@ angular.module('app').factory('ApprovesAliases', (utils) => {
         data: this.contract.disapproveAlias.getData(alias)
       })
     })
+
+    console.log(calls)
+
+    return calls
   }
 
   return ApprovesAliases

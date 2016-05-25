@@ -2,12 +2,12 @@
 	<table class="table">
 		<tr ng-repeat="product in products">
 			<td>
-				<img ng-src="{{product.img}}" ng-if="product.img" class="product-image">
-			</td>
-			<td>
 				{{product.name}}
 				<div class="text-muted text-small">{{product.units.toString()}} Units Available</div>
 			</td>
+			<td><center>
+				<img ng-src="{{product.img}}" ng-if="product.img" class="product-image">
+			</center></td>
 			<td>
 				{{product.info}}
 			</td>

@@ -3,7 +3,7 @@ module.exports = function(grunt){
 		var indexTemplate = grunt.file.read('index.template.html')
 			,html = {}
 			,geth = grunt.file.readYAML('config/geth.yml')
-			,imgSrcs = {'safe':'self','unsafe':'*'}
+			,imgSrcs = {'safe':"'self'",'unsafe':'*'}
 			,envs = ['development','production']
 
 		envs.forEach(function(env){

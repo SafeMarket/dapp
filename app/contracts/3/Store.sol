@@ -1,3 +1,8 @@
+contract StoreOrderInterface{
+	function markAsShipped();
+	function cancel();
+}
+
 contract Store is forumable, audible, infosphered, permissioned, aliasable, ordered, approvesAliases{
 
 	OrderReg orderReg;
@@ -68,27 +73,27 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 	}
 
 	function addProduct(uint teraprice, uint units, bytes32 fileHash){
-		requireSenderPermission('product');
+		requireOwnership();
 		products.push(Product(false, teraprice, units, fileHash));
 	}
 
 	function setProductIsActive(uint index, bool isActive){
-		requireSenderPermission('product');
+		requireOwnership();
 		products[index].isActive = isActive;
 	}
 
 	function setProductTeraprice(uint index, uint teraprice){
-		requireSenderPermission('product');
+		requireOwnership();
 		products[index].teraprice = teraprice;
 	}
 
 	function setProductUnits(uint index, uint units){
-		requireSenderPermission('product');
+		requireOwnership();
 		products[index].units = units;
 	}
 
 	function setProductFileHash(uint index, bytes32 fileHash){
-		requireSenderPermission('product');
+		requireOwnership();
 		products[index].fileHash = fileHash;
 	}
 
@@ -109,22 +114,22 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 	}
 
 	function addTransport(uint teraprice, bytes32 fileHash){
-		requireSenderPermission('transport');
+		requireOwnership();
 		transports.push(Transport(false, teraprice, fileHash));
 	}
 
 	function setTransportIsActive(uint index, bool isActive){
-		requireSenderPermission('transport');
+		requireOwnership();
 		transports[index].isActive = isActive;
 	}
 
 	function setTransportTeraprice(uint index, uint teraprice){
-		requireSenderPermission('transport');
+		requireOwnership();
 		transports[index].teraprice = teraprice;
 	}
 
 	function setTransportFileHash(uint index, bytes32 fileHash){
-		requireSenderPermission('transport');
+		requireOwnership();
 		transports[index].fileHash = fileHash;
 	}
 
@@ -143,6 +148,16 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 			throw;
 
 		products[index].units = products[index].units + quantity;
+	}
+
+	function cancel(address order) {
+		requireOwnership();
+		StoreOrderInterface(order).cancel();
+	}
+
+	function markAsShipped(address order) {
+		requireOwnership();
+		StoreOrderInterface(order).markAsShipped();
 	}
  
 }

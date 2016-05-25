@@ -1,3 +1,3 @@
-contract Submarket is forumable,audible,infosphered,permissioned,ordered,aliasable{
+contract Submarket is forumable, audible, infosphered, ordered, aliasable{
 	
 }

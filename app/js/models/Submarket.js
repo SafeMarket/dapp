@@ -112,15 +112,16 @@ angular.module('app').factory('Submarket', (utils, ticker, $q, Store, Key, Forum
     }
 
     const allCalls = infospheredCalls.concat(metaCalls)
-    const data = utils.getMartyrData(allCalls)
 
-    txMonitor.propose('Update Submarket', web3.eth.sendTransaction, [{
-      data: data,
-      gas: web3.eth.estimateGas({ data: data }) * 4
-    }]).then((txReciept) => {
-      deferred.resolve(txReciept)
-    }, (err) => {
-      deferred.reject(err)
+    utils.fetchMartyrData(allCalls).then((martyrData) => {
+      txMonitor.propose('Update Submarket', web3.eth.sendTransaction, [{
+        data: martyrData,
+        gas: web3.eth.estimateGas({ data: martyrData }) * 4
+      }]).then((txReciept) => {
+        deferred.resolve(txReciept)
+      }, (err) => {
+        deferred.reject(err)
+      })
     })
 
     return deferred.promise

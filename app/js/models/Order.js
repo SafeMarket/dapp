@@ -23,10 +23,12 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     const productIndexes = _products.map((product) => { return product.index })
     const productQuantities = _products.map((product) => { return product.quantity })
 
+    console.log(productIndexes, productQuantities)
+
     txMonitor.propose(
       'Create a New Order',
       orderReg.contract.create,
-      [buyer, storeAddr, submarketAddr, affiliate, productIndexes, productQuantities, transportIndex, orderTotal, { value: value }]
+      [buyer, storeAddr, submarketAddr, affiliate, productIndexes, productQuantities, transportIndex, orderTotal.ceil(), { value: value }]
     ).then((txReciept) => {
       const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
       deferred.resolve(new Order(contractAddress))
@@ -135,7 +137,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
 
 
   Order.prototype.markAsShipped = function markOrderAsShipped() {
-    return txMonitor.propose('Mark the Order as Shipped', this.contract.markAsShipped, [])
+    return txMonitor.propose('Mark the Order as Shipped', this.store.contract.markAsShipped, [this.contract.address])
   }
 
   Order.prototype.update = function updateOrder() {
@@ -248,6 +250,8 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
   }
 
   Order.prototype.addMessage = function addOrderMessage(text) {
+
+    const deferred = $q.defer()
     const crystalHex = utils.encrypt(text, this.getPks(), user.getKeypair())
     const crystalHexHash = utils.sha3(crystalHex)
     const filestoreCalls = filestore.getMartyrCalls([crystalHex])
@@ -256,10 +260,17 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
       data: this.contract.addMessage.getData(crystalHexHash, user.getAccount())
     }]
     const allCalls = filestoreCalls.concat(addMessageCalls)
-    const martyrData = utils.getMartyrData(allCalls)
-    return txMonitor.propose('Add a Message', web3.eth.sendTransaction, [{
-      data: martyrData
-    }])
+
+    utils.fetchMartyrData(allCalls).then((martyrData) => {
+      txMonitor.propose('Add a Message', web3.eth.sendTransaction, [{
+        data: martyrData
+      }]).then(() => {
+        deferred.resolve()
+      })
+    })
+
+    return deferred.promise
+
   }
 
   Order.prototype.withdraw = function withdrawOrder(amount) {
@@ -279,6 +290,9 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
   }
 
   Order.prototype.setReview = function leaveOrderReview(storeScore, submarketScore, text) {
+
+    const deferred = $q.defer()
+
     const dataHex = utils.convertObjectToHex({
       text: text
     })
@@ -290,18 +304,27 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
       data: this.contract.setReview.getData(storeScore, submarketScore, dataHash)
     }]
     const allCalls = filestoreCalls.concat(setReviewCalls)
-    const martyrData = utils.getMartyrData(allCalls)
 
-    return txMonitor.propose('Set a Review', web3.eth.sendTransaction, [{ data: martyrData }])
+    utils.fetchMartyrData(allCalls).then((martyrData) => {
+      txMonitor.propose('Set a Review', web3.eth.sendTransaction, [{
+        data: martyrData
+      }]).then((txReciept) => {
+        deferred.resolve(txReciept)
+      }, (err) => {
+        deferred.reject(err)
+      })
+    })
+
+    return deferred.promise
   }
 
   Order.prototype.getRoleForAddr = function getOrderRoleForAddr(addr) {
-    const submarketOwner = this.submarket ? this.submarket.owner : constants.nullAddr
+    const submarketOwner = this.submarket ? this.submarket.contract.address : constants.nullAddr
 
     switch (addr) {
       case this.buyer:
         return 'buyer'
-      case this.store.owner:
+      case this.store.contract.address:
         return 'storeOwner'
       case submarketOwner:
         return 'submarketOwner'
