@@ -14,17 +14,15 @@ chai.use(require('chai-as-promised'))
 chai.should()
 
 let web3
-let gas
 let aliasReg
 
-describe('AliasReg', () => {
-
-  before(() => {
-    return web3TestPromise.then((_web3) => {
-      web3 = _web3
-      gas = web3.gasLimit
-    })
+before(() => {
+  return web3TestPromise.then((_web3) => {
+    web3 = _web3
   })
+})
+
+describe('AliasReg', () => {
 
   it('successfully instantiates', () => {
     return web3.eth.contract(contracts.AliasReg.abi).new.q({ data: contracts.AliasReg.bytecode }).then((_aliasReg) => {
@@ -38,7 +36,7 @@ describe('AliasReg', () => {
   })
 
   it('cannot claim a blank alias', () => {
-    return aliasReg.claimAlias.q('', { gas }).should.be.rejected
+    return aliasReg.claimAlias.q('').should.eventually.be.rejected
   })
 
   it('can claim "myalias"', () => {

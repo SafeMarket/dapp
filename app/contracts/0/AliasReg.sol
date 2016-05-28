@@ -1,8 +1,5 @@
 contract AliasReg {
 	
-	uint version;
-
-	mapping(address=>bytes32) addrToAliasMap;
 	mapping(bytes32=>address) aliasToAddrMap;
 
 	function claimAlias(bytes32 alias){
@@ -12,12 +9,7 @@ contract AliasReg {
 		if(alias == '')
 			throw;
 
-		addrToAliasMap[msg.sender]=alias;
 		aliasToAddrMap[alias]=msg.sender;
-	}
-
-	function getAlias(address addr) constant returns(bytes32){
-		return addrToAliasMap[addr];
 	}
 
 	function getAddr(bytes32 alias) constant returns(address){

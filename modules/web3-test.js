@@ -9,6 +9,7 @@ web3.setProvider(TestRPC.provider())
 
 Q.all([
   web3.eth.getAccounts.q().then((accounts) => {
+    web3.accounts = accounts
     web3.eth.defaultAccount = accounts[0]
   }),
   web3.eth.getBlock.q('latest').then((block) => {

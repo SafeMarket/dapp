@@ -16,7 +16,7 @@ module.exports = function chaithereum(chai, utils) {
   utils.addProperty(chai.Assertion.prototype, 'zeros', function addZerosProperty() {
     new chai.Assertion(this._obj).to.be.hex
     this.assert(
-      this._obj.replace('00', '').length === 2,
+      this._obj.split('00').join('').length === 2,
       'expected #{this} to be a string of 00 bytes',
       'expected #{this} to not be a string of 00 bytes'
     )
