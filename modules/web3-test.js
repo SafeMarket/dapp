@@ -1,13 +1,12 @@
 const Web3 = require('web3')
 const TestRPC = require('ethereumjs-testrpc')
-const Q = require('Q')
 
-const deferred = Q.defer()
 const web3 = new Web3()
+const deferred = web3.Q.defer()
 
 web3.setProvider(TestRPC.provider())
 
-Q.all([
+web3.Q.all([
   web3.eth.getAccounts.q().then((accounts) => {
     web3.accounts = accounts
     web3.eth.defaultAccount = accounts[0]

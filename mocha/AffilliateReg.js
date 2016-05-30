@@ -6,7 +6,6 @@
 const contracts = require('../modules/contracts.js')
 const web3TestPromise = require('../modules/web3-test.js')
 const chai = require('chai')
-const assert = chai.assert
 const expect = chai.expect
 
 chai.use(require('../modules/chaithereum.js'))

@@ -1,0 +1,13 @@
+{
+	"devDependencies": {
+		"chai-bignumber": {
+	        "version": "^1.0.0",
+	        "from": "chai-bignumber",
+	        "dependencies": {
+	            "bignumber.js": {
+	                "from": "git+https://github.com/debris/bignumber.js.git#master"
+	            }
+	        }
+	    }
+	}
+}
