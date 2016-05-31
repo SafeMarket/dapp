@@ -18,6 +18,9 @@ contract Ticker{
 	}
 
 	function convert(uint amount, bytes4 currencyFrom, bytes4 currencyTo) constant returns(uint){
+		if(prices[currencyFrom] == 0 || prices[currencyTo] == 0)
+			throw;
+			
 		return ((amount*prices[currencyFrom])/prices[currencyTo]);
 	}
 }
