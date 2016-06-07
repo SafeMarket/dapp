@@ -27,13 +27,13 @@ describe('AffiliateReg', () => {
 
   it('should not have "aff" owner', () => {
     return chaithereum.web3.Q.all([
-      chaithereum.chai.expect(affiliateReg.getAffiliateOwner.q('aff')).to.eventually.be.address,
-      chaithereum.chai.expect(affiliateReg.getAffiliateOwner.q('aff')).to.eventually.be.zeros
+      affiliateReg.getAffiliateOwner.q('aff').should.eventually.be.address,
+      affiliateReg.getAffiliateOwner.q('aff').should.eventually.be.zeros
     ])
   })
 
   it('should be able to claim "aff"', () => {
-    return affiliateReg.setAffiliate.q('aff', chaithereum.accounts[0], chaithereum.accounts[1])
+    return affiliateReg.setAffiliate.q('aff', chaithereum.accounts[0], chaithereum.accounts[1]).should.be.fulfilled
   })
 
   it('should have correct owner for "aff"', () => {

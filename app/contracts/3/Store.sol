@@ -5,7 +5,6 @@ contract StoreOrderInterface{
 
 contract Store is forumable, audible, infosphered, permissioned, aliasable, ordered, approvesAliases{
 
-	OrderReg orderReg;
 	struct Product{
 		bool isActive;
 		uint teraprice;
@@ -24,13 +23,10 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 
 
 	function Store(
-		address orderRegAddr,
 		bytes32[] productParams,
 		bytes32[] transportParams,
 		bytes32[] _approvedAliases
 	){
-
-		orderReg = OrderReg(orderRegAddr);
 
 		for(uint i = 0; i< productParams.length; i=i+3){
 			products.push(Product(
@@ -41,7 +37,7 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 			));
 		}
 
-		for(uint j = 0; j< products.length; j=j+2){
+		for(uint j = 0; j< transportParams.length; j=j+2){
 			transports.push(Transport(
 				true,
 				uint(transportParams[j]),
@@ -74,7 +70,7 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 
 	function addProduct(uint teraprice, uint units, bytes32 fileHash){
 		requireOwnership();
-		products.push(Product(false, teraprice, units, fileHash));
+		products.push(Product(true, teraprice, units, fileHash));
 	}
 
 	function setProductIsActive(uint index, bool isActive){
@@ -115,7 +111,7 @@ contract Store is forumable, audible, infosphered, permissioned, aliasable, orde
 
 	function addTransport(uint teraprice, bytes32 fileHash){
 		requireOwnership();
-		transports.push(Transport(false, teraprice, fileHash));
+		transports.push(Transport(true, teraprice, fileHash));
 	}
 
 	function setTransportIsActive(uint index, bool isActive){

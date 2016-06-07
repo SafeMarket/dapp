@@ -1,33 +1,40 @@
 /* eslint no-unused-expressions: "off" */
-/* globals describe, it, before, web3, contracts, expect */
+/* globals describe, it, before */
 
 "use strict";
 
-let ordered
+const contracts = require('../modules/contracts')
+const chaithereum = require('../modules/chaithereum')
+
+before(() => {
+  return chaithereum.promise
+})
 
 describe('ordered', () => {
 
+  let ordered
+
   it('successfully instantiates', () => {
-    return web3.eth.contract(contracts.ordered.abi).new.q({ data: contracts.ordered.bytecode }).then((_ordered) => {
+    return chaithereum.web3.eth.contract(contracts.ordered.abi).new.q({ data: contracts.ordered.bytecode }).then((_ordered) => {
       ordered = _ordered
     }).should.eventually.be.fulfilled
   })
 
   it('has a non-zero address', () => {
-    expect(ordered.address).to.be.address
-    expect(ordered.address).to.not.be.zeros
+    chaithereum.chai.expect(ordered.address).to.be.address
+    chaithereum.chai.expect(ordered.address).to.not.be.zeros
   })
 
   it('cannot set order addr from accounts[1]', () => {
-    return ordered.setOrderRegAddr.q(web3.accounts[0], { from: web3.accounts[1] }).should.be.rejected
+    return ordered.setOrderRegAddr.q(chaithereum.accounts[0], { from: chaithereum.accounts[1] }).should.be.rejected
   })
 
   it('set order addr as accounts[0]', () => {
-    return ordered.setOrderRegAddr.q(web3.accounts[0]).should.be.fulfilled
+    return ordered.setOrderRegAddr.q(chaithereum.accounts[0]).should.be.fulfilled
   })
 
   it('cannot add order addr from non order reg', () => {
-    return ordered.addOrderAddr.q(1, { from: web3.accounts[1] }).should.be.rejected
+    return ordered.addOrderAddr.q(1, { from: chaithereum.accounts[1] }).should.be.rejected
   })
 
   it('can add order addr from order reg', () => {

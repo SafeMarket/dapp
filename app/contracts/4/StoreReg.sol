@@ -40,13 +40,14 @@ contract StoreReg is owned{
 	 ){
 
 		var store = new Store(
-			orderRegAddr,
 			productParams,
 			transportParams,
 			approvedSubmarkets
 		);
+
 		var storeAddr = address(store);
 		
+		store.setOrderReg(orderRegAddr);
 		store.setInfosphere(infosphereAddr);
 		store.setAliasReg(aliasRegAddr);
 

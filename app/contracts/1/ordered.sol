@@ -1,10 +1,12 @@
 contract ordered is owned{
 
-	address orderRegAddr;
+	OrderReg orderReg;
+	address public orderRegAddr;
 	address[] orderAddrs;
 
-	function setOrderRegAddr(address _orderRegAddr){
+	function setOrderReg(address _orderRegAddr){
 		requireOwnership();
+		orderReg = OrderReg(_orderRegAddr);
 		orderRegAddr = _orderRegAddr;
 	}
 

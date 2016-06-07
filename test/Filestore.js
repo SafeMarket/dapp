@@ -12,16 +12,10 @@ before(() => {
 
 describe('Filestore', () => {
 
-  let filestore
-  let file = '0x02'
-  let fileHash
-  let blockNumber
+  const file = '0x03'
+  const fileHash = chaithereum.web3.sha3(file)
 
-  beforeEach(() => {
-    return chaithereum.web3.eth.getBlockNumber.q().then((_blockNumber) => {
-      blockNumber = _blockNumber
-    })
-  })
+  let filestore
 
   it('successfully instantiates', () => {
     return chaithereum.web3.eth.contract(contracts.Filestore.abi).new.q({ data: contracts.Filestore.bytecode }).then((_filestore) => {
@@ -37,13 +31,13 @@ describe('Filestore', () => {
   it('can store file', (done) => {
     filestore.Store({ fileHash: fileHash }).watch((e, result) => {
       chaithereum.chai.expect(result.args.file).to.equal(file)
-      done()
+      done(e)
     })
     filestore.store.q(file).should.be.fulfilled
   })
 
   it('can retreive file block number', () => {
-    return filestore.getBlockNumber.q(fileHash).should.eventually.bignumber.equal(blockNumber)
+    return filestore.getBlockNumber.q(fileHash).should.eventually.be.bignumber.equal(chaithereum.blockNumber)
   })
 
 })
