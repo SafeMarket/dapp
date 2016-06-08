@@ -4,7 +4,7 @@
 "use strict";
 
 const contracts = require('../modules/contracts')
-const chaithereum = require('../modules/chaithereum')
+const chaithereum = require('chaithereum')
 
 before(() => {
   return chaithereum.promise
@@ -33,11 +33,21 @@ describe('Filestore', () => {
       chaithereum.chai.expect(result.args.file).to.equal(file)
       done(e)
     })
-    filestore.store.q(file).should.be.fulfilled
+    filestore.store.q(file)
   })
 
-  it('can retreive file block number', () => {
-    return filestore.getBlockNumber.q(fileHash).should.eventually.be.bignumber.equal(chaithereum.blockNumber)
+  it('can retreive file block number', (done) => {
+    chaithereum.web3.Q.all([
+      filestore.getBlockNumber.q(fileHash),
+      chaithereum.web3.eth.getBlockNumber.q()
+    ]).then((results) => {
+      try {
+        results[0].should.bignumber.equal(results[1])
+        done()
+      } catch (e) {
+        done(e)
+      }
+    })
   })
 
 })

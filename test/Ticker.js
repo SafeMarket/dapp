@@ -4,7 +4,7 @@
 "use strict";
 
 const contracts = require('../modules/contracts')
-const chaithereum = require('../modules/chaithereum')
+const chaithereum = require('chaithereum')
 
 before(() => {
   return chaithereum.promise
@@ -15,10 +15,9 @@ describe('Ticker', () => {
   let ticker
 
   it('successfully instantiates', () => {
-    return chaithereum.web3.eth.contract(contracts.Ticker.abi).new.q({ data: contracts.Ticker.bytecode }).then((_ticker) => {
+    return chaithereum.web3.eth.contract(contracts.Ticker.abi).new.q({ data: contracts.Ticker.bytecode }).should.eventually.be.contract.then((_ticker) => {
       ticker = _ticker
-    }, () => {
-    }).should.eventually.be.fulfilled
+    })
   })
 
   it('has a non-zero address', () => {

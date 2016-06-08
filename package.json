@@ -83,6 +83,7 @@
     "web3": "git+https://github.com/SafeMarket/web3.js.git#chaithereum"
   },
   "dependencies": {
+    "chaithereum": "0.0.0",
     "seek-bzip": "^1.0.5"
   }
 }

@@ -4,7 +4,7 @@
 "use strict";
 
 const contracts = require('../modules/contracts')
-const chaithereum = require('../modules/chaithereum')
+const chaithereum = require('chaithereum')
 
 before(() => {
   return chaithereum.promise
@@ -26,11 +26,11 @@ describe('ordered', () => {
   })
 
   it('cannot set order addr from accounts[1]', () => {
-    return ordered.setOrderRegAddr.q(chaithereum.accounts[0], { from: chaithereum.accounts[1] }).should.be.rejected
+    return ordered.setOrderReg.q(chaithereum.accounts[0], { from: chaithereum.accounts[1] }).should.be.rejected
   })
 
   it('set order addr as accounts[0]', () => {
-    return ordered.setOrderRegAddr.q(chaithereum.accounts[0]).should.be.fulfilled
+    return ordered.setOrderReg.q(chaithereum.accounts[0]).should.be.fulfilled
   })
 
   it('cannot add order addr from non order reg', () => {

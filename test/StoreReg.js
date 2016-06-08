@@ -4,7 +4,7 @@
 "use strict";
 
 const contracts = require('../modules/contracts')
-const chaithereum = require('../modules/chaithereum')
+const chaithereum = require('chaithereum')
 
 before(() => {
   return chaithereum.promise
@@ -81,7 +81,7 @@ describe('storeReg', () => {
       1,
       3,
       fileHash,
-      'alias',
+      'storealias',
       [1, 2, 3, 4, 5, 6].map(toBytes32),
       [1, 2, 3, 4].map(toBytes32),
       [1, 2].map(toBytes32)
@@ -107,6 +107,13 @@ describe('storeReg', () => {
         store.getUint.q('minProductsTeratotal').should.eventually.be.bignumber.equal(1),
         store.getUint.q('affiliateFeeCentiperun').should.eventually.bignumber.be.equal(3),
         store.getBytes32.q('fileHash').should.eventually.be.equal(fileHash)
+      ])
+    })
+
+    it('should have correct alias', () => {
+      return chaithereum.web3.Q.all([
+        aliasReg.getAlias.q(store.address).should.eventually.be.ascii('storealias'),
+        aliasReg.getAddr.q('storealias').should.eventually.equal(store.address)
       ])
     })
 

@@ -4,7 +4,7 @@
 "use strict";
 
 const contracts = require('../modules/contracts')
-const chaithereum = require('../modules/chaithereum')
+const chaithereum = require('chaithereum')
 
 before(() => {
   return chaithereum.promise
