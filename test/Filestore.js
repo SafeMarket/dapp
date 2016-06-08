@@ -18,19 +18,14 @@ describe('Filestore', () => {
   let filestore
 
   it('successfully instantiates', () => {
-    return chaithereum.web3.eth.contract(contracts.Filestore.abi).new.q({ data: contracts.Filestore.bytecode }).then((_filestore) => {
+    return chaithereum.web3.eth.contract(contracts.Filestore.abi).new.q({ data: contracts.Filestore.bytecode }).should.eventually.be.contract.then((_filestore) => {
       filestore = _filestore
     }).should.be.fulfilled
   })
 
-  it('has a non-zero address', () => {
-    chaithereum.chai.expect(filestore.address).to.be.address
-    chaithereum.chai.expect(filestore.address).to.not.be.zeros
-  })
-
   it('can store file', (done) => {
     filestore.Store({ fileHash: fileHash }).watch((e, result) => {
-      chaithereum.chai.expect(result.args.file).to.equal(file)
+      result.args.file.should.equal(file)
       done(e)
     })
     filestore.store.q(file)

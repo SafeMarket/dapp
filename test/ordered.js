@@ -15,14 +15,9 @@ describe('ordered', () => {
   let ordered
 
   it('successfully instantiates', () => {
-    return chaithereum.web3.eth.contract(contracts.ordered.abi).new.q({ data: contracts.ordered.bytecode }).then((_ordered) => {
+    return chaithereum.web3.eth.contract(contracts.ordered.abi).new.q({ data: contracts.ordered.bytecode }).should.eventually.be.contract.then((_ordered) => {
       ordered = _ordered
-    }).should.eventually.be.fulfilled
-  })
-
-  it('has a non-zero address', () => {
-    chaithereum.chai.expect(ordered.address).to.be.address
-    chaithereum.chai.expect(ordered.address).to.not.be.zeros
+    })
   })
 
   it('cannot set order addr from accounts[1]', () => {

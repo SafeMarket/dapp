@@ -15,7 +15,7 @@ describe('store', () => {
   let store
 
   it('successfully instantiates with blank params', () => {
-    return chaithereum.web3.eth.contract(contracts.Store.abi).new.q([], [], [], { data: contracts.Store.bytecode }).then((_store) => {
+    return chaithereum.web3.eth.contract(contracts.Store.abi).new.q([], [], [], { data: contracts.Store.bytecode }).should.eventually.be.contract.then((_store) => {
       store = _store
     }).should.eventually.be.fulfilled
   })

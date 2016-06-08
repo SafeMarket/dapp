@@ -15,14 +15,9 @@ describe('AliasReg', () => {
   let aliasReg
 
   it('successfully instantiates', () => {
-    return chaithereum.web3.eth.contract(contracts.AliasReg.abi).new.q({ data: contracts.AliasReg.bytecode }).then((_aliasReg) => {
+    return chaithereum.web3.eth.contract(contracts.AliasReg.abi).new.q({ data: contracts.AliasReg.bytecode }).should.eventually.be.contract.then((_aliasReg) => {
       aliasReg = _aliasReg
     }).should.be.fulfilled
-  })
-
-  it('has a non-zero address', () => {
-    chaithereum.chai.expect(aliasReg.address).to.be.address
-    chaithereum.chai.expect(aliasReg.address).to.not.be.zeros
   })
 
   it('cannot claim a blank alias', () => {

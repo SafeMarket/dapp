@@ -20,12 +20,6 @@ describe('Ticker', () => {
     })
   })
 
-  it('has a non-zero address', () => {
-    chaithereum.chai.expect(ticker.address).to.be.address
-    chaithereum.chai.expect(ticker.address).to.not.be.zeros
-  })
-
-
   it('can set prices', () => {
     return chaithereum.web3.Q.all([
       ticker.setPrice.q('P', 1),

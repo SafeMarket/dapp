@@ -42,7 +42,7 @@ describe('SubmarketReg', () => {
   })
 
   it('successfully instantiates', () => {
-    return chaithereum.web3.eth.contract(contracts.SubmarketReg.abi).new.q({ data: contracts.SubmarketReg.bytecode }).then((_submarketReg) => {
+    return chaithereum.web3.eth.contract(contracts.SubmarketReg.abi).new.q({ data: contracts.SubmarketReg.bytecode }).should.eventually.be.contract.then((_submarketReg) => {
       submarketReg = _submarketReg
     }).should.eventually.be.fulfilled
   })
@@ -64,8 +64,6 @@ describe('SubmarketReg', () => {
   it('should create a submarket', (done) => {
 
     submarketReg.Registration({}).watch((e, result) => {
-      chaithereum.chai.expect(result.args.submarketAddr).to.be.address
-      chaithereum.chai.expect(result.args.submarketAddr).to.not.be.zeros
       submarket = chaithereum.web3.eth.contract(contracts.Submarket.abi).at(result.args.submarketAddr)
       submarket.should.be.contract
       done(e)

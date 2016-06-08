@@ -42,9 +42,9 @@ describe('storeReg', () => {
   })
 
   it('successfully instantiates', () => {
-    return chaithereum.web3.eth.contract(contracts.StoreReg.abi).new.q({ data: contracts.StoreReg.bytecode }).then((_storeReg) => {
+    return chaithereum.web3.eth.contract(contracts.StoreReg.abi).new.q({ data: contracts.StoreReg.bytecode }).should.eventually.be.contract.then((_storeReg) => {
       storeReg = _storeReg
-    }).should.eventually.be.fulfilled
+    })
   })
 
   it('should set infosphere, alias reg, and order reg addr', () => {
@@ -66,9 +66,8 @@ describe('storeReg', () => {
   it('should create a store', (done) => {
 
     storeReg.Registration({}).watch((e, result) => {
-      chaithereum.chai.expect(result.args.storeAddr).to.be.address
-      chaithereum.chai.expect(result.args.storeAddr).to.not.be.zeros
       store = chaithereum.web3.eth.contract(contracts.Store.abi).at(result.args.storeAddr)
+      store.should.be.contract
       done(e)
     })
 

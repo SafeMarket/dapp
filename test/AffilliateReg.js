@@ -15,14 +15,9 @@ describe('AffiliateReg', () => {
   let affiliateReg
 
   it('successfully instantiates', () => {
-    return chaithereum.web3.eth.contract(contracts.AffiliateReg.abi).new.q({ data: contracts.AffiliateReg.bytecode }).then((_affiliateReg) => {
+    return chaithereum.web3.eth.contract(contracts.AffiliateReg.abi).new.q({ data: contracts.AffiliateReg.bytecode }).should.eventually.be.contract.then((_affiliateReg) => {
       affiliateReg = _affiliateReg
     }).should.be.fulfilled
-  })
-
-  it('has a non-zero address', () => {
-    chaithereum.chai.expect(affiliateReg.address).to.be.address
-    chaithereum.chai.expect(affiliateReg.address).to.not.be.zeros
   })
 
   it('should not have "aff" owner', () => {
