@@ -4,7 +4,7 @@ module.exports = function(grunt){
         "development":{
             "options":{
                 "rpcport":grunt.file.readYAML('config/geth.yml').development.rpcport
-                ,"contracts":"generated/contracts.json"
+                ,"contracts":"node_modules/safemarket-protocol/generated/contracts.json"
                 ,"chain":"config/development/chain.json"
                 ,"deploy":[
                    "AliasReg"
@@ -16,12 +16,12 @@ module.exports = function(grunt){
                     ,"OrderReg"
                 ],"onDeploy":{
                     "SubmarketReg":[
-                        'thisContract.setAliasRegAddr(chain.AliasReg.address)'
-                        ,'thisContract.setInfosphereAddr(chain.Infosphere.address)'
+                        'contracts["SubmarketReg"].setAliasRegAddr(chain.AliasReg.address)'
+                        ,'contracts["SubmarketReg"].setInfosphereAddr(chain.Infosphere.address)'
                     ]
                     ,"StoreReg":[
-                        'thisContract.setAliasRegAddr(chain.AliasReg.address)'
-                        ,'thisContract.setInfosphereAddr(chain.Infosphere.address)'
+                        'contracts["StoreReg"].setAliasRegAddr(chain.AliasReg.address)'
+                        ,'contracts["StoreReg"].setInfosphereAddr(chain.Infosphere.address)'
                     ]
                 }
             }

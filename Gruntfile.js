@@ -29,8 +29,6 @@ module.exports = function gruntfile(grunt) {
   ])
 
   grunt.registerTask('contracts', [
-    'concat:contracts',
-    'solc',
     'solc-output-deploy:development',
     'create-info-js'
   ])

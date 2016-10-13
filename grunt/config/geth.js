@@ -4,7 +4,7 @@ module.exports = function(grunt){
       options: {
         flags: grunt.file.readYAML("config/geth.yml").development
         ,commands:{
-          js: 'js/peer.js'
+          js: 'js/mine.js'
         }
       }
     },production:{

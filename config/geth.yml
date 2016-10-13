@@ -4,12 +4,13 @@ development:
   rpcaddr: 127.0.0.1
   rpcport: 8101
   rpccorsdomain: http://127.0.0.1:8000
-  genesis: config/development/genesis.json
   datadir: datadir/development/
   networkid: 5473
+  etherbase: 42c35b6c220d570bd8898a540406e0b026479f7b
   unlock: 42c35b6c220d570bd8898a540406e0b026479f7b
   password: config/development/password
   nodiscover: true
+  keystore: config/development/keystore
 production:
   rpc: true
   rpcaddr: 127.0.0.1
