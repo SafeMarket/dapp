@@ -16,7 +16,7 @@
     "tasks": ["concat:css", "copy:css"]
   },
   "contracts": {
-    "files": ["<%= files.contracts.src %>"],
+    "files": ["node_modules/safemarket-protocol/generated/contracts.json"],
     "tasks": ["contracts"]
   },
   "config": {

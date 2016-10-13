@@ -51,9 +51,6 @@
             ,"assets/slim/dist/fonts/glyphicons-halflings-regular.ttf"
         ]
     },
-    "contracts": {
-        "src": ["node_modules/safemarket-protocol/contracts/**/*.sol"]
-    },
     "electron": {
         "src": ["main.js","package.json"]
     },
