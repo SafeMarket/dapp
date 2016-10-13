@@ -5,8 +5,5 @@
   	},"css": {
     	"src": "<%= files.css.src %>"
     	,"dest": "generated/app.css"
-  	},"contracts": {
-    	"src": "<%= files.contracts.src %>"
-    	,"dest": "generated/contracts.sol"
   	}
 }
