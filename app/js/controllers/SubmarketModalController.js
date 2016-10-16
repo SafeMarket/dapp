@@ -74,7 +74,7 @@ angular.module('app').controller('SubmarketModalController', ($scope, ticker, gr
       }
 
       Submarket
-        .create(isOpen, $scope.currency, $scope.minTotal, $scope.escrowFeeCentiperun, meta, $scope.alias)
+        .create(user.getAccount(), isOpen, $scope.currency, $scope.minTotal, $scope.escrowFeeCentiperun, meta, $scope.alias)
         .then((_submarket) => {
           user.addSubmarket(_submarket.addr)
           user.save()

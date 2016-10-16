@@ -265,6 +265,7 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
   }
 
   function getContractAddressFromTxReceipt(txReciept) {
+    console.log(txReciept)
     return hexify(txReciept.logs[txReciept.logs.length - 1].data.substr(-40))
   }
 

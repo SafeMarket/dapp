@@ -1,7 +1,7 @@
 module.exports = function(grunt){
     grunt.registerTask('create-info-js',function(){
         var gethConfig = grunt.file.readYAML('config/geth.yml')
-            ,contracts = grunt.file.readJSON('generated/contracts.json').contracts
+            ,contracts = grunt.file.readJSON('node_modules/safemarket-protocol/generated/contracts.json').contracts
 
         Object.keys(gethConfig).forEach(function(env){
             var blockchain = gethConfig[env]

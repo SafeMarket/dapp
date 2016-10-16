@@ -28,7 +28,7 @@ module.exports = function(grunt){
         },"production":{
             "options":{
                 "rpcport":grunt.file.readYAML('config/geth.yml').production.rpcport
-                ,"contracts":"generated/contracts.json"
+                ,"contracts":"node_modules/safemarket-protocol/generated/contracts.json"
                 ,"chain":"config/production/chain.json"
                 ,"deploy":[
                     "AliasReg"

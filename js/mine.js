@@ -6,7 +6,7 @@ web3.eth.filter("pending").watch(function () {
   if (web3.eth.hashrate > 0) return;
 
   console.log("===== Pending transactions! Looking for next block... =====");
-  miner.start();
+  miner.start(1);
 });
 
 web3.eth.filter("latest").watch(function () {
@@ -35,4 +35,4 @@ function rich() {
   return balanceInEther.greaterThan(100)
 }
 
-miner.start()
+miner.start(1)
