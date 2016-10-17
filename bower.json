@@ -24,7 +24,6 @@
     "lodash": "~3.10.1",
     "msgpack-javascript": "*",
     "q": "1.0.1",
-    "openpgp": "1.*",
     "utf8": "~2.1.1",
     "validate": "~0.8.0",
     "crypto-js": "https://github.com/SafeMarket/crypto-js.git#~3.1.2",
@@ -32,6 +31,9 @@
     "angular-sanitize": "~1.4.7",
     "angular-ui-router": "~0.2.15",
     "tweetnacl": "^0.14.3",
-    "tweetnacl-util": "^0.13.3"
+    "tweetnacl-util": "^0.13.3",
+    "angular-promise-extras": "^0.1.6",
+    "iso-3166-country-codes-angular": "^1.2.1",
+    "flag-sprites": "^1.1.1"
   }
 }

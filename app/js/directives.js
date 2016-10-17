@@ -156,11 +156,11 @@ angular.module('app').directive('collapsable', () => {
   }
 })
 
-angular.module('app').directive('orderBook', () => {
+angular.module('app').directive('orders', () => {
   return {
-    templateUrl: 'orderBook.html',
-    controller: 'OrderBookController',
-    scope: { filter: '=orderBook' }
+    templateUrl: 'orders.html',
+    controller: 'OrdersController',
+    scope: { filter: '=orders' }
   }
 })
 
@@ -304,5 +304,71 @@ angular.module('app').directive('blockie', () => {
         $element[0].style.backgroundImage = `url(${dataUrl})`
       })
     }
+  }
+})
+
+angular.module('app').directive('coinageInput', (Coinage) => {
+  return {
+    scope: { currency: '=coinageInput' },
+    require: 'ngModel',
+    link($scope, $element, $attributes, $model) {
+      $model.$formatters.push((value) => {
+        if (value) {
+          return value.in($scope.currency).toString()
+        }
+      })
+      $model.$parsers.push((value) => {
+        if (value) {
+          return new Coinage(value, $scope.currency)
+        }
+      })
+      $scope.$watch('currency', (currency) => {
+        if (!currency || !$model.$$rawModelValue) { return }
+        $model.$setViewValue($model.$$rawModelValue.in(currency).toString())
+        $model.$commitViewValue()
+        $model.$render()
+      })
+    }
+  }
+})
+
+angular.module('app').directive('bigNumberInput', () => {
+  return {
+    require: 'ngModel',
+    link($scope, $element, $attributes, $model) {
+      $model.$formatters.push((value) => {
+        if (value) {
+          return value.toNumber()
+        }
+      })
+      $model.$parsers.push((value) => {
+        if (value) {
+          return web3.toBigNumber(value)
+        }
+      })
+    }
+  }
+})
+
+angular.module('app').directive('flag', () => {
+  return {
+    scope: {
+      countryCode: '=flag'
+    },
+    templateUrl: 'flag.html'
+  }
+})
+
+angular.module('app').directive('country', (ISO3166) => {
+  return {
+    scope: {
+      countryCode: '=country'
+    },
+    link($scope) {
+      $scope.$watch('countryCode', (countryCode) => {
+        $scope.countryName = ISO3166.codeToCountry[countryCode]
+      })
+    },
+    templateUrl: 'country.html'
   }
 })

@@ -1,6 +1,6 @@
 /* globals angular, _ */
 
-angular.module('app').controller('OrderController', ($scope, Order, pgp, user, $stateParams, modals) => {
+angular.module('app').controller('OrderController', ($scope, Order, user, $stateParams, modals, utils) => {
 
   $scope.order = new Order($stateParams.orderAddr)
 
@@ -11,41 +11,11 @@ angular.module('app').controller('OrderController', ($scope, Order, pgp, user, $
     isOrderUpdated = true
   })
 
-  function setMessagesAndUpdates() {
-
-    if (!isOrderUpdated) {
-      return
-    }
-
-    let messagesAndUpdates = []
-
-    if (Array.isArray($scope.order.messages)) {
-      messagesAndUpdates = messagesAndUpdates.concat($scope.order.messages)
-    }
-
-    if (Array.isArray($scope.order.updates)) {
-      messagesAndUpdates = messagesAndUpdates.concat($scope.order.updates)
-    }
-
-    $scope.messagesAndUpdates = messagesAndUpdates
-
-  }
-
-  $scope.$watch('order.messages', setMessagesAndUpdates, true)
-  $scope.$watch('order.updates', setMessagesAndUpdates, true)
-
-
   $scope.addMessage = function addMessage() {
-
-    const keys = _.map($scope.order.keys, (key) => { return key.key })
-
-    pgp.encrypt(keys, $scope.messageText).then((pgpMessage) => {
-      $scope.order.addMessage(pgpMessage).then(() => {
-        $scope.messageText = ''
-        $scope.order.update()
-      })
+    $scope.order.addMessage($scope.messageText).then(() => {
+      $scope.messageText = ''
+      $scope.order.update()
     })
-
   }
 
   $scope.cancel = function cancel() {
@@ -90,8 +60,8 @@ angular.module('app').controller('OrderController', ($scope, Order, pgp, user, $
     })
   }
 
-  $scope.leaveReview = function leaveReview() {
-    modals.openLeaveReview($scope.order).result.then(() => {
+  $scope.setReview = function setReview() {
+    modals.openSetReview($scope.order).result.then(() => {
       $scope.order.update()
     })
   }

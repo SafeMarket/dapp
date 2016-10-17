@@ -5,7 +5,7 @@ angular.module('app').controller('SettingsModalController', ($scope, growl, user
   $scope.seed = user.getSeed()
   $scope.accounts = user.getAccounts()
   $scope.account = user.getAccount()
-  $scope.currencies = Object.keys(ticker.rates)
+  $scope.currencies = Object.keys(ticker.prices)
   $scope.currency = user.getCurrency()
 
   $scope.recipientTypes = {
@@ -64,8 +64,6 @@ angular.module('app').controller('SettingsModalController', ($scope, growl, user
   $scope.setPrimaryKeypair = function setPrimaryKeypair(index) {
 
     const keypair = user.getKeypairs()[index]
-
-    console.log(keypair)
 
     txMonitor.propose('Set Your Primary Keypair', Keystore.setKey, [keypair.pk]).then(() => {
       $scope.keypair = user.getKeypair()

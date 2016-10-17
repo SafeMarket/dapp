@@ -1,29 +1,15 @@
 /* globals angular, blockchain, web3, contracts, deployer, _ */
 
-angular.module('app').service('ticker', function tickerService($interval, $http, $q, constants) {
+angular.module('app').service('ticker', function tickerService() {
 
-  console.log(constants)
+  this.contract = web3.eth.contract(contracts.Ticker.abi).at(contracts.Ticker.address)
 
-  let Infosphere
-  let tickerAddress
-
-  if (blockchain.env === 'production') {
-    Infosphere = web3.eth.contract(contracts.Infosphere.abi).at('0xaf527686227cc508ead0d69c7f8a98f76b63e191')
-    tickerAddress = '0xdc99b79555385ab2fe0ff28c3c954a07b28aac5e'
-  } else {
-    Infosphere = web3.eth.contract(contracts.Infosphere.abi).at(contracts.Infosphere.address)
-    tickerAddress = deployer
-  }
-
-  const symbols = ['CMC:TETH:USD', 'CMC:TETH:EUR', 'CMC:TETH:CNY', 'CMC:TETH:CAD', 'CMC:TETH:RUB', 'CMC:TETH:BTC']
-  const rates = { ETH: web3.toBigNumber('1') }
+  const symbols = ['WEI', 'ETH', 'USD', 'BTC', 'EUR', 'AUD', 'BGN', 'BRL', 'CAD', 'CHF', 'CNY', 'CZK', 'DKK', 'GBP', 'HKD', 'HRK', 'HUF', 'IDR', 'ILS', 'INR', 'JPY', 'KRW', 'MXN', 'MYR', 'NOK', 'NZD', 'PHP', 'PLN', 'RON', 'RUB', 'SEK', 'SGD', 'THB', 'TRY', 'ZAR'].sort()
+  const prices = {}
 
   symbols.forEach((symbol) => {
-    const currency = _.last(symbol.split(':'))
-    const rate = Infosphere.getUint(tickerAddress, symbol)
-    rates[currency] = rate.div(constants.tera)
+    prices[symbol] = this.contract.getPrice(symbol)
   })
 
-  rates.WEI = rates.ETH.times('1000000000000000000')
-  this.rates = rates
+  this.prices = prices
 })

@@ -9,14 +9,13 @@ angular.module('app').factory('Infosphered', (utils) => {
 
   Infosphered.prototype.getMartyrCalls = function getMartyrCalls(data) {
 
-    const infosphered = this
     const calls = []
 
     Object.keys(data).forEach((key) => {
 
       const newValue = data[key]
-      const currentValue = infosphered.getValue(key)
-      const type = infosphered.types[key]
+      const currentValue = this.getValue(key)
+      const type = this.types[key]
 
       if (newValue === currentValue) {
         return true
@@ -31,8 +30,8 @@ angular.module('app').factory('Infosphered', (utils) => {
       }
 
       calls.push({
-        address: infosphered.contract.address,
-        data: infosphered.contract[getInfospheredSetterName(type)].getData(key, newValue)
+        address: this.contract.address,
+        data: this.contract[getInfospheredSetterName(type)].getData(key, newValue)
       })
 
     })
@@ -54,7 +53,7 @@ angular.module('app').factory('Infosphered', (utils) => {
     const type = this.types[key]
 
     if (!type) {
-      throw new Error('${key} has no associate type')
+      throw new Error(`${key} has no associate type`)
     }
 
     const functionName = getInfospheredGetterName(type)

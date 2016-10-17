@@ -133,3 +133,11 @@ blockie{
     overflow: hidden;
     text-overflow:ellipsis;
 }
+
+.tbody-alternate tbody:not(:last-child){
+    border-bottom: 2px solid #ccc;
+}
+
+.tbody-alternate tbody:not(:last-child):nth-child(even){
+    background-color:#eee;
+}

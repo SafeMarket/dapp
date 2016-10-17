@@ -5,7 +5,9 @@
 	</tr>
 	<tr>
 		<td>Escrow Fee</td>
-		<td>{{submarket.infosphered.data.escrowFeeCentiperun.toNumber()}}%</td>
+		<td>
+			{{submarket.escrowFeeBase | coinage:userCurrency}} + {{submarket.infosphered.data.escrowFeeCentiperun.toNumber()}}%
+		</td>
 	</tr>
 	<tbody collapsable is-collapsed="true">
 		<tr>

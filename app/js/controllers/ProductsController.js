@@ -1,68 +1,75 @@
-/* globals angular, web3 */
+/* globals angular, web3, _ */
 
-angular.module('app').controller('ProductsController', ($scope, $filter, utils, Submarket, helpers, growl, user, Order, constants, Coinage) => {
+angular.module('app').controller('ProductsController', ($scope, $filter, utils, Submarket, helpers, growl, user, Order, constants, Coinage, orderReg) => {
 
   const currency = $scope.store.currency
 
-  $scope.productsTotal = new Coinage(0, currency)
-  $scope.total = new Coinage(0, currency)
+  $scope.safemarketFeeMilliperun = orderReg.contract.safemarketFeeMilliperun()
+
+  const noSubmarketOption = {
+    addr: constants.nullAddr,
+    label: 'No escrow (Free)',
+    escrowFeeBase: new Coinage(0, 'WEI'),
+    escrowFeeCentiperun: web3.toBigNumber(0)
+  }
+
+  $scope.$watch('store.updatePromise', () => {
+    console.log($scope)
+    $scope.store.updatePromise.then(() => {
+      $scope.products = $scope.store.products.map((product) => {
+        const _product = angular.copy(product)
+        _product.quantity = 0
+        return _product
+      })
+      $scope.products = $scope.store.products.map((product) => {
+        const _product = angular.copy(product)
+        _product.quantity = 0
+        return _product
+      })
+      $scope.transports = angular.copy($scope.store.transports)
+      $scope.transport = $scope.transports[0]
+
+      $scope.productsTotal = new Coinage(0, currency)
+      $scope.subtotal = new Coinage(0, currency)
+      $scope.safemarketFee = new Coinage(0, currency)
+      $scope.total = new Coinage(0, currency)
+    }, (err) => {
+      growl.addErrorMessage(err)
+    })
+
+    $scope.submarketOptions = [noSubmarketOption]
+
+    $scope.store.approvedAliases.forEach((alias) => {
+      const submarket = new Submarket(alias)
+      const escrowFeeBaseFormatted = submarket.escrowFeeBase.formattedIn(user.getCurrency())
+      const escrowFeeCentiperun = submarket.infosphered.data.escrowFeeCentiperun
+      submarket.updatePromise.then(() => {
+        $scope.submarketOptions.push({
+          addr: submarket.contract.address,
+          label: `@${submarket.alias} (${escrowFeeBaseFormatted} + ${escrowFeeCentiperun.toNumber()}%)`,
+          escrowFeeBase: submarket.escrowFeeBase,
+          escrowFeeCentiperun: escrowFeeCentiperun
+        })
+      })
+    })
+    $scope.submarketOption = $scope.submarketOptions[0]
+  })
 
   $scope.createOrder = function createOrder() {
 
     user.verifyKeypair()
 
     const buyer = user.getAccount()
-    const meta = {
-      products: [],
-      transport: {
-        id: $scope.transport.id,
-        type: $scope.transport.data.type,
-        price: $scope.transport.price.in(currency).toString()
-      }
-    }
-
     const storeAddr = $scope.store.addr
     const submarketAddr = $scope.submarketOption.addr
     const affiliate = utils.getAffiliate($scope.affiliateCodeOrAlias) || constants.nullAddr
-
-    let productsTotal = web3.toBigNumber(0)
 
     if ($scope.affiliateCodeOrAlias && affiliate === constants.nullAddr) {
       growl.addErrorMessage(`${$scope.affiliateCodeOrAlias} is not a valid affiliate`)
       return
     }
 
-    $scope.store.products.forEach((product) => {
-
-      if (product.quantity === 0) {
-        return true
-      }
-
-      meta.products.push({
-        id: product.id,
-        name: product.name,
-        price: product.price.in(currency).toString(),
-        quantity: product.quantity
-      })
-
-      productsTotal = productsTotal.plus(product.price.in(currency).times(product.quantity))
-    })
-
-    try {
-      Order.check(buyer, storeAddr, submarketAddr, affiliate, meta)
-    } catch (e) {
-      growl.addErrorMessage(e)
-      return
-    }
-
-    if (productsTotal.lessThan($scope.store.minTotal.in(currency))) {
-      growl.addErrorMessage(`You must order at least ${$scope.store.minTotal.formattedIn(user.getCurrency())} of products`)
-      return
-    }
-
-    const value = $scope.total.in('WEI').ceil()
-
-    Order.create(buyer, storeAddr, submarketAddr, affiliate, meta, value).then((order) => {
+    Order.create(buyer, storeAddr, submarketAddr, affiliate, $scope.products, $scope.transport.index, $scope.orderTotal.in('WEI'), $scope.total.in('WEI')).then((order) => {
       window.location.hash = `#/orders/${order.addr}`
       user.addOrder(order.addr)
       user.save()
@@ -70,44 +77,50 @@ angular.module('app').controller('ProductsController', ($scope, $filter, utils, 
 
   }
 
-  $scope.$watch('store.products', (products) => {
+  $scope.getTransportLabel = function getTransportLabel(transport) {
+    const userCurrency = user.getCurrency()
+    return `${transport.name} (${transport.price.formattedIn(userCurrency)})`
+  }
+
+  $scope.quantityChanged = function quantityChanged() {
 
     $scope.productsTotal = new Coinage(0, currency)
 
-    if (!products) {
+    if (!$scope.products) {
       return
     }
 
     let productsTotal = web3.toBigNumber(0)
 
-    products.forEach((product) => {
+    $scope.products.forEach((product) => {
       const subtotal = product.price.in(currency).times(product.quantity)
       productsTotal = productsTotal.plus(subtotal)
     })
 
     $scope.productsTotal = new Coinage(productsTotal, currency)
 
-  }, true)
+  }
 
   $scope.$watchGroup(['submarketOption', 'productsTotal', 'transport'], () => {
 
-    if (!$scope.transport) {
+    if (!$scope.transport || !$scope.productsTotal) {
       return
     }
 
-    const fee =
-      $scope.productsTotal.in(currency)
-        .plus($scope.transport.price.in(currency))
-        .times($scope.submarketOption.escrowFeeCentiperun)
-        .div(100)
+    const storeTotal = $scope.productsTotal.in(currency).plus($scope.transport.price.in(currency))
+    const escrowFee = storeTotal.times($scope.submarketOption.escrowFeeCentiperun).div(100).plus($scope.submarketOption.escrowFeeBase.in(currency))
+    $scope.escrowFee = new Coinage(escrowFee, currency)
 
-    $scope.fee = new Coinage(fee, currency)
+    const buffer = storeTotal.plus(escrowFee).times($scope.store.infosphered.data.bufferCentiperun).div(100)
+    $scope.buffer = new Coinage(buffer, currency)
 
-    const total =
-      $scope.productsTotal.in(currency)
-        .plus($scope.transport.price.in(currency))
-        .plus($scope.fee.in(currency))
+    const orderTotal = storeTotal.plus(escrowFee).plus(buffer)
+    $scope.orderTotal = new Coinage(orderTotal, currency)
 
+    const safemarketFee = orderTotal.times($scope.safemarketFeeMilliperun).div(1000)
+    $scope.safemarketFee = new Coinage(safemarketFee, currency)
+
+    const total = orderTotal.plus(safemarketFee)
     $scope.total = new Coinage(total, currency)
   })
 

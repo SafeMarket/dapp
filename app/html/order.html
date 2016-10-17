@@ -1,9 +1,19 @@
 <div class="container" id="order">
 	<h1>
-		<a ng-href="{{order.store.addr | url:'store'}}">{{order.store.meta.data.name}}</a> » Order {{order.addr.substr(0,6)}}...
+		<a ng-href="{{order.store.addr | url:'store'}}">{{order.store.meta.name}}</a> » Order {{order.addr.substr(0,6)}}...
 	</h1>
-	<div class="alert alert-info text-center" ng-show="order.status>=3">
-		<a ng-click="leaveReview()">Leave a review</a> for @{{order.store.addr | alias}}	
+	<div class="alert alert-info text-center" ng-show="order.status>=3 && order.review.blockNumber.equals(0)">
+		<a ng-click="setReview()">Leave a review</a> for @{{order.store.addr | alias}}	
+	</div>
+	<div class="panel panel-default" ng-show="!order.review.blockNumber.equals(0)">
+		<div class="panel-heading"><h3 class="panel-title">My Review</h3></div>
+		<div class="panel-body">
+			<blockquote>{{order.review.text}}</blockquote>
+		</div>
+		<div class="panel-footer clearfix">
+			<div timestamp="order.review.timestamp" class="pull-left"></div>
+			<a class="btn btn-default pull-right" ng-click="setReview()">Edit</a>
+		</div>
 	</div>
 	<table class="table">
 		<tr>
@@ -86,65 +96,54 @@
 			</tr>
 		</tbody>
 		<tr>
-			<td>Total</td>
+			<td>Product Total</td>
 			<td colspan="2">
 				<amounts
-					value="order.total.in(order.store.currency)"
-					from="order.store.currency"
+					value="order.productsTotal.in(order.storeCurrency)"
+					from="order.storeCurrency"
 					to="displayCurrencies">
 				</amounts>
 			</td>
 		</tr>
-		<tbody collapsable is-collapsed="true">
-			<tr>
-				<td>Product Total</td>
-				<td colspan="2">
-					<amounts
-						value="order.productsTotal.in(order.store.currency)"
-						from="order.store.currency"
-						to="displayCurrencies">
-					</amounts>
-				</td>
-			</tr>
-			<tr>
-				<td>Shipping ({{order.meta.transport.type}})</td>
-				<td colspan="2">
-					<amounts
-						value="order.transportPrice.in(order.store.currency)"
-						from="order.store.currency"
-						to="displayCurrencies">
-					</amounts>
-				</td>
-			</tr>
-			<tr>
-				<td>Submarket Escrow Fee ({{order.escrowFeeCentiperun.toNumber()}}%)</td>
-				<td colspan="2">
-					<amounts
-						value="order.escrowAmount"
-						from="'WEI'"
-						to="displayCurrencies">
-					</amounts>
-				</td>
-			</tr>
-			<tr>
-				<td>Affiliate Fee ({{order.affiliateFeeCentiperun.toNumber()}}%)</td>
-				<td colspan="2">
-					{{order.affiliate}}
-					<amounts
-						value="order.affiliateAmount"
-						from="'WEI'"
-						to="displayCurrencies">
-					</amounts>
-				</td>
-			</tr>
-		</tbody>
+		<tr>
+			<td>Shipping ({{order.transport.name}})</td>
+			<td colspan="2">
+				<amounts
+					value="order.transport.price.in(order.storeCurrency)"
+					from="order.storeCurrency"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+		<tr>
+			<td>Submarket Escrow Fee ({{order.escrowFeeBase | coinage:userCurrency}} + {{order.escrowFeeCentiperun.toNumber()}}%)</td>
+			<td colspan="2">
+				<amounts
+					value="order.escrowFee.in(order.submarketCurrency)"
+					from="order.submarketCurrency"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
+		<tr>
+			<td>Affiliate Fee ({{order.affiliateFeeCentiperun.toNumber()}}%)
+			<div><span class="short-addr text-small text-muted">{{order.affiliate}}</span></div>
+			</td>
+			<td colspan="2">
+				<amounts
+					value="order.affiliateAmount"
+					from="'WEI'"
+					to="displayCurrencies">
+				</amounts>
+			</td>
+		</tr>
 		<tr>
 			<td>Received ({{order.receivedPerun | perun}})
-			<div class="text-muted text-small" ng-show="order.received.greaterThan(0)">{{order.confirmations}}/{{order.confirmationsNeeded}} Confirmations</div>
+			<div class="text-muted text-small">{{order.confirmations.toString()}}/{{order.confirmationsNeeded.toString()}} Confirmations</div>
 			</td>
 			<td>
 				<amounts
-					value="order.received"
+					value="order.balance"
 					from="'WEI'"
 					to="displayCurrencies">
 				</amounts>
@@ -165,7 +164,7 @@
 	</table>
 	<h3>Products</h3>
 	<table class="table">
-		<tr ng-repeat="product in order.meta.products">
+		<tr ng-repeat="product in order.products">
 			<td>
 				{{product.name}}
 			</td>
@@ -174,31 +173,34 @@
 			</td>
 			<td>
 				<amounts
-					value="product.price"
-					from="order.store.currency"
+					value="product.price.in(order.storeCurrency)"
+					from="order.storeCurrency"
 					to="displayCurrencies">
 				</amounts>
 			</td>
 			<td>
-				x{{product.quantity}}
+				x{{product.quantity.toString()}}
 			</td>
 		</tr>
 	</table>
 	<h3>Messages</h3>
 	<p>Messages are encrypted and stored on the blockchain</p>
 	<table class="table">
-		<tr ng-repeat="messageOrUpdate in messagesAndUpdates" ng-class="{'update':messageOrUpdate.isUpdate,'message':messageOrUpdate.isMessage}">
+		<tr ng-repeat="messageOrUpdate in order.messagesAndUpdates" ng-class="{'update':messageOrUpdate.isUpdate,'message':messageOrUpdate.isMessage}">
 			<td>
-				<span ng-show="messageOrUpdate.isMessage">{{messageOrUpdate.from | capitalize}}:</span>
-				<span ng-show="messageOrUpdate.isUpdate">Update:</span>
+				<span ng-show="messageOrUpdate.isMessage">{{messageOrUpdate.role | role | capitalize}}</span>
+				<span ng-show="messageOrUpdate.isUpdate">Update</span>
+				<div class="text-small text-muted">
+					<span class="short-addr text-small text-muted">{{messageOrUpdate.sender}}</span>
+				</div>
 			</td>
 			<td>
-				<div ng-show="messageOrUpdate.ciphertext">
+				<div ng-show="messageOrUpdate.file">
 					<div ng-show="messageOrUpdate.text">{{messageOrUpdate.text}}</div>
-					<pre ng-show="!messageOrUpdate.text">{{messageOrUpdate.ciphertext}}</pre>
+					<pre ng-show="!messageOrUpdate.text">Unable to decrypt</pre>
 				</div>
 				<div ng-show="messageOrUpdate.status">
-					{{messageOrUpdate.from | capitalize}} has marked the order as {{messageOrUpdate.status | status | lowercase}}
+					{{messageOrUpdate.role | role | capitalize}} has marked the order as {{messageOrUpdate.status | status | lowercase}}
 				</div>
 			</td>
 			<td class="text-right" timestamp="messageOrUpdate.timestamp"></td>

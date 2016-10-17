@@ -13,8 +13,10 @@ module.exports = function(grunt){
 
         grunt.log.writeln('Account',options.from,'has a balance of',prettify(balance), 'ether')
 
+        console.log(balance.div('1000000000000').toFixed(4))
+
         var transferAmount = balance.div(10)
-            ,txHex = web3.eth.sendTransaction({to:options.to,value:transferAmount})
+            ,txHex = web3.eth.sendTransaction({to:options.to,value:transferAmount.toPrecision(15)})
             ,interval = setInterval(function(){
                 var tx = web3.eth.getTransaction(txHex)
 

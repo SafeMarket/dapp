@@ -1,32 +1,28 @@
 /* globals angular, web3 */
 
-angular.module('app').controller('SubmarketModalController', ($scope, ticker, growl, $modal, $modalInstance, submarket, user, helpers, utils, SubmarketReg, AliasReg, constants, Submarket) => {
+angular.module('app').controller('SubmarketModalController', ($scope, ticker, growl, $modal, $modalInstance, submarket, user, helpers, utils, SubmarketReg, AliasReg, constants, Submarket, Coinage) => {
 
   $scope.stores = []
 
-  $scope.currencies = Object.keys(ticker.rates)
+  $scope.currencies = Object.keys(ticker.prices)
 
   if (submarket) {
     $scope.alias = submarket.alias
     $scope.currency = submarket.currency
     $scope.isEditing = true
-    $scope.name = submarket.meta.data.name
-    $scope.info = submarket.meta.data.info
+    $scope.name = submarket.meta.name
+    $scope.info = submarket.meta.info
+    $scope.escrowFeeBase = angular.copy(submarket.escrowFeeBase)
     $scope.escrowFeeCentiperun = submarket.infosphered.data.escrowFeeCentiperun.toNumber()
     $scope.isOpen = submarket.infosphered.data.isOpen
-    $scope.minTotal = submarket.infosphered.data.minTotal.div(constants.tera)
+    $scope.escrowFeeBase = angular.copy(submarket.escrowFeeBase)
 
-    if (submarket.meta.data.storeAddrs) {
-      submarket.meta.data.storeAddrs.forEach((storeAddr) => {
-        $scope.stores.push({ alias: utils.getAlias(storeAddr) })
-      })
-    }
   } else {
     $scope.currency = user.getCurrency()
+    $scope.escrowFeeBase = new Coinage(0, $scope.currency)
     $scope.escrowFeeCentiperun = 3
     $scope.stores = []
     $scope.isOpen = true
-    $scope.minTotal = 0
   }
 
   $scope.cancel = function cancel() {
@@ -53,13 +49,15 @@ angular.module('app').controller('SubmarketModalController', ($scope, ticker, gr
       return
     }
 
+    const escrowFeeTerabase = $scope.escrowFeeBase.in($scope.currency).times(constants.tera)
+
     if (submarket) {
 
       submarket
         .set({
-          isOpen: isOpen,
+          isOpen,
           currency: $scope.currency,
-          minTotal: (web3.toBigNumber($scope.minTotal)).times(constants.tera),
+          escrowFeeTerabase,
           escrowFeeCentiperun: $scope.escrowFeeCentiperun
         }, meta, $scope.alias).then((_submarket) => {
           $modalInstance.close(_submarket)
@@ -74,7 +72,15 @@ angular.module('app').controller('SubmarketModalController', ($scope, ticker, gr
       }
 
       Submarket
-        .create(user.getAccount(), isOpen, $scope.currency, $scope.minTotal, $scope.escrowFeeCentiperun, meta, $scope.alias)
+        .create(
+          user.getAccount(),
+          isOpen,
+          $scope.currency,
+          escrowFeeTerabase,
+          $scope.escrowFeeCentiperun,
+          meta,
+          $scope.alias
+        )
         .then((_submarket) => {
           user.addSubmarket(_submarket.addr)
           user.save()

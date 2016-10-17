@@ -16,6 +16,26 @@ angular.module('app').filter('currency', (utils) => {
   }
 })
 
+angular.module('app').filter('coinage', (utils) => {
+  return function currencyFilter(coinage, currency) {
+    if (coinage === undefined) {
+      return undefined
+    }
+
+    return utils.formatCurrency(coinage.in(currency), currency, true)
+  }
+})
+
+angular.module('app').filter('bigNumber', () => {
+  return function bigNumberFilter(bigNumber) {
+    if (bigNumber === undefined) {
+      return undefined
+    }
+
+    return bigNumber.toString()
+  }
+})
+
 angular.module('app').filter('perun', () => {
   return function perunFilter(perun) {
     if (!isNaN(perun)) {
@@ -125,5 +145,16 @@ angular.module('app').filter('disputeSeconds', () => {
 angular.module('app').filter('alias', (utils) => {
   return function aliasFilter(addr) {
     return utils.getAlias(addr)
+  }
+})
+
+angular.module('app').filter('role', (utils) => {
+  return function roleFilter(role) {
+    switch (role) {
+      case 'buyer': return 'buyer'
+      case 'storeOwner': return 'store owner'
+      case 'submarketOwner': return 'submarketOwner'
+      case null: return 'unknown user'
+    }
   }
 })

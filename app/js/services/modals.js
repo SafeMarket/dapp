@@ -138,11 +138,11 @@ angular.module('app').service('modals', function modalsService($modal) {
     })
   }
 
-  this.openLeaveReview = function openLeaveReview(order) {
+  this.openSetReview = function openLeaveReview(order) {
     return openModal({
       size: 'md',
-      templateUrl: 'leaveReviewModal.html',
-      controller: 'LeaveReviewModalController',
+      templateUrl: 'setReviewModal.html',
+      controller: 'SetReviewModalController',
       resolve: {
         order: function resolveOrder() {
           return order

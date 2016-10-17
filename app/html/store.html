@@ -1,12 +1,12 @@
 <div alias-bar="{{store.alias}}"></div>
 <h1>
-	<span id="name">{{store.meta.data.name}}</span>
+	<span id="name">{{store.meta.name}}</span>
 	<button
 		ng-show="account === store.owner"
 		class="btn btn-default"
 		ng-click="openStoreModal(store)"
 	>
-		Edit
+		Edit Store
 	</button>
 </h1>
 <tabset>

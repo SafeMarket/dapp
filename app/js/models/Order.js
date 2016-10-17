@@ -1,38 +1,32 @@
 /* globals angular, contracts, web3 */
 
-angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key, KeyGroup, PgpMessageWrapper, txMonitor, user, OrderReg, constants, Coinage) => {
+angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key, KeyGroup, txMonitor, user, orderReg, constants, Coinage, filestore) => {
 
   function Order(addr) {
+    console.log(this)
     this.addr = addr
     this.contract = this.contractFactory.at(addr)
-    this.updatePromise = this.update()
+    this.update()
   }
-
-  window.Order = Order
 
   Order.prototype.bytecode = Order.bytecode = contracts.Order.bytecode
   Order.prototype.abi = Order.abi = contracts.Order.abi
   Order.prototype.contractFactory = Order.contractFactory = web3.eth.contract(Order.abi)
 
-  Order.create = function createOrder(buyer, storeAddr, submarketAddr, affiliate, meta, value) {
+  Order.create = function create(buyer, storeAddr, submarketAddr, affiliate, products, transportIndex, orderTotal, value) {
+
+    console.log(arguments)
 
     const deferred = $q.defer()
-    const store = new Store(storeAddr)
 
-    const parties = [web3.eth.defaultAccount, store.owner]
-    if (submarketAddr !== constants.nullAddr) {
-      const submarket = new Submarket(submarketAddr)
-      const submarketOwner = submarket.owner
-      parties.push(submarketOwner)
-    }
-
-    const keyGroup = new KeyGroup(parties)
-    const metaEncrypted = utils.encryptObject(meta, keyGroup.getPks(), user.getKeypair())
+    const _products = products.filter((product) => { return product.quantity > 0})
+    const productIndexes = _products.map((product) => { return product.index })
+    const productQuantities = _products.map((product) => { return product.quantity })
 
     txMonitor.propose(
       'Create a New Order',
-      OrderReg.create,
-      [buyer, storeAddr, submarketAddr, affiliate, 0, 0, metaEncrypted, { value: value }]
+      orderReg.contract.create,
+      [buyer, storeAddr, submarketAddr, affiliate, productIndexes, productQuantities, transportIndex, orderTotal, { value: value }]
     ).then((txReciept) => {
       const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
       deferred.resolve(new Order(contractAddress))
@@ -147,21 +141,31 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
   Order.prototype.update = function updateOrder() {
 
     const deferred = $q.defer()
-    const order = this
     const storeAddr = this.contract.storeAddr()
     const submarketAddr = this.contract.submarketAddr()
+    const promises = []
 
+    this.updatePromise = deferred.promise
     this.buyer = this.contract.buyer()
     this.affiliate = this.contract.affiliate()
     this.store = new Store(storeAddr)
+    this.storeCurrency = utils.toAscii(this.contract.storeCurrency())
     this.submarket = submarketAddr === constants.nullAddr ? null : new Submarket(submarketAddr)
+    this.submarketCurrency = utils.toAscii(this.contract.submarketCurrency()) || 'WEI'
+    this.escrowFeeBase = new Coinage(this.contract.escrowFeeTerabase().div(constants.tera), this.submarketCurrency)
     this.escrowFeeCentiperun = this.contract.escrowFeeCentiperun()
     this.affiliateFeeCentiperun = this.contract.affiliateFeeCentiperun()
+    this.bufferCentiperun = this.contract.bufferCentiperun()
+    this.storeTotal = new Coinage(this.contract.storeTeratotal().div(constants.tera), this.storeCurrency)
+    this.escrowFee = new Coinage(
+      this.escrowFeeBase.in(this.submarketCurrency).plus(
+        this.storeTotal.in(this.submarketCurrency).times(this.escrowFeeCentiperun).div(100)
+      ), this.submarketCurrency
+    )
     this.balance = web3.eth.getBalance(this.addr)
-    this.received = this.contract.getReceived()
     this.status = this.contract.status().toNumber()
-    this.createdAtBlockNumber = this.contract.createdAtBlockNumber()
-    this.createdAt = web3.eth.getBlock(this.createdAtBlockNumber).timestamp
+    this.blockNumber = this.contract.blockNumber()
+    this.createdAt = web3.eth.getBlock(this.blockNumber).timestamp
     this.shippedAt = this.contract.shippedAt().toNumber()
     this.disputeSeconds = this.contract.disputeSeconds().toNumber()
     this.disputeDeadline = this.disputeSeconds + this.shippedAt
@@ -173,83 +177,91 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.escrowAmount = amounts[2]
     this.affiliateAmount = amounts[3]
 
-    this.receivedAtBlockNumber = this.contract.receivedAtBlockNumber()
-    this.confirmations = this.receivedAtBlockNumber.minus(web3.eth.blockNumber).times('-1').toNumber()
-    this.confirmationsNeeded = this.received.div(web3.toWei(5, 'ether')).ceil().toNumber()
+    this.receivedAtBlockNumber = this.contract.blockNumber()
+    this.confirmations = this.blockNumber.minus(web3.eth.blockNumber).times('-1')
+    this.confirmationsNeeded = this.balance.div(web3.toWei(5, 'ether')).ceil()
 
-    this.messages = []
-    this.updates = []
+    this.products = this.getProducts()
+    this.transport = new Transport(this)
+
     this.keys = {}
     this.productsTotalInStoreCurrency = web3.toBigNumber(0)
 
-    order.keys.buyer = new Key(this.buyer)
-    order.keys.storeOwner = this.store.key
+    this.keys.buyer = new Key(this.buyer)
+    this.keys.storeOwner = this.store.key
 
     if (this.submarket) {
-      order.submarket.updatePromise.then((submarket) => {
-        order.keys.submarketOwner = submarket.key
+      this.submarket.updatePromise.then((submarket) => {
+        this.keys.submarketOwner = submarket.key
       })
+      promises.push(this.submarket.updatePromise)
     }
 
-    order.contract.Meta({}, { fromBlock: this.createdAtBlockNumber, toBlock: this.createdAtBlockNumber }).get((error, results) => {
 
-      if (error) {
-        return deferred.reject(error)
-      }
-
-      if (results.length === 0) {
-        return deferred.reject(new Error('no results found'))
-      }
-
-      const metaEncrypted = results[results.length - 1].args.meta
-      order.meta = utils.decryptToObject(metaEncrypted, user.getKeypairs())
-
-      let productsTotalInOrderCurrency = web3.toBigNumber(0)
-      order.meta.products.forEach((product) => {
-        const subtotal = web3.toBigNumber(product.price).times(product.quantity)
-        productsTotalInOrderCurrency = productsTotalInOrderCurrency.plus(subtotal)
-      })
-
-      order.productsTotal = new Coinage(productsTotalInOrderCurrency, order.store.currency)
-      order.transportPrice = new Coinage(order.meta.transport.price, order.store.currency)
-
-      const totalInStoreCurrency =
-        order.productsTotal.in(order.store.currency)
-          .plus(order.transportPrice.in(order.store.currency))
-          .times(order.escrowFeeCentiperun.div(100).plus(1))
-
-      order.total = new Coinage(totalInStoreCurrency, order.store.currency)
-      order.unpaid = order.total.in('WEI').minus(order.received)
-      order.receivedPerun = order.received.div(order.total.in('WEI'))
-
-      order.contract.Message({}, { fromBlock: 0, toBlock: 'latest' }).get((_error, _results) => {
-
-        _results.forEach((result) => {
-          const timestamp = web3.eth.getBlock(result.blockNumber).timestamp
-          order.messages.push(new Message(result.args.sender, web3.toAscii(result.args.text), timestamp, order))
-        })
-
-        order.contract.Update({}, { fromBlock: 0, toBlock: 'latest' }).get((__error, __results) => {
-          __results.forEach((result) => {
-            const timestamp = web3.eth.getBlock(result.blockNumber).timestamp
-            order.updates.push(new Update(result.args.sender, result.args.status.toNumber(), timestamp, order))
-          })
-
-          deferred.resolve(order)
-        })
-
-      })
-
+    let productsTotal = web3.toBigNumber(0)
+    this.products.forEach((product) => {
+      const subtotal = web3.toBigNumber(product.price.in(this.storeCurrency)).times(product.quantity)
+      productsTotal = productsTotal.plus(subtotal)
     })
 
+    this.productsTotal = new Coinage(productsTotal, this.storeCurrency)
+
+    this.receivedPerun = this.balance.div(this.storeTotal.in('WEI').plus(this.escrowFee.in('WEI')))
+
+    this.messages = this.getMessages()
+    this.updates = this.getUpdates()
+    this.messagesAndUpdates = this.messages.concat(this.updates)
+
+    this.review = {
+      blockNumber: this.contract.reviewBlockNumber(),
+      isSet: this.contract.reviewBlockNumber().greaterThan(0),
+      storeScore: this.contract.reviewStoreScore().toNumber(),
+      submarketScore: this.contract.reviewSubmarketScore().toNumber(),
+      fileHash: this.contract.reviewFileHash()
+    }
+
+    if (this.review.isSet) {
+      this.review.timestamp = web3.eth.getBlock(this.review.blockNumber).timestamp
+      const reviewPromise = filestore.fetchFile(this.review.fileHash).then((file) => {
+        this.review.file = file
+        const data = utils.convertHexToObject(file)
+        this.review.text = data.text
+      })
+      promises.push(reviewPromise)
+    }
+
+    this.messages.forEach((message) => {
+      promises.push(message.promise)
+    })
+
+    $q.all(promises).then(() => {
+      deferred.resolve(this)
+    })
 
     return deferred.promise
-
   }
 
-  Order.prototype.addMessage = function addOrderMessage(pgpMessage) {
-    const ciphertext = pgpMessage.packets.write()
-    return txMonitor.propose('Add a Message', this.contract.addMessage, [ciphertext])
+  Order.prototype.getPks = function getPks() {
+    return Object.keys(this.keys).map((role) => {
+      return this.keys[role].pk
+    })
+  }
+
+  Order.prototype.addMessage = function addOrderMessage(text) {
+    const crystalHex = utils.encrypt(text, this.getPks(), user.getKeypair())
+    const crystalHexHash = utils.sha3(crystalHex)
+    const filestoreCalls = filestore.getMartyrCalls([crystalHex])
+    const addMessageCalls = [{
+      address: this.contract.address,
+      data: this.contract.addMessage.getData(crystalHexHash, user.getAccount())
+    }]
+    const allCalls = filestoreCalls.concat(addMessageCalls)
+
+    return utils.fetchMartyrData(allCalls).then((martyrData) => {
+      return txMonitor.propose('Add a Message', web3.eth.sendTransaction, [{
+        data: martyrData
+      }])
+    })
   }
 
   Order.prototype.withdraw = function withdrawOrder(amount) {
@@ -268,51 +280,170 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     return deferred.promise
   }
 
-  Order.prototype.leaveReview = function leaveOrderReview(score, text) {
+  Order.prototype.setReview = function leaveOrderReview(storeScore, submarketScore, text) {
     const dataHex = utils.convertObjectToHex({
       text: text
     })
+    const dataHash = utils.sha3(dataHex)
 
-    return txMonitor.propose('Leave a Review', this.store.contract.leaveReview, [this.addr, score, dataHex])
+    const filestoreCalls = filestore.getMartyrCalls([dataHex])
+    const setReviewCalls = [{
+      address: this.contract.address,
+      data: this.contract.setReview.getData(storeScore, submarketScore, dataHash)
+    }]
+    const allCalls = filestoreCalls.concat(setReviewCalls)
+    
+    return utils.fetchMartyrData(allCalls).then((martyrData) => {
+      return txMonitor.propose('Set a Review', web3.eth.sendTransaction, [{ data: martyrData }])
+    })
+
   }
 
   Order.prototype.getRoleForAddr = function getOrderRoleForAddr(addr) {
+    const submarketOwner = this.submarket ? this.submarket.owner : constants.nullAddr
+
     switch (addr) {
       case this.buyer:
         return 'buyer'
       case this.store.owner:
         return 'storeOwner'
-      case this.submarket.owner:
+      case submarketOwner:
         return 'submarketOwner'
       default:
         return null
     }
   }
 
-  function Message(sender, ciphertext, timestamp, order) {
+  Order.prototype.getMessages = function getMessages() {
+    const messages = []
+    const messagesLength = this.contract.getMessagesLength()
 
-    this.sender = sender
-    this.from = order.getRoleForAddr(sender)
-    this.ciphertext = ciphertext
-    this.pgpMessageWrapper = new PgpMessageWrapper(ciphertext)
-    this.timestamp = timestamp
-    this.text = this.pgpMessageWrapper.text
+    for (let i = 0; i < messagesLength; i++) {
+      messages.push(new Message(this, i))
+    }
+
+    return messages
+  }
+
+  Order.prototype.getUpdates = function getUpdates() {
+    const updates = []
+    const updatesLength = this.contract.getUpdatesLength()
+
+    for (let i = 0; i < updatesLength; i++) {
+      updates.push(new Update(this, i))
+    }
+
+    return updates
+  }
+
+  Order.byFilter = function byFilter(filter, startIndex, length) {
+    let orderAddrs = []
+
+    if (!filter) {
+      orderAddrs = orderReg.getAddrs(startIndex, length)
+    } else if (filter.storeAddr) {
+      orderAddrs = orderReg.getAddrsByStoreAddr(filter.storeAddr, startIndex, length)
+    } else if (filter.submarketAddr) {
+      orderAddrs = orderReg.getAddrsBySubmarketAddr(filter.submarketAddr, startIndex, length)
+    }
+
+    const orders = orderAddrs.map((orderAddr) => {
+      return new Order(orderAddr)
+    })
+
+    return orders
+  }
+
+  function Message(order, index) {
+    this.order = order
+    this.index = index
+    this.updatePromise = this.update()
+  }
+
+  Message.prototype.update = function update() {
+    const deferred = $q.defer()
+    this.blockNumber = this.order.contract.getMessageBlockNumber(this.index)
+    this.timestamp = web3.eth.getBlock(this.blockNumber).timestamp
+    this.sender = this.order.contract.getMessageSender(this.index)
+    this.role = this.order.getRoleForAddr(this.sender)
+    this.fileHash = this.order.contract.getMessageFileHash(this.index)
+    filestore.fetchFile(this.fileHash).then((file) => {
+      this.file = file
+      this.text = web3.toAscii(utils.convertBytesToHex(utils.decrypt(this.file, user.getKeypairs())))
+      deferred.resolve(this)
+    })
+    return deferred.promise
 
   }
 
-  function Update(sender, status, timestamp, order) {
-
-    this.sender = sender
-    this.from = order.getRoleForAddr(sender)
-    this.status = status
-    this.timestamp = timestamp
-
+  function Update(order, index) {
+    this.order = order
+    this.index = index
+    this.blockNumber = this.order.contract.getUpdateBlockNumber(this.index)
+    this.timestamp = web3.eth.getBlock(this.blockNumber).timestamp
+    this.sender = this.order.contract.getUpdateSender(this.index)
+    this.role = this.order.getRoleForAddr(this.sender)
+    this.status = this.order.contract.getUpdateStatus(this.index)
   }
 
   Update.prototype.isUpdate = true
   Update.prototype.isMessage = false
   Message.prototype.isUpdate = false
   Message.prototype.isMessage = true
+
+  Order.prototype.getProducts = function getStoreProducts() {
+
+    const products = []
+    const productsLength = this.contract.getProductsLength()
+
+    for (let i = 0; i < productsLength; i++) {
+      products.push(new Product(this, i))
+    }
+
+    return products
+  }
+
+  function Product(order, index) {
+    this.order = order
+    this.index = index
+    this.updatePromise = this.update()
+  }
+
+  Product.prototype.update = function update() {
+    const deferred = $q.defer()
+    this.teraprice = this.order.contract.getProductTeraprice(this.index)
+    this.price = new Coinage(this.teraprice.div(constants.tera), this.order.storeCurrency)
+    this.fileHash = this.order.contract.getProductFileHash(this.index)
+    this.quantity = this.order.contract.getProductQuantity(this.index)
+    filestore.fetchFile(this.fileHash).then((file) => {
+      this.file = file
+      const data = utils.convertHexToObject(file)
+      this.name = data.name
+      this.info = data.info
+      this.img = data.img
+      deferred.resolve(this)
+    })
+    return deferred.promise
+  }
+
+  function Transport(order) {
+    this.order = order
+    this.updatePromise = this.update()
+  }
+
+  Transport.prototype.update = function update() {
+    const deferred = $q.defer()
+    this.teraprice = this.order.contract.transportTeraprice()
+    this.price = new Coinage(this.teraprice.div(constants.tera), this.order.storeCurrency)
+    this.fileHash = this.order.contract.transportFileHash()
+    filestore.fetchFile(this.fileHash).then((file) => {
+      this.file = file
+      const data = utils.convertHexToObject(file)
+      this.name = data.name
+      deferred.resolve(this)
+    })
+    return deferred.promise
+  }
 
   return Order
 

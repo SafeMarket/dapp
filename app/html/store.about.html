@@ -4,12 +4,30 @@
 		<td>{{store.infosphered.data.isOpen ? 'Open' : 'Closed'}}</td>
 	</tr>
 	<tr>
+		<td>Location</td>
+		<td country="store.meta.base"></td>
+	</tr>
+	<tr>
+		<td>Shipping</td>
+		<td>
+			<div ng-repeat="transport in store.transports">
+				<span ng-if="!transport.isGlobal" country="transport.to"></span>
+				<span ng-if="transport.isGlobal">Globally</span>
+				({{transport.name}})
+			</div>
+		</td>
+	</tr>
+	<tr>
 		<td>Dispute Resolution Time</td>
 		<td>{{store.infosphered.data.disputeSeconds | disputeSeconds}}</td>
 	</tr>
 	<tr>
-		<td>Minimum Total Order Size</td>
-		<td><amounts value="store.minTotal.in(store.currency)" from="store.currency" to="displayCurrencies"></amounts></td>
+		<td>Exchange Rate Buffer</td>
+		<td>{{store.infosphered.data.bufferCentiperun.toNumber()}}%</td>
+	</tr>
+	<tr>
+		<td>Minimum Products Total</td>
+		<td><amounts value="store.minProductsTotal.in(store.currency)" from="store.currency" to="displayCurrencies"></amounts></td>
 	</tr>
 	<tr>
 		<td>Affiliate Fee</td>

@@ -26,13 +26,16 @@
             </td>
         </tr>
         <tr>
-            <td>Info</td>
+            <td>Escrow Fee (Base)</td>
             <td>
-                <textarea ng-model="info" class="form-control"></textarea>
+                <div class="input-group">
+                    <input type="text" ng-model="escrowFeeBase" class="form-control" numeric-input coinage-input="currency">
+                    <div class="input-group-addon">{{currency}}</div>
+                </div>
             </td>
         </tr>
         <tr>
-            <td>Fee: <span ng-cloak>{{escrowFeeCentiperun}}</span>%</td>
+            <td>Escrow Fee (Percentage) <span ng-cloak>{{escrowFeeCentiperun}}</span>%</td>
             <td>
                 <input type="range" ng-model="escrowFeeCentiperun" class="form-control" min="0" max="10" step="1">
             </td>
@@ -42,7 +45,13 @@
             <td>
                 <input type="checkbox" ng-model="isOpen">
             </td>
-        </tr>        
+        </tr>
+        <tr>
+            <td>Info</td>
+            <td>
+                <textarea ng-model="info" class="form-control"></textarea>
+            </td>
+        </tr>      
     </table>
     <h3>Approved Stores <button class="btn btn-primary btn-xs" ng-click="stores.push({})">+</button></h3>
     <table class="table">   

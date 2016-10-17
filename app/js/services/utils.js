@@ -1,6 +1,6 @@
 /* globals angular, Module, cryptocoin, web3, contracts, msgpack, abi, validate, nacl */
 
-angular.module('app').service('utils', function utilsService(ticker, $q, $timeout, AliasReg, AffiliateReg, constants) {
+angular.module('app').service('utils', function utilsService(ticker, $q, $timeout, AliasReg, AffiliateReg, constants, $http) {
 
   const utils = this
 
@@ -13,6 +13,13 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
       return string
     }
     return `0x${string}`
+  }
+
+  function toBytes32(thing) {
+    const hex = web3.toHex(thing)
+    const hexWithout0x = hex.replace('0x', '')
+    const missingZeros = '0'.repeat(66 - hex.length)
+    return `0x${missingZeros}${hexWithout0x}`
   }
 
   function dehexify(string) {
@@ -134,14 +141,14 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
       to: currencies.to
     }, {
       amount: { presence: true, type: 'string', numericality: {} },
-      from: { presence: true, inclusion: Object.keys(ticker.rates), type: 'string' },
-      to: { presence: true, inclusion: Object.keys(ticker.rates), type: 'string' }
+      from: { presence: true, inclusion: Object.keys(ticker.prices), type: 'string' },
+      to: { presence: true, inclusion: Object.keys(ticker.prices), type: 'string' }
     })
 
     amount =
       web3.toBigNumber(amount)
-        .div(ticker.rates[currencies.from])
-        .times(ticker.rates[currencies.to])
+        .times(ticker.prices[currencies.from])
+        .div(ticker.prices[currencies.to])
 
     if (currencies.to === 'WEI') {
       amount = amount.ceil()
@@ -155,7 +162,11 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     const prefix = doPrefix ? ` ${currency}` : ''
     const places = currency === 'ETH' ? 6 : 2
 
-    return amount.toFixed(places).toString() + prefix
+    const amountStringWithoutCommas = amount.toFixed(places).toString()
+    const amountBeforePeriod = amountStringWithoutCommas.split('.')[0]
+    const amountAfterPeriod = amountStringWithoutCommas.split('.')[1]
+
+    return amountBeforePeriod.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '.' + amountAfterPeriod + prefix
 
   }
 
@@ -283,11 +294,15 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     return hexify(cryptocoin.convertHex.bytesToHex(new Uint8Array(callDataBytes)))
   }
 
-  function getMartyrData(calls) {
+  function fetchMartyrData(calls) {
 
+    console.log(calls)
+
+    const deferred = $q.defer()
     const callCodes = []
+    const inputParams = []
 
-    calls.forEach((call) => {
+    calls.forEach((call, i) => {
       if (!call.address) {
         throw new Error('Call object needs an address')
       }
@@ -296,20 +311,43 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
         throw new Error('Call object needs data')
       }
 
-      const splitterRegex = (call.data.length % 2 === 0) ? /(?=(?:..)*$)/ : /(?=(?:..)*.$)/
-      let byteString = dehexify(call.data).split(splitterRegex).join('\\x')
-      byteString = `\\x${byteString}`
-      const saveAs = call.saveAs ? `${call.saveAs} = ` : ''
-
-      callCodes.push(`temp = "${byteString}";`)
-      callCodes.push(`${saveAs}address(${call.address}).call(temp);`)
+      const callDataVar = `callData${i}`
+      inputParams.push(`bytes ${callDataVar}`)
+      callCodes.push(`address(${call.address}).call(${callDataVar});`)
 
     })
 
-    const solCode = `contract Martyr{\r\nfunction Martyr() { bytes memory temp; \r\n${callCodes.join('\r\n')}\r\n}\r\n}`
-    const bytecode = web3.eth.compile.solidity(solCode).Martyr.code
+    const solCode = `contract Martyr{\r\nfunction Martyr(${inputParams.join(', ')}) { \r\n${callCodes.join('\r\n')}\r\n}\r\n}`
 
-    return hexify(bytecode)
+    console.log(solCode)
+
+    $http({
+      method: 'GET',
+      url: '/api/compile',
+      params: {
+        solCode: solCode
+      }
+    }).then((response) => {
+      if (response.data.errors && response.data.errors.length > 0) {
+        deferred.reject(new Error(response.data.errors[0]))
+      } else {
+        const martyrFactory = web3.eth.contract(JSON.parse(response.data.contracts.Martyr.interface))
+        const getDataParams = calls.map((call) => {
+          return hexify(call.data.replace('0x', ''))
+        }).concat({
+          data: hexify(response.data.contracts.Martyr.bytecode)
+        })
+
+        console.log(getDataParams)
+        console.log(martyrFactory.new.getData.apply(martyrFactory, getDataParams))
+
+        deferred.resolve(martyrFactory.new.getData.apply(martyrFactory, getDataParams))
+      }
+    }, (err) => {
+      deferred.reject(err)
+    })
+
+    return deferred.promise
   }
 
   function getFunctionHash(name, types) {
@@ -351,6 +389,18 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
 
   function encrypt(msg, pks, keypair) {
 
+    let _msg
+
+    if (typeof msg === 'string') {
+      if (msg.indexOf('0x') === 0) {
+        _msg = convertHexToBytes(msg)
+      } else {
+        _msg = convertHexToBytes(web3.fromAscii(msg))
+      }
+    } else {
+      _msg = msg
+    }
+
     const crystalObject = {
       pk: keypair.pk,
       packets: {}
@@ -359,7 +409,7 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     pks.forEach((pk) => {
 
       const nonce = nacl.randomBytes(nacl.box.nonceLength)
-      const ciphertext = nacl.box(new Uint8Array(msg), new Uint8Array(nonce), new Uint8Array(pk), new Uint8Array(keypair.sk))
+      const ciphertext = nacl.box(new Uint8Array(_msg), new Uint8Array(nonce), new Uint8Array(pk), new Uint8Array(keypair.sk))
       const pkId = getKeyId(pk)
 
       crystalObject.packets[pkId] = { nonce: Array.from(nonce), ciphertext: Array.from(ciphertext) }
@@ -408,6 +458,11 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     return convertBytesToObject(decrypt(hex, keypairs))
   }
 
+  function sha3(thing) {
+    const thingHex = web3.toHex(thing)
+    return hexify(`${web3.sha3(thingHex, { encoding: 'hex' })}`)
+  }
+
   angular.merge(this, {
     sanitize,
     convertObjectToHex,
@@ -438,7 +493,7 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     getContract,
     getContractAddressFromTxReceipt,
     getFunctionHash,
-    getMartyrData,
+    fetchMartyrData,
     hexify,
     dehexify,
     getAliasedMartyrCalls,
@@ -449,7 +504,9 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     encrypt,
     encryptObject,
     decrypt,
-    decryptToObject
+    decryptToObject,
+    sha3,
+    toBytes32
   })
 
 })

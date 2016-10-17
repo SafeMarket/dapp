@@ -1,32 +1,25 @@
 /* globals angular */
 
-angular.module('app').factory('Meta', (utils, $q) => {
+angular.module('app').factory('Meta', (utils, $q, filestore) => {
 
-  function Meta(contract) {
-    this.contract = contract
+  function Meta(parent) {
+    this.parent = parent
   }
 
   Meta.prototype.update = function updateMeta() {
 
     const deferred = $q.defer()
     const meta = this
-    const metaUpdatedAt = this.contract.metaUpdatedAt()
 
-    this.contract.Meta({}, { fromBlock: metaUpdatedAt, toBlock: metaUpdatedAt }).get((error, results) => {
+    filestore.fetchFile(this.parent.infosphered.data.metaHash).then((file) => {
 
-      if (error) {
-        return deferred.reject(error)
-      }
-
-      if (results.length === 0) {
-        return deferred.reject(new Error('no results found'))
-      }
-
-      meta.hex = results[results.length - 1].args.meta
-      meta.data = utils.convertHexToObject(results[results.length - 1].args.meta)
+      meta.hex = file
+      meta.data = utils.convertHexToObject(file)
 
       deferred.resolve(meta)
 
+    }, (err) => {
+      deferred.reject(err)
     })
 
     return deferred.promise
@@ -41,12 +34,13 @@ angular.module('app').factory('Meta', (utils, $q) => {
       return []
     }
 
-    return [{
-      address: this.contract.address,
-      data: this.contract.setMeta.getData(hex)
-    }]
+    return filestore.getMartyrCalls([hex]).concat({
+      address: this.parent.contract.address,
+      data: this.parent.contract.setBytes32.getData('metaHash', utils.sha3(hex))
+    })
+
   }
 
-
   return Meta
-});
+
+})

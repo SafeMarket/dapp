@@ -18,3 +18,4 @@ datadir/**/*
 !datadir/development/keystore/*
 config/production/password
 config/production/githubToken
+config/development/chain.json

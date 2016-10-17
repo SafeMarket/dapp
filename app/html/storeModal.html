@@ -27,9 +27,21 @@
                 </td>
             </tr>
             <tr>
+                <td>Location (Ships From) <span flag="base"></span></td>
+                <td>
+                    <select type="text" ng-model="base" class="form-control" ng-options="code as name for (code, name) in countries"></select>
+                </td>
+            </tr>
+            <tr>
                 <td>Currency</td>
                 <td>
                     <select type="text" ng-model="currency" class="form-control" ng-options="currency for currency in currencies"></select>
+                </td>
+            </tr>
+            <tr>
+                <td>Exchange Rate Buffer: <span ng-cloak>{{bufferCentiperun}}</span>%</td>
+                <td>
+                    <input type="range" ng-model="bufferCentiperun" class="form-control" min="0" max="300" step="1">
                 </td>
             </tr>
             <tr>
@@ -41,12 +53,10 @@
                 </td>
             </tr>
             <tr>
-                <td>Minimum Total Order
-                    <p class="text-muted text-small">Not Including Shipping</p>
-                </td>
+                <td>Minimum Products Total</td>
                 <td>
                     <div class="input-group">
-                        <input type="text" ng-model="minTotal" class="form-control" numeric-input>
+                        <input type="text" ng-model="minProductsTotal" class="form-control" numeric-input coinage-input="currency">
                         <div class="input-group-addon">{{currency}}</div>
                     </div>
                 </td>
@@ -71,8 +81,9 @@
                 </td>
             </tr> 
         </table>
+        <div>
         <h3>Products</h3>
-        <table class="table">   
+        <table class="table tbody-alternate">   
             <tbody ng-repeat="product in products">
                 <tr>
                     <td>Name</td>
@@ -84,9 +95,15 @@
                     <td>Price</td>
                     <td>
                         <div class="input-group">
-                            <input type="text" ng-model="product.price" class="form-control" numeric-input>
+                            <input coinage-input="currency" type="text" ng-model="product.price" class="form-control" numeric-input>
                             <div class="input-group-addon">{{currency}}</div>
                         </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Units Available</td>
+                    <td>
+                        <input big-number-input type="number" ng-model="product.units" class="form-control" min="0">
                     </td>
                 </tr>
                 <tr>
@@ -98,10 +115,16 @@
                 <tr>
                     <td>Image URL</td>
                     <td>
-                        <input type="text" ng-model="product.imageUrl" class="form-control">
+                        <input type="text" ng-model="product.img" class="form-control">
                     </td>
                 </tr>
-                <tr>
+                <tr ng-show="product.index!==undefined">
+                    <td>Active</td>
+                    <td>
+                        <input type="checkbox" ng-model="product.isActive">
+                    </td>
+                </tr>
+                <tr ng-show="product.index===undefined">
                     <td colspan="2" class="text-right">
                         <button class="btn btn-danger btn-sm" ng-click="products.splice($index,1)">Delete</button>
                     </td>
@@ -112,24 +135,38 @@
             </td></tr>
         </table>
         <h3>Transport Options</h3>
-        <table class="table">   
+        <table class="table tbody-alternate">   
             <tbody ng-repeat="transport in transports">
                 <tr>
-                    <td>Type</td>
+                    <td>Name</td>
                     <td>
-                        <input type="text" ng-model="transport.type" class="form-control">
+                        <input type="name" ng-model="transport.name" class="form-control">
                     </td>
                 </tr>
                 <tr>
                     <td>Price</td>
                     <td>
                         <div class="input-group">
-                            <input type="text" ng-model="transport.price" class="form-control" numeric-input>
+                            <input coinage-input="currency" type="text" ng-model="transport.price" class="form-control" numeric-input>
                             <div class="input-group-addon">{{currency}}</div>
                         </div>
                     </td>
                 </tr>
+
                 <tr>
+                    <td>Ships To <span flag="transport.to" ng-show="!transport.isGlobal"></span></td>
+                    <td>
+                        <label><input type="checkbox" ng-model='transport.isGlobal'> Anywhere in the World</label>
+                        <select type="text" ng-model="transport.to" class="form-control" ng-options="code as name for (code, name) in countries" ng-show="!transport.isGlobal"></select>
+                    </td>
+                </tr>
+                <tr ng-show="transport.index!==undefined">
+                    <td>Active</td>
+                    <td>
+                        <input type="checkbox" ng-model="transport.isActive">
+                    </td>
+                </tr>
+                <tr ng-show="transport.index===undefined">
                     <td colspan="2" class="text-right">
                         <button class="btn btn-danger btn-sm" ng-click="transports.splice($index,1)">Delete</button>
                     </td>
@@ -141,25 +178,26 @@
         </table>
         <h3>Approved Submarkets</h3>
         <table class="table">   
-            <tbody ng-repeat="submarket in submarkets">
+            <tbody ng-repeat="approvedAliasObject in approvedAliasObjects">
                 <tr>
                     <td>Alias</td>
                     <td>
                         <div class="input-group">
                             <div class="input-group-addon">@</div>
-                            <input class="form-control" ng-model="submarket.alias" alias-input>
+                            <input class="form-control" ng-model="approvedAliasObject.alias" alias-input>
                             <div class="input-group-btn">
-                                <button class="btn btn-danger" type="button" ng-click="submarkets.splice($index,1)">X</button>
+                                <button class="btn btn-danger" type="button" ng-click="approvedAliasObjects.splice($index,1)">X</button>
                             </div>
                         </div>
-                        <div alias-validator="submarket.alias" alias-type="submarket"></div>
+                        <div alias-validator="approvedAliasObject.alias" alias-type="submarket"></div>
                     </td>
                 </tr>
             </tbody>
             <tr>
-                <td colspan="2" class="text-right"><button class="btn btn-primary btn-xs" ng-click="addSubmarket()">+</button></td>
+                <td colspan="2" class="text-right"><button class="btn btn-primary btn-xs" ng-click="addApprovedAliasObject()">+</button></td>
             </tr>
         </table>
+        </div>
     </div>
 </div>
 <div class="modal-footer" ng-show="!isSyncing">

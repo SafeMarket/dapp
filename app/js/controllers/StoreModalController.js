@@ -1,10 +1,12 @@
-/* globals angular, web3 */
+/* globals angular, web3, _ */
 
-angular.module('app').controller('StoreModalController', ($scope, $filter, utils, Store, AliasReg, ticker, growl, $modal, $modalInstance, store, user, helpers, constants) => {
+angular.module('app').controller('StoreModalController', ($scope, $filter, utils, Store, AliasReg, ticker, growl, $modal, $modalInstance, store, user, helpers, constants, ISO3166, Coinage) => {
 
-  $scope.currencies = Object.keys(ticker.rates)
+  console.log($scope)
+
+  $scope.currencies = Object.keys(ticker.prices)
+  $scope.countries = ISO3166.codeToCountry
   $scope.user = user
-  $scope.submarkets = []
 
   $scope.disputeSecondsOptions = [
     { value: '0' },
@@ -21,39 +23,41 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
     disputeSecondsOption.label = $filter('disputeSeconds')(disputeSecondsOption.value)
   })
 
-  $scope.addSubmarket = function addSubmarket() {
-    $scope.submarkets.push({})
+  $scope.addApprovedAliasObject = function addApprovedAlias() {
+    $scope.approvedAliasObjects.push({ alias: '' })
   }
 
   if (store) {
 
     $scope.isEditing = true
     $scope.alias = store.alias
-    $scope.name = store.meta.data.name
+    $scope.name = store.meta.name
+    $scope.base = store.meta.base
     $scope.currency = store.currency
-    $scope.products = store.meta.data.products
+    $scope.bufferCentiperun = store.infosphered.data.bufferCentiperun.toNumber()
     $scope.disputeSeconds = store.infosphered.data.disputeSeconds.toString()
-    $scope.info = store.meta.data.info
+    $scope.info = store.meta.info
     $scope.isOpen = store.infosphered.data.isOpen
-    $scope.transports = store.meta.data.transports || []
-    $scope.minTotal = store.infosphered.data.minTotal.div(constants.tera).toNumber()
+    $scope.minProductsTotal = angular.copy(store.minProductsTotal)
     $scope.affiliateFeeCentiperun = store.infosphered.data.affiliateFeeCentiperun.toNumber()
-
-    if (store.meta.data.submarketAddrs) {
-      store.meta.data.submarketAddrs.forEach((submarketAddr) => {
-        $scope.submarkets.push({ alias: utils.getAlias(submarketAddr) })
-      })
-    }
+    $scope.products = angular.copy(store.products)
+    $scope.transports = angular.copy(store.transports)
+    $scope.approvedAliasObjects = store.approvedAliases.map((alias) => {
+      return { alias }
+    })
 
   } else {
 
+    $scope.base = 'US'
     $scope.currency = user.getCurrency()
+    $scope.bufferCentiperun = 0
     $scope.products = []
     $scope.disputeSeconds = '1209600'
     $scope.isOpen = true
     $scope.transports = []
-    $scope.minTotal = 0
+    $scope.minProductsTotal = new Coinage(0, user.getCurrency())
     $scope.affiliateFeeCentiperun = 5
+    $scope.approvedAliasObjects = []
 
   }
 
@@ -63,14 +67,12 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
 
   $scope.addProduct = function addProduct() {
     $scope.products.push({
-      id: utils.getRandom().times('100000000').round().toString()
+      units: web3.toBigNumber(1)
     })
   }
 
   $scope.addTransport = function addTransport() {
-    $scope.transports.push({
-      id: utils.getRandom().times('100000000').round().toString()
-    })
+    $scope.transports.push({ isGlobal: true, to: 'US' })
   }
 
   $scope.submit = function submit() {
@@ -78,15 +80,9 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
     const alias = $scope.alias ? $scope.alias.trim().replace(/(\r\n|\n|\r)/gm, '') : ''
     const meta = {
       name: $scope.name,
-      products: $scope.products,
-      info: $scope.info,
-      submarketAddrs: [],
-      transports: $scope.transports
+      base: $scope.base,
+      info: $scope.info
     }
-
-    $scope.submarkets.forEach((submarket) => {
-      meta.submarketAddrs.push(AliasReg.getAddr(submarket.alias))
-    })
 
     try {
       Store.check(alias, meta)
@@ -95,18 +91,20 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
       return
     }
 
-    const minTotal = constants.tera.times($scope.minTotal)
+    const minProductsTeratotal = $scope.minProductsTotal.in($scope.currency).times(constants.tera)
     const affiliateFeeCentiperun = web3.toBigNumber($scope.affiliateFeeCentiperun)
+    const approvedAliases = $scope.approvedAliasObjects.map((aliasObject) => { return aliasObject.alias })
 
     if (store) {
 
       store.set({
         isOpen: $scope.isOpen,
         currency: $scope.currency,
+        bufferCentiperun: web3.toBigNumber($scope.bufferCentiperun).toNumber(),
         disputeSeconds: (web3.toBigNumber($scope.disputeSeconds)).toNumber(),
-        minTotal,
+        minProductsTeratotal,
         affiliateFeeCentiperun
-      }, meta).then(() => {
+      }, meta, $scope.products, $scope.transports).then(() => {
         store.update().then(() => {
           $modalInstance.close(store)
         })
@@ -119,7 +117,20 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
       }
 
       Store
-        .create(user.getAccount(), $scope.isOpen, $scope.currency, $scope.disputeSeconds, minTotal, affiliateFeeCentiperun, meta, $scope.alias)
+        .create(
+          user.getAccount(),
+          $scope.isOpen,
+          $scope.currency,
+          $scope.bufferCentiperun,
+          $scope.disputeSeconds,
+          minProductsTeratotal,
+          affiliateFeeCentiperun,
+          meta,
+          $scope.alias,
+          $scope.products,
+          $scope.transports,
+          approvedAliases
+        )
         .then((_store) => {
           user.addStore(_store.addr)
           user.save()

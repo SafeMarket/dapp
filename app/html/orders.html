@@ -1,0 +1,33 @@
+<div class="alert alert-info text-center" ng-show="orders.length===0">No orders yet</div>
+<table class="table" ng-show="orders.length>0">
+	<tr>
+		<th>Created</th>
+		<th>Order Address</th>
+		<th>Store</th>
+		<th>Submarket</th>
+		<th>Status</th>
+		<th>Store Score</th>
+		<th>Submarket Score</th>
+		<th>Review</th>
+	</tr>
+	<tr ng-repeat="order in orders">
+		<td timestamp ="order.createdAt"></td>
+		<td><a ng-href="{{order.contract.address | url:'order'}}">{{order.contract.address | shortAddr}}</a></td>
+		<td alias="order.store.contract.address"></td>
+		<td>
+			<div ng-if="order.submarket" alias="order.submarket.contract.address"></div>
+		</td>
+		<td>
+			{{order.status | status}}
+		</td>
+		<td>
+			{{order.review.isSet ? order.review.storeScore : ''}}
+		</td>
+		<td>
+			{{order.review.isSet && order.submarket ? order.review.submarketScore : ''}}
+		</td>
+		<td>
+			{{order.review.text}}
+		</td>
+	</tr>
+</table>

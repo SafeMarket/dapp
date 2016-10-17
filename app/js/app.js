@@ -8,7 +8,9 @@ const app = angular.module('app', [
   'angular-growl',
   'ngRoute',
   'yaru22.angular-timeago',
-  'hc.marked'
+  'hc.marked',
+  'ngPromiseExtras',
+  'iso-3166-country-codes'
 ])
 
 app.config((growlProvider, $stateProvider, $urlRouterProvider) => {
@@ -84,6 +86,11 @@ app.config((growlProvider, $stateProvider, $urlRouterProvider) => {
       url: '/affiliate',
       templateUrl: 'affiliate.html',
       controller: 'AffiliateController'
+    })
+    .state('safits', {
+      url: '/safits',
+      templateUrl: 'safits.html',
+      controller: 'SafitsController'
     })
 
   $urlRouterProvider.otherwise('/')
