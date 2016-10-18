@@ -12,7 +12,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
     { value: '0' },
     { value: '86400' },
     { value: '172800' },
-    { value: '259200' }, 
+    { value: '259200' },
     { value: '604800' },
     { value: '1209600' },
     { value: '1814400' },
@@ -67,8 +67,11 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
 
   $scope.addProduct = function addProduct() {
     $scope.products.push({
-      units: web3.toBigNumber(1)
+      units: web3.toBigNumber(1),
+      imgs: []
     })
+
+    console.log($scope.products)
   }
 
   $scope.addTransport = function addTransport() {

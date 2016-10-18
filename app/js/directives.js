@@ -372,3 +372,19 @@ angular.module('app').directive('country', (ISO3166) => {
     templateUrl: 'country.html'
   }
 })
+
+angular.module('app').directive('productImgUpload', [() => {
+  return {
+    link: (scope, element, attributes) => {
+      element.bind('change', (changeEvent) => {
+        const reader = new FileReader()
+        reader.onload = function (loadEvent) {
+          console.log('loadEvent')
+          scope.product.imgs.push(loadEvent.target.result)
+          element.val('')
+        }
+        reader.readAsDataURL(changeEvent.target.files[0])
+      })
+    }
+  }
+}])

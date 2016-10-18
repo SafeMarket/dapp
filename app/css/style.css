@@ -16,6 +16,10 @@ a[href]:not([href*="#"]):not([href=""]):not([href="."]):before
   display: none !important;
 }
 
+input[type='file'] {
+  color: transparent;
+}
+
 table{
     table-layout: fixed
 }
