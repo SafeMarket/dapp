@@ -105,12 +105,29 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     return msgpack.pack(object)
   }
 
+  function convertObjectToBuffer(object) {
+    return new Buffer(convertObjectToBytes(object))
+  }
+
   function convertBytesToObject(bytes) {
     return msgpack.unpack(bytes)
   }
 
   function convertBytesToHex(bytes) {
     return hexify(cryptocoin.convertHex.bytesToHex(bytes))
+  }
+
+  function convertMultihashToBytes32Hex(mulithash) {
+    const decodedMultihash = bs58.decode(mulithash)
+    console.log('decodedMultihash', decodedMultihash)
+    decodedMultihash.splice(0, 2)
+    return convertBytesToHex(decodedMultihash)
+  }
+
+  function convertBytes32HexToMultihash(hex) {
+    const bytes = convertHexToBytes(hex)
+    bytes.unshift(18, 32)
+    return bs58.encode(bytes)
   }
 
   function convertHexToObject(hex) {
@@ -467,11 +484,14 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     sanitize,
     convertObjectToHex,
     convertObjectToBytes,
+    convertObjectToBuffer,
     convertBytesToObject,
     convertBytesToHex,
     convertHexToObject,
     convertHexToBytes,
     convertCurrency,
+    convertMultihashToBytes32Hex,
+    convertBytes32HexToMultihash,
     formatCurrency,
     convertCurrencyAndFormat,
     waitForTx,

@@ -6,7 +6,7 @@
         <img src="images/balls.gif"> Syncing with blockchain, this might take a minute or two
     </div>
     <div ng-show="error && !isSyncing" ng-cloak class="alert alert-danger text-center">
-        {{error}}
+        {{error.message || error}}
     </div>
     <div ng-show="!isSyncing">
         <table class="table">
@@ -118,7 +118,7 @@
                         <table class="table">
                             <tr ng-repeat="img in product.imgs track by $index">
                                 <td>
-                                    <img ng-src="{{img}}" class="product-image">
+                                    <img ipfs-img="img" class="product-image">
                                 </td>
                                 <td>
                                     <button class="btn btn-danger btn-xs" ng-click="product.imgs.splice($index, 1)">x</button>

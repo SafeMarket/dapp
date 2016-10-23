@@ -111,6 +111,9 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
         store.update().then(() => {
           $modalInstance.close(store)
         })
+      }, (error) => {
+        growl.addErrorMessage(error)
+        $scope.error = error
       })
 
     } else {
@@ -139,6 +142,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
           user.save()
           $modalInstance.close()
         }, (error) => {
+          growl.addErrorMessage(error)
           $scope.error = error
         })
     }

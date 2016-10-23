@@ -1,6 +1,6 @@
 /* globals angular, contracts, web3 */
 
-angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, AliasReg, StoreReg, Infosphered, Meta, Coinage, constants, filestore, ApprovesAliases) => {
+angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, AliasReg, StoreReg, Infosphered, Meta, Coinage, constants, ipfs, ApprovesAliases) => {
 
   function Store(addrOrAlias) {
     console.log(this)
@@ -42,47 +42,46 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     approvedAliases
   ) {
 
-    const file = utils.convertObjectToHex(meta)
+    const storeFile = utils.convertObjectToBuffer(meta)
+    const storeFileHash = utils.convertMultihashToBytes32Hex(ipfs.hash(storeFile))
     const aliasHex = web3.toHex(alias)
-    const fileHash = utils.sha3(file, { encoding: 'hex' })
-    const deferred = $q.defer()
 
-    const filestoreCalls = filestore.getMartyrCalls([file])
-    const productsFilestoreCalls = []
-    const transportsFilestoreCalls = []
+    const files = [storeFile]
 
     const productParams = []
     const transportParams = []
 
     productsData.forEach((productData) => {
       const productFile = Store.getProductFile(productData)
-      const productFileHash = utils.sha3(productFile)
-      productsFilestoreCalls.push.apply(productsFilestoreCalls, filestore.getMartyrCalls([productFile]))
+      console.log('productFile', productFile)
+      const productFileHash = ipfs.hash(productFile)
+      console.log('productFileHash', productFileHash)
+      files.push(productFile)
+
       productParams.push(
         productData.isActive,
         utils.toBytes32(productData.price.in(currency).times(constants.tera)),
         utils.toBytes32(productData.units),
-        productFileHash
+        utils.convertMultihashToBytes32Hex(productFileHash)
       )
     })
 
     transportsData.forEach((transportData) => {
       const transportFile = Store.getTransportFile(transportData)
-      const transportFileHash = utils.sha3(transportFile)
-      transportsFilestoreCalls.push.apply(transportsFilestoreCalls, filestore.getMartyrCalls([transportFile]))
+      const transportFileHash = ipfs.hash(transportFile)
+      files.push(transportFile)
       transportParams.push(
         transportData.isActive,
         utils.toBytes32(transportData.price.in(currency).times(constants.tera)),
-        transportFileHash
+        utils.convertMultihashToBytes32Hex(transportFileHash)
       )
     })
 
-    const calls = filestoreCalls
-      .concat(productsFilestoreCalls)
-      .concat(transportsFilestoreCalls)
-      .concat([{
-        address: StoreReg.address,
-        data: StoreReg.create.getData(
+    return ipfs.upload(files).then((result) => {
+      return txMonitor.propose(
+        'Create a New Store',
+        StoreReg.create,
+        [
           owner,
           isOpen,
           currency,
@@ -90,54 +89,48 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
           disputeSeconds,
           minProductsTeratotal,
           affiliateFeeCentiperun,
-          fileHash,
+          storeFileHash,
           aliasHex,
           productParams,
           transportParams,
           approvedAliases
-        )
-      }])
-
-    utils.fetchMartyrData(calls).then((martyrData) => {
-      txMonitor.propose(
-        'Create a New Store',
-        web3.eth.sendTransaction,
-        [{ data: martyrData }]
+        ]
       ).then((txReciept) => {
         const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
-        deferred.resolve(new Store(contractAddress))
+        return new Store(contractAddress)
       })
-    }, (err) => {
-      deferred.reject(err)
     })
-
-    return deferred.promise
 
   }
 
   Store.prototype.set = function setStore(infospheredData, meta, productsData, transportsData) {
 
-    const metaCalls = []
-    const file = utils.convertObjectToHex(meta)
-    const fileHash = utils.sha3(file)
+    const file = utils.convertObjectToBuffer(meta)
+    const fileHash = utils.convertMultihashToBytes32Hex(ipfs.hash(file))
 
     infospheredData.fileHash = fileHash
 
     const infospheredCalls = this.infosphered.getMartyrCalls(infospheredData)
 
-    if (this.infosphered.data.fileHash !== fileHash) {
-      metaCalls.push.apply(metaCalls, filestore.getMartyrCalls([file]))
-    }
-
     const productCalls = this.getProductMartyrCalls(productsData)
     const transportCalls = this.getTransportMartyrCalls(transportsData)
-    const allCalls = infospheredCalls.concat(metaCalls).concat(productCalls).concat(transportCalls)
+    const allCalls = infospheredCalls.concat(productCalls).concat(transportCalls)
 
-    return utils.fetchMartyrData(allCalls).then((martyrData) => {
-      return txMonitor.propose('Update Store', web3.eth.sendTransaction, [{
-        data: martyrData,
-        gas: web3.eth.estimateGas({ data: martyrData }) * 4
-      }])
+    const productFiles = productsData.map((productData) => { return Store.getProductFile(productData) })
+    const transportFiles = productsData.map((transportData) => { return Store.getTransportFile(transportData) })
+    const files = [file].concat(productFiles).concat(transportFiles)
+
+    if (allCalls.length === 0) {
+      return $q.reject(new Error('No updates have been made'))
+    }
+
+    return ipfs.upload(files).then(() => {
+      return utils.fetchMartyrData(allCalls).then((martyrData) => {
+        return txMonitor.propose('Update Store', web3.eth.sendTransaction, [{
+          data: martyrData,
+          gas: web3.eth.estimateGas({ data: martyrData }) * 4
+        }])
+      })
     })
 
   }
@@ -196,13 +189,13 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.approvedAliases = this.getApprovedAliases()
     this.submarkets = []
 
-    const filestorePromise = filestore.fetchFile(this.infosphered.data.fileHash).then((file) => {
+    const fileFetchPromise = ipfs.fetch(utils.convertBytes32HexToMultihash(this.infosphered.data.fileHash)).then((file) => {
       this.file = file
-      this.meta = utils.convertHexToObject(file)
+      this.meta = utils.convertBytesToObject(file)
       store.info = utils.sanitize(this.meta.info || '')
     })
 
-    promises.push(filestorePromise)
+    promises.push(fileFetchPromise)
     this.products.forEach((product) => {
       promises.push(product.updatePromise)
     })
@@ -248,12 +241,12 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
     const teraprice = productData.price.in(this.currency).times(constants.tera)
     const file = Store.getProductFile(productData)
-    const fileHash = utils.sha3(file)
+    const fileHash = utils.convertMultihashToBytes32Hex(ipfs.hash(file))
 
-    return filestore.getMartyrCalls([file]).concat([{
+    return [{
       address: this.contract.address,
       data: this.contract.addProduct.getData(teraprice, productData.units, fileHash)
-    }])
+    }]
 
   }
 
@@ -262,7 +255,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     const product = new Product(this, productData.index)
     const teraprice = productData.price.in(this.currency).times(constants.tera)
     const file = Store.getProductFile(productData)
-    const fileHash = utils.sha3(file)
+    const fileHash = utils.convertMultihashToBytes32Hex(ipfs.hash(file))
 
     const calls = []
 
@@ -292,7 +285,6 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
         address: this.contract.address,
         data: this.contract.setProductFileHash.getData(productData.index, fileHash)
       })
-      calls.push.apply(calls, filestore.getMartyrCalls([file]))
     }
 
     return calls
@@ -300,10 +292,10 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   }
 
   Store.getProductFile = function getProductFile(productData) {
-    return utils.convertObjectToHex({
+    return utils.convertObjectToBuffer({
       name: productData.name,
       info: productData.info,
-      img: productData.img
+      imgs: productData.imgs
     })
   }
 
@@ -339,12 +331,12 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
     const teraprice = transportData.price.in(this.currency).times(constants.tera)
     const file = Store.getTransportFile(transportData)
-    const fileHash = utils.sha3(file)
+    const fileHash = utils.convertMultihashToBytes32Hex(ipfs.hash(file))
 
-    return filestore.getMartyrCalls([file]).concat([{
+    return [{
       address: this.contract.address,
       data: this.contract.addTransport.getData(teraprice, fileHash)
-    }])
+    }]
 
   }
 
@@ -353,7 +345,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     const transport = new Transport(this, transportData.index)
     const teraprice = transportData.price.in(this.currency).times(constants.tera)
     const file = Store.getTransportFile(transportData)
-    const fileHash = utils.sha3(file)
+    const fileHash = utils.convertMultihashToBytes32Hex(ipfs.hash(file))
 
     const calls = []
 
@@ -371,12 +363,11 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
       })
     }
 
-    if (transport.fileHash !== fileHash) {
+    if (transport.fileHash !== utils.covertMultiHashToBytes32(fileHash)) {
       calls.push({
         address: this.contract.address,
         data: this.contract.setTransportFileHash.getData(transportData.index, fileHash)
       })
-      calls.push.apply(calls, filestore.getMartyrCalls([file]))
     }
 
     return calls
@@ -384,7 +375,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   }
 
   Store.getTransportFile = function getTransportFile(transportData) {
-    return utils.convertObjectToHex({
+    return utils.convertObjectToBuffer({
       name: transportData.name,
       to: transportData.isGlobal ? null : transportData.to
     })
@@ -412,22 +403,19 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   }
 
   Product.prototype.update = function update() {
-    const deferred = $q.defer()
-    this.updatePromise = deferred.promise
     this.isActive = this.store.contract.getProductIsActive(this.index)
     this.teraprice = this.store.contract.getProductTeraprice(this.index)
     this.units = this.store.contract.getProductUnits(this.index)
     this.price = new Coinage(this.teraprice.div(constants.tera), this.store.currency)
     this.fileHash = this.store.contract.getProductFileHash(this.index)
-    filestore.fetchFile(this.fileHash).then((file) => {
+    this.updatePromise = ipfs.fetch(utils.convertBytes32HexToMultihash(this.fileHash)).then((file) => {
       this.file = file
-      const data = utils.convertHexToObject(file)
+      const data = utils.convertBytesToObject(file)
       this.name = data.name
       this.info = data.info
-      this.img = data.img
-      deferred.resolve(this)
+      this.imgs = data.imgs || []
     })
-    return deferred.promise
+    return this.updatePromise
   }
 
   function Transport(store, index) {
@@ -444,9 +432,9 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.teraprice = this.store.contract.getTransportTeraprice(this.index)
     this.price = new Coinage(this.teraprice.div(constants.tera), this.store.currency)
     this.fileHash = this.store.contract.getTransportFileHash(this.index)
-    filestore.fetchFile(this.fileHash).then((file) => {
+    ipfs.fetch(utils.convertBytes32HexToMultihash(this.fileHash)).then((file) => {
       this.file = file
-      const data = utils.convertHexToObject(file)
+      const data = utils.convertBytesToObject(file)
       this.name = data.name
       this.to = data.to
       this.isGlobal = !data.to

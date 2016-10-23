@@ -4,7 +4,8 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "protractor conf.js"
+    "test": "protractor conf.js",
+    "browserify": "browserify -g brfs browserify.js -o app/js/browserified.js"
   },
   "engines": {
     "node": ">= 4.0.0"
@@ -14,6 +15,9 @@
   "homepage": "",
   "devDependencies": {
     "bignumber.js": "^2.3.0",
+    "brfs": "^1.4.3",
+    "browser-ipfs": "0.0.6",
+    "browserify": "^13.1.0",
     "coffee-script": "^1.10.0",
     "compression": "^1.6.1",
     "electron-packager": "^5.1.1",
@@ -54,6 +58,8 @@
     "grunt-version": "^1.0.0",
     "grunt-wait": "^0.1.0",
     "hooked-web3-provider": "^1.0.0",
+    "ipfs-api": "git+https://github.com/SafeMarket/js-ipfs-api.git#ipfs.hash",
+    "ipfs-unixfs": "^0.1.4",
     "jasmine-fail-fast": "^2.0.0",
     "jasmine-reporters": "^1.0.0",
     "load-grunt-tasks": "^3.4.0",
@@ -70,11 +76,18 @@
     "shelljs": "^0.5.3",
     "solc": "^0.2.2-2",
     "tar": "^2.2.1",
+    "through2": "^2.0.1",
     "unzip": "^0.1.11",
     "url-download": "0.0.4",
     "web3": "^0.16.0"
   },
   "dependencies": {
+    "multi-hash": "^0.1.1",
     "seek-bzip": "^1.0.5"
+  },
+  "browserify": {
+    "transform": [
+      "brfs"
+    ]
   }
 }

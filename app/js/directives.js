@@ -373,18 +373,40 @@ angular.module('app').directive('country', (ISO3166) => {
   }
 })
 
-angular.module('app').directive('productImgUpload', [() => {
+angular.module('app').directive('productImgUpload', (ipfs, growl) => {
   return {
     link: (scope, element, attributes) => {
       element.bind('change', (changeEvent) => {
         const reader = new FileReader()
         reader.onload = function (loadEvent) {
-          console.log('loadEvent')
-          scope.product.imgs.push(loadEvent.target.result)
+          growl.addInfoMessage('Uploading image to IPFS')
+          const imgData = Buffer.from(loadEvent.target.result)
+          ipfs.upload([imgData]).then((mutlihashes) => {
+            growl.addSuccessMessage('Upload successful!')
+            scope.product.imgs.push(mutlihashes[0])
+          }, (err) => {
+            console.log(err)
+            growl.addErrorMessage(err)
+          })
           element.val('')
         }
         reader.readAsDataURL(changeEvent.target.files[0])
       })
     }
   }
-}])
+})
+
+angular.module('app').directive('ipfsImg', (ipfs) => {
+  return {
+    scope: {
+      multihash: '=ipfsImg'
+    },
+    link: (scope, element, attributes) => {
+      ipfs.fetch(scope.multihash).then((file) => {
+        attributes.$set('src', file)
+      }, (err) => {
+        growl.addErrorMessage(err)
+      })
+    }
+  }
+})

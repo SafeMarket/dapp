@@ -31,6 +31,7 @@ angular.module('app').controller('TxMonitorModalController', ($scope, $interval,
   } else {
 
     const args = angular.copy(proposal.args)
+    console.log('args', args)
     const estimateGas = proposal.contractFactoryOrFunction.estimateGas || web3.eth.estimateGas
 
     let estimatedGas = estimateGas.apply(proposal.contractFactoryOrFunction, args)
@@ -89,6 +90,8 @@ angular.module('app').controller('TxMonitorModalController', ($scope, $interval,
     if (isFactory) {
       proposal.contractFactoryOrFunction.new.apply(proposal.contractFactoryOrFunction, args)
     } else {
+      console.log(proposal.contractFactoryOrFunction)
+      console.log(args)
       proposal.contractFactoryOrFunction.apply(window, args)
     }
 
