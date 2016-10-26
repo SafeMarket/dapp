@@ -97,7 +97,7 @@ app.config((growlProvider, $stateProvider, $urlRouterProvider) => {
 
 })
 
-app.run((user, $rootScope, $interval, $timeout, timeAgo) => {
+app.run((user, $rootScope, $interval, $timeout, timeAgoSettings) => {
 
   if (blockchain.env === 'development') {
     if (user.verifyExistence()) {
@@ -117,6 +117,6 @@ app.run((user, $rootScope, $interval, $timeout, timeAgo) => {
 
   $interval(checkConnection, 1000)
 
-  timeAgo.settings.allowFuture = true
+  timeAgoSettings.allowFuture = true
 
 })
