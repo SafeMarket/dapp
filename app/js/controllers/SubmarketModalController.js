@@ -2,11 +2,10 @@
 
 angular.module('app').controller('SubmarketModalController', ($scope, ticker, growl, $modal, $modalInstance, submarket, user, helpers, utils, SubmarketReg, AliasReg, constants, Submarket, Coinage) => {
 
-  $scope.stores = []
-
   $scope.currencies = Object.keys(ticker.prices)
 
   if (submarket) {
+    submarket.updatePromise.then(() => {})
     $scope.alias = submarket.alias
     $scope.currency = submarket.currency
     $scope.isEditing = true
@@ -16,6 +15,7 @@ angular.module('app').controller('SubmarketModalController', ($scope, ticker, gr
     $scope.escrowFeeCentiperun = submarket.infosphered.data.escrowFeeCentiperun.toNumber()
     $scope.isOpen = submarket.infosphered.data.isOpen
     $scope.escrowFeeBase = angular.copy(submarket.escrowFeeBase)
+    $scope.stores = submarket.approvesAliases.approvedAliases.map((alias) => { return { alias } })
 
   } else {
     $scope.currency = user.getCurrency()
@@ -33,14 +33,9 @@ angular.module('app').controller('SubmarketModalController', ($scope, ticker, gr
     const alias = $scope.alias
     const meta = {
       name: $scope.name,
-      info: $scope.info,
-      storeAddrs: []
+      info: $scope.info
     }
     const isOpen = !!$scope.isOpen
-
-    $scope.stores.forEach((store) => {
-      meta.storeAddrs.push(AliasReg.getAddr(store.alias))
-    })
 
     try {
       Submarket.check(alias, meta)
@@ -50,17 +45,20 @@ angular.module('app').controller('SubmarketModalController', ($scope, ticker, gr
     }
 
     const escrowFeeTerabase = $scope.escrowFeeBase.in($scope.currency).times(constants.tera)
+    const approvedAliases = $scope.stores.map((store) => {return utils.toBytes32(store.alias)})
 
     if (submarket) {
 
-      submarket
+      return submarket
         .set({
           isOpen,
           currency: $scope.currency,
           escrowFeeTerabase,
           escrowFeeCentiperun: $scope.escrowFeeCentiperun
-        }, meta, $scope.alias).then((_submarket) => {
-          $modalInstance.close(_submarket)
+        }, approvedAliases, meta, $scope.alias).then(() => {
+          return submarket.update().then(() => {
+            return $modalInstance.close(submarket)
+          })
         }, (error) => {
           $scope.error = error
         })
@@ -71,7 +69,7 @@ angular.module('app').controller('SubmarketModalController', ($scope, ticker, gr
         return growl.addErrorMessage(`The alias ${alias} is taken`)
       }
 
-      Submarket
+      return Submarket
         .create(
           user.getAccount(),
           isOpen,
@@ -79,7 +77,8 @@ angular.module('app').controller('SubmarketModalController', ($scope, ticker, gr
           escrowFeeTerabase,
           $scope.escrowFeeCentiperun,
           meta,
-          $scope.alias
+          $scope.alias,
+          approvedAliases
         )
         .then((_submarket) => {
           user.addSubmarket(_submarket.addr)

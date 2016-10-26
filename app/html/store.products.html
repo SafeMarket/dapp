@@ -3,8 +3,7 @@
 		<tr ng-repeat="product in products">
 			<td>
 				<div ng-repeat="img in product.imgs">
-					<div>{{img}}</div>
-					<img ng-src="{{img}}" class="product-image">
+					<img ipfs-img="img" class="product-image">
 				</div>
 			</td>
 			<td>

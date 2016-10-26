@@ -102,15 +102,15 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
   }
 
   function convertObjectToBytes(object) {
-    return msgpack.pack(object)
+    return JSON.stringify(object)
   }
 
   function convertObjectToBuffer(object) {
-    return new Buffer(convertObjectToBytes(object))
+    return new Buffer(JSON.stringify(object))
   }
 
   function convertBytesToObject(bytes) {
-    return msgpack.unpack(bytes)
+    return JSON.parse(bytes)
   }
 
   function convertBytesToHex(bytes) {

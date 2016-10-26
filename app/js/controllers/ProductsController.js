@@ -39,7 +39,7 @@ angular.module('app').controller('ProductsController', ($scope, $filter, utils, 
 
     $scope.submarketOptions = [noSubmarketOption]
 
-    $scope.store.approvedAliases.forEach((alias) => {
+    $scope.store.approvesAliases.approvedAliases.forEach((alias) => {
       const submarket = new Submarket(alias)
       const escrowFeeBaseFormatted = submarket.escrowFeeBase.formattedIn(user.getCurrency())
       const escrowFeeCentiperun = submarket.infosphered.data.escrowFeeCentiperun

@@ -2,14 +2,17 @@
 
 angular.module('app').factory('ApprovesAliases', (utils) => {
 
-  function ApprovesAliases() {}
+  function ApprovesAliases(contract) {
+    this.contract = contract
+    this.update()
+  }
 
   ApprovesAliases.prototype.getApprovedAliases = function getApprovedAliases() {
     const approvedAliasesLength = this.contract.getApprovedAliasesLength()
     const approvedAliases = []
     for (let i = 0; i < approvedAliasesLength; i ++) {
       const alias = this.contract.getApprovedAlias(i)
-      if (!this.contract.getIsAliasApproved(alias)) {
+      if (this.contract.getIsAliasApproved(alias)) {
         approvedAliases.push(utils.toAscii(alias))
       }
     }
@@ -17,13 +20,14 @@ angular.module('app').factory('ApprovesAliases', (utils) => {
   }
 
   ApprovesAliases.prototype.getMartyrCalls = function getMartyrCalls(newlyApprovedAliases) {
+    console.log('getMartyrCalls')
     const calls = []
 
     newlyApprovedAliases.forEach((alias) => {
-      if (this.contract.getIsAliasApproved(alias)) { return true }
+      if (this.approvedAliases.indexOf(alias) > -1) { return true }
       calls.push({
         address: this.contract.address,
-        data: this.contract.approveAlias.getData(alias)
+        data: this.contract.approveAlias.getData(utils.toBytes32(alias))
       })
     })
 
@@ -31,9 +35,15 @@ angular.module('app').factory('ApprovesAliases', (utils) => {
       if (newlyApprovedAliases.indexOf(alias) > -1) { return true }
       calls.push({
         address: this.contract.address,
-        data: this.contract.disapproveAlias.getData(alias)
+        data: this.contract.disapproveAlias.getData(utils.toBytes32(alias))
       })
     })
+
+    return calls
+  }
+
+  ApprovesAliases.prototype.update = function(){
+    this.approvedAliases = this.getApprovedAliases()
   }
 
   return ApprovesAliases

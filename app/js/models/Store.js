@@ -17,10 +17,10 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
       affiliateFeeCentiperun: 'uint',
       fileHash: 'bytes32'
     })
+    this.approvesAliases = new ApprovesAliases(this.contract)
     this.update()
   }
 
-  Store.prototype = ApprovesAliases.prototype
 
   Store.prototype.bytecode = Store.bytecode = contracts.Store.bytecode
   Store.prototype.runtimeBytecode = Store.runtimeBytecode = utils.runtimeBytecodes.Store
@@ -53,9 +53,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
     productsData.forEach((productData) => {
       const productFile = Store.getProductFile(productData)
-      console.log('productFile', productFile)
       const productFileHash = ipfs.hash(productFile)
-      console.log('productFileHash', productFileHash)
       files.push(productFile)
 
       productParams.push(
@@ -103,7 +101,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
   }
 
-  Store.prototype.set = function setStore(infospheredData, meta, productsData, transportsData) {
+  Store.prototype.set = function setStore(infospheredData, meta, productsData, transportsData, approvedAliases) {
 
     const file = utils.convertObjectToBuffer(meta)
     const fileHash = utils.convertMultihashToBytes32Hex(ipfs.hash(file))
@@ -114,10 +112,12 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
     const productCalls = this.getProductMartyrCalls(productsData)
     const transportCalls = this.getTransportMartyrCalls(transportsData)
-    const allCalls = infospheredCalls.concat(productCalls).concat(transportCalls)
+    const approvedAliasesCalls = this.approvesAliases.getMartyrCalls(approvedAliases)
+    const allCalls = infospheredCalls.concat(productCalls).concat(transportCalls).concat(approvedAliasesCalls)
+    console.log(allCalls)
 
     const productFiles = productsData.map((productData) => { return Store.getProductFile(productData) })
-    const transportFiles = productsData.map((transportData) => { return Store.getTransportFile(transportData) })
+    const transportFiles = transportsData.map((transportData) => { return Store.getTransportFile(transportData) })
     const files = [file].concat(productFiles).concat(transportFiles)
 
     if (allCalls.length === 0) {
@@ -171,6 +171,8 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
 
   Store.prototype.update = function update() {
 
+    console.log('update store')
+
     const deferred = $q.defer()
     const store = this
     const promises = []
@@ -181,12 +183,12 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.key = new Key(this.owner)
 
     this.infosphered.update()
+    this.approvesAliases.update()
     this.currency = utils.toAscii(this.infosphered.data.currency)
     this.minProductsTotal = new Coinage(this.infosphered.data.minProductsTeratotal.div(constants.tera), this.currency)
 
     this.products = this.getProducts()
     this.transports = this.getTransports()
-    this.approvedAliases = this.getApprovedAliases()
     this.submarkets = []
 
     const fileFetchPromise = ipfs.fetch(utils.convertBytes32HexToMultihash(this.infosphered.data.fileHash)).then((file) => {
@@ -363,7 +365,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
       })
     }
 
-    if (transport.fileHash !== utils.covertMultiHashToBytes32(fileHash)) {
+    if (transport.fileHash !== fileHash) {
       calls.push({
         address: this.contract.address,
         data: this.contract.setTransportFileHash.getData(transportData.index, fileHash)
@@ -409,8 +411,10 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.price = new Coinage(this.teraprice.div(constants.tera), this.store.currency)
     this.fileHash = this.store.contract.getProductFileHash(this.index)
     this.updatePromise = ipfs.fetch(utils.convertBytes32HexToMultihash(this.fileHash)).then((file) => {
+      console.log(file)
       this.file = file
-      const data = utils.convertBytesToObject(file)
+      const data = JSON.parse(file)
+      console.log(data)
       this.name = data.name
       this.info = data.info
       this.imgs = data.imgs || []
@@ -434,7 +438,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
     this.fileHash = this.store.contract.getTransportFileHash(this.index)
     ipfs.fetch(utils.convertBytes32HexToMultihash(this.fileHash)).then((file) => {
       this.file = file
-      const data = utils.convertBytesToObject(file)
+      const data = JSON.parse(file)
       this.name = data.name
       this.to = data.to
       this.isGlobal = !data.to

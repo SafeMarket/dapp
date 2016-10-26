@@ -42,9 +42,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
     $scope.affiliateFeeCentiperun = store.infosphered.data.affiliateFeeCentiperun.toNumber()
     $scope.products = angular.copy(store.products)
     $scope.transports = angular.copy(store.transports)
-    $scope.approvedAliasObjects = store.approvedAliases.map((alias) => {
-      return { alias }
-    })
+    $scope.submarkets = store.approvesAliases.approvedAliases.map((alias) => { return { alias } })
 
   } else {
 
@@ -57,7 +55,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
     $scope.transports = []
     $scope.minProductsTotal = new Coinage(0, user.getCurrency())
     $scope.affiliateFeeCentiperun = 5
-    $scope.approvedAliasObjects = []
+    $scope.submarkets = []
 
   }
 
@@ -96,7 +94,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
 
     const minProductsTeratotal = $scope.minProductsTotal.in($scope.currency).times(constants.tera)
     const affiliateFeeCentiperun = web3.toBigNumber($scope.affiliateFeeCentiperun)
-    const approvedAliases = $scope.approvedAliasObjects.map((aliasObject) => { return aliasObject.alias })
+    const approvedAliases = $scope.submarkets.map((submarket) => { return utils.toBytes32(submarket.alias) })
 
     if (store) {
 
@@ -107,7 +105,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
         disputeSeconds: (web3.toBigNumber($scope.disputeSeconds)).toNumber(),
         minProductsTeratotal,
         affiliateFeeCentiperun
-      }, meta, $scope.products, $scope.transports).then(() => {
+      }, meta, $scope.products, $scope.transports, approvedAliases).then(() => {
         store.update().then(() => {
           $modalInstance.close(store)
         })

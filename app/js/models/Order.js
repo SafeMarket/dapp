@@ -1,6 +1,6 @@
 /* globals angular, contracts, web3 */
 
-angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key, KeyGroup, txMonitor, user, orderReg, constants, Coinage, filestore) => {
+angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key, KeyGroup, txMonitor, user, orderReg, constants, Coinage, ipfs) => {
 
   function Order(addr) {
     console.log(this)
@@ -22,11 +22,12 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     const _products = products.filter((product) => { return product.quantity > 0})
     const productIndexes = _products.map((product) => { return product.index })
     const productQuantities = _products.map((product) => { return product.quantity })
+    const bounty = web3.toBigNumber(0)
 
     txMonitor.propose(
       'Create a New Order',
       orderReg.contract.create,
-      [buyer, storeAddr, submarketAddr, affiliate, productIndexes, productQuantities, transportIndex, orderTotal, { value: value }]
+      [buyer, storeAddr, submarketAddr, affiliate, bounty, productIndexes, productQuantities, transportIndex, orderTotal, { value: value }]
     ).then((txReciept) => {
       const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
       deferred.resolve(new Order(contractAddress))
@@ -135,7 +136,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
 
 
   Order.prototype.markAsShipped = function markOrderAsShipped() {
-    return txMonitor.propose('Mark the Order as Shipped', this.contract.markAsShipped, [])
+    return txMonitor.propose('Mark the Order as Shipped', this.store.contract.markAsShipped, [this.contract.address])
   }
 
   Order.prototype.update = function updateOrder() {
@@ -170,12 +171,12 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.disputeSeconds = this.contract.disputeSeconds().toNumber()
     this.disputeDeadline = this.disputeSeconds + this.shippedAt
 
-    const amounts = this.contract.getAmounts()
+    //const amounts = this.contract.getAmounts()
 
-    this.buyerAmount = amounts[0]
-    this.storeAmount = amounts[1]
-    this.escrowAmount = amounts[2]
-    this.affiliateAmount = amounts[3]
+    // this.buyerAmount = amounts[0]
+    // this.storeAmount = amounts[1]
+    // this.escrowAmount = amounts[2]
+    // this.affiliateAmount = amounts[3]
 
     this.receivedAtBlockNumber = this.contract.blockNumber()
     this.confirmations = this.blockNumber.minus(web3.eth.blockNumber).times('-1')
@@ -211,24 +212,6 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.messages = this.getMessages()
     this.updates = this.getUpdates()
     this.messagesAndUpdates = this.messages.concat(this.updates)
-
-    this.review = {
-      blockNumber: this.contract.reviewBlockNumber(),
-      isSet: this.contract.reviewBlockNumber().greaterThan(0),
-      storeScore: this.contract.reviewStoreScore().toNumber(),
-      submarketScore: this.contract.reviewSubmarketScore().toNumber(),
-      fileHash: this.contract.reviewFileHash()
-    }
-
-    if (this.review.isSet) {
-      this.review.timestamp = web3.eth.getBlock(this.review.blockNumber).timestamp
-      const reviewPromise = filestore.fetchFile(this.review.fileHash).then((file) => {
-        this.review.file = file
-        const data = utils.convertHexToObject(file)
-        this.review.text = data.text
-      })
-      promises.push(reviewPromise)
-    }
 
     this.messages.forEach((message) => {
       promises.push(message.promise)
@@ -415,12 +398,13 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     this.price = new Coinage(this.teraprice.div(constants.tera), this.order.storeCurrency)
     this.fileHash = this.order.contract.getProductFileHash(this.index)
     this.quantity = this.order.contract.getProductQuantity(this.index)
-    filestore.fetchFile(this.fileHash).then((file) => {
+    ipfs.fetch(utils.convertBytes32HexToMultihash(this.fileHash)).then((file) => {
       this.file = file
-      const data = utils.convertHexToObject(file)
+
+      const data = JSON.parse(file)
       this.name = data.name
       this.info = data.info
-      this.img = data.img
+      this.imgs = data.imgs
       deferred.resolve(this)
     })
     return deferred.promise
@@ -432,17 +416,14 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
   }
 
   Transport.prototype.update = function update() {
-    const deferred = $q.defer()
     this.teraprice = this.order.contract.transportTeraprice()
     this.price = new Coinage(this.teraprice.div(constants.tera), this.order.storeCurrency)
     this.fileHash = this.order.contract.transportFileHash()
-    filestore.fetchFile(this.fileHash).then((file) => {
+    return ipfs.fetch(utils.convertBytes32HexToMultihash(this.fileHash)).then((file) => {
       this.file = file
-      const data = utils.convertHexToObject(file)
+      const data = JSON.parse(file)
       this.name = data.name
-      deferred.resolve(this)
     })
-    return deferred.promise
   }
 
   return Order

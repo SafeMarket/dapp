@@ -83,6 +83,7 @@
   },
   "dependencies": {
     "multi-hash": "^0.1.1",
+    "safemarket-protocol": "git+https://github.com/SafeMarket/protocol.git#demo",
     "seek-bzip": "^1.0.5"
   },
   "browserify": {

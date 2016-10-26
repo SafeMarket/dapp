@@ -1,16 +1,20 @@
 /* globals angular */
 
-angular.module('app').controller('SubmarketController', ($scope, $state, Submarket, user, $stateParams, modals) => {
+angular.module('app').controller('SubmarketController', ($scope, $state, Submarket, Store, user, $stateParams, modals) => {
 
   $scope.submarket = new Submarket($stateParams.submarketAddr, true)
+  console.log($scope.submarket)
   $scope.addr = $stateParams.submarketAddr
   $scope.user = user
+  $scope.stores = $scope.submarket.approvesAliases.approvedAliases.map((alias) => {
+    return new Store(alias)
+  })
 
   $scope.openSubmarketModal = function openSubmarketModal() {
     modals
       .openSubmarket($scope.submarket)
-      .result.then(() => {
-        $scope.submarket.update()
+      .result.then((submarket) => {
+        $scope.submarket = submarket
       })
   }
 

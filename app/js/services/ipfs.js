@@ -7,8 +7,14 @@ angular.module('app').service('ipfs', function ipfsService($q, utils) {
 
   this.upload = function upload(files) {
 
+    console.log('upload', files)
+
     if (!Array.isArray(files)) {
       return $q.reject(new Error('files should be an array'))
+    }
+
+    if (files.length === 0) {
+      return $q.fulfill([])
     }
 
     files.forEach((file) => {

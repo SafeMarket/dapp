@@ -2,75 +2,82 @@
     <h3 class="modal-title" ng-cloak>{{isEditing?'Edit':'Create a'}} Submarket</h3>
 </div>
 <div class="modal-body" id="submarket-modal-body">
-    <table class="table">
-        <tr>
-            <td>Alias</td>
-            <td>
-                <div class="input-group">
-                    <div class="input-group-addon">@</div>
-                    <input class="form-control" ng-model="alias" ng-disabled="isEditing" alias-input>
-                </div>
-                <div alias-validator="alias" ng-show="!isEditing"></div>
-            </td>
-        </tr>
-        <tr>
-            <td>Name</td>
-            <td>
-                <input type="text" ng-model="name" class="form-control">
-            </td>
-        </tr>
-        <tr>
-            <td>Currency</td>
-            <td>
-                <select type="text" ng-model="currency" class="form-control" ng-options="currency for currency in currencies"></select>
-            </td>
-        </tr>
-        <tr>
-            <td>Escrow Fee (Base)</td>
-            <td>
-                <div class="input-group">
-                    <input type="text" ng-model="escrowFeeBase" class="form-control" numeric-input coinage-input="currency">
-                    <div class="input-group-addon">{{currency}}</div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>Escrow Fee (Percentage) <span ng-cloak>{{escrowFeeCentiperun}}</span>%</td>
-            <td>
-                <input type="range" ng-model="escrowFeeCentiperun" class="form-control" min="0" max="10" step="1">
-            </td>
-        </tr>
-        <tr>
-            <td>Open for Business:</td>
-            <td>
-                <input type="checkbox" ng-model="isOpen">
-            </td>
-        </tr>
-        <tr>
-            <td>Info</td>
-            <td>
-                <textarea ng-model="info" class="form-control"></textarea>
-            </td>
-        </tr>      
-    </table>
-    <h3>Approved Stores <button class="btn btn-primary btn-xs" ng-click="stores.push({})">+</button></h3>
-    <table class="table">   
-        <tbody ng-repeat="store in stores">
+    <div ng-show="isSyncing" ng-cloak class="alert alert-info text-center">
+        <img src="images/balls.gif"> Syncing with blockchain, this might take a minute or two
+    </div>
+    <div ng-show="error && !isSyncing" ng-cloak class="alert alert-danger text-center">
+        {{error.message || error}}
+    </div>
+    <div ng-show="!isSyncing">
+        <table class="table">
             <tr>
                 <td>Alias</td>
                 <td>
                     <div class="input-group">
                         <div class="input-group-addon">@</div>
-                        <input class="form-control" ng-model="store.alias" alias-input>
-                        <div class="input-group-btn">
-                            <button class="btn btn-danger" type="button" ng-click="stores.splice($index,1)">X</button>
-                        </div>
+                        <input class="form-control" ng-model="alias" ng-disabled="isEditing" alias-input>
                     </div>
-                    <div alias-validator="store.alias" alias-type="store"></div>
+                    <div alias-validator="alias" ng-show="!isEditing"></div>
                 </td>
             </tr>
-        </tbody>
-    </table>
+            <tr>
+                <td>Name</td>
+                <td>
+                    <input type="text" ng-model="name" class="form-control">
+                </td>
+            </tr>
+            <tr>
+                <td>Currency</td>
+                <td>
+                    <select type="text" ng-model="currency" class="form-control" ng-options="currency for currency in currencies"></select>
+                </td>
+            </tr>
+            <tr>
+                <td>Escrow Fee (Base)</td>
+                <td>
+                    <div class="input-group">
+                        <input type="text" ng-model="escrowFeeBase" class="form-control" numeric-input coinage-input="currency">
+                        <div class="input-group-addon">{{currency}}</div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Escrow Fee (Percentage) <span ng-cloak>{{escrowFeeCentiperun}}</span>%</td>
+                <td>
+                    <input type="range" ng-model="escrowFeeCentiperun" class="form-control" min="0" max="10" step="1">
+                </td>
+            </tr>
+            <tr>
+                <td>Open for Business:</td>
+                <td>
+                    <input type="checkbox" ng-model="isOpen">
+                </td>
+            </tr>
+            <tr>
+                <td>Info</td>
+                <td>
+                    <textarea ng-model="info" class="form-control"></textarea>
+                </td>
+            </tr>      
+        </table>
+        <h3>Approved Stores <button class="btn btn-primary btn-xs" ng-click="stores.push({})">+</button></h3>
+        <table class="table">   
+            <tbody ng-repeat="store in stores">
+                <tr>
+                    <td>Alias</td>
+                    <td>
+                        <div class="input-group">
+                            <div class="input-group-addon">@</div>
+                            <input class="form-control" ng-model="store.alias" alias-input>
+                            <div class="input-group-btn">
+                                <button class="btn btn-danger" type="button" ng-click="stores.splice($index,1)">X</button>
+                            </div>
+                        </div>
+                        <div alias-validator="store.alias" alias-type="store"></div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 <div class="modal-footer">

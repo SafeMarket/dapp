@@ -44,6 +44,8 @@ angular.module('app').service('txMonitor', function txMonitorService($interval, 
 
   this.propose = function propose(label, contractFactoryOrFunction, args) {
 
+    console.log('propose', label)
+
     if (typeof label !== 'string') {
       throw new Error('Label should be a string')
     }

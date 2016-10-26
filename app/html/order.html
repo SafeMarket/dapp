@@ -5,6 +5,7 @@
 	<div class="alert alert-info text-center" ng-show="order.status>=3 && order.review.blockNumber.equals(0)">
 		<a ng-click="setReview()">Leave a review</a> for @{{order.store.addr | alias}}	
 	</div>
+	<!--
 	<div class="panel panel-default" ng-show="!order.review.blockNumber.equals(0)">
 		<div class="panel-heading"><h3 class="panel-title">My Review</h3></div>
 		<div class="panel-body">
@@ -15,6 +16,7 @@
 			<a class="btn btn-default pull-right" ng-click="setReview()">Edit</a>
 		</div>
 	</div>
+	-->
 	<table class="table">
 		<tr>
 			<td>Status</td>
@@ -165,6 +167,11 @@
 	<h3>Products</h3>
 	<table class="table">
 		<tr ng-repeat="product in order.products">
+			<td>
+				<div ng-repeat="img in product.imgs">
+					<img ipfs-img="img" class="product-image">
+				</div>
+			</td>
 			<td>
 				{{product.name}}
 			</td>
