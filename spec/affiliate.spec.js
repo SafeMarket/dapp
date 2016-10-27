@@ -1,15 +1,16 @@
-describe('store',function(){
+describe('affiliate',function(){
 
 it('should bootstrap',function(){
+
     browser.get('http://127.0.0.1:8000/#/affiliate');
 
     browser.wait(function() {
        return element(by.css('h1')).isDisplayed()
-    }, 1000);
+    });
 })
 
 it('should create an affiliate',function(){
-    element(by.css('[ng-click="openAffiliateModal()"]')).click()
+    element(by.css('#open-affiliate-modal-button')).click()
     browser.wait(function(){
         return element(by.css('#affiliate-modal-body')).isPresent()
     })

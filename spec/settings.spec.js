@@ -24,7 +24,7 @@ describe('modal',function(){
     })
 
     it('should be funded',function(){
-        expect(element(by.css('#balance [currency="USD"]')).getText()).toNotBe('0.00 USD')
+        expect(element(by.css('#balance [currency="USD"]')).getText()).not.toBe('0.00 USD')
     })
 
     it('should have the seed hidden',function(){
@@ -96,20 +96,17 @@ describe('modal',function(){
         expect(element(by.css('#balance [currency="USD"]')).getText()).toBe('0.00 USD')
     })
 
-    it('should transfer half of account2 to account1',function(){
+    it('should transfer $5000 of account2 to account1',function(){
         element(by.css('#account-select option:nth-child(2)')).click()
-        element(by.css('#balance [currency="USD"]')).getText().then(function(text){
-            var balance = (new BigNumber(text.split(' ')[0])).div(2).toFixed(2).toString()
-            element(by.css('#internalRecipient-select option:nth-child(1)')).click()
-            element(by.css('#amountType-select option:nth-child(2)')).click()
-            element(by.model('transferAmountInUserCurrency')).clear().sendKeys(balance.toString())
-            element(by.css('#transfer-button')).click()
-            element(by.css('#approve-button')).click()
-            waitForTx()
-            element(by.css('#account-select option:nth-child(1)')).click()
-            expect(element(by.css('#account')).getText()).toBe(account1)
-            expect(element(by.css('#balance [currency="USD"]')).getText()).toBe(balance+' USD')
-        })
+        element(by.css('#internalRecipient-select option:nth-child(1)')).click()
+        element(by.css('#amountType-select option:nth-child(2)')).click()
+        element(by.model('transferAmountInUserCurrency')).clear().sendKeys('5000')
+        element(by.css('#transfer-button')).click()
+        element(by.css('#approve-button')).click()
+        waitForTx()
+        element(by.css('#account-select option:nth-child(1)')).click()
+        expect(element(by.css('#account')).getText()).toBe(account1)
+        expect(element(by.css('#balance [currency="USD"]')).getText()).toBe("5,000.00 USD")
     })
 
     it('should display a no keypairs warning for account2',function(){

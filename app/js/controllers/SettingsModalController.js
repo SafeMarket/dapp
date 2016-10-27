@@ -113,7 +113,9 @@ angular.module('app').controller('SettingsModalController', ($scope, growl, user
       return growl.addErrorMessage('You are trying to send money to and from the same account')
     }
 
-    if (value <= 0) {
+    console.log(value)
+
+    if (value.lessThanOrEqualTo(0)) {
       return growl.addErrorMessage('Amount must be greater than 0')
     }
 

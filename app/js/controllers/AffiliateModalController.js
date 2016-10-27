@@ -1,6 +1,6 @@
 /* globals angular */
 
-angular.module('app').controller('AffiliateModalController', ($scope, user, affiliate, $modalInstance, Affiliate, AffiliateReg, utils, growl) => {
+angular.module('app').controller('AffiliateModalController', ($scope, user, affiliate, $modalInstance, Affiliate, AffiliateReg, utils, growl, constants) => {
 
   $scope.isEditing = !!affiliate
   $scope.code = affiliate ? affiliate.code : ''
@@ -40,7 +40,7 @@ angular.module('app').controller('AffiliateModalController', ($scope, user, affi
     }
 
     if (!$scope.isEditing) {
-      if (AffiliateReg.getIsCodeTaken($scope.code)) {
+      if (AffiliateReg.getAffiliateOwner($scope.code) !== constants.nullAddr) {
         growl.addErrorMessage(`The code "${$scope.code}"" is taken`)
         return
       }

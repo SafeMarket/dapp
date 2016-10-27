@@ -12,4 +12,5 @@ angular.module('app').service('ticker', function tickerService() {
   })
 
   this.prices = prices
+  console.log(this.prices)
 })

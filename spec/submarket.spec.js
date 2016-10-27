@@ -4,7 +4,7 @@ it('should bootstrap',function(){
     browser.get('http://127.0.0.1:8000');
 
     browser.wait(function() {
-       return element(by.css('h1')).isDisplayed()
+       return element(by.css('h1')).isPresent()
     }, 1000);
 })
 

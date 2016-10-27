@@ -1,3 +1,4 @@
+
 describe('auth',function(){
 
 it('should bootstrap',function(){
@@ -10,7 +11,7 @@ it('should bootstrap',function(){
 
 describe('account reset', function() {
 
-    it('should have a button in the settigns menu', function() {
+    it('should have a button in the settings menu', function() {
         element(by.css('[ng-click="openSettingsModal()"]')).click();
         var resetButtonPresence = element(by.css('[ng-click="reset()"]')).isPresent();
         expect(resetButtonPresence).toBe(true);
@@ -105,6 +106,8 @@ describe('registration', function() {
         expect(currency).toEqual('USD')
     })
 })
+
+return
 
 describe('logout/login',function(){
 
