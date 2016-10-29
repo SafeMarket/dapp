@@ -22,19 +22,17 @@ it('should create The Drink Submarket',function(){
 })
 
 it('should be added to my submarkets',function(){
-    browser.wait(function(){
-        return element(by.css('[ng-href*="#/submarkets/"]')).isPresent()
+    browser.wait(() => {
+        return element(by.css('#my-submarkets .alias')).isPresent()
     })
-    element(by.css('[ng-href*="#/submarkets/"]')).getText().then(function(text){
-        expect(text).toBe('@'+browser.params.submarketAlias)
-    })
+    expect(element(by.css('#my-submarkets .alias')).getText()).toBe('@'+browser.params.submarketAlias)
 })
 
 it('should be accessable via the aliasbar',function(){
     element(by.css('[ng-model="alias"]')).sendKeys(browser.params.submarketAlias)
     element(by.css('#aliasBar')).submit()
     element(by.css('h1')).getText().then(function(text){
-        expect(text.indexOf('The Drink Submarket')).toNotEqual(-1)
+        expect(text.indexOf('The Drink Submarket')).not.toEqual(-1)
     })
 })
 

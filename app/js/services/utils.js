@@ -480,6 +480,18 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     return hexify(`${web3.sha3(thingHex, { encoding: 'hex' })}`)
   }
 
+  function wait(){
+    console.log('start waiting')
+    const timeoutPromise = $timeout(() => {}, 100000000000)
+
+    return {
+      cancel: () => {
+        console.log('stop waiting')
+        $timeout.cancel(timeoutPromise)
+      }
+    }
+  }
+
   angular.merge(this, {
     sanitize,
     convertObjectToHex,
@@ -526,7 +538,8 @@ angular.module('app').service('utils', function utilsService(ticker, $q, $timeou
     decrypt,
     decryptToObject,
     sha3,
-    toBytes32
+    toBytes32,
+    wait
   })
 
 })

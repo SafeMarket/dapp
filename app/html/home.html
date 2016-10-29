@@ -15,7 +15,9 @@
 				<a ng-click="openStoreModal()" class="glyphicon glyphicon-plus"></a>
 				<a ng-click="openImportStoreModal()" class="glyphicon glyphicon-import"></a>
 			</h4>
-			<div ng-repeat="storeAddr in storeAddrs" alias="storeAddr">
+			<div id="my-stores">
+				<div ng-repeat="storeAddr in storeAddrs" alias="storeAddr">
+				</div>
 			</div>
 		</div>
 		<div class="col-sm-4">
@@ -24,7 +26,9 @@
 				<a ng-click="openSubmarketModal()" class="glyphicon glyphicon-plus"></a>
 				<a ng-click="openImportSubmarketModal()" class="glyphicon glyphicon-import"></a>
 			</h4>
-			<div ng-repeat="submarketAddr in submarketAddrs" alias="submarketAddr">
+			<div id="my-submarkets">
+				<div ng-repeat="submarketAddr in submarketAddrs" alias="submarketAddr">
+				</div>
 			</div>
 		</div>
 	</div>

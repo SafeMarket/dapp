@@ -7,7 +7,7 @@ angular.module('app').service('ipfs', function ipfsService($q, utils) {
 
   this.upload = function upload(files) {
 
-    console.log('upload', files)
+    const wait = utils.wait()
 
     if (!Array.isArray(files)) {
       return $q.reject(new Error('files should be an array'))
@@ -24,6 +24,7 @@ angular.module('app').service('ipfs', function ipfsService($q, utils) {
     })
 
     return this.api.add(files).then((results) => {
+      wait.cancel()
       return results.map((result, index) => {
         return result.hash
       })
@@ -36,7 +37,7 @@ angular.module('app').service('ipfs', function ipfsService($q, utils) {
   }
 
   this.fetch = function fetch(hash) {
-    console.log(hash)
+    const wait = utils.wait()
     const deferred = $q.defer()
     let data = ''
       this.api.get(hash).then((readable) => {
@@ -51,6 +52,7 @@ angular.module('app').service('ipfs', function ipfsService($q, utils) {
         })
         result.content.on('end', () => {
           deferred.resolve(data)
+          wait.cancel()
         })
       })
       
