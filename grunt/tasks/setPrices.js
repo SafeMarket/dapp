@@ -2,6 +2,7 @@ const Q = require('Q')
 const request = require('request')
 const BigNumber = require('bignumber.js')
 const fs = require('fs')
+const _ = require('lodash')
 
 module.exports = function exportSetPrices(grunt) {
   grunt.registerTask('set-prices', function setPrices() {
@@ -70,23 +71,13 @@ function getDoc(url) {
 }
 
 function getJson(url) {
-  const deferred = Q.defer()
-
-  getDoc(url).then((doc) => {
-    deferred.resolve(JSON.parse(doc))
-  }, (error) => {
-    deferred.reject(error)
+  return getDoc(url).then((doc) => {
+    return JSON.parse(doc)
   })
-
-  return deferred.promise
 }
 
 function getUsdPrice(symbol) {
-  const deferred = Q.defer()
-
-  getJson(`http://socket.coincap.io/page/${symbol}`).then((data) => {
-    deferred.resolve(new BigNumber(data.usdPrice))
+  return getJson(`https://api.coinmarketcap.com/v1/ticker/`).then((data) => {
+    return new BigNumber(_.find(data, { symbol }).price_usd)
   })
-
-  return deferred.promise
 }
