@@ -14,16 +14,26 @@ angular.module('app').service('modals', function modalsService($modal, utils) {
     modals.currentController = options.controller
     modals.currentModalInstance = $modal.open(options)
 
-    const waiter = utils.wait()
+    const dismisser = modals.currentModalInstance.dismiss
+
+    const openWaiter = utils.wait()
+    let closeWaiter
 
     modals.currentModalInstance.opened.then(() => {
       window.scrollTo(0, 1)
-      waiter.cancel()
+      openWaiter.cancel()
     })
+
+    modals.currentModalInstance.dismiss = function() {
+      closeWaiter = utils.wait()
+      dismisser.apply(this, arguments)
+    }
 
     modals.currentModalInstance.result.then(() => {
       modals.currentController = null
       modals.currentModalInstance = null
+    }).finally(() => {
+      closeWaiter.cancel()
     })
 
     return modals.currentModalInstance
