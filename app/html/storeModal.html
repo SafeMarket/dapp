@@ -1,7 +1,7 @@
 <div class="modal-header">
     <h3 class="modal-title" ng-cloak>{{isEditing?'Edit':'Create a'}} Store</h3>
 </div>
-<div class="modal-body" id="store-modal-body">
+<div class="modal-body" id="store-modal-modal-body">
     <div ng-show="isSyncing" ng-cloak class="alert alert-info text-center">
         <img src="images/balls.gif"> Syncing with blockchain, this might take a minute or two
     </div>
@@ -15,7 +15,7 @@
                 <td>
                     <div class="input-group">
                         <div class="input-group-addon">@</div>
-                        <input class="form-control" ng-model="alias" ng-disabled="isEditing" alias-input>
+                        <input class="form-control" ng-model="alias" ng-disabled="isEditing" alias-input id="store-modal-alias">
                     </div>
                     <div alias-validator="alias" ng-show="!isEditing"></div>
                 </td>
@@ -23,7 +23,7 @@
             <tr>
                 <td>Store Name</td>
                 <td>
-                    <input type="text" ng-model="name" class="form-control">
+                    <input type="text" ng-model="name" class="form-control" id="store-modal-name">
                 </td>
             </tr>
             <tr>
@@ -71,7 +71,7 @@
                 <td>Info
                 </td>
                 <td>
-                    <textarea class="form-control" ng-model="info"></textarea>
+                    <textarea class="form-control" ng-model="info" id="store-modal-info"></textarea>
                 </td>
             </tr>
             <tr>
@@ -145,7 +145,7 @@
                 </tr>
             </tbody>
             <tr><td colspan="2" class="text-right">
-                <button class="btn btn-primary btn-xs" ng-click="addProduct()">+</button>
+                <button class="btn btn-primary btn-xs" ng-click="addProduct()" id="add-product-button">+</button>
             </td></tr>
         </table>
         <h3>Transport Options</h3>
@@ -187,7 +187,7 @@
                 </tr>
             </tbody>
             <tr><td colspan="2" class="text-right">
-                <button class="btn btn-primary btn-xs" ng-click="addTransport()">+</button>
+                <button class="btn btn-primary btn-xs" ng-click="addTransport()" id="add-transport-button">+</button>
             </td></tr>
         </table>
         <h3>Approved Submarkets</h3>
@@ -208,13 +208,13 @@
                 </tr>
             </tbody>
             <tr>
-                <td colspan="2" class="text-right"><button class="btn btn-primary btn-xs" ng-click="submarkets.push({})">+</button></td>
+                <td colspan="2" class="text-right"><button class="btn btn-primary btn-xs" ng-click="submarkets.push({})" id="add-submarket-button">+</button></td>
             </tr>
         </table>
         </div>
     </div>
 </div>
 <div class="modal-footer" ng-show="!isSyncing">
-    <button class="btn btn-primary" type="button" ng-click="submit()">OK</button>
+    <button class="btn btn-primary" type="button" ng-click="submit()" id="submit-button">OK</button>
     <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
 </div>

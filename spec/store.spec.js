@@ -9,30 +9,26 @@ it('should bootstrap',function(){
 })
 
 it('should create Satoshis Lemonade Stand',function(){
-    element(by.css('[ng-click="openStoreModal()"]')).click()
-    browser.wait(function(){
-        return element(by.css('#store-modal-body')).isPresent()
-    })
+    element(by.id('open-store-modal-button')).click()
     browser.waitForAngular()
-    element(by.css('.modal-body [ng-model="alias"]')).sendKeys(browser.params.storeAlias)
-    element(by.css('[ng-model="name"]')).sendKeys('Satoshis Lemonade Stand')
-    element(by.css('[ng-model="info"]')).sendKeys('The best lemonade on the interweb')
-    // element(by.css('[ng-click="addProduct()"]')).click(0)
-    // element.all(by.css('[ng-model="product.name"]')).get(0).sendKeys('Lemonade')
-    // element.all(by.css('[ng-model="product.price"]')).get(0).sendKeys('0.50')
-    // element.all(by.css('[ng-model="product.info"]')).get(0).sendKeys('A quenching treat!')
-    // element(by.css('[ng-click="addProduct()"]')).click(0)
-    // element.all(by.css('[ng-model="product.name"]')).get(1).sendKeys('Sugar Cookies')
-    // element.all(by.css('[ng-model="product.price"]')).get(1).sendKeys('1.50')
-    // element.all(by.css('[ng-model="product.info"]')).get(1).sendKeys('A tasty snack!')
-    // element.all(by.css('[ng-model="product.imageUrl"]')).get(1).sendKeys('http://i.imgur.com/CAck7Ox.jpg')
-    // element(by.css('[ng-click="addTransport()"]')).click(0)
-    // element.all(by.css('[ng-model="transport.type"]')).get(0).sendKeys('Basic')
-    // element.all(by.css('[ng-model="transport.price"]')).get(0).sendKeys('1.00')
-    // element(by.css('[ng-click="addSubmarket()"]')).click(0)
-    element.all(by.css('[ng-model="submarket.alias"]')).get(0).sendKeys(browser.params.submarketAlias)
-    element(by.css('[ng-click="submit()"]')).click()
-    element(by.css('[ng-click="approve()"]')).click()
+    element(by.id('store-modal-alias')).sendKeys(browser.params.storeAlias)
+    element(by.id('store-modal-name')).sendKeys('Satoshis Lemonade Stand')
+    element(by.id('store-modal-info')).sendKeys('The best lemonade on the interweb')
+    element(by.id('add-product-button')).click(0)
+    element.all(by.model('product.name')).get(0).sendKeys('Lemonade')
+    element.all(by.model('product.price')).get(0).sendKeys('0.50')
+    element.all(by.model('product.info')).get(0).sendKeys('A quenching treat!')
+    element(by.id('add-product-button')).click(0)
+    element.all(by.model('product.name')).get(1).sendKeys('Sugar Cookies')
+    element.all(by.model('product.price')).get(1).sendKeys('1.50')
+    element.all(by.model('product.info')).get(1).sendKeys('A tasty snack!')
+    element(by.id('add-transport-button')).click(0)
+    element.all(by.model('transport.name')).get(0).sendKeys('Basic')
+    element.all(by.model('transport.price')).get(0).sendKeys('1.00')
+    element(by.id('add-submarket-button')).click(0)
+    element.all(by.model('submarket.alias')).get(0).sendKeys(browser.params.submarketAlias)
+    element(by.id('submit-button')).click()
+    element(by.id('approve-button')).click()
 })
 
 it('add the store to my stores',function(){
@@ -48,39 +44,18 @@ it('should be accessable via the aliasbar',function(){
     element(by.css('[ng-model="alias"]')).sendKeys(browser.params.storeAlias)
     element(by.css('#aliasBar')).submit()
     element(by.css('h1')).getText().then(function(text){
-        expect(text.indexOf('Satoshis Lemonade Stand')).toNotEqual(-1)
+        expect(text.indexOf('Satoshis Lemonade Stand')).not.toEqual(-1)
     })
 })
 
 it('should update to Satoshis Awesome Lemonade Stand Edited',function(){
     browser.waitForAngular()
-    element(by.css('[ng-click="openStoreModal(store)"]')).click()
-    var currentController = browser.executeScript("return angular.element(document.getElementById('app')).injector().get('modals').currentController")
-    expect(currentController).toBe('StoreModalController')
+    element(by.id('open-store-modal-button')).click()
     browser.waitForAngular()
-    browser.wait(function() {
-        var deferred = protractor.promise.defer();
-        element(by.css('.modal-body')).isPresent()
-            .then(function (isPresent) {
-              deferred.fulfill(isPresent);
-        });
-        return deferred.promise;
-    });
-
-    element(by.css('[ng-model="name"]')).sendKeys(' Edited')
-    element(by.css('[ng-click="submit()"]')).click()
-    element(by.css('[ng-click="approve()"]')).click()
-    browser.waitForAngular()
-    browser.wait(function(){
-        var deferred = protractor.promise.defer();
-        element(by.css('#name'))
-            .getText()
-            .then(function (text) {
-              deferred.fulfill(text=='Satoshis Lemonade Stand Edited');
-            });
-        return deferred.promise;
-    })
-    expect(element(by.css('#name')).getText()).toEqual('Satoshis Lemonade Stand Edited')
+    element(by.id('store-modal-name')).sendKeys(' Edited')
+    element(by.id('submit-button')).click()
+    element(by.id('approve-button')).click()
+    expect(element(by.id('name')).getText()).toEqual('Satoshis Lemonade Stand Edited')
 })
 
 it('should not show any images',function(){
@@ -112,7 +87,7 @@ it('should create an order',function(){
         })
 
         element(by.css('h1')).getText().then(function(text){
-            expect(text.indexOf('Order')).toNotEqual(-1)
+            expect(text.indexOf('Order')).not.toEqual(-1)
         })
     })
 

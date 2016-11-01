@@ -66,14 +66,15 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
   $scope.addProduct = function addProduct() {
     $scope.products.push({
       units: web3.toBigNumber(1),
-      imgs: []
+      imgs: [],
+      isActive: true
     })
 
     console.log($scope.products)
   }
 
   $scope.addTransport = function addTransport() {
-    $scope.transports.push({ isGlobal: true, to: 'US' })
+    $scope.transports.push({ isGlobal: true, to: 'US', isActive: true })
   }
 
   $scope.submit = function submit() {

@@ -1,6 +1,6 @@
 /* globals angular, web3, IpfsApi, bs58, Unixfs, DagNode */
 
-angular.module('app').service('ipfs', function ipfsService($q, utils) {
+angular.module('app').service('ipfs', function ipfsService($q, utils, growl) {
 
   this.api = IpfsApi('ipfs.infura.io', '5001', { protocol: 'https' })
 
@@ -23,8 +23,11 @@ angular.module('app').service('ipfs', function ipfsService($q, utils) {
       }
     })
 
+    growl.addInfoMessage('Uploading '+files.length+' files to IPFS')
+
     return this.api.add(files).then((results) => {
       wait.cancel()
+      growl.addSuccessMessage('Upload to IPFS complete!')
       return results.map((result, index) => {
         return result.hash
       })

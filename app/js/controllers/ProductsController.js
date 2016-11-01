@@ -4,8 +4,6 @@ angular.module('app').controller('ProductsController', ($scope, $filter, utils, 
 
   const currency = $scope.store.currency
 
-  $scope.safemarketFeeMilliperun = orderReg.contract.safemarketFeeMilliperun()
-
   const noSubmarketOption = {
     addr: constants.nullAddr,
     label: 'No escrow (Free)',

@@ -1,6 +1,6 @@
 /* globals angular, web3 */
 
-angular.module('app').service('txMonitor', function txMonitorService($interval, $modal, $q) {
+angular.module('app').service('txMonitor', function txMonitorService($interval, $modal, $q, utils) {
 
   const txMonitor = this
   let waitInterval
@@ -8,6 +8,8 @@ angular.module('app').service('txMonitor', function txMonitorService($interval, 
   this.txs = []
 
   this.waitForTx = function waitForTx(hex) {
+
+    const wait = utils.wait()
     const deferred = $q.defer()
 
     waitInterval = $interval(() => {
@@ -17,6 +19,7 @@ angular.module('app').service('txMonitor', function txMonitorService($interval, 
       if (receipt) {
         $interval.cancel(waitInterval)
         deferred.resolve(receipt)
+        wait.cancel()
       }
 
     }, 1000)

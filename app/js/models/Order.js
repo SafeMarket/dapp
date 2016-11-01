@@ -27,7 +27,7 @@ angular.module('app').factory('Order', (utils, ticker, $q, Store, Submarket, Key
     txMonitor.propose(
       'Create a New Order',
       orderReg.contract.create,
-      [buyer, storeAddr, submarketAddr, affiliate, bounty, productIndexes, productQuantities, transportIndex, orderTotal, { value: value }]
+      [buyer, storeAddr, submarketAddr, affiliate, productIndexes, productQuantities, transportIndex, orderTotal, { value: value }]
     ).then((txReciept) => {
       const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
       deferred.resolve(new Order(contractAddress))

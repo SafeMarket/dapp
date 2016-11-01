@@ -1,9 +1,10 @@
 /* globals angular, web3, _ */
 
-angular.module('app').controller('StoreController', ($scope, $filter, $state, utils, Store, Submarket, user, $stateParams, modals, growl, helpers, constants) => {
+angular.module('app').controller('StoreController', ($scope, $filter, $state, utils, Store, Submarket, user, $stateParams, modals, growl, helpers, constants, orderReg) => {
 
   $scope.storeAddr = $stateParams.storeAddr
   $scope.store = new Store($stateParams.storeAddr)
+  $scope.safemarketFeeMilliperun = orderReg.contract.safemarketFeeMilliperun()
 
   $scope.tabs = [
     { heading: 'About', route: 'store.about', active: false },

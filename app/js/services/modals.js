@@ -1,6 +1,6 @@
 /* globals angular */
 
-angular.module('app').service('modals', function modalsService($modal) {
+angular.module('app').service('modals', function modalsService($modal, utils) {
 
   const modals = this
 
@@ -9,11 +9,16 @@ angular.module('app').service('modals', function modalsService($modal) {
 
   function openModal(options) {
 
+    options.animation = false
+
     modals.currentController = options.controller
     modals.currentModalInstance = $modal.open(options)
 
+    const waiter = utils.wait()
+
     modals.currentModalInstance.opened.then(() => {
       window.scrollTo(0, 1)
+      waiter.cancel()
     })
 
     modals.currentModalInstance.result.then(() => {

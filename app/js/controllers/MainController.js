@@ -1,6 +1,6 @@
 /* globals angular */
 
-angular.module('app').controller('MainController', ($scope, $timeout, $rootScope, modals, user) => {
+angular.module('app').controller('MainController', ($scope, $timeout, $rootScope, modals, user, orderReg) => {
 
   $scope.goBack = function goBack() {
     window.history.back()
