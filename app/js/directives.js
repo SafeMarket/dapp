@@ -379,10 +379,8 @@ angular.module('app').directive('productImgUpload', (ipfs, growl) => {
       element.bind('change', (changeEvent) => {
         const reader = new FileReader()
         reader.onload = function (loadEvent) {
-          growl.addInfoMessage('Uploading image to IPFS')
           const imgData = Buffer.from(loadEvent.target.result)
           ipfs.upload([imgData]).then((mutlihashes) => {
-            growl.addSuccessMessage('Upload successful!')
             scope.product.imgs.push(mutlihashes[0])
           }, (err) => {
             console.log(err)

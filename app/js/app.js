@@ -15,7 +15,7 @@ const app = angular.module('app', [
 
 app.config((growlProvider, $stateProvider, $urlRouterProvider) => {
 
-  growlProvider.globalTimeToLive(3000)
+  growlProvider.globalTimeToLive(1000)
   growlProvider.onlyUniqueMessages(false)
 
   $stateProvider

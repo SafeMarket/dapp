@@ -1,3 +1,5 @@
+const path = require('path')
+
 describe('store',function(){
 
 it('should bootstrap',function(){
@@ -18,10 +20,13 @@ it('should create Satoshis Lemonade Stand',function(){
     element.all(by.model('product.name')).get(0).sendKeys('Lemonade')
     element.all(by.model('product.price')).get(0).sendKeys('0.50')
     element.all(by.model('product.info')).get(0).sendKeys('A quenching treat!')
+    element.all(by.css('[product-img-upload]')).get(0).sendKeys(path.resolve(__dirname, 'img/lemonade.jpg'))
     element(by.id('add-product-button')).click(0)
     element.all(by.model('product.name')).get(1).sendKeys('Sugar Cookies')
     element.all(by.model('product.price')).get(1).sendKeys('1.50')
     element.all(by.model('product.info')).get(1).sendKeys('A tasty snack!')
+    element.all(by.css('[product-img-upload]')).get(1).sendKeys(path.resolve(__dirname, 'img/sugar-cookies.jpg'))
+    element.all(by.css('[product-img-upload]')).get(1).sendKeys(path.resolve(__dirname, 'img/sugar-cookies.1.jpg'))
     element(by.id('add-transport-button')).click(0)
     element.all(by.model('transport.name')).get(0).sendKeys('Basic')
     element.all(by.model('transport.price')).get(0).sendKeys('1.00')
@@ -55,40 +60,37 @@ it('should update to Satoshis Awesome Lemonade Stand Edited',function(){
     element(by.id('store-modal-name')).sendKeys(' Edited')
     element(by.id('submit-button')).click()
     element(by.id('approve-button')).click()
+    browser.waitForAngular()
     expect(element(by.id('name')).getText()).toEqual('Satoshis Lemonade Stand Edited')
 })
 
-// it('should not show any images',function(){
-//     element(by.css('li[heading|="Products"] a')).click()
+it('should navigate to the products page', () => {
+    element.all(by.css('.nav a')).get(1).click()
+})
 
-//     element(by.css('.product-image')).getSize().then(function(size){
-//         expect(size.height).toBe(0)
-//         expect(size.width).toBe(0)
-//     })
-// })
+it('should have 3 images',function(){
+    expect(element.all(by.css('.product-image')).count()).toBe(3)
+})
 
 it('should create an order',function(){
-    var url = browser.getCurrentUrl().then(function(url){
-        browser.get(url.replace('/about','/products'))
 
-        var productInputs = element.all(by.model('product.quantity'))
-        productInputs.get(0).sendKeys('1')
-        productInputs.get(1).sendKeys('2')
+    var productInputs = element.all(by.model('product.quantity'))
+    productInputs.get(0).sendKeys('1')
+    productInputs.get(1).sendKeys('2')
 
-        element(by.css('#escrow-select option:nth-child(2)')).click()
+    element(by.css('#escrow-select option:nth-child(2)')).click()
 
-        element(by.model('affiliateCodeOrAlias')).sendKeys(browser.params.affiliateCode)
+    element(by.model('affiliateCodeOrAlias')).sendKeys(browser.params.affiliateCode)
 
-        element(by.id('create-order-button')).click()
-        element(by.id('approve-button')).click()
+    element(by.id('create-order-button')).click()
+    element(by.id('approve-button')).click()
 
-        browser.wait(function(){
-            return element(by.css('#order')).isPresent()
-        })
+    browser.wait(function(){
+        return element(by.css('#order')).isPresent()
+    })
 
-        element(by.css('h1')).getText().then(function(text){
-            expect(text.indexOf('Order')).not.toEqual(-1)
-        })
+    element(by.css('h1')).getText().then(function(text){
+        expect(text.indexOf('Order')).not.toEqual(-1)
     })
 
 })

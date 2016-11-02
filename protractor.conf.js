@@ -41,3 +41,5 @@ exports.config = {
 	}]
 
 }
+
+console.log(exports.config.params)
