@@ -58,14 +58,14 @@ it('should update to Satoshis Awesome Lemonade Stand Edited',function(){
     expect(element(by.id('name')).getText()).toEqual('Satoshis Lemonade Stand Edited')
 })
 
-it('should not show any images',function(){
-    element(by.css('li[heading|="Products"] a')).click()
+// it('should not show any images',function(){
+//     element(by.css('li[heading|="Products"] a')).click()
 
-    element(by.css('.product-image')).getSize().then(function(size){
-        expect(size.height).toBe(0)
-        expect(size.width).toBe(0)
-    })
-})
+//     element(by.css('.product-image')).getSize().then(function(size){
+//         expect(size.height).toBe(0)
+//         expect(size.width).toBe(0)
+//     })
+// })
 
 it('should create an order',function(){
     var url = browser.getCurrentUrl().then(function(url){
@@ -79,8 +79,8 @@ it('should create an order',function(){
 
         element(by.model('affiliateCodeOrAlias')).sendKeys(browser.params.affiliateCode)
 
-        element(by.css('[ng-click="createOrder()"]')).click()
-        element(by.css('[ng-click="approve()"]')).click()
+        element(by.id('create-order-button')).click()
+        element(by.id('approve-button')).click()
 
         browser.wait(function(){
             return element(by.css('#order')).isPresent()

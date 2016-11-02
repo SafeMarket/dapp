@@ -45,7 +45,7 @@ angular.module('app').controller('SubmarketModalController', ($scope, ticker, gr
     }
 
     const escrowFeeTerabase = $scope.escrowFeeBase.in($scope.currency).times(constants.tera)
-    const approvedAliases = $scope.stores.map((store) => {return utils.toBytes32(store.alias)})
+    const approvedAliases = $scope.stores.map((store) => { return store.alias })
 
     if (submarket) {
 

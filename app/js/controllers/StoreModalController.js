@@ -95,7 +95,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
 
     const minProductsTeratotal = $scope.minProductsTotal.in($scope.currency).times(constants.tera)
     const affiliateFeeCentiperun = web3.toBigNumber($scope.affiliateFeeCentiperun)
-    const approvedAliases = $scope.submarkets.map((submarket) => { return utils.toBytes32(submarket.alias) })
+    const approvedAliases = $scope.submarkets.map((submarket) => { return submarket.alias })
 
     if (store) {
 
@@ -105,7 +105,7 @@ angular.module('app').controller('StoreModalController', ($scope, $filter, utils
         bufferCentiperun: web3.toBigNumber($scope.bufferCentiperun).toNumber(),
         disputeSeconds: (web3.toBigNumber($scope.disputeSeconds)).toNumber(),
         minProductsTeratotal,
-        affiliateFeeCentiperun
+        affiliateFeeCentiperun,
       }, meta, $scope.products, $scope.transports, approvedAliases).then(() => {
         store.update().then(() => {
           $modalInstance.close(store)

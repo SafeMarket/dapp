@@ -1,6 +1,6 @@
 /* globals angular, web3, _ */
 
-angular.module('app').controller('ProductsController', ($scope, $filter, utils, Submarket, helpers, growl, user, Order, constants, Coinage, orderReg) => {
+angular.module('app').controller('ProductsController', ($scope, $filter, utils, Submarket, helpers, growl, user, Order, constants, Coinage, orderReg, Affiliate) => {
 
   const currency = $scope.store.currency
 
@@ -60,7 +60,7 @@ angular.module('app').controller('ProductsController', ($scope, $filter, utils, 
     const buyer = user.getAccount()
     const storeAddr = $scope.store.addr
     const submarketAddr = $scope.submarketOption.addr
-    const affiliate = utils.getAffiliate($scope.affiliateCodeOrAlias) || constants.nullAddr
+    const affiliate = $scope.affiliateCodeOrAlias ? new Affiliate($scope.affiliateCodeOrAlias).coinbase : constants.nullAddr
 
     if ($scope.affiliateCodeOrAlias && affiliate === constants.nullAddr) {
       growl.addErrorMessage(`${$scope.affiliateCodeOrAlias} is not a valid affiliate`)

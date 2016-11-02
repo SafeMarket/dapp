@@ -91,7 +91,7 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
           aliasHex,
           productParams,
           transportParams,
-          approvedAliases
+          approvedAliases.map(utils.toBytes32)
         ]
       ).then((txReciept) => {
         const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
@@ -102,6 +102,8 @@ angular.module('app').factory('Store', ($q, utils, ticker, Key, txMonitor, Alias
   }
 
   Store.prototype.set = function setStore(infospheredData, meta, productsData, transportsData, approvedAliases) {
+
+    console.log('approvedAliases', approvedAliases)
 
     const file = utils.convertObjectToBuffer(meta)
     const fileHash = utils.convertMultihashToBytes32Hex(ipfs.hash(file))

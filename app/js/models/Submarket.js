@@ -47,7 +47,7 @@ angular.module('app').factory('Submarket', (utils, ticker, $q, Key, Forum, txMon
           escrowFeeCentiperun,
           fileHash,
           aliasHex,
-          approvedAliases
+          approvedAliases.map(utils.toBytes32)
         ]
       ).then((txReciept) => {
         const contractAddress = utils.getContractAddressFromTxReceipt(txReciept)
