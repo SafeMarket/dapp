@@ -2,7 +2,7 @@
 	<table class="table">
 		<tr ng-repeat="product in products">
 			<td>
-				<div ng-repeat="img in product.imgs">
+				<div ng-repeat="img in product.imgs track by $index">
 					<img ipfs-img="img" class="product-image">
 				</div>
 			</td>
